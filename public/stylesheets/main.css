@@ -34,7 +34,9 @@ h1, h2, h3, h4, h5, h6, .text-serif {
 }
 
 .button.large {
+    padding: .75em 1em;
     font-size: 1.10rem;
+    border-radius: 4px;
 }
 
 /* Top bar */
@@ -53,7 +55,7 @@ h1, h2, h3, h4, h5, h6, .text-serif {
 }
 
 .top-bar, .top-bar a {
-    color: #fff;
+    color: white;
 }
 
 .top-bar a {
@@ -64,4 +66,36 @@ h1, h2, h3, h4, h5, h6, .text-serif {
 
 .top-bar a:hover {
     border-bottom: 2px solid #b37216;
+}
+
+/* Content */
+
+.content-container {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+}
+
+/* Footer */
+
+footer {
+    padding-top: 1.2rem;
+    padding-bottom: 1.2rem;
+
+    background-color: #2a1f0d;
+    border-top: 3px solid #b37216;
+}
+
+footer, footer a {
+    color: white;
+}
+
+footer ul {
+    list-style-type: none;
+    margin-bottom: 0;
+}
+
+footer ul li {
+    display: inline;
+    padding-left: 1rem;
+    padding-right: 1rem;
 }

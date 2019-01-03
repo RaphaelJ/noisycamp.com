@@ -58,7 +58,9 @@
 
             <div class="top-bar-right">
                 <ul class="menu">
-                    <li><a href="#" class="button">Host a studio</a></li>
+                    <li>
+                        <a href="#" class="button">Host a studio</a>
+                    </li>
                     <li><a href="#">Sign up</a></li>
                     <li><a href="#">Log in</a></li>
                 </ul>
@@ -67,9 +69,31 @@
 
         @content
 
+        <footer class="grid-x grid-padding-x">
+            <div class="cell small-6 text-left">
+                <ul>
+                    <li>
+                        © 2019 <span class="text-serif">NoisyCamp</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="cell small-6 text-right">
+                <ul>
+                    <li>Terms of Service</li>
+                    <li>Privacy</li>
+                    <li>
+                        <a href="https://github.com/RaphaelJ/noisycamp.com">
+                            Sources
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </footer>
+
         <script src="@routes.Assets.versioned("javascripts/vendor/jquery.js")"></script>
         <script src="@routes.Assets.versioned("javascripts/vendor/what-input.js")"></script>
-        <script src="@routes.Assets.versioned("javascripts/vendor/foundation.js")"></script>
+        <script src="@routes.Assets.versioned("javascripts/vendor/foundation.min.js")"></script>
         @javascript
     </body>
 </html>
