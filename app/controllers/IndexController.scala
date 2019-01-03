@@ -15,53 +15,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/* General */
+package controllers
 
-body {
-    font-family: 'Source Sans Pro', sans-serif;
-    background-color: #edeae4;
-}
+import javax.inject._
+import play.api._
+import play.api.mvc._
 
-h1, h2, h3, h4, h5, h6, .text-serif {
-    font-family: 'Playfair Display', serif;
-}
+@Singleton
+class IndexController @Inject()(cc: ControllerComponents) extends AbstractController(cc) {
 
-/* Buttons and forms */
-
-.button {
-    background-color: #b37216;
-    border-radius: 2px;
-}
-
-.button.large {
-    font-size: 1.10rem;
-}
-
-/* Top bar */
-
-.top-bar, .top-bar ul {
-    background-color: #2a1f0d;
-}
-
-.top-bar {
-    border-bottom: 3px solid #b37216;
-}
-
-.top-bar .logo {
-    font-size: 1.2em;
-    font-family: 'Playfair Display', serif;
-}
-
-.top-bar, .top-bar a {
-    color: #fff;
-}
-
-.top-bar a {
-    margin-left: 5px;
-    margin-right: 5px;
-    border-bottom: 2px solid transparent;
-}
-
-.top-bar a:hover {
-    border-bottom: 2px solid #b37216;
+  def index() = Action { implicit request: Request[AnyContent] =>
+    Ok(views.html.index())
+  }
 }

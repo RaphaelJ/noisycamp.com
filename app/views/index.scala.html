@@ -1,5 +1,74 @@
+@* Noisycamp is a platform for booking music studios.
+ * Copyright (C) 2019  Raphael Javaux <raphaeljavaux@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *@
+
 @()
 
-@main("Welcome to Play") {
-  <h1>Welcome to Play!</h1>
+@head = {
+    <link
+        rel="stylesheet"
+        href="@routes.Assets.versioned("stylesheets/index.css")">
+}
+
+@layout("Music and rehearsal studio rentals", head=head) {
+    <div class="hero-full-screen">
+        <div class="top-content-section">
+        </div>
+
+        <form class="middle-content-section">
+            <h3>Book a music or rehearsal studio.</h3>
+
+            <label>
+                Location
+                <input type="text">
+            </label>
+
+            <p class="help-text">
+                Or use your <a href="#">current location</a>.
+            </p>
+
+            <label>
+                Dates
+                <input type="text">
+            </label>
+
+            <div class="text-right">
+                <button type="submit" class="button large">
+                    <span class="fi-magnifying-glass"></span>&nbsp;
+                    Search
+                </button>
+            </div>
+        </form>
+
+        <div class="bottom-content-section">
+            <a href="#main-content-section">
+                <h5>
+                    Want to list your professional or personal studio?
+                </h5>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M24 12c0-6.627-5.373-12-12-12s-12 5.373-12 12 5.373 12 12 12 12-5.373 12-12zm-18.005-1.568l1.415-1.414 4.59 4.574 4.579-4.574 1.416 1.414-5.995 5.988-6.005-5.988z"/></svg>
+            </a>
+        </div>
+
+    </div>
+
+    <div id="grid-x grid-margin-x main-content-section">
+        <div class="cell small-12 text-center">
+            <h3>
+                List your studio and reach a community of thousand of musicians
+            </h3>
+        </div>
+    </div>
 }
