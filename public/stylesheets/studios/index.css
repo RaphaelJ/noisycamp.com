@@ -14,3 +14,36 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
+#map {
+    height: calc(100vh - 56px);
+}
+
+#map .studio-marker {
+    padding: 0.2rem 0.4rem;
+    cursor: pointer;
+
+    background-color: #2a1f0d;
+    opacity: 0.8;
+
+    font-size: 1.3em;
+    font-weight: 700;
+    color: white;
+
+}
+
+#map .studio-marker::after {
+    position: absolute;
+    content: "";
+    bottom: 100%;
+    left: 50%;
+    margin-left: -5px;
+
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent transparent #2a1f0d transparent;
+}
+
+#map .studio-marker:hover {
+    opacity: 1;
+}

@@ -14,3 +14,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
+package controllers
+
+import javax.inject._
+import play.api._
+import play.api.mvc._
+
+@Singleton
+class StudiosController @Inject()(cc: ControllerComponents)
+  extends AbstractController(cc) {
+
+  def index() = Action { implicit request: Request[AnyContent] =>
+    Ok(views.html.studios.index(sys.env("MAPBOX_TOKEN")))
+  }
+}
