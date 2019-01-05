@@ -19,6 +19,21 @@
     height: calc(100vh - 56px);
 }
 
+/* Creates a pseudo element with a box-shadow that recovers the entire map. */
+#map::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+
+    z-index: 10;
+    pointer-events: none;
+
+    box-shadow: inset 7px 0 9px -7px rgba(0, 0, 0, 0.2);
+}
+
 #map .studio-marker {
     padding: 0.2rem 0.4rem;
     cursor: pointer;
@@ -29,7 +44,6 @@
     font-size: 1.3em;
     font-weight: 700;
     color: white;
-
 }
 
 #map .studio-marker::after {
