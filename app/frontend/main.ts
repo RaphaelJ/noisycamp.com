@@ -1,4 +1,4 @@
-@* Noisycamp is a platform for booking music studios.
+/* Noisycamp is a platform for booking music studios.
  * Copyright (C) 2019  Raphael Javaux <raphaeljavaux@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,22 +13,13 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- *@
+ */
 
-@(mapboxToken: String)
+import Vue from 'vue';
 
-@head = {
-    <link
-        rel="stylesheet"
-        href="@routes.Assets.versioned("stylesheets/studios/index.css")">
+import StudiosIndex from './components/studios/Index.vue';
 
-    <link
-        rel="stylesheet"
-        href="https://api.mapbox.com/mapbox-gl-js/v0.52.0/mapbox-gl.css">
-}
-
-@layout("Find a music studio", head=head) {
-    <div id="nc-app">
-        <studios-index mapbox-token='@mapboxToken'></studios-index>
-    </div>
-}
+var ncApp = new Vue({
+    el: "#nc-app",
+    components: { StudiosIndex },
+});

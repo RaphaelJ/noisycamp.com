@@ -36,10 +36,13 @@ libraryDependencies ++= Seq(
 
 // Creates Webpack bundle when compiling, based on
 // https://github.com/wigahluk/play-webpack.
-val webpackBuild = taskKey[Unit]("Webpack build task.")
-webpackBuild := {
-  (Process("npm install", file("./app/frontend")) #&&
-  Process("npm run build", file("./app/frontend"))).!
-}
 
-(packageBin in Universal) := ((packageBin in Universal) dependsOn webpackBuild).value
+val webpackInstall = taskKey[Unit]("Webpack install task.")
+webpackInstall := { (Process("npm install", file("./app/frontend"))).! }
+
+// update := (update dependsOn webpackInstall).value
+
+val webpackBuild = taskKey[Unit]("Webpack build task.")
+webpackBuild := { (Process("npm run build", file("./app/frontend"))).! }
+
+// (Compile / compile) := ((Compile / compile) dependsOn webpackBuild).value
