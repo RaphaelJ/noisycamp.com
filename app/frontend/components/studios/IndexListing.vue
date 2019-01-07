@@ -17,16 +17,55 @@
 -->
 
 <template>
-    <h2>Results <span class="badge">{{ studios.length }}</span></h2>
+    <div>
+        <div class="grid-container section">
+            <div class="grid-x grid-padding-x">
+                <div class="medium-6 cell">
+                    <label>
+                        Location
+                        <location-input
+                            :mapbox-token="mapboxToken"
+                            default-location="Amsterdam">
+                        </location-input>
+                    </label>
+
+                    <p class="help-text">
+                        Or use your
+                        <a href="#">current location &nbsp;<i class="fi-marker"></i></a>
+                    </p>
+                </div>
+
+                <div class="medium-6 cell">
+                    <label>
+                        Dates
+                        <input type="text">
+                    </label>
+
+                    <p class="help-text">
+                        Will only show studios that are available on these days
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
 </template>
 
 <script lang="ts">
+import * as mbxGeocoding from '@mapbox/mapbox-sdk/services/geocoding';
+import * as _ from "lodash";
 import Vue from "vue";
+
+import LocationInput from '../widgets/LocationInput.vue'
 
 export default Vue.extend({
     props: {
-        'studios': Array
+        mapboxToken: { type: String, required: true },
+        studios: { type: Array, required: true }
     },
-    data() { },
+    data() {
+        return {
+        }
+    },
+    components: { LocationInput },
 });
 </script>

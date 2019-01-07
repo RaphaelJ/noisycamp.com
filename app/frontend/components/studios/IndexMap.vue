@@ -27,9 +27,10 @@ import * as mapboxgl from 'mapbox-gl';
 
 export default Vue.extend({
     props: {
-        'mapboxToken': String, 'studios': Array
+        mapboxToken: { type: String, required: true },
+        studios: { type: Array, required: true }
     },
-    data() { },
+    data() { return {} },
     mounted() {
         mapboxgl.accessToken = this.mapboxToken;
 

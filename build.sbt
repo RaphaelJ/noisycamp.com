@@ -43,6 +43,9 @@ webpackInstall := { (Process("npm install", file("./app/frontend"))).! }
 // update := (update dependsOn webpackInstall).value
 
 val webpackBuild = taskKey[Unit]("Webpack build task.")
-webpackBuild := { (Process("npm run build", file("./app/frontend"))).! }
+webpackBuild := { (Process("npm run build-dev", file("./app/frontend"))).! }
+
+val webpackBuildDev = taskKey[Unit]("Webpack build task, development mode.")
+webpackBuildDev := { (Process("npm run build-dev", file("./app/frontend"))).! }
 
 // (Compile / compile) := ((Compile / compile) dependsOn webpackBuild).value

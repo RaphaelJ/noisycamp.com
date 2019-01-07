@@ -19,12 +19,14 @@
 <template>
     <div class="grid-container-fluid">
         <div class="grid-x">
-            <div class="cell small-12 medium-7">
-                <studios-index-listing :studios="studios">
+            <div class="cell medium-12 large-7">
+                <studios-index-listing
+                    :mapbox-token="mapboxToken"
+                    :studios="studios">
                 </studios-index-listing>
             </div>
 
-            <div class="cell medium-5 hide-for-small-only">
+            <div class="cell large-5 show-for-large">
                 <studios-index-map
                     :mapbox-token="mapboxToken"
                     :studios="studios">
@@ -42,7 +44,7 @@ import StudiosIndexMap from './IndexMap.vue';
 
 export default Vue.extend({
     props: {
-        'mapboxToken': String,
+        mapboxToken: { type: String, required: true }
     },
     data() {
         return {

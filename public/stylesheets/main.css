@@ -73,6 +73,14 @@ h1, h2, h3, h4, h5, h6, .text-serif {
     border-bottom: 2px solid #b37216;
 }
 
+/* Content */
+
+.section {
+    background-color: rgba(0, 0, 0, 0.05);
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
 /* Footer */
 
 footer {
