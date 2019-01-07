@@ -42,7 +42,8 @@
                     </label>
 
                     <p class="help-text">
-                        Will only show studios that are available on these days
+                        Will only show studios that are available on at least
+                        one of these days
                     </p>
                 </div>
             </div>

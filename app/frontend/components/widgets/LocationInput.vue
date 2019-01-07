@@ -59,11 +59,11 @@ export default Vue.extend({
         let inputEl = this.$el.querySelector('input[type="text"]');
         let autocompleteEl = this.$el.querySelector('.location-autocomplete');
 
-        self = this
+        let component = this;
         this.clickEventListener = function(event) {
             let target = event.target;
             if (!autocompleteEl.contains(target) && target != inputEl) {
-                self.showAutocomplete = false;
+                component.showAutocomplete = false;
             }
         }
 
@@ -78,7 +78,7 @@ export default Vue.extend({
             this.geocodingClient
                 .forwardGeocode({
                     query: this.location,
-                    limit: 5,
+                    limit: 15,
                 })
                 .send()
                 .then(response => {
@@ -115,24 +115,37 @@ export default Vue.extend({
 <style>
 .location-input {
     position: relative;
-}
 
-.location-input input[type="text"] {
-
+    display: block;
 }
 
 .location-input .location-autocomplete {
     /* Position the autocomplete results below the input field. */
     position: absolute;
     top: 100%;
-    left: 0;
+    left: 1px;
+    right: 1px;
+
+    max-height: 300px;
+    overflow-y: auto;
 
     padding: 0;
     margin: 0;
+    border-radius: 0 0 3px 3px;
+    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
 
     z-index: 99;
 
-    background-color: grey;
-    border: 1px solid black;
+    list-style: none;
+}
+
+.location-input .location-autocomplete li {
+    background-color: white;
+    border-bottom: 1px solid #b372161a;
+    padding: 5px 10px;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 </style>
