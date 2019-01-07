@@ -44,6 +44,24 @@ h1, h2, h3, h4, h5, h6, .text-serif {
     margin-top: -.9rem;
 }
 
+[type="color"], [type="date"], [type="datetime-local"], [type="datetime"],
+[type="email"], [type="month"], [type="number"], [type="password"],
+[type="search"], [type="tel"], [type="text"], [type="time"], [type="url"],
+[type="week"], textarea {
+    border: 1px solid #8c612680;
+    border-radius: 3px;
+
+    box-shadow: none;
+}
+
+[type="color"]:focus, [type="date"]:focus, [type="datetime-local"]:focus,
+[type="datetime"]:focus, [type="email"]:focus, [type="month"]:focus,
+[type="number"]:focus, [type="password"]:focus,
+[type="search"]:focus, [type="tel"]:focus, [type="text"]:focus,
+[type="time"]:focus, [type="url"]:focus, [type="week"]:focus, textarea:focus {
+    border: 1px solid #b37216;
+}
+
 /* Top bar */
 
 .top-bar, .top-bar ul {
