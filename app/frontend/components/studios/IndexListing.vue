@@ -23,16 +23,9 @@
                 <div class="medium-6 cell">
                     <label>
                         Location
-                        <location-input
-                            :mapbox-token="mapboxToken"
-                            default-location="Amsterdam">
+                        <location-input :mapbox-token="mapboxToken">
                         </location-input>
                     </label>
-
-                    <p class="help-text">
-                        Or use your
-                        <a href="#">current location &nbsp;<i class="fi-marker"></i></a>
-                    </p>
                 </div>
 
                 <div class="medium-6 cell">

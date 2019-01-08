@@ -18,13 +18,28 @@
 
 <template>
     <span class="location-input">
-        <input type="text" v-model="location">
+        <input type="text" v-model="location" @focus="showAutocomplete = true">
         <ul
             class="location-autocomplete"
-            v-show="showAutocomplete && matches.length > 0">
+            v-show="showAutocomplete">
+
+            <li @click="setCurrentLocation()">
+                <i class="fi-marker"></i>&nbsp;&nbsp;
+
+                <span v-if="currentLocationError">
+                    Unable to retrieve your location
+                </span>
+                <span v-else>
+                    Current location
+                    <span v-if="currentLocation != null">
+                        ({{ currentLocation }})
+                    </span>
+                </span>
+            </li>
+
             <li
                 v-for="match in matches"
-                @click="setLocation(match)">
+                @click="setLocation(match.place_name)">
                 {{ match.place_name }}
             </li>
         </ul>
@@ -44,7 +59,12 @@ export default Vue.extend({
     data() {
         return {
             location: this.defaultLocation ? this.defaultLocation : '',
+
+            currentLocation: null,
+            currentLocationError: false,
+
             matches: [],
+
             // Will be set to true when the next change of the location <input>
             // field should be ignored.
             skipAutocomplete: false,
@@ -59,11 +79,11 @@ export default Vue.extend({
         let inputEl = this.$el.querySelector('input[type="text"]');
         let autocompleteEl = this.$el.querySelector('.location-autocomplete');
 
-        let component = this;
+        let compnt = this;
         this.clickEventListener = function(event) {
             let target = event.target;
             if (!autocompleteEl.contains(target) && target != inputEl) {
-                component.showAutocomplete = false;
+                compnt.showAutocomplete = false;
             }
         }
 
@@ -88,12 +108,52 @@ export default Vue.extend({
         }, 300),
 
         // Sets the location input value to the given Mapbox match.
-        setLocation(match) {
+        setLocation(place_name) {
             this.skipAutocomplete = true;
             this.matches = [];
             this.showAutocomplete = false;
 
-            this.location = match.place_name;
+            this.location = place_name;
+        },
+
+        setCurrentLocation() {
+            if (!navigator.geolocation) {
+                this.currentLocationError = true;
+                return;
+            }
+
+            let compnt = this;
+
+            function success(pos) {
+                compnt.currentLocationError = false;
+
+                compnt.geocodingClient
+                    .reverseGeocode({
+                        query: [pos.coords.longitude, pos.coords.latitude],
+                        limit: 1,
+                        types: [
+                            'country', 'region', 'district', 'place',
+                            'locality', 'neighborhood'
+                        ]
+                    })
+                    .send()
+                    .then(response => {
+                        if (response.body.features.length >= 0) {
+                            compnt.currentLocationError = false;
+                            compnt.currentLocation =
+                                response.body.features[0].place_name;
+                            compnt.setLocation(compnt.currentLocation);
+                        } else {
+                            compnt.currentLocationError = true;
+                        }
+                    });
+            }
+
+            function error() {
+                compnt.currentLocationError = true;
+            }
+
+            navigator.geolocation.getCurrentPosition(success, error);
         },
     },
     watch: {
@@ -133,6 +193,7 @@ export default Vue.extend({
     margin: 0;
     border-radius: 0 0 3px 3px;
     box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+    background-color: white;
 
     z-index: 99;
 
@@ -140,12 +201,21 @@ export default Vue.extend({
 }
 
 .location-input .location-autocomplete li {
-    background-color: white;
     border-bottom: 1px solid #b372161a;
     padding: 5px 10px;
 
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+
+    cursor: pointer;
+}
+
+.location-input .location-autocomplete li:hover {
+    background-color: #b3721620;
+}
+
+.location-input .location-autocomplete li.selected {
+    background-color: #b372164d;
 }
 </style>
