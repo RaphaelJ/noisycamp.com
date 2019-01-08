@@ -18,12 +18,21 @@
 
 <template>
     <span class="location-input">
-        <input type="text" v-model="location" @focus="showAutocomplete = true">
+        <input
+            type="text"
+            v-model="location"
+            @focus="showAutocomplete = true"
+            @keyup.enter="keyEnter()"
+            @keyup.down="keyDown()"
+            @keyup.up="keyUp()">
         <ul
             class="location-autocomplete"
             v-show="showAutocomplete">
 
-            <li @click="setCurrentLocation()">
+            <li
+                @click="setCurrentLocation()"
+                :class="{ selected: selected == 0 }">
+
                 <i class="fi-marker"></i>&nbsp;&nbsp;
 
                 <span v-if="currentLocationError">
@@ -32,14 +41,15 @@
                 <span v-else>
                     Current location
                     <span v-if="currentLocation != null">
-                        ({{ currentLocation }})
+                        ({{ currentLocation.place_name }})
                     </span>
                 </span>
             </li>
 
             <li
-                v-for="match in matches"
-                @click="setLocation(match.place_name)">
+                v-for="(match, index) in matches"
+                :class="{ selected: index + 1 == selected }"
+                @click="setLocation(match)">
                 {{ match.place_name }}
             </li>
         </ul>
@@ -69,6 +79,9 @@ export default Vue.extend({
             // field should be ignored.
             skipAutocomplete: false,
             showAutocomplete: false,
+
+            // The index of the autocomplete item that is currently selected.
+            selected: null,
         }
     },
     mounted() {
@@ -102,18 +115,24 @@ export default Vue.extend({
                 })
                 .send()
                 .then(response => {
+                    this.resetAutocomplete();
                     this.showAutocomplete = true;
                     this.matches = response.body.features;
                 });
         }, 300),
 
-        // Sets the location input value to the given Mapbox match.
-        setLocation(place_name) {
-            this.skipAutocomplete = true;
+        resetAutocomplete() {
             this.matches = [];
             this.showAutocomplete = false;
+            this.selected = null;
+        },
 
-            this.location = place_name;
+        // Sets the location input value to the given Mapbox match.
+        setLocation(place) {
+            this.skipAutocomplete = true;
+            this.resetAutocomplete();
+
+            this.location = place.place_name;
         },
 
         setCurrentLocation() {
@@ -123,6 +142,8 @@ export default Vue.extend({
             }
 
             let compnt = this;
+
+            console.log('ok');
 
             function success(pos) {
                 compnt.currentLocationError = false;
@@ -140,8 +161,8 @@ export default Vue.extend({
                     .then(response => {
                         if (response.body.features.length >= 0) {
                             compnt.currentLocationError = false;
-                            compnt.currentLocation =
-                                response.body.features[0].place_name;
+                            compnt.currentLocation = response.body.features[0];
+                            console.log(compnt.currentLocation);
                             compnt.setLocation(compnt.currentLocation);
                         } else {
                             compnt.currentLocationError = true;
@@ -155,6 +176,38 @@ export default Vue.extend({
 
             navigator.geolocation.getCurrentPosition(success, error);
         },
+
+        // Handles keyboard ↑, ↓ and ↩︎ events to navigate autocomplete.
+
+        keyEnter() {
+            if (this.selected == null) {
+                return;
+            } else if (this.selected == 0) {
+                this.setCurrentLocation();
+            } else {
+                this.setLocation(this.matches[this.selected - 1]);
+            }
+        },
+
+        keyDown() {
+            if (this.selected == null) {
+                this.selected = 0;
+            } else {
+                this.selected = Math.min(
+                    this.matches.length, this.selected + 1
+                );
+            }
+        },
+
+        keyUp() {
+            if (this.selected == null) {
+                return
+            } else if (this.selected == 0) {
+                this.selected = null;
+            } else {
+                this.selected = Math.max(0, this.selected - 1);
+            }
+        }
     },
     watch: {
         location: function(oldVal, newVal) {
