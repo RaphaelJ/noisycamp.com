@@ -64,11 +64,13 @@ import Vue from "vue";
 export default Vue.extend({
     props: {
         mapboxToken: { type: String, required: true },
-        defaultLocation: { type: String, required: false, default: '' },
+
+        // A GeoJSON feature that contains a `place_name` field.
+        value: { type: Object, required: false },
     },
     data() {
         return {
-            location: this.defaultLocation ? this.defaultLocation : '',
+            location: '',
 
             currentLocation: null,
             currentLocationError: false,
@@ -133,6 +135,7 @@ export default Vue.extend({
             this.resetAutocomplete();
 
             this.location = place.place_name;
+            this.$emit('input', place);
         },
 
         setCurrentLocation() {
@@ -142,8 +145,6 @@ export default Vue.extend({
             }
 
             let compnt = this;
-
-            console.log('ok');
 
             function success(pos) {
                 compnt.currentLocationError = false;
@@ -162,7 +163,6 @@ export default Vue.extend({
                         if (response.body.features.length >= 0) {
                             compnt.currentLocationError = false;
                             compnt.currentLocation = response.body.features[0];
-                            console.log(compnt.currentLocation);
                             compnt.setLocation(compnt.currentLocation);
                         } else {
                             compnt.currentLocationError = true;
@@ -210,7 +210,7 @@ export default Vue.extend({
         }
     },
     watch: {
-        location: function(oldVal, newVal) {
+        location(newVal, oldVal) {
             if (this.skipAutocomplete) {
                 this.skipAutocomplete = false;
                 return;

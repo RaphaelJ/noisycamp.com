@@ -18,29 +18,7 @@
 
 <template>
     <div>
-        <div class="grid-container section">
-            <div class="grid-x grid-padding-x">
-                <div class="medium-6 cell">
-                    <label>
-                        Location
-                        <location-input :mapbox-token="mapboxToken">
-                        </location-input>
-                    </label>
-                </div>
-
-                <div class="medium-6 cell">
-                    <label>
-                        Dates
-                        <input type="text">
-                    </label>
-
-                    <p class="help-text">
-                        Will only list studios that are available on at least
-                        one of these days
-                    </p>
-                </div>
-            </div>
-        </div>
+        <h4>{{ studios.length }} results</h4>
     </div>
 </template>
 
@@ -49,17 +27,15 @@ import * as mbxGeocoding from '@mapbox/mapbox-sdk/services/geocoding';
 import * as _ from "lodash";
 import Vue from "vue";
 
-import LocationInput from '../widgets/LocationInput.vue'
-
 export default Vue.extend({
     props: {
-        mapboxToken: { type: String, required: true },
         studios: { type: Array, required: true }
     },
     data() {
         return {
+            location: null
         }
     },
-    components: { LocationInput },
+    components: { },
 });
 </script>

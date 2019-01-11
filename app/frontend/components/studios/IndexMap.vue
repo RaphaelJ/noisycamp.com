@@ -17,36 +17,41 @@
 -->
 
 <template>
-    <div class="map"></div>
+    <div ref="map" class="map"></div>
 </template>
 
 <script lang="ts">
-import Vue from "vue";
-
 import * as mapboxgl from 'mapbox-gl';
+import Vue, { PropOptions } from "vue";
 
 export default Vue.extend({
     props: {
         mapboxToken: { type: String, required: true },
-        studios: { type: Array, required: true }
+        studios: <PropOptions<Object[]>>{ type: Array, required: true },
     },
-    data() { return {} },
+    data() {
+        return {
+        }
+    },
     mounted() {
         mapboxgl.accessToken = this.mapboxToken;
 
-        var map = new mapboxgl.Map({
-            container: this.$el,
+        this.map = new mapboxgl.Map({
+            container: this.$refs.map,
             style: 'mapbox://styles/mapbox/streets-v10',
             center: [4.9036, 52.3680], // starting position
             zoom: 10, // starting zoom
         });
 
-        map.addControl(new mapboxgl.NavigationControl());
+        this.map.addControl(new mapboxgl.NavigationControl());
 
+        let map = this.map;
         this.studios.forEach(function (studio) {
             var priceStr =
                 new Intl.NumberFormat(
-                    navigator.language, { style: 'currency', currency: 'EUR' })
+                    navigator.language, {
+                        style: 'currency', currency: 'EUR'
+                    })
                 .format(studio.price / 100)
 
             // Creates a DOM element for the marker
@@ -60,7 +65,23 @@ export default Vue.extend({
                 .setLngLat(studio.location)
                 .addTo(map);
         });
-    }
+    },
+    methods: {
+        // Centers the map on provided location.
+        setLocation(place) {
+            if (place.bbox) {
+                let bbox = place.bbox;
+                this.map.fitBounds([[bbox[0], bbox[1]],[bbox[2], bbox[3]]]);
+            } else {
+                // The selected location does not have a bbox, use a default
+                // zoom.
+                this.map.flyTo({
+                    center: place.center,
+                    zoom: 9,
+                });
+            }
+        }
+    },
 });
 </script>
 
@@ -88,8 +109,11 @@ export default Vue.extend({
     padding: 0.2rem 0.4rem;
     cursor: pointer;
 
-    background-color: #2a1f0d;
     opacity: 0.8;
+
+    background-color: #2a1f0d;
+    border-radius: 2px;
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
 
     font-size: 1.3em;
     font-weight: 700;

@@ -20,14 +20,43 @@
     <div class="grid-container-fluid">
         <div class="grid-x">
             <div class="cell medium-12 large-7">
-                <studios-index-listing
-                    :mapbox-token="mapboxToken"
-                    :studios="studios">
-                </studios-index-listing>
+                <div class="section">
+                    <div class="grid-x grid-padding-x">
+                        <div class="medium-6 cell">
+                            <label>
+                                Location
+                                <location-input
+                                    :mapbox-token="mapboxToken"
+                                    v-model="location">
+                                </location-input>
+                            </label>
+                        </div>
+
+                        <div class="medium-6 cell">
+                            <label>
+                                Dates
+                                <input type="text">
+                            </label>
+
+                            <p class="help-text">
+                                Will only list studios that are available on at least
+                                one of these days
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid-x grid-padding-x">
+                    <div class="cell small-12">
+                        <studios-index-listing :studios="studios">
+                        </studios-index-listing>
+                    </div>
+                </div>
             </div>
 
             <div class="cell large-5 show-for-large">
                 <studios-index-map
+                    ref="map"
                     :mapbox-token="mapboxToken"
                     :studios="studios">
                 </studios-index-map>
@@ -39,6 +68,7 @@
 <script lang="ts">
 import Vue from "vue";
 
+import LocationInput from '../widgets/LocationInput.vue'
 import StudiosIndexListing from './IndexListing.vue';
 import StudiosIndexMap from './IndexMap.vue';
 
@@ -48,6 +78,7 @@ export default Vue.extend({
     },
     data() {
         return {
+            location: null,
             studios: [
                 {
                     price: 1400,
@@ -85,6 +116,11 @@ export default Vue.extend({
             ]
         }
     },
-    components: { StudiosIndexListing, StudiosIndexMap }
+    watch: {
+        location(place) {
+            this.$refs.map.setLocation(place);
+        }
+    },
+    components: { LocationInput, StudiosIndexListing, StudiosIndexMap }
 });
 </script>
