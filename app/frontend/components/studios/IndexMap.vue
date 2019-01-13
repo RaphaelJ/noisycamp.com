@@ -87,7 +87,7 @@ export default Vue.extend({
 
 <style>
 .map {
-    height: calc(100vh - 56px);
+    height: 100%;
 }
 
 /* Creates a pseudo element with a box-shadow that recovers the entire map. */
@@ -112,8 +112,8 @@ export default Vue.extend({
     opacity: 0.8;
 
     background-color: #2a1f0d;
-    border-radius: 2px;
-    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.1);
 
     font-size: 1.3em;
     font-weight: 700;
@@ -134,5 +134,6 @@ export default Vue.extend({
 
 .map .studio-marker:hover {
     opacity: 1;
+    z-index: 100;
 }
 </style>
