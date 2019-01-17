@@ -21,29 +21,10 @@
         <div class="cell medium-12 large-7">
             <div class="grid-y grid-padding-x results">
                 <div class="cell shrink section">
-                    <div class="grid-x grid-padding-x">
-                        <div class="cell medium-6">
-                            <label>
-                                Location
-                                <location-input
-                                    :mapbox-token="mapboxToken"
-                                    v-model="location">
-                                </location-input>
-                            </label>
-                        </div>
-
-                        <div class="medium-6 cell">
-                            <label>
-                                Dates
-                                <input type="text">
-                            </label>
-
-                            <p class="help-text">
-                                Will only list studios that are available on at
-                                least one of these days
-                            </p>
-                        </div>
-                    </div>
+                    <studios-index-filters
+                        v-model="filters"
+                        :mapbox-token="mapboxToken">
+                    </studios-index-filters>
                 </div>
 
                 <div class="cell auto listing">
@@ -68,6 +49,7 @@ import * as _ from "lodash";
 import Vue from "vue";
 
 import LocationInput from '../widgets/LocationInput.vue'
+import StudiosIndexFilters from './IndexFilters.vue';
 import StudiosIndexListing from './IndexListing.vue';
 import StudiosIndexMap from './IndexMap.vue';
 
@@ -77,7 +59,6 @@ export default Vue.extend({
     },
     data() {
         return {
-            location: null,
             studios: _.flatten(_.times(10, function() { return [
                 {
                     price: 1400,
@@ -144,14 +125,17 @@ export default Vue.extend({
                     ]
                 },
             ]})),
+            filters: {}
         }
     },
     watch: {
-        location(place) {
-            this.$refs.map.setLocation(place);
+        filters(val) {
+            if (val.location) {
+                this.$refs.map.setLocation(val.location);
+            }
         }
     },
-    components: { LocationInput, StudiosIndexListing, StudiosIndexMap }
+    components: { StudiosIndexFilters, StudiosIndexListing, StudiosIndexMap }
 });
 </script>
 
