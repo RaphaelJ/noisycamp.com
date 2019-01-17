@@ -29,13 +29,17 @@
                 :class="{
                         'large-6': index < 2,
                         'large-4': index >= 2,
-                }">
+                }"
+                @mouseover="onStudioHover(index)"
+                @mouseout="onStudioHover(null)">
                 <ul class="pictures">
                     <!-- <li v-for="picture in studio.pictures">
                         <img :src="picture" :alt="studio.name">
                     </li> -->
                     <li>
-                        <img :src="studio.pictures[0]" :alt="studio.name">
+                        <img
+                            :src="studio.pictures[0]"
+                            :alt="studio.name">
                     </li>
                 </ul>
 
@@ -75,8 +79,11 @@ export default Vue.extend({
             return new Intl.NumberFormat(
                 navigator.language, { style: 'currency', currency: 'EUR' }
             ).format(value / 100);
-        }
+        },
 
+        onStudioHover(studioIdx) {
+            this.$emit('studio-hover', studioIdx);
+        }
     },
     components: { },
 });
@@ -115,12 +122,10 @@ ul.studios li.studio ul.pictures li img {
 
 ul.studios li.studio ul.pictures li img {
     display: block;
-
-    transition: transform 0.1s ease;
 }
 
 ul.studios li.studio:hover ul.pictures li img {
-    transform: scale(1.025);
+    transform: scale(1.015);
 }
 
 ul.studios li.studio .instant-booking {

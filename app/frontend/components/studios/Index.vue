@@ -28,7 +28,9 @@
                 </div>
 
                 <div class="cell auto listing">
-                    <studios-index-listing :studios="studios">
+                    <studios-index-listing
+                        :studios="studios"
+                        @studio-hover="onStudioHover">
                     </studios-index-listing>
                 </div>
             </div>
@@ -59,7 +61,7 @@ export default Vue.extend({
     },
     data() {
         return {
-            studios: _.flatten(_.times(10, function() { return [
+            studios: [
                 {
                     price: 1850,
                     location: [5.231320530534101, 51.36752192207486],
@@ -124,8 +126,13 @@ export default Vue.extend({
                         'https://www.jetstudio.com/wp-content/uploads/layerslider/Jet-Studio-Home/jet-Studio-index-1.jpg',
                     ]
                 },
-            ]})),
+            ],
             filters: {}
+        }
+    },
+    methods: {
+        onStudioHover(studioIdx) {
+            this.$refs.map.setActiveStudio(studioIdx);
         }
     },
     watch: {

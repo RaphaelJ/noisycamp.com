@@ -46,6 +46,7 @@ export default Vue.extend({
         this.map.addControl(new mapboxgl.NavigationControl());
 
         let map = this.map;
+        let studiosElems = [];
         this.studios.forEach(function (studio) {
             var priceStr =
                 new Intl.NumberFormat(
@@ -60,11 +61,16 @@ export default Vue.extend({
                 .text(priceStr)
                 .click(function() { window.alert(studio.name); });
 
+            studiosElems.push(elem);
+
             // add marker to map
             new mapboxgl.Marker(elem[0])
                 .setLngLat(studio.location)
                 .addTo(map);
         });
+
+        this.studiosElems = studiosElems;
+        this.activeStudio = null;
     },
     methods: {
         // Centers the map on provided location.
@@ -79,6 +85,21 @@ export default Vue.extend({
                     center: place.center,
                     zoom: 9,
                 });
+            }
+        },
+
+        // Highlight the given studio
+        setActiveStudio(studioIdx) {
+            if (this.activeStudio) {
+                this.activeStudio.removeClass('active');
+
+            }
+
+            if (studioIdx) {
+                this.activeStudio = this.studiosElems[studioIdx];
+                this.activeStudio.addClass('active');
+            } else {
+                this.activeStudio = null;
             }
         }
     },
@@ -111,11 +132,10 @@ export default Vue.extend({
     padding: 0.4rem 0.65rem;
     cursor: pointer;
 
-    opacity: 0.8;
+    opacity: 0.85;
 
     background-color: #2a1f0d;
     border-radius: 3px;
-    box-shadow: 0 0 2px rgba(0, 0, 0, 0.1);
 
     font-size: 1.3em;
     font-weight: 700;
@@ -139,7 +159,7 @@ export default Vue.extend({
     z-index: 100;
 }
 
-.map .studio-marker.active {]
+.map .studio-marker.active {
     box-shadow: 0 0 0 2px #b37216;
 }
 </style>
