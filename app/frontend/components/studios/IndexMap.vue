@@ -129,7 +129,7 @@ export default Vue.extend({
 /* Studio map marker */
 
 .map .studio-marker {
-    padding: 0.4rem 0.65rem;
+    padding: 0 0.65rem;
     cursor: pointer;
 
     opacity: 0.85;
@@ -137,12 +137,19 @@ export default Vue.extend({
     background-color: #2a1f0d;
     border-radius: 3px;
 
+    /* Mapbox centers the marker on the position. Adds a margin that will
+     * offset the arrow of the marker to the pointed location. */
+    line-height: 35px;
+    margin-top: calc(35px / 2 + 5px);
+
     font-size: 1.3em;
     font-weight: 700;
     color: white;
 }
 
 .map .studio-marker::after {
+    /** Draws an arrow on top of the marker. */
+
     position: absolute;
     content: "";
     bottom: 100%;
@@ -160,6 +167,12 @@ export default Vue.extend({
 }
 
 .map .studio-marker.active {
-    box-shadow: 0 0 0 2px #b37216;
+    border: 2px solid #b37216;
+}
+
+.map .studio-marker.active::after {
+    margin-left: -7px;
+    border-width: 7px;
+    border-color: transparent transparent #b37216 transparent;
 }
 </style>
