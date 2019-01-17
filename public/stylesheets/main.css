@@ -19,7 +19,7 @@
 
 body {
     font-family: 'Source Sans Pro', sans-serif;
-    background-color: #edeae4;
+    background-color: #efece9;;
 }
 
 h1, h2, h3, h4, h5, h6, .text-serif {
@@ -48,6 +48,7 @@ h1, h2, h3, h4, h5, h6, .text-serif {
 [type="email"], [type="month"], [type="number"], [type="password"],
 [type="search"], [type="tel"], [type="text"], [type="time"], [type="url"],
 [type="week"], textarea {
+    background-color: #fefefecc;
     border: 1px solid #8c612680;
     border-radius: 3px;
 

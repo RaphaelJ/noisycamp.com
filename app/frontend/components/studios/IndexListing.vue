@@ -24,8 +24,12 @@
 
         <ul class="grid-x grid-margin-x grid-margin-y studios">
             <li
-                class="cell small-12 medium-6 large-4 studio"
-                v-for="studio in studios">
+                class="cell small-12 medium-6 studio"
+                v-for="(studio, index) in studios"
+                :class="{
+                        'large-6': index < 2,
+                        'large-4': index >= 2,
+                }">
                 <ul class="pictures">
                     <!-- <li v-for="picture in studio.pictures">
                         <img :src="picture" :alt="studio.name">
@@ -87,8 +91,6 @@ ul.studios li.studio {
     position: relative;
     padding: 0;
     height: 75vh;
-
-    box-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
 }
 
 ul.studios li.studio,
@@ -99,6 +101,8 @@ ul.studios li.studio ul.pictures img {
 
 ul.studios li.studio ul.pictures {
     margin: 0;
+
+    overflow: hidden;
 }
 
 ul.studios li.studio ul.pictures,
@@ -111,6 +115,12 @@ ul.studios li.studio ul.pictures li img {
 
 ul.studios li.studio ul.pictures li img {
     display: block;
+
+    transition: transform 0.1s ease;
+}
+
+ul.studios li.studio:hover ul.pictures li img {
+    transform: scale(1.025);
 }
 
 ul.studios li.studio .instant-booking {

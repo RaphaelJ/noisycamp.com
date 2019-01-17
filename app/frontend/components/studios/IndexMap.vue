@@ -105,8 +105,10 @@ export default Vue.extend({
     box-shadow: inset 7px 0 9px -7px rgba(0, 0, 0, 0.2);
 }
 
+/* Studio map marker */
+
 .map .studio-marker {
-    padding: 0.2rem 0.4rem;
+    padding: 0.4rem 0.65rem;
     cursor: pointer;
 
     opacity: 0.8;
@@ -132,8 +134,12 @@ export default Vue.extend({
     border-color: transparent transparent #2a1f0d transparent;
 }
 
-.map .studio-marker:hover {
+.map .studio-marker:hover, .map .studio-marker.active {
     opacity: 1;
     z-index: 100;
+}
+
+.map .studio-marker.active {]
+    box-shadow: 0 0 0 2px #b37216;
 }
 </style>

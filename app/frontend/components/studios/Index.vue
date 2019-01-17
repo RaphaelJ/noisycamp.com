@@ -61,6 +61,15 @@ export default Vue.extend({
         return {
             studios: _.flatten(_.times(10, function() { return [
                 {
+                    price: 1850,
+                    location: [5.231320530534101, 51.36752192207486],
+                    name: 'Awesome place',
+                    instant_booking: true,
+                    pictures: [
+                        'https://static.quickstudio.com/media/W1siZiIsInN0dWRpb3MvMjAxNy8xMS8zMC8yNzg4ZDg2ZjI0LmpwZyJdLFsicCIsInRodW1iIiwiNjAwMDAwQCJdXQ',
+                    ]
+                },
+                {
                     price: 1400,
                     location: [4.81032652885753, 52.37886749365077],
                     name: 'My Studio',
@@ -104,15 +113,6 @@ export default Vue.extend({
                     instant_booking: true,
                     pictures: [
                         'https://images.pexels.com/photos/1327430/pexels-photo-1327430.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
-                    ]
-                },
-                {
-                    price: 1850,
-                    location: [5.231320530534101, 51.36752192207486],
-                    name: 'Awesome place',
-                    instant_booking: true,
-                    pictures: [
-                        'https://static.quickstudio.com/media/W1siZiIsInN0dWRpb3MvMjAxNy8xMS8zMC8yNzg4ZDg2ZjI0LmpwZyJdLFsicCIsInRodW1iIiwiNjAwMDAwQCJdXQ',
                     ]
                 },
                 {
