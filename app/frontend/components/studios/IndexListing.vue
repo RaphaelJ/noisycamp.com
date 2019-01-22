@@ -24,14 +24,16 @@
 
         <ul class="grid-x grid-margin-x grid-margin-y studios">
             <li
-                class="cell small-12 medium-6 studio"
                 v-for="(studio, index) in studios"
+                :ref="'studio-' + index"
+                class="cell small-12 medium-6 studio"
                 :class="{
-                        'large-6': index < 2,
-                        'large-4': index >= 2,
+                    'large-6': index < 2,
+                    'large-4': index >= 2,
+                    'highlighted': highlightedStudio == index,
                 }"
-                @mouseover="onStudioHover(index)"
-                @mouseout="onStudioHover(null)">
+                @mouseover="$emit('studio-hover', index)"
+                @mouseout="$emit('studio-hover', null)">
                 <ul class="pictures">
                     <!-- <li v-for="picture in studio.pictures">
                         <img :src="picture" :alt="studio.name">
@@ -63,15 +65,16 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import Vue, { PropOptions } from "vue";
 
 export default Vue.extend({
     props: {
-        studios: { type: Array, required: true }
+        studios: <PropOptions<Object[]>>{ type: Array, required: true },
     },
     data() {
         return {
-            location: null
+            location: null,
+            highlightedStudio: null,
         }
     },
     methods: {
@@ -81,8 +84,16 @@ export default Vue.extend({
             ).format(value / 100);
         },
 
-        onStudioHover(studioIdx) {
-            this.$emit('studio-hover', studioIdx);
+        // Makes the given studio more visible. Reset studio highlighting if
+        // studioIdx is `null`.
+        setStudioHighlight(studioIdx) {
+            this.highlightedStudio = studioIdx;
+        },
+
+        // Scrolls to the given studio index.
+        studioScroll(studioIdx) {
+            let elem = this.$refs['studio-' + studioIdx];
+            $(this.$el).parent().scrollTop(elem[0].offsetTop);
         }
     },
     components: { },
@@ -124,7 +135,8 @@ ul.studios li.studio ul.pictures li img {
     display: block;
 }
 
-ul.studios li.studio:hover ul.pictures li img {
+ul.studios li.studio:hover ul.pictures li img,
+ul.studios li.studio.highlighted ul.pictures li img {
     transform: scale(1.015);
 }
 

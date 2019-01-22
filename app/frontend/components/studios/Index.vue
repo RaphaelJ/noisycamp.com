@@ -29,8 +29,9 @@
 
                 <div class="cell auto listing">
                     <studios-index-listing
+                        ref="listing"
                         :studios="studios"
-                        @studio-hover="onStudioHover">
+                        @studio-hover="onListingStudioHover">
                     </studios-index-listing>
                 </div>
             </div>
@@ -40,7 +41,9 @@
             <studios-index-map
                 ref="map"
                 :mapbox-token="mapboxToken"
-                :studios="studios">
+                :studios="studios"
+                @studio-hover="onMapStudioHover"
+                @studio-clicked="onMapStudioClick">
             </studios-index-map>
         </div>
     </div>
@@ -131,16 +134,24 @@ export default Vue.extend({
         }
     },
     methods: {
-        onStudioHover(studioIdx) {
-            this.$refs.map.setActiveStudio(studioIdx);
-        }
+        onListingStudioHover(studioIdx) {
+            this.$refs.map.setStudioHighlight(studioIdx);
+        },
+
+        onMapStudioHover(studioIdx) {
+            this.$refs.listing.setStudioHighlight(studioIdx);
+        },
+
+        onMapStudioClick(studioIdx) {
+            this.$refs.listing.studioScroll(studioIdx);
+        },
     },
     watch: {
         filters(val) {
             if (val.location) {
                 this.$refs.map.setLocation(val.location);
             }
-        }
+        },
     },
     components: { StudiosIndexFilters, StudiosIndexListing, StudiosIndexMap }
 });

@@ -45,10 +45,9 @@ export default Vue.extend({
 
         this.map.addControl(new mapboxgl.NavigationControl());
 
-        let map = this.map;
-        let studiosElems = [];
-        this.studios.forEach(function (studio) {
-            var priceStr =
+        this.studiosElems = [];
+        this.studios.forEach((studio, index) => {
+            let priceStr =
                 new Intl.NumberFormat(
                     navigator.language, {
                         style: 'currency', currency: 'EUR'
@@ -56,21 +55,22 @@ export default Vue.extend({
                 .format(studio.price / 100)
 
             // Creates a DOM element for the marker
-            var elem = $('<div></div>')
+            let elem = $('<div></div>')
                 .addClass('studio-marker')
                 .text(priceStr)
-                .click(function() { window.alert(studio.name); });
+                .mouseover(() => this.$emit('studio-hover', index))
+                .mouseout(() => this.$emit('studio-hover', null))
+                .click(() => this.$emit('studio-clicked', index));
 
-            studiosElems.push(elem);
+            this.studiosElems.push(elem);
 
             // add marker to map
             new mapboxgl.Marker(elem[0])
                 .setLngLat(studio.location)
-                .addTo(map);
+                .addTo(this.map);
         });
 
-        this.studiosElems = studiosElems;
-        this.activeStudio = null;
+        this.highlightedStudio = null;
     },
     methods: {
         // Centers the map on provided location.
@@ -88,18 +88,18 @@ export default Vue.extend({
             }
         },
 
-        // Highlight the given studio
-        setActiveStudio(studioIdx) {
-            if (this.activeStudio) {
-                this.activeStudio.removeClass('active');
-
+        // Makes the given studio more visible. Reset studio highlighting if
+        // studioIdx is `null`.
+        setStudioHighlight(studioIdx) {
+            if (this.highlightedStudio) {
+                this.highlightedStudio.removeClass('highlighted');
             }
 
-            if (studioIdx) {
-                this.activeStudio = this.studiosElems[studioIdx];
-                this.activeStudio.addClass('active');
+            if (studioIdx != null) {
+                this.highlightedStudio = this.studiosElems[studioIdx];
+                this.highlightedStudio.addClass('highlighted');
             } else {
-                this.activeStudio = null;
+                this.highlightedStudio = null;
             }
         }
     },
@@ -161,16 +161,16 @@ export default Vue.extend({
     border-color: transparent transparent #2a1f0d transparent;
 }
 
-.map .studio-marker:hover, .map .studio-marker.active {
+.map .studio-marker:hover, .map .studio-marker.highlighted {
     opacity: 1;
     z-index: 100;
 }
 
-.map .studio-marker.active {
+.map .studio-marker.highlighted {
     border: 2px solid #b37216;
 }
 
-.map .studio-marker.active::after {
+.map .studio-marker.highlighted::after {
     margin-left: -7px;
     border-width: 7px;
     border-color: transparent transparent #b37216 transparent;
