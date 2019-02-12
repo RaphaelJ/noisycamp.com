@@ -15,17 +15,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package controllers
+package auth
 
-import javax.inject._
-import play.api._
-import play.api.mvc._
+import com.mohiva.play.silhouette.api.Env
+import com.mohiva.play.silhouette.impl.authenticators.CookieAuthenticator
 
-@Singleton
-class StudiosController @Inject() (cc: ControllerComponents)
-  extends AbstractController(cc) {
+import models.User
 
-  def index() = Action { implicit request: Request[AnyContent] =>
-    Ok(views.html.studios.index(sys.env("MAPBOX_TOKEN")))
-  }
+trait DefaultEnv extends Env {
+  type I = User
+  type A = CookieAuthenticator
 }

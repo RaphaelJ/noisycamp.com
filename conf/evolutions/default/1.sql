@@ -1,8 +1,13 @@
 # --- !Ups
 
 create table "user" (
-    "id" BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT
-    );
+    "id"                    serial primary key,
+    "email"                 varchar,
+    "login_provider_id"     varchar,
+    "login_provider_key"    varchar,
+
+    unique ("login_provider_id", "login_provider_key")
+);
 
 # --- !Downs
 

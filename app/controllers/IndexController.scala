@@ -17,15 +17,26 @@
 
 package controllers
 
+import com.mohiva.play.silhouette.api.Silhouette
 import javax.inject._
 import play.api._
 import play.api.mvc._
 
+import auth.DefaultEnv
+
 @Singleton
-class IndexController @Inject()(cc: ControllerComponents)
+class IndexController @Inject() (
+  cc: ControllerComponents,
+  silhouette: Silhouette[DefaultEnv]
+  )
   extends AbstractController(cc) {
 
-  def index() = Action { implicit request: Request[AnyContent] =>
+  def index = silhouette.UserAwareAction { implicit request =>
+    val userEmail = request.identity match {
+      case Some(identity) => identity.email
+      case None => "None"
+    }
+    println(userEmail)
     Ok(views.html.index())
   }
 }

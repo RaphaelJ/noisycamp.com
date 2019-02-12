@@ -16,7 +16,7 @@
 
 import sys.process._
 
-name := """noisycamp"""
+name := "noisycamp"
 organization := "com.noisycamp"
 
 version := "0.1"
@@ -25,13 +25,44 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
 scalaVersion := "2.12.7"
 
+scalacOptions ++= Seq(
+  "-deprecation",         // Emit warning and location for usages of deprecated
+                          // APIs.
+  "-feature",             // Emit warning and location for usages of features
+                          // that should be imported explicitly.
+  "-unchecked",           // Enable additional warnings where generated code
+                          // depends on assumptions.
+  "-Xfatal-warnings",     // Fail the compilation if there are any warnings.
+  "-Ywarn-adapted-args",  // Warn if an argument list is modified to match the
+                          // receiver.
+  "-Ywarn-dead-code",     // Warn when dead code is identified.
+  "-Ywarn-inaccessible",  // Warn about inaccessible types in method signatures.
+
+  // Warn when non-nullary overrides nullary, e.g. def foo() over def foo.
+  "-Ywarn-nullary-override",
+  "-Ywarn-numeric-widen", // Warn when numerics are widened.
+
+  // Play has a lot of issues with unused imports and unsued params
+  // https://github.com/playframework/playframework/issues/6690
+  // https://github.com/playframework/twirl/issues/105
+  "-Xlint:-unused,_"
+)
+
+resolvers += Resolver.jcenterRepo
+
 libraryDependencies ++= Seq(
   guice, // Dependency injection library required by Play
 
   evolutions, jdbc, // Executes database evolutions
 
-  "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test,
-  "com.typesafe.play" %% "play-slick" % "3.0.3"
+  "com.iheart" %% "ficus" % "1.4.3",
+  "com.mohiva" %% "play-silhouette" % "5.0.7",
+  "com.mohiva" %% "play-silhouette-crypto-jca" % "5.0.7",
+  "com.mohiva" %% "play-silhouette-password-bcrypt" % "5.0.7",
+  "com.mohiva" %% "play-silhouette-persistence" % "5.0.7",
+  "com.typesafe.play" %% "play-slick" % "3.0.3",
+  "net.codingwell" %% "scala-guice" % "4.1.0",
+  "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test
 )
 
 // Creates Webpack bundle when compiling, based on

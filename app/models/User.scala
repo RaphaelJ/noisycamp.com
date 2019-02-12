@@ -15,17 +15,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package controllers
+package models
 
-import javax.inject._
-import play.api._
-import play.api.mvc._
+import com.mohiva.play.silhouette.api.{ Identity, LoginInfo }
 
-@Singleton
-class StudiosController @Inject() (cc: ControllerComponents)
-  extends AbstractController(cc) {
+/** Stores the information about an user. */
+case class User(
+  id: Long,
+  email: Option[String],
+  loginProviderId: String,
+  loginProviderKey: String) extends Identity {
 
-  def index() = Action { implicit request: Request[AnyContent] =>
-    Ok(views.html.studios.index(sys.env("MAPBOX_TOKEN")))
-  }
-}
+  def loginInfo: LoginInfo = LoginInfo(loginProviderId, loginProviderKey)
+ }

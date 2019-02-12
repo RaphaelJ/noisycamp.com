@@ -15,17 +15,36 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package controllers
+package auth
 
+import scala.concurrent.Future
+
+import com.mohiva.play.silhouette.api.LoginInfo
+import com.mohiva.play.silhouette.api.services.{ IdentityService }
 import javax.inject._
-import play.api._
-import play.api.mvc._
+import play.api.db.slick.{ DatabaseConfigProvider, HasDatabaseConfigProvider }
+import slick.jdbc.JdbcProfile
 
-@Singleton
-class StudiosController @Inject() (cc: ControllerComponents)
-  extends AbstractController(cc) {
+import daos.UserDAO
+import models.User
 
-  def index() = Action { implicit request: Request[AnyContent] =>
-    Ok(views.html.studios.index(sys.env("MAPBOX_TOKEN")))
+class UserService @Inject() (
+    protected val dbConfigProvider: DatabaseConfigProvider
+  )
+  (userDAO: UserDAO)
+  extends IdentityService[User]
+  with HasDatabaseConfigProvider[JdbcProfile]
+  {
+
+  import profile.api._
+
+  def retrieve(loginInfo: LoginInfo): Future[Option[User]] = {
+    db.run {
+      userDAO.users.
+        filter(_.loginProviderId === loginInfo.providerID).
+        filter(_.loginProviderKey === loginInfo.providerKey).
+        result.
+        headOption
+    }
   }
 }
