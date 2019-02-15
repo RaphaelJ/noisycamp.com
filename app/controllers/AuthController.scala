@@ -17,15 +17,28 @@
 
 package controllers
 
+import com.mohiva.play.silhouette.api.Silhouette
+import com.mohiva.play.silhouette.impl.providers.SocialProviderRegistry
 import javax.inject._
 import play.api._
+import play.api.i18n.I18nSupport
 import play.api.mvc._
 
-@Singleton
-class StudiosController @Inject() (cc: ControllerComponents)
-  extends AbstractController(cc) {
+import auth.DefaultEnv
+import forms.auth.SignInForm
 
-  def index = Action { implicit request: Request[AnyContent] =>
-    Ok(views.html.studios.index(sys.env("MAPBOX_TOKEN")))
+@Singleton
+class AuthController @Inject() (
+  cc: ControllerComponents,
+  silhouette: Silhouette[DefaultEnv],
+  socialProviderRegistry: SocialProviderRegistry,
+  )
+  extends AbstractController(cc)
+  with I18nSupport {
+
+  def signIn = silhouette.UnsecuredAction {
+    implicit request: Request[AnyContent] =>
+
+    Ok(views.html.auth.signIn(SignInForm.form, socialProviderRegistry))
   }
 }

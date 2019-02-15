@@ -16,6 +16,8 @@
 
 GET     /                           controllers.IndexController.index
 
+GET     /sign-in                    controllers.AuthController.signIn
+
 GET     /studios                    controllers.StudiosController.index
 
 # Map static resources from the /public folder to the /assets URL path

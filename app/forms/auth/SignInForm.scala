@@ -15,17 +15,23 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package controllers
+package forms.auth
 
-import javax.inject._
-import play.api._
-import play.api.mvc._
+import play.api.data.Form
+import play.api.data.Forms._
 
-@Singleton
-class StudiosController @Inject() (cc: ControllerComponents)
-  extends AbstractController(cc) {
+object SignInForm {
 
-  def index = Action { implicit request: Request[AnyContent] =>
-    Ok(views.html.studios.index(sys.env("MAPBOX_TOKEN")))
-  }
+  val form = Form(
+    mapping(
+      "email" -> email,
+      "password" -> nonEmptyText,
+      "rememberMe" -> boolean
+    )(Data.apply)(Data.unapply)
+  )
+
+  case class Data(
+    email:      String,
+    password:   String,
+    rememberMe: Boolean)
 }
