@@ -52,7 +52,9 @@
         <div class="top-bar">
             <div class="top-bar-left">
                 <ul class="menu">
-                    <li class="menu-text logo">NoisyCamp</li>
+                    <li class="logo">
+                        <a href="@routes.IndexController.index()">NoisyCamp</a>
+                    </li>
                 </ul>
             </div>
 
@@ -61,8 +63,12 @@
                     <li>
                         <a href="#" class="button">Host a studio</a>
                     </li>
-                    <li><a href="#">Sign up</a></li>
-                    <li><a href="#">Log in</a></li>
+                    <li>
+                        <a href="@routes.AuthController.signIn">Sign in</a>
+                    </li>
+                    <li>
+                        <a href="#">Sign up</a>
+                    </li>
                 </ul>
             </div>
         </div>

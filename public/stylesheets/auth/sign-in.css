@@ -17,19 +17,10 @@
 
 /* Full-screen hero with search box. */
 
-.hero.home-hero {
-    background-image: url("/assets/images/index/hero.jpg");
+.hero.sign-in-hero {
+    background-image: url("/assets/images/auth/hero.jpg");
 }
 
-.hero.home-hero .middle-content-section {
-    margin-left: 60%;
-    width: 475px;
-}
-
-/* Become a host section */
-
-.section-title {
-    text-align: center;
-    margin-top: 3rem;
-    margin-bottom: 2rem;
+.hero.sign-in-hero .middle-content-section {
+    width: 450px;
 }

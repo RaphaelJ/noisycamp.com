@@ -70,34 +70,116 @@ h1, h2, h3, h4, h5, h6, .text-serif {
 }
 
 .top-bar {
-    border-bottom: 3px solid #b37216;
 }
 
 .top-bar .logo {
     font-size: 1.2em;
     font-family: 'Playfair Display', serif;
+    font-weight: 700;
 }
 
 .top-bar, .top-bar a {
     color: white;
 }
 
-.top-bar a {
+.top-bar .top-bar-right a {
     margin-left: 5px;
     margin-right: 5px;
     border-bottom: 2px solid transparent;
 }
 
-.top-bar a:hover {
+.top-bar .top-bar-right a:hover {
     border-bottom: 2px solid #b37216;
 }
 
 /* Content */
 
+/* A content section that is slightly highlighted. */
 .section {
     background-color: rgba(0, 0, 0, 0.05);
     border-top: 1px solid rgba(0, 0, 0, 0.05);
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* A section of content that appears in a box  */
+.section-panel {
+    background-color: rgba(255, 255, 255, 1);
+    border-radius: 5px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
+    padding: 18px 25px;
+}
+
+/* Full-width hero picture */
+
+.hero {
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-flex-direction: column;
+      -ms-flex-direction: column;
+          flex-direction: column;
+    -webkit-align-items: center;
+      -ms-flex-align: center;
+          align-items: center;
+    -webkit-justify-content: space-between;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+
+    background: transparent center center no-repeat;
+    background-size: cover;
+
+    position: relative;
+}
+
+.hero.full-screen {
+    height: calc(100vh - 53px);
+}
+
+.hero.full-screen-with-bars {
+    height: calc(100vh - 53px - 63px);
+}
+
+.hero .top-content-section {
+    width: 100%;
+}
+
+.hero .bottom-content-section {
+    text-align: center;
+    color: white;
+    padding: 1rem;
+    opacity: 0.8;
+}
+
+.hero .bottom-content-section:hover {
+    opacity: 1;
+}
+
+.hero .bottom-content-section a {
+    color: white;
+}
+
+.hero .bottom-content-section svg {
+    margin-top: 10px;
+    height: 2.75rem;
+    width: 2.75rem;
+    fill: rgba(255, 255, 255, 1);
+}
+
+.hero .picture-credits {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    padding: 1rem;
+
+    opacity: 0.6;
+}
+
+.hero .picture-credits, .hero .picture-credits a {
+    color: white;
+}
+
+.hero .picture-credits:hover {
+    opacity: 1;
 }
 
 /* Footer */
@@ -107,7 +189,6 @@ footer {
     padding-bottom: 1.2rem;
 
     background-color: #2a1f0d;
-    border-top: 3px solid #b37216;
 }
 
 footer, footer a {

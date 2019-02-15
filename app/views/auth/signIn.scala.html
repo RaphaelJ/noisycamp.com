@@ -23,20 +23,42 @@
     implicit request: RequestHeader, messagesProvider: MessagesProvider)
 
 @head = {
+    <link
+        rel="stylesheet"
+        href="@routes.Assets.versioned("stylesheets/auth/sign-in.css")">
 }
 
 @layout("Sign in", head=head) {
-    <h1>Sign in</h1>
+    <div class="hero full-screen-with-bars sign-in-hero">
+        <div class="top-content-section"></div>
 
-    @helper.form(action = controllers.routes.AuthController.signIn) {
-        @helper.inputText(
-            signInForm("email"), 'type -> "email", '_name -> "Email")
-        @helper.inputPassword(
-            signInForm("password"), '_name -> "Password")
-        @helper.checkbox(signInForm("rememberMe"), '_name -> "Remember me")
+        <div class="middle-content-section">
+            <div class="section-panel">
+                <h1>Sign in</h1>
 
-        <button type="submit" class="button large">Sign in</button>
-    }
+                @helper.form(action = controllers.routes.AuthController.signIn) {
+                    @helper.inputText(
+                        signInForm("email"), 'type -> "email", '_name -> "Email")
+                    @helper.inputPassword(
+                        signInForm("password"), '_name -> "Password")
+                    @helper.checkbox(signInForm("rememberMe"), '_name -> "Remember me")
 
-    <h3>Or use</h3>
+                    <button
+                        type="submit"
+                        class="button large expanded">
+                        Sign in
+                    </button>
+                }
+
+                <h3>Or use</h3>
+            </div>
+        </div>
+
+        <div class="bottom-content-section"></div>
+
+        <div class="picture-credits">
+            Photo by
+            <a href="https://unsplash.com/@@thenigmatic">The Nigmatic</a>
+        </div>
+    </div>
 }

@@ -24,34 +24,38 @@
 }
 
 @layout("Music and rehearsal studio rentals", head=head) {
-    <div class="hero-full-screen">
+    <div class="hero full-screen home-hero">
         <div class="top-content-section">
         </div>
 
-        <form class="middle-content-section">
-            <h3>Book a music or rehearsal studio.</h3>
+        <div class="middle-content-section">
+            <form class="section-panel">
+                <h3>Book a music or rehearsal studio.</h3>
 
-            <label>
-                Location
-                <input type="text">
-            </label>
+                <label>
+                    Location
+                    <input type="text">
+                </label>
 
-            <p class="help-text">
-                Or use your
-                <a href="#">current location &nbsp;<i class="fi-marker"></i></a>
-            </p>
+                <p class="help-text">
+                    Or use your
+                    <a href="#">
+                        current location&nbsp; <i class="fi-marker"></i>
+                    </a>
+                </p>
 
-            <label>
-                Dates
-                <input type="text">
-            </label>
+                <label>
+                    Dates
+                    <input type="text">
+                </label>
 
-            <div class="text-right">
-                <button type="submit" class="button large">
-                    Search
-                </button>
-            </div>
-        </form>
+                <div class="text-right">
+                    <button type="submit" class="button large">
+                        Search
+                    </button>
+                </div>
+            </form>
+        </div>
 
         <div class="bottom-content-section">
             <a href="#become-a-host" data-smooth-scroll>
