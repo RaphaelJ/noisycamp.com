@@ -87,13 +87,28 @@ h1, h2, h3, h4, h5, h6, .text-serif {
 }
 
 .top-bar .top-bar-right a {
+    position: relative;
+
     margin-left: 5px;
     margin-right: 5px;
-    border-bottom: 2px solid transparent;
 }
 
-.top-bar .top-bar-right a:hover {
-    border-bottom: 2px solid #b37216;
+.top-bar .top-bar-right a:not(.button)::after {
+    content: "";
+    position: absolute;
+    height: 2px;
+    width: 0;
+    bottom: 0;
+    left: 0;
+
+    background-color: #b37216;
+    border-radius: 2px;
+
+    transition: width 0.2s ease-out;
+}
+
+.top-bar .top-bar-right a:not(.button):hover::after {
+    width: 100%;
 }
 
 /* Content */
