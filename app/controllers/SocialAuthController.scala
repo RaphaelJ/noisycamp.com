@@ -17,28 +17,68 @@
 
 package controllers
 
+import scala.concurrent.{ ExecutionContext, Future }
+
 import com.mohiva.play.silhouette.api.Silhouette
-import com.mohiva.play.silhouette.impl.providers.SocialProviderRegistry
+import com.mohiva.play.silhouette.api.exceptions.ProviderException
+import com.mohiva.play.silhouette.api.repositories.AuthInfoRepository
+import com.mohiva.play.silhouette.impl.providers.{
+  SocialProvider, SocialProviderRegistry, CommonSocialProfileBuilder }
 import javax.inject._
 import play.api._
 import play.api.i18n.I18nSupport
 import play.api.mvc._
 
-import auth.DefaultEnv
-import forms.auth.SignInForm
+import auth.{ DefaultEnv, UserService }
 
 @Singleton
 class SocialAuthController @Inject() (
   cc: ControllerComponents,
   silhouette: Silhouette[DefaultEnv],
-  socialProviderRegistry: SocialProviderRegistry,
-  )
+  userService: UserService,
+  authInfoRepository: AuthInfoRepository,
+  socialProviderRegistry: SocialProviderRegistry
+  )(implicit executionContext: ExecutionContext)
   extends AbstractController(cc)
   with I18nSupport {
 
-  def authenticate(provider: String) = Action {
+  def authenticate(provider: String) = Action.async {
     implicit request: Request[AnyContent] =>
 
-    Ok("")
+    socialProviderRegistry.get[SocialProvider](provider) match {
+      case Some(p: SocialProvider with CommonSocialProfileBuilder) =>
+        p.authenticate().flatMap {
+          case Left(providerRedirect) => Future.successful(providerRedirect)
+          case Right(authInfo) => for {
+            // Authentication successful
+
+            // Retrieve the profile from the provided and creates/update the
+            // local user account.
+            profile <- p.retrieveProfile(authInfo)
+            user <- userService.save(profile)
+
+            // If there is a `?target=` URL parameter, redirect to that
+            // location.
+            target = request.queryString.get("target") match {
+              case Some(url) => Call("GET", url.head)
+              case None => routes.IndexController.index()
+              }
+
+            // Saves the authentication token in the DB, sets the cookie and
+            // redirects the user.
+            authInfo <- authInfoRepository.save(profile.loginInfo, authInfo)
+            authService = silhouette.env.authenticatorService
+            authenticator <- authService.create(profile.loginInfo)
+            value <- authService.init(authenticator)
+            result <- authService.embed(value, Redirect(target))
+          } yield {
+            println("Authenticated!")
+            println(profile)
+            result
+          }
+        }
+      case _ => Future.failed(new ProviderException(
+        s"Cannot authenticate with unexpected social provider $provider"))
+    }
   }
 }

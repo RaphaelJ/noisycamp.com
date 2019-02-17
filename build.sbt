@@ -62,7 +62,8 @@ libraryDependencies ++= Seq(
   "com.mohiva" %% "play-silhouette-persistence" % "5.0.7",
   "com.typesafe.play" %% "play-slick" % "3.0.3",
   "net.codingwell" %% "scala-guice" % "4.1.0",
-  "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test
+  "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test,
+  "org.postgresql" % "postgresql" % "42.2.5"
 )
 
 // Creates Webpack bundle when compiling, based on

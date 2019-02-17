@@ -21,8 +21,8 @@ import com.mohiva.play.silhouette.api.{ Identity, LoginInfo }
 
 /** Stores the information about an user. */
 case class User(
-  id: Long,
-  email: Option[String],
+  id: Long = 0L,
+  email: String,
   loginProviderId: String,
   loginProviderKey: String) extends Identity {
 

@@ -20,6 +20,7 @@ package daos
 import scala.concurrent.ExecutionContext
 import javax.inject.Inject
 
+import com.mohiva.play.silhouette.api.LoginInfo
 import org.joda.time.DateTime
 import play.api.db.slick.{ DatabaseConfigProvider, HasDatabaseConfigProvider }
 import slick.jdbc.JdbcProfile
@@ -36,7 +37,7 @@ class UserDAO @Inject()
   final class UserTable(tag: Tag) extends Table[User](tag, "user") {
 
     def id                = column[Long]("id", O.PrimaryKey, O.AutoInc)
-    def email             = column[Option[String]]("email")
+    def email             = column[String]("email")
     def loginProviderId   = column[String]("login_provider_id")
     def loginProviderKey  = column[String]("login_provider_key")
 
@@ -44,4 +45,12 @@ class UserDAO @Inject()
   }
 
   lazy val users = TableQuery[UserTable]
+
+  def get[E2](loginInfo: LoginInfo) = {
+    users.
+      filter(_.loginProviderId === loginInfo.providerID).
+      filter(_.loginProviderKey === loginInfo.providerKey).
+      result.
+      headOption
+  }
 }

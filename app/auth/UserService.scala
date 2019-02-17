@@ -17,10 +17,11 @@
 
 package auth
 
-import scala.concurrent.Future
+import scala.concurrent.{ ExecutionContext, Future }
 
 import com.mohiva.play.silhouette.api.LoginInfo
 import com.mohiva.play.silhouette.api.services.{ IdentityService }
+import com.mohiva.play.silhouette.impl.providers.CommonSocialProfile
 import javax.inject._
 import play.api.db.slick.{ DatabaseConfigProvider, HasDatabaseConfigProvider }
 import slick.jdbc.JdbcProfile
@@ -31,7 +32,7 @@ import models.User
 class UserService @Inject() (
     protected val dbConfigProvider: DatabaseConfigProvider
   )
-  (userDAO: UserDAO)
+  (userDAO: UserDAO)(implicit executionContext: ExecutionContext)
   extends IdentityService[User]
   with HasDatabaseConfigProvider[JdbcProfile]
   {
@@ -40,11 +41,34 @@ class UserService @Inject() (
 
   def retrieve(loginInfo: LoginInfo): Future[Option[User]] = {
     db.run {
-      userDAO.users.
-        filter(_.loginProviderId === loginInfo.providerID).
-        filter(_.loginProviderKey === loginInfo.providerKey).
-        result.
-        headOption
+      userDAO.get(loginInfo)
+    }
+  }
+
+  /**
+   * Saves the social profile for a user.
+   *
+   * If a user exists for this profile then update the user, otherwise create a
+   * new user with the given profile.
+   */
+  def save(profile: CommonSocialProfile): Future[User] = {
+    db.run {
+      for {
+        userOption <- userDAO.get(profile.loginInfo)
+        user <- userOption match {
+          case Some(user) => DBIO.successful(user)
+          case None => {
+            // User does not exist, creates it.
+            (userDAO.users
+              returning userDAO.users.map(_.id)
+              into ((user, userId) => user.copy(id=userId))
+            ) += User(
+              email = profile.email.get,
+              loginProviderId = profile.loginInfo.providerID,
+              loginProviderKey = profile.loginInfo.providerKey)
+          }
+        }
+      } yield user
     }
   }
 }

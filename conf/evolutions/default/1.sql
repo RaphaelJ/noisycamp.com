@@ -2,7 +2,7 @@
 
 create table "user" (
     "id"                    serial primary key,
-    "email"                 varchar,
+    "email"                 varchar not null,
     "login_provider_id"     varchar,
     "login_provider_key"    varchar,
 
