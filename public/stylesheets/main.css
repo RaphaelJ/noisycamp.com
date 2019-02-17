@@ -33,6 +33,10 @@ h1, h2, h3, h4, h5, h6, .text-serif {
     border-radius: 2px;
 }
 
+.button:hover {
+    background-color: #915c11;
+}
+
 .button.large {
     padding: .75em 1em;
     font-size: 1.10rem;

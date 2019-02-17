@@ -28,7 +28,14 @@
 .button.provider.facebook {
     background-color: #29487d;
 }
+.button.provider.facebook:hover {
+    background-color: #1c3156;
+}
 
 .button.provider.google {
     background-color: #ea4335;
+}
+
+.button.provider.google:hover {
+    background-color: #b53327;
 }
