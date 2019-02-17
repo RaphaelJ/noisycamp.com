@@ -14,11 +14,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-GET     /                           controllers.IndexController.index
+GET     /                               controllers.IndexController.index
 
-GET     /sign-in                    controllers.AuthController.signIn
+GET     /sign-in                        controllers.AuthController.signIn
+GET     /social/authenticate/:provider  controllers.SocialAuthController.authenticate(provider: String)
 
-GET     /studios                    controllers.StudiosController.index
+GET     /studios                        controllers.StudiosController.index
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
+GET     /assets/*file                   controllers.Assets.versioned(path="/public", file: Asset)

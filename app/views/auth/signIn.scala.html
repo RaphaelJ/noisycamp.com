@@ -26,6 +26,13 @@
     <link
         rel="stylesheet"
         href="@routes.Assets.versioned("stylesheets/auth/sign-in.css")">
+    <link
+        rel="stylesheet"
+        href="@routes.Assets.versioned("stylesheets/vendor/webicons.css")">
+}
+
+@implicitField = @{
+    helper.FieldConstructor(utils.forms.foundationFieldConstructor.f)
 }
 
 @layout("Sign in", head=head) {
@@ -33,15 +40,17 @@
         <div class="top-content-section"></div>
 
         <div class="middle-content-section">
-            <div class="section-panel">
-                <h1>Sign in</h1>
+            <div class="panel-section">
+                <h2>Sign in</h2>
 
                 @helper.form(action = controllers.routes.AuthController.signIn) {
-                    @helper.inputText(
-                        signInForm("email"), 'type -> "email", '_name -> "Email")
-                    @helper.inputPassword(
-                        signInForm("password"), '_name -> "Password")
-                    @helper.checkbox(signInForm("rememberMe"), '_name -> "Remember me")
+                    @helper.inputText(signInForm("email"),
+                        '_label -> "Email", '_showConstraints -> false,
+                        'type -> "email")
+                    @helper.inputPassword(signInForm("password"),
+                        '_label -> "Password", '_showConstraints -> false)
+                    @helper.checkbox(signInForm("rememberMe"),
+                        '_label -> "Remember me", '_showConstraints -> false)
 
                     <button
                         type="submit"
@@ -50,7 +59,19 @@
                     </button>
                 }
 
-                <h3>Or use</h3>
+                <hr>
+
+                <div class="grid-x grid-margin-x">
+                    @for(p <- socialProviders.providers) {
+                        <div class="cell auto">
+                            <a
+                                href="@controllers.routes.SocialAuthController.authenticate(p.id)"
+                                class="button large expanded provider @p.id">
+                                Sign in with @p.id.capitalize
+                            </a>
+                        </div>
+                    }
+                </div>
             </div>
         </div>
 

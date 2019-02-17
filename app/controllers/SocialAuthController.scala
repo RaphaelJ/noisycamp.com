@@ -15,20 +15,30 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/* Full-screen hero with search box. */
+package controllers
 
-.hero.sign-in-hero {
-    background-image: url("/assets/images/auth/hero.jpg");
-}
+import com.mohiva.play.silhouette.api.Silhouette
+import com.mohiva.play.silhouette.impl.providers.SocialProviderRegistry
+import javax.inject._
+import play.api._
+import play.api.i18n.I18nSupport
+import play.api.mvc._
 
-.hero.sign-in-hero .middle-content-section {
-    width: 500px;
-}
+import auth.DefaultEnv
+import forms.auth.SignInForm
 
-.button.provider.facebook {
-    background-color: #29487d;
-}
+@Singleton
+class SocialAuthController @Inject() (
+  cc: ControllerComponents,
+  silhouette: Silhouette[DefaultEnv],
+  socialProviderRegistry: SocialProviderRegistry,
+  )
+  extends AbstractController(cc)
+  with I18nSupport {
 
-.button.provider.google {
-    background-color: #ea4335;
+  def authenticate(provider: String) = Action {
+    implicit request: Request[AnyContent] =>
+
+    Ok("")
+  }
 }
