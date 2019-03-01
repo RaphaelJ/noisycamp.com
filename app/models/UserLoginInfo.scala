@@ -17,9 +17,14 @@
 
 package models
 
-import com.mohiva.play.silhouette.api.Identity
+import com.mohiva.play.silhouette.api.LoginInfo
 
-/** Stores the information about an user. */
-case class User(
+/** Associates a `LoginInfo` instance with a user. */
+case class UserLoginInfo(
   id: Long = 0L,
-  email: String) extends Identity
+  userID: Long,
+  loginProviderID: String,
+  loginProviderKey: String) {
+
+  def loginInfo = LoginInfo(loginProviderID, loginProviderKey)
+}

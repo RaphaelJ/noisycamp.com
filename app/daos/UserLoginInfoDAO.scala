@@ -20,28 +20,41 @@ package daos
 import scala.concurrent.ExecutionContext
 import javax.inject.Inject
 
-import org.joda.time.DateTime
+import com.mohiva.play.silhouette.api.LoginInfo
 import play.api.db.slick.{ DatabaseConfigProvider, HasDatabaseConfigProvider }
 import slick.jdbc.JdbcProfile
 
-import models.User
+import models.UserLoginInfo
 
-class UserDAO @Inject()
-  (protected val dbConfigProvider: DatabaseConfigProvider)
+class UserLoginInfoDAO @Inject() (
+  protected val dbConfigProvider: DatabaseConfigProvider,
+  val userDAO: UserDAO)
   (implicit executionContext: ExecutionContext)
   extends HasDatabaseConfigProvider[JdbcProfile] {
 
   import profile.api._
 
-  final class UserTable(tag: Tag) extends Table[User](tag, "user") {
+  final class UserLoginInfoTable(tag: Tag)
+    extends Table[UserLoginInfo](tag, "user_login_info") {
 
     def id                = column[Long]("id", O.PrimaryKey, O.AutoInc)
-    def email             = column[String]("email")
+    def userID            = column[Long]("user_id")
+    def loginProviderID   = column[String]("login_provider_id")
+    def loginProviderKey  = column[String]("login_provider_key")
 
-    def * = (id, email).mapTo[User]
+    def * = (id, userID, loginProviderID, loginProviderKey).mapTo[UserLoginInfo]
+
+    // def user = foreignKey(
+    //   "user_login_info_user_id", userID, userDAO.users)(_.id)
   }
 
-  lazy val query = TableQuery[UserTable]
+  lazy val query = TableQuery[UserLoginInfoTable]
+
+  def get(loginInfo: LoginInfo) = {
+    query.
+      filter(_.loginProviderID === loginInfo.providerID).
+      filter(_.loginProviderKey === loginInfo.providerKey)
+  }
 
   lazy val insert = query returning
     query.map(_.id) into ((user, id) => user.copy(id=id))

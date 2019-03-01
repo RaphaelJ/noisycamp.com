@@ -51,6 +51,7 @@ import play.api.mvc.{ Cookie, CookieHeaderEncoding }
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import auth.{ CustomSecuredErrorHandler, DefaultEnv, UserService }
+import daos.{ UserPasswordInfoDAO }
 
 /**
  * The Guice module which wires all Silhouette dependencies.
@@ -88,8 +89,7 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
     bind[Clock].toInstance(Clock())
 
     // Replace this with the bindings to your concrete DAOs
-    bind[DelegableAuthInfoDAO[PasswordInfo]].toInstance(
-      new InMemoryAuthInfoDAO[PasswordInfo])
+    bind[DelegableAuthInfoDAO[PasswordInfo]].to[UserPasswordInfoDAO]
     bind[DelegableAuthInfoDAO[OAuth2Info]].toInstance(
       new InMemoryAuthInfoDAO[OAuth2Info])
   }

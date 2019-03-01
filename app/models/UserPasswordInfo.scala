@@ -17,9 +17,14 @@
 
 package models
 
-import com.mohiva.play.silhouette.api.Identity
+import  com.mohiva.play.silhouette.api.util.PasswordInfo
 
-/** Stores the information about an user. */
-case class User(
-  id: Long = 0L,
-  email: String) extends Identity
+/** Provides the hashed password credentials associated with a `LoginInfo`. */
+case class UserPasswordInfo(
+  loginInfoID: Long,
+  hasher: String,
+  password: String,
+  salt: Option[String]) {
+
+  def passwordInfo = PasswordInfo(hasher, password, salt)
+}

@@ -26,23 +26,29 @@ import javax.inject._
 import play.api.db.slick.{ DatabaseConfigProvider, HasDatabaseConfigProvider }
 import slick.jdbc.JdbcProfile
 
-import daos.UserDAO
-import models.User
+import daos.{ UserDAO, UserLoginInfoDAO }
+import models.{ User, UserLoginInfo }
 
 class UserService @Inject() (
-    protected val dbConfigProvider: DatabaseConfigProvider
-  )
-  (userDAO: UserDAO)(implicit executionContext: ExecutionContext)
+    protected val dbConfigProvider: DatabaseConfigProvider,
+    val userDAO: UserDAO,
+    val userLoginInfoDAO: UserLoginInfoDAO)
+  (implicit executionContext: ExecutionContext)
   extends IdentityService[User]
   with HasDatabaseConfigProvider[JdbcProfile]
   {
 
   import profile.api._
 
+  protected def userQuery(loginInfo: LoginInfo) = {
+    for {
+      userLoginInfo <- userLoginInfoDAO.get(loginInfo)
+      user <- userDAO.query.filter(_.id === userLoginInfo.userID)
+    } yield user
+  }
+
   def retrieve(loginInfo: LoginInfo): Future[Option[User]] = {
-    db.run {
-      userDAO.get(loginInfo)
-    }
+    db.run { userQuery(loginInfo).result.headOption }
   }
 
   /**
@@ -54,20 +60,22 @@ class UserService @Inject() (
   def save(profile: CommonSocialProfile): Future[User] = {
     db.run {
       for {
-        userOption <- userDAO.get(profile.loginInfo)
-        user <- userOption match {
-          case Some(user) => DBIO.successful(user)
-          case None => {
-            // User does not exist, creates it.
-            (userDAO.users
-              returning userDAO.users.map(_.id)
-              into ((user, userId) => user.copy(id=userId))
-            ) += User(
-              email = profile.email.get,
-              loginProviderId = profile.loginInfo.providerID,
-              loginProviderKey = profile.loginInfo.providerKey)
+        user <- userQuery(profile.loginInfo).
+          result.
+          headOption.
+          flatMap {
+            case Some(user) => DBIO.successful(user)
+            case None => {
+              // User does not exists.
+              for {
+                user <- userDAO.insert += User(email = profile.email.get)
+                _ <- userLoginInfoDAO.insert += UserLoginInfo(
+                  userID = user.id,
+                  loginProviderID = profile.loginInfo.providerID,
+                  loginProviderKey = profile.loginInfo.providerKey)
+              } yield user
+            }
           }
-        }
       } yield user
     }
   }
