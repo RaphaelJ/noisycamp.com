@@ -15,27 +15,25 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/* Full-screen hero with search box. */
+package forms.auth
 
-.hero.sign-in-hero {
-    background-image: url("/assets/images/auth/hero.jpg");
-}
+import play.api.data.Form
+import play.api.data.Forms._
 
-.hero.sign-in-hero .middle-content-section {
-    width: 500px;
-}
+object SignUpForm {
 
-.button.provider.facebook {
-    background-color: #29487d;
-}
-.button.provider.facebook:hover {
-    background-color: #1c3156;
-}
+  val form = Form(
+    mapping(
+      "firstName" -> nonEmptyText,
+      "lastName" -> nonEmptyText,
+      "email" -> email,
+      "password" -> nonEmptyText,
+    )(Data.apply)(Data.unapply)
+  )
 
-.button.provider.google {
-    background-color: #ea4335;
-}
-
-.button.provider.google:hover {
-    background-color: #b53327;
+  case class Data(
+    firstName: String,
+    lastName: String,
+    email: String,
+    password: String)
 }

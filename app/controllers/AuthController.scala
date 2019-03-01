@@ -25,7 +25,7 @@ import play.api.i18n.I18nSupport
 import play.api.mvc._
 
 import auth.DefaultEnv
-import forms.auth.SignInForm
+import forms.auth.{ SignInForm, SignUpForm }
 
 @Singleton
 class AuthController @Inject() (
@@ -40,5 +40,11 @@ class AuthController @Inject() (
     implicit request: Request[AnyContent] =>
 
     Ok(views.html.auth.signIn(SignInForm.form, socialProviderRegistry))
+  }
+
+  def signUp = silhouette.UnsecuredAction {
+    implicit request: Request[AnyContent] =>
+
+    Ok(views.html.auth.signUp(SignUpForm.form, socialProviderRegistry))
   }
 }

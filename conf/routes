@@ -17,6 +17,7 @@
 GET     /                               controllers.IndexController.index
 
 GET     /sign-in                        controllers.AuthController.signIn
+GET     /sign-up                        controllers.AuthController.signUp
 GET     /social/authenticate/:provider  controllers.SocialAuthController.authenticate(provider: String)
 
 GET     /studios                        controllers.StudiosController.index

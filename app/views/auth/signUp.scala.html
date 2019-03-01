@@ -17,9 +17,9 @@
 
 @import com.mohiva.play.silhouette.impl.providers.SocialProviderRegistry
 
-@import forms.auth.SignInForm.Data
+@import forms.auth.SignUpForm.Data
 
-@(signInForm: Form[Data], socialProviders: SocialProviderRegistry)(
+@(signUpForm: Form[Data], socialProviders: SocialProviderRegistry)(
     implicit request: RequestHeader, messagesProvider: MessagesProvider)
 
 @head = {
@@ -35,27 +35,29 @@
     helper.FieldConstructor(utils.forms.foundationFieldConstructor.f)
 }
 
-@layout("Sign in", head=head) {
+@layout("Sign up", head=head) {
     <div class="hero full-screen-with-bars sign-in-hero">
         <div class="top-content-section"></div>
 
         <div class="middle-content-section">
             <div class="panel-section">
-                <h2>Sign in</h2>
+                <h2>Sign up</h2>
 
                 @helper.form(action = controllers.routes.AuthController.signIn) {
-                    @helper.inputText(signInForm("email"),
+                    @helper.inputText(signUpForm("firstName"),
+                        '_label -> "First name", '_showConstraints -> false)
+                    @helper.inputText(signUpForm("lastName"),
+                        '_label -> "Last name", '_showConstraints -> false)
+                    @helper.inputText(signUpForm("email"),
                         '_label -> "Email", '_showConstraints -> false,
                         'type -> "email")
-                    @helper.inputPassword(signInForm("password"),
+                    @helper.inputPassword(signUpForm("password"),
                         '_label -> "Password", '_showConstraints -> false)
-                    @helper.checkbox(signInForm("rememberMe"),
-                        '_label -> "Remember me", '_showConstraints -> false)
 
                     <button
                         type="submit"
                         class="button large expanded">
-                        Sign in
+                        Create new account
                     </button>
                 }
 
