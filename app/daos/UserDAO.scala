@@ -36,9 +36,11 @@ class UserDAO @Inject()
   final class UserTable(tag: Tag) extends Table[User](tag, "user") {
 
     def id                = column[Long]("id", O.PrimaryKey, O.AutoInc)
+    def firstName         = column[Option[String]]("first_name")
+    def lastName          = column[Option[String]]("last_name")
     def email             = column[String]("email")
 
-    def * = (id, email).mapTo[User]
+    def * = (id, firstName, lastName, email).mapTo[User]
   }
 
   lazy val query = TableQuery[UserTable]

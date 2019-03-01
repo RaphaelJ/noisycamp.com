@@ -68,7 +68,10 @@ class UserService @Inject() (
             case None => {
               // User does not exists.
               for {
-                user <- userDAO.insert += User(email = profile.email.get)
+                user <- userDAO.insert += User(
+                  firstName = profile.firstName,
+                  lastName = profile.lastName,
+                  email = profile.email.get)
                 _ <- userLoginInfoDAO.insert += UserLoginInfo(
                   userID = user.id,
                   loginProviderID = profile.loginInfo.providerID,
