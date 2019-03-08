@@ -43,7 +43,11 @@
             <div class="panel-section">
                 <h2>Sign up</h2>
 
-                @helper.form(action = controllers.routes.AuthController.signIn) {
+                @helper.form(
+                    action = controllers.routes.AuthController.signUpSubmit) {
+
+                    @helper.CSRF.formField
+                    
                     @helper.inputText(signUpForm("firstName"),
                         '_label -> "First name", '_showConstraints -> false)
                     @helper.inputText(signUpForm("lastName"),

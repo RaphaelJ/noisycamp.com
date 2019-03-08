@@ -17,22 +17,31 @@
 
 package controllers
 
-import com.mohiva.play.silhouette.api.Silhouette
-import com.mohiva.play.silhouette.impl.providers.SocialProviderRegistry
+import scala.concurrent.{ ExecutionContext, Future }
+
+import com.mohiva.play.silhouette.api.{ LoginInfo, Silhouette }
+import com.mohiva.play.silhouette.api.util.PasswordHasherRegistry
+import com.mohiva.play.silhouette.api.repositories.AuthInfoRepository
+import com.mohiva.play.silhouette.impl.providers.{
+  CommonSocialProfile, CredentialsProvider, SocialProviderRegistry }
 import javax.inject._
 import play.api._
 import play.api.i18n.I18nSupport
 import play.api.mvc._
 
-import auth.DefaultEnv
+import auth.{ DefaultEnv, UserService }
+import daos.{ UserDAO, UserLoginInfoDAO, UserPasswordInfoDAO }
 import forms.auth.{ SignInForm, SignUpForm }
 
 @Singleton
 class AuthController @Inject() (
+  authInfoRepository: AuthInfoRepository,
   cc: ControllerComponents,
+  passwordHasherRegistry: PasswordHasherRegistry,
   silhouette: Silhouette[DefaultEnv],
   socialProviderRegistry: SocialProviderRegistry,
-  )
+  implicit val userService: UserService
+  )(implicit executionContext: ExecutionContext)
   extends AbstractController(cc)
   with I18nSupport {
 
@@ -46,5 +55,42 @@ class AuthController @Inject() (
     implicit request: Request[AnyContent] =>
 
     Ok(views.html.auth.signUp(SignUpForm.form, socialProviderRegistry))
+  }
+
+  def signUpSubmit = silhouette.UnsecuredAction.async {
+    implicit request: Request[AnyContent] =>
+
+    SignUpForm.form.bindFromRequest.fold(
+      form => Future.successful(
+        BadRequest(views.html.auth.signUp(form, socialProviderRegistry))),
+      data => {
+        val loginInfo = LoginInfo(CredentialsProvider.ID, data.email)
+
+        userService.retrieve(loginInfo).flatMap {
+          case Some(user) => {
+            // User already exists with this email, notifies the user.
+            val form = SignUpForm.form.
+              withError(
+                "email", "An account already exists with that email address")
+
+            Future.successful(
+              BadRequest(views.html.auth.signUp(form, socialProviderRegistry)))
+          }
+
+          case None => {
+            for {
+              user <- userService.save(CommonSocialProfile(
+                loginInfo = loginInfo,
+                firstName = Some(data.firstName),
+                lastName = Some(data.lastName),
+                email = Some(data.email)))
+              authInfo <- authInfoRepository.add(
+                loginInfo, passwordHasherRegistry.current.hash(data.password))
+            } yield Redirect(routes.IndexController.index()).
+              flashing("top-message" -> "Account successfully created.")
+          }
+        }
+      }
+    )
   }
 }

@@ -20,6 +20,8 @@ package forms.auth
 import play.api.data.Form
 import play.api.data.Forms._
 
+import auth.UserService
+
 object SignInForm {
 
   val form = Form(

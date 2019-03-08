@@ -17,12 +17,16 @@
 
 package forms.auth
 
+import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
 import play.api.data.Form
 import play.api.data.Forms._
+import play.api.data.validation.Constraints._
+
+import auth.UserService
 
 object SignUpForm {
 
-  val form = Form(
+  def form(implicit userService: UserService) = Form(
     mapping(
       "firstName" -> nonEmptyText,
       "lastName" -> nonEmptyText,

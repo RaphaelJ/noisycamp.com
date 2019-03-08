@@ -281,7 +281,7 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
    */
   @Provides
   def providePasswordHasherRegistry(): PasswordHasherRegistry = {
-    PasswordHasherRegistry(new BCryptSha256PasswordHasher(), Seq(new BCryptPasswordHasher()))
+    PasswordHasherRegistry(new BCryptSha256PasswordHasher())
   }
 
   /**
