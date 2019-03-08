@@ -69,9 +69,9 @@ class AuthController @Inject() (
         userService.retrieve(loginInfo).flatMap {
           case Some(user) => {
             // User already exists with this email, notifies the user.
-            val form = SignUpForm.form.
+            val form = SignUpForm.form.bindFromRequest.
               withError(
-                "email", "An account already exists with that email address")
+                "email", "An account already exists with this email address.")
 
             Future.successful(
               BadRequest(views.html.auth.signUp(form, socialProviderRegistry)))

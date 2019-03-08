@@ -67,6 +67,16 @@ h1, h2, h3, h4, h5, h6, .text-serif {
     box-shadow:0 0 5px rgba(202, 202, 202, 0.25);
 }
 
+form label .error {
+    display: block;
+    margin-top: -0.7rem;
+    margin-bottom: 1rem;
+
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #cc4b37;
+}
+
 /* Top bar */
 
 .top-bar, .top-bar ul {
