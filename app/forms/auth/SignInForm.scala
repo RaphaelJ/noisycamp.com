@@ -20,20 +20,16 @@ package forms.auth
 import play.api.data.Form
 import play.api.data.Forms._
 
-import auth.UserService
-
 object SignInForm {
 
   val form = Form(
     mapping(
       "email" -> email,
-      "password" -> nonEmptyText,
-      "rememberMe" -> boolean
+      "password" -> nonEmptyText
     )(Data.apply)(Data.unapply)
   )
 
   case class Data(
     email:      String,
-    password:   String,
-    rememberMe: Boolean)
+    password:   String)
 }

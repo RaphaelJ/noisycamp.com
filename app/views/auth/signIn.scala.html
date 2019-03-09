@@ -43,14 +43,16 @@
             <div class="panel-section">
                 <h2>Sign in</h2>
 
-                @helper.form(action = controllers.routes.AuthController.signIn) {
+                @helper.form(
+                    action = controllers.routes.AuthController.signInSubmit) {
+
+                    @helper.CSRF.formField
+
                     @helper.inputText(signInForm("email"),
                         '_label -> "Email", '_showConstraints -> false,
                         'type -> "email")
                     @helper.inputPassword(signInForm("password"),
                         '_label -> "Password", '_showConstraints -> false)
-                    @helper.checkbox(signInForm("rememberMe"),
-                        '_label -> "Remember me", '_showConstraints -> false)
 
                     <button
                         type="submit"

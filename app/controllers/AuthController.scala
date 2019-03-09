@@ -20,8 +20,12 @@ package controllers
 import scala.concurrent.{ ExecutionContext, Future }
 
 import com.mohiva.play.silhouette.api.{ LoginInfo, Silhouette }
-import com.mohiva.play.silhouette.api.util.PasswordHasherRegistry
+import com.mohiva.play.silhouette.api.exceptions.ProviderException
+import com.mohiva.play.silhouette.api.util.{
+  Credentials, PasswordHasherRegistry }
 import com.mohiva.play.silhouette.api.repositories.AuthInfoRepository
+import com.mohiva.play.silhouette.impl.exceptions.{
+  IdentityNotFoundException, InvalidPasswordException }
 import com.mohiva.play.silhouette.impl.providers.{
   CommonSocialProfile, CredentialsProvider, SocialProviderRegistry }
 import javax.inject._
@@ -37,6 +41,7 @@ import forms.auth.{ SignInForm, SignUpForm }
 class AuthController @Inject() (
   authInfoRepository: AuthInfoRepository,
   cc: ControllerComponents,
+  credentialsProvider: CredentialsProvider,
   passwordHasherRegistry: PasswordHasherRegistry,
   silhouette: Silhouette[DefaultEnv],
   socialProviderRegistry: SocialProviderRegistry,
@@ -49,6 +54,44 @@ class AuthController @Inject() (
     implicit request: Request[AnyContent] =>
 
     Ok(views.html.auth.signIn(SignInForm.form, socialProviderRegistry))
+  }
+
+  def signInSubmit = silhouette.UnsecuredAction.async {
+    implicit request: Request[AnyContent] =>
+
+    SignInForm.form.bindFromRequest.fold(
+      form => Future.successful(
+        BadRequest(views.html.auth.signIn(form, socialProviderRegistry))),
+      data => {
+        val credentials = Credentials(data.email, data.password)
+        credentialsProvider.authenticate(credentials).
+          flatMap { loginInfo =>
+            userService.retrieve(loginInfo).flatMap {
+              case Some(user) => {
+                for {
+                  authenticator <-
+                    silhouette.env.authenticatorService.create(loginInfo)
+                  v <- silhouette.env.authenticatorService.init(authenticator)
+                  resp <- silhouette.env.authenticatorService.embed(
+                    v, Redirect(routes.IndexController.index()))
+                } yield resp
+              }
+              case None => Future.failed(
+                new IdentityNotFoundException("Couldn't find user"))
+          }.
+          recover {
+            case _: InvalidPasswordException => {
+              val form = SignInForm.form.
+                withError("password", "Passsword does not match")
+              BadRequest(views.html.auth.signIn(form, socialProviderRegistry))
+            }
+            case _: ProviderException =>
+              Redirect(routes.AuthController.signIn()).
+                flashing("error" -> "")
+          }
+        }
+      }
+    )
   }
 
   def signUp = silhouette.UnsecuredAction {

@@ -36,7 +36,7 @@ class IndexController @Inject() (
       case Some(identity) => identity.email
       case None => "None"
     }
-    println(userEmail)
+    
     Ok(views.html.index())
   }
 }

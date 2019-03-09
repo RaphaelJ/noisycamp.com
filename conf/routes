@@ -17,6 +17,7 @@
 GET     /                               controllers.IndexController.index
 
 GET     /sign-in                        controllers.AuthController.signIn
+POST    /sign-in                        controllers.AuthController.signInSubmit
 
 GET     /sign-up                        controllers.AuthController.signUp
 POST    /sign-up                        controllers.AuthController.signUpSubmit
