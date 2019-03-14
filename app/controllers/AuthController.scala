@@ -37,6 +37,7 @@ import auth.{ DefaultEnv, UserService }
 import daos.{ UserDAO, UserLoginInfoDAO, UserPasswordInfoDAO }
 import forms.auth.{ SignInForm, SignUpForm }
 
+/** Provides endpoint to login and register using a email + password set. */
 @Singleton
 class AuthController @Inject() (
   authInfoRepository: AuthInfoRepository,
@@ -77,19 +78,22 @@ class AuthController @Inject() (
                 } yield resp
               }
               case None => Future.failed(
-                new IdentityNotFoundException("Couldn't find user"))
+                new IdentityNotFoundException(
+                  "Can not authenticate user with a password."))
+            }
           }.
           recover {
             case _: InvalidPasswordException => {
-              val form = SignInForm.form.
-                withError("password", "Passsword does not match")
+              val form = SignInForm.form.bindFromRequest.
+                withError("password", "Invalid password.")
               BadRequest(views.html.auth.signIn(form, socialProviderRegistry))
             }
-            case _: ProviderException =>
-              Redirect(routes.AuthController.signIn()).
-                flashing("error" -> "")
+            case _: IdentityNotFoundException => {
+              val form = SignInForm.form.bindFromRequest.
+                withError("email", "This user does not exists.")
+              BadRequest(views.html.auth.signIn(form, socialProviderRegistry))
+            }
           }
-        }
       }
     )
   }

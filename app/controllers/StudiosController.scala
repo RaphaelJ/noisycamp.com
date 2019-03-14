@@ -17,15 +17,20 @@
 
 package controllers
 
+import com.mohiva.play.silhouette.api.Silhouette
 import javax.inject._
 import play.api._
 import play.api.mvc._
 
+import auth.DefaultEnv
+
 @Singleton
-class StudiosController @Inject() (cc: ControllerComponents)
+class StudiosController @Inject() (
+  cc: ControllerComponents,
+  silhouette: Silhouette[DefaultEnv])
   extends AbstractController(cc) {
 
-  def index = Action { implicit request: Request[AnyContent] =>
-    Ok(views.html.studios.index(sys.env("MAPBOX_TOKEN")))
+  def index = silhouette.UserAwareAction { implicit request =>
+    Ok(views.html.studios.index(user=request.identity, sys.env("MAPBOX_TOKEN")))
   }
 }

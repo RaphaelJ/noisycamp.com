@@ -15,8 +15,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *@
 
+@import _root_.auth.DefaultEnv
+
 @(
-    title: String, head: Html = Html(""), javascript: Html = Html("")
+    title: String, head: Html = Html(""), javascript: Html = Html(""),
+    user: Option[models.User] = None
     )(content: Html)
 
 <!doctype html>
@@ -63,12 +66,21 @@
                     <li>
                         <a href="#" class="button">Host a studio</a>
                     </li>
-                    <li>
-                        <a href="@routes.AuthController.signIn">Sign in</a>
-                    </li>
-                    <li>
-                        <a href="@routes.AuthController.signUp">Sign up</a>
-                    </li>
+
+                    @if(user.isDefined) {
+                        <li>
+                            <a href="@routes.AuthController.signIn">
+                                @user.get.email
+                            </a>
+                        </li>
+                    } else {
+                        <li>
+                            <a href="@routes.AuthController.signIn">Sign in</a>
+                        </li>
+                        <li>
+                            <a href="@routes.AuthController.signUp">Sign up</a>
+                        </li>
+                    }
                 </ul>
             </div>
         </div>

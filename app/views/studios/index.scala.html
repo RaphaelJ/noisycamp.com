@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *@
 
-@(mapboxToken: String)
+@(user: Option[models.User], mapboxToken: String)
 
 @head = {
     <link
@@ -27,7 +27,7 @@
         href="https://api.mapbox.com/mapbox-gl-js/v0.52.0/mapbox-gl.css">
 }
 
-@layout("Find a music studio", head=head) {
+@layout("Find a music studio", head=head, user=user) {
     <div id="nc-app">
         <studios-index mapbox-token='@mapboxToken'></studios-index>
     </div>

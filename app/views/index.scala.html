@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *@
 
-@()
+@(user: Option[models.User])
 
 @head = {
     <link
@@ -23,7 +23,7 @@
         href="@routes.Assets.versioned("stylesheets/index.css")">
 }
 
-@layout("Music and rehearsal studio rentals", head=head) {
+@layout("Music and rehearsal studio rentals", head=head, user=user) {
     <div class="hero full-screen home-hero">
         <div class="top-content-section">
         </div>

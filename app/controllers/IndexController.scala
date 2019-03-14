@@ -27,8 +27,7 @@ import auth.DefaultEnv
 @Singleton
 class IndexController @Inject() (
   cc: ControllerComponents,
-  silhouette: Silhouette[DefaultEnv]
-  )
+  silhouette: Silhouette[DefaultEnv]) 
   extends AbstractController(cc) {
 
   def index = silhouette.UserAwareAction { implicit request =>
@@ -36,7 +35,7 @@ class IndexController @Inject() (
       case Some(identity) => identity.email
       case None => "None"
     }
-    
-    Ok(views.html.index())
+
+    Ok(views.html.index(user=request.identity))
   }
 }
