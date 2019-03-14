@@ -24,4 +24,10 @@ case class User(
   id: Long = 0L,
   firstName: Option[String],
   lastName: Option[String],
-  email: String) extends Identity
+  email: String) extends Identity {
+
+  def fullName = (firstName, lastName) match {
+    case (Some(fn), Some(ln)) => Some(fn + ' ' + ln)
+    case _ => None
+  }
+}

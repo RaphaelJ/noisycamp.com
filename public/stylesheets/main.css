@@ -26,6 +26,18 @@ h1, h2, h3, h4, h5, h6, .text-serif {
     font-family: 'Playfair Display', serif;
 }
 
+a {
+    color: #b37216;
+}
+
+a:hover {
+    color: #915c11;
+}
+
+main {
+    min-height: calc(100vh - 54px - 61px);
+}
+
 /* Buttons and forms */
 
 .button {
@@ -130,6 +142,14 @@ form label .error {
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
+/* A section of content that appears in a box  */
+.panel-section {
+    background-color: rgba(255, 255, 255, 1);
+    border-radius: 5px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 18px 25px;
+}
+
 /* Full-width hero picture */
 
 .hero {
@@ -158,14 +178,6 @@ form label .error {
 
 .hero.full-screen-with-bars {
     height: calc(100vh - 53px - 63px);
-}
-
-/* A section of content that appears in a box  */
-.hero .panel-section {
-    background-color: rgba(255, 255, 255, 1);
-    border-radius: 5px;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    padding: 18px 25px;
 }
 
 .hero .top-content-section {

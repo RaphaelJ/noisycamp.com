@@ -69,7 +69,7 @@
 
                     @if(user.isDefined) {
                         <li>
-                            <a href="@routes.AuthController.signIn">
+                            <a href="@routes.AccountController.index">
                                 @user.get.email
                             </a>
                         </li>
@@ -85,7 +85,9 @@
             </div>
         </div>
 
-        @content
+        <main>
+            @content
+        </main>
 
         <footer class="grid-x grid-padding-x">
             <div class="cell small-6 text-left">

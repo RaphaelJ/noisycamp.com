@@ -25,12 +25,12 @@ import play.api.mvc._
 import auth.DefaultEnv
 
 @Singleton
-class IndexController @Inject() (
+class AccountController @Inject() (
   cc: ControllerComponents,
   silhouette: Silhouette[DefaultEnv])
   extends AbstractController(cc) {
 
-  def index = silhouette.UserAwareAction { implicit request =>
-    Ok(views.html.index(user=request.identity))
+  def index = silhouette.SecuredAction { implicit request =>
+    Ok(views.html.account.index(user=request.identity))
   }
 }

@@ -16,6 +16,8 @@
 
 GET     /                               controllers.IndexController.index
 
+# Authentication
+
 GET     /sign-in                        controllers.AuthController.signIn
 POST    /sign-in                        controllers.AuthController.signInSubmit
 
@@ -23,6 +25,12 @@ GET     /sign-up                        controllers.AuthController.signUp
 POST    /sign-up                        controllers.AuthController.signUpSubmit
 
 GET     /social/authenticate/:provider  controllers.SocialAuthController.authenticate(provider: String)
+
+# User account
+
+GET     /account                        controllers.AccountController.index
+
+# Studio listing
 
 GET     /studios                        controllers.StudiosController.index
 

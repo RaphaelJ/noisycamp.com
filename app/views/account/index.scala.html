@@ -1,0 +1,75 @@
+@* Noisycamp is a platform for booking music studios.
+ * Copyright (C) 2019  Raphael Javaux <raphaeljavaux@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *@
+
+@import _root_.auth.DefaultEnv
+
+@(user: models.User)
+
+@title = {
+    User account (@user.fullName.getOrElse(user.email))
+}
+
+@layout(title.toString, user=Some(user)) {
+    <div class="grid-container">
+        <div class="grid-x grid-padding-x grid-padding-y">
+            <div class="cell medium-3">
+                <div class="panel-section">
+                    <h5 class="text-center">
+                        @user.fullName.getOrElse(user.email)
+                    </h5>
+                    @if(user.fullName.isDefined) {
+                        <h6 class="text-center"><small>@user.email</small></h6>
+                    }
+
+                    <div class="text-right">
+                        <a href="#">Edit your profile</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cell medium-9">
+                <div class="grid-x grid-padding-y">
+                    <div class="cell large-12">
+                        <div class="panel-section">
+                            <h4>My upcoming bookings</h4>
+
+                            <div class="text-center">
+                                You don't have any upcoming booking.
+                                Are you
+                                <a href="@routes.StudiosController.index">
+                                    looking for a studio</a>?
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="cell large-12">
+                        <div class="panel-section">
+                            <h4>My top listed places</h4>
+
+                            <div class="text-center">
+                                No studio associated with this account.
+                                Do you want to
+                                <a href="@routes.IndexController.index">
+                                    host a studio</a>?
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
