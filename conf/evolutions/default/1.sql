@@ -4,7 +4,8 @@ create table "user" (
     id                      serial primary key,
     first_name              varchar,
     last_name               varchar,
-    email                   varchar not null
+    email                   varchar not null,
+    avatar_id               integer
 );
 
 -- Multiple login providers could be associated with a single user.

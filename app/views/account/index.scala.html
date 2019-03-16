@@ -20,7 +20,7 @@
 @(user: models.User)
 
 @title = {
-    User account (@user.fullName.getOrElse(user.email))
+    Account (@user.fullName.getOrElse(user.email))
 }
 
 @layout(title.toString, user=Some(user)) {
@@ -28,9 +28,9 @@
         <div class="grid-x grid-padding-x grid-padding-y">
             <div class="cell medium-3">
                 <div class="panel-section">
-                    <h5 class="text-center">
-                        @user.fullName.getOrElse(user.email)
-                    </h5>
+                    <div class="text-center">@tags.avatar(user, size = 64)</div>
+
+                    <h5 class="text-center">@user.displayName</h5>
                     @if(user.fullName.isDefined) {
                         <h6 class="text-center"><small>@user.email</small></h6>
                     }

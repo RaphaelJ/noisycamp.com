@@ -70,7 +70,7 @@
                     @if(user.isDefined) {
                         <li>
                             <a href="@routes.AccountController.index">
-                                @user.get.email
+                                @user.get.displayName
                             </a>
                         </li>
                     } else {

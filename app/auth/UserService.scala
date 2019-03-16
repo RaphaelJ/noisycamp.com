@@ -71,7 +71,8 @@ class UserService @Inject() (
                 user <- userDAO.insert += User(
                   firstName = profile.firstName,
                   lastName = profile.lastName,
-                  email = profile.email.get)
+                  email = profile.email.get,
+                  avatarID = None)
                 _ <- userLoginInfoDAO.insert += UserLoginInfo(
                   userID = user.id,
                   loginProviderID = profile.loginInfo.providerID,

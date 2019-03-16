@@ -39,8 +39,9 @@ class UserDAO @Inject()
     def firstName         = column[Option[String]]("first_name")
     def lastName          = column[Option[String]]("last_name")
     def email             = column[String]("email")
+    def avatarID          = column[Option[Long]]("avatar_id")
 
-    def * = (id, firstName, lastName, email).mapTo[User]
+    def * = (id, firstName, lastName, email, avatarID).mapTo[User]
   }
 
   lazy val query = TableQuery[UserTable]

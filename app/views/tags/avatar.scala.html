@@ -1,4 +1,4 @@
-/* Noisycamp is a platform for booking music studios.
+@* Noisycamp is a platform for booking music studios.
  * Copyright (C) 2019  Raphael Javaux <raphaeljavaux@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,25 +13,24 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+ *@
 
-package models
+@(user: models.User, size: Int = 26)
 
-import com.mohiva.play.silhouette.api.Identity
+<span class="avatar">
+    @if(user.avatarID) {
+        <img src="#" alt="@user.displayName" width="@size" height="@size">
+    } else {
+        <!-- No avatar linked with the accounts, generates a SVG image with the
+          --  first letter of the display name. -->
 
-/** Stores the information about an user. */
-case class User(
-  id: Long = 0L,
-  firstName: Option[String],
-  lastName: Option[String],
-  email: String,
-  avatarID: Option[Long]) extends Identity {
-
-  def fullName: Option[String] = (firstName, lastName) match {
-    case (Some(fn), Some(ln)) => Some(fn + ' ' + ln)
-    case _ => None
-  }
-
-  /** Returns the full-name if availaible, or else the email. */
-  def displayName: String = fullName.getOrElse(email)
-}
+        <svg width="@{size}px" height="@{size}px">
+            <rect width="100%" height="100%"></rect>
+            <text
+                x="50%" y="50%"
+                font-size="@{size / 8 * 6}px">
+                @user.displayName.head.toUpper
+            </text>
+        </svg>
+    }
+</span>

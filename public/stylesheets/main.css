@@ -133,6 +133,22 @@ form label .error {
     width: 100%;
 }
 
+/* Avatars */
+
+.avatar svg, .avatar img {
+    border-radius: 50%;
+}
+
+.avatar svg rect {
+    fill: #e0e0e0;
+}
+
+.avatar svg text {
+    fill: #757373;
+    dominant-baseline: central;
+    text-anchor:middle;
+}
+
 /* Content */
 
 /* A content section that is slightly highlighted. */
