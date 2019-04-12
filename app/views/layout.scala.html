@@ -64,12 +64,14 @@
             <div class="top-bar-right">
                 <ul class="menu">
                     <li>
-                        <a href="#" class="button">Host a studio</a>
+                        <a
+                            href="@controllers.account.routes.StudiosController.create()"
+                            class="button">Host a studio</a>
                     </li>
 
                     @if(user.isDefined) {
                         <li>
-                            <a href="@routes.AccountController.index">
+                            <a href="@controllers.account.routes.IndexController.index()">
                                 @user.get.displayName
                             </a>
                         </li>

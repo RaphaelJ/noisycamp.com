@@ -15,22 +15,21 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package controllers
+package forms.account
 
-import com.mohiva.play.silhouette.api.Silhouette
-import javax.inject._
-import play.api._
-import play.api.mvc._
+import play.api.data.Form
+import play.api.data.Forms._
 
-import auth.DefaultEnv
+object StudioForm {
 
-@Singleton
-class AccountController @Inject() (
-  cc: ControllerComponents,
-  silhouette: Silhouette[DefaultEnv])
-  extends AbstractController(cc) {
+  val form = Form(
+    mapping(
+      "name" -> nonEmptyText,
+      "address" -> forms.components.AddressForm.form.mapping,
+    )(Data.apply)(Data.unapply)
+  )
 
-  def index = silhouette.SecuredAction { implicit request =>
-    Ok(views.html.account.index(user=request.identity))
-  }
+  case class Data(
+    name:      String,
+    address:   forms.components.AddressForm.Data)
 }

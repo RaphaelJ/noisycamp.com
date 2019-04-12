@@ -63,18 +63,22 @@ main {
 [type="color"], [type="date"], [type="datetime-local"], [type="datetime"],
 [type="email"], [type="month"], [type="number"], [type="password"],
 [type="search"], [type="tel"], [type="text"], [type="time"], [type="url"],
-[type="week"], textarea {
+[type="week"], textarea, select {
     background-color: #fefefecc;
     border: 2px solid rgba(158, 158, 158, 0.3);
     border-radius: 2px;
     box-shadow: none;
+
+    line-height: 1rem;
 }
 
 [type="color"]:focus, [type="date"]:focus, [type="datetime-local"]:focus,
 [type="datetime"]:focus, [type="email"]:focus, [type="month"]:focus,
 [type="number"]:focus, [type="password"]:focus,
 [type="search"]:focus, [type="tel"]:focus, [type="text"]:focus,
-[type="time"]:focus, [type="url"]:focus, [type="week"]:focus, textarea:focus {
+[type="time"]:focus, [type="url"]:focus, [type="week"]:focus, textarea:focus,
+select:focus
+ {
     border: 2px solid rgba(158, 158, 158, 0.6);
     box-shadow:0 0 5px rgba(202, 202, 202, 0.25);
 }

@@ -28,7 +28,10 @@ GET     /social/authenticate/:provider  controllers.SocialAuthController.authent
 
 # User account
 
-GET     /account                        controllers.AccountController.index
+GET     /account                        controllers.account.IndexController.index
+
+GET     /account/studios                controllers.account.StudiosController.index
+GET     /account/studios/create         controllers.account.StudiosController.create
 
 # Studio listing
 

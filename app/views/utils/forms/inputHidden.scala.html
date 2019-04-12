@@ -1,4 +1,4 @@
-/* Noisycamp is a platform for booking music studios.
+@* Noisycamp is a platform for booking music studios.
  * Copyright (C) 2019  Raphael Javaux <raphaeljavaux@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,23 +13,19 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+ *@
 
-package forms.account
+@(field: play.api.data.Field, args: (Symbol,Any)*)
 
-import play.api.data.Form
-import play.api.data.Forms._
+@id = @{ args.toMap.get('id).map(_.toString).getOrElse(field.id) }
 
-object NewStudioForm {
-
-  val form = Form(
-    mapping(
-      "name" -> nonEmptyText,
-      "address" -> nonEmptyText,
-    )(Data.apply)(Data.unapply)
-  )
-
-  case class Data(
-    email:      String,
-    password:   String)
+@htmlArgs = @{ args.
+    filter { arg =>
+        !arg._1.name.startsWith("_") && arg._1 != 'id && arg._1 != 'type
+    }.
+    toMap
 }
+
+<input
+    type="hidden" id="@id" name="@field.name" value="@field.value"
+    @toHtmlArgs(htmlArgs) />

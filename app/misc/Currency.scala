@@ -19,8 +19,8 @@ package misc
 
 object Currency extends Enumeration {
 
-  protected case class Val(
-    name: String, symbol: String, isoCode: String)
+  case class Val(
+    val name: String, val symbol: String, val isoCode: String)
     extends super.Val
 
   /* EU */
@@ -36,11 +36,15 @@ object Currency extends Enumeration {
   val SwedishKrona = Val("Swedish krona", "kr", "SEK")
 
   /* Other */
-  // val AustralianDollar = Val(8"Pound sterling", "AU$", "AUD")
+  val AustralianDollar = Val("Pound sterling", "AU$", "AUD")
   val CanadianDollar = Val("Canadian dollar", "CAD", "CAD")
-  // val NZDollar = Val("New Zealand dollar", "NZ$", "NZD")
+  val NZDollar = Val("New Zealand dollar", "NZ$", "NZD")
   val USDollar = Val("U.S. dollar", "$", "USD")
 
   /** Maps currency ISO codes to `Currency` instances. */
-  val byCode: Map[String, Val] = Map(values.map { v.isoCode -> v })
+  val byCode: Map[String, Val] = values.
+    toList.
+    map(_.asInstanceOf[Val]).
+    map { v => v.isoCode -> v }.
+    toMap
 }

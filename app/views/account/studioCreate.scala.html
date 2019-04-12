@@ -1,0 +1,79 @@
+@* Noisycamp is a platform for booking music studios.
+ * Copyright (C) 2019  Raphael Javaux <raphaeljavaux@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *@
+
+@import forms.account.StudioForm.Data
+
+@(user: models.User, studioForm: Form[Data])(
+    implicit request: RequestHeader, messagesProvider: MessagesProvider)
+
+@implicitField = @{
+    helper.FieldConstructor(utils.forms.foundationFieldConstructor.f)
+}
+
+@form(implicit field: views.html.helper.FieldConstructor) = {
+    @helper.form(
+        action = controllers.account.routes.StudiosController.create()) {
+
+        @helper.CSRF.formField
+
+        <h4>General information</h4>
+
+        @helper.inputText(studioForm("name"),
+            '_label -> "Studio name",
+            '_showConstraints -> false,
+            '_help -> (
+                "This is how your studio will appear on " +
+                "listings and on search engines."))
+
+        <h4>Openning times</h4>
+
+        <h4>Location</h4>
+
+        @utils.forms.inputHidden(studioForm("address.country"))
+        @utils.forms.inputHidden(studioForm("address.address_1"))
+        @utils.forms.inputHidden(studioForm("address.address_2"))
+        @utils.forms.inputHidden(studioForm("address.zipcode"))
+        @utils.forms.inputHidden(studioForm("address.state"))
+        @utils.forms.inputHidden(studioForm("address.country"))
+
+        @utils.forms.inputHidden(studioForm("coordinates.latitude"))
+        @utils.forms.inputHidden(studioForm("coordinates.longitude"))
+
+        <button type="submit" class="button large">
+            Create studio
+        </button>
+    }
+}
+
+@layout("Host a new studio", user=Some(user)) {
+    <div class="grid-container">
+        <div class="grid-x grid-padding-x grid-padding-y">
+            <div class="cell auto">
+                <div class="panel-section">
+                    <h2>Host a new studio</h2>
+
+                    <p>
+                        We just need a little bit of information about the place
+                        you want to list on NoisyCamp.
+                    </p>
+
+                    @form
+                </div>
+            </div>
+        </div>
+    </div>
+}
