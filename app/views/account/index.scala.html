@@ -15,7 +15,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *@
 
-@(user: models.User)
+@import play.api.Configuration
+
+@(user: models.User)(implicit config: Configuration)
 
 @title = {
     Account (@user.fullName.getOrElse(user.email))

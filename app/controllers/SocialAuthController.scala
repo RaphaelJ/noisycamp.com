@@ -34,6 +34,7 @@ import auth.{ DefaultEnv, UserService }
 @Singleton
 class SocialAuthController @Inject() (
   cc: ControllerComponents,
+  implicit val config: Configuration,
   silhouette: Silhouette[DefaultEnv],
   userService: UserService,
   authInfoRepository: AuthInfoRepository,

@@ -170,10 +170,10 @@ import * as mbxGeocoding from '@mapbox/mapbox-sdk/services/geocoding';
 import * as _ from "lodash";
 import Vue from "vue";
 
+declare var NC_CONFIG: any;
+
 export default Vue.extend({
     props: {
-        mapboxToken: { type: String, required: true },
-
         // Lists the provinces of every country.
         //
         // Exemple
@@ -245,7 +245,7 @@ export default Vue.extend({
         }
     },
     mounted() {
-        mapboxgl.accessToken = this.mapboxToken;
+        mapboxgl.accessToken = NC_CONFIG.mapboxToken;
 
         this.map = new mapboxgl.Map({
             container: this.$refs.map,
@@ -260,7 +260,9 @@ export default Vue.extend({
             });
         this.marker.on('drag', this.dragMarker);
 
-        this.geocodingClient = mbxGeocoding({ accessToken: this.mapboxToken });
+        this.geocodingClient = mbxGeocoding({
+            accessToken: NC_CONFIG.mapboxToken
+        });
 
         if (!this.long || !this.lat) {
             this.updateMarker();

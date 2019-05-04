@@ -27,6 +27,7 @@ import auth.DefaultEnv
 @Singleton
 class IndexController @Inject() (
   cc: ControllerComponents,
+  implicit val config: Configuration,
   silhouette: Silhouette[DefaultEnv])
   extends AbstractController(cc) {
 

@@ -15,7 +15,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *@
 
-@(user: Option[models.User])
+@import play.api.Configuration
+
+@(user: Option[models.User])(implicit config: Configuration)
 
 @head = {
     <link

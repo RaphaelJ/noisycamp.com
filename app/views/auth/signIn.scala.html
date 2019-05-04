@@ -16,11 +16,13 @@
  *@
 
 @import com.mohiva.play.silhouette.impl.providers.SocialProviderRegistry
+@import play.api.Configuration
 
 @import forms.auth.SignInForm.Data
 
 @(signInForm: Form[Data], socialProviders: SocialProviderRegistry)(
-    implicit request: RequestHeader, messagesProvider: MessagesProvider)
+    implicit request: RequestHeader, messagesProvider: MessagesProvider,
+    config: Configuration)
 
 @head = {
     <link

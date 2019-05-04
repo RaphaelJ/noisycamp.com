@@ -63,10 +63,10 @@ import * as mbxGeocoding from '@mapbox/mapbox-sdk/services/geocoding';
 import * as _ from "lodash";
 import Vue from "vue";
 
+declare var NC_CONFIG: any;
+
 export default Vue.extend({
     props: {
-        mapboxToken: { type: String, required: true },
-
         // A GeoJSON feature that contains a `place_name` field.
         value: { type: Object, required: false },
     },
@@ -89,7 +89,9 @@ export default Vue.extend({
         }
     },
     mounted() {
-        this.geocodingClient = mbxGeocoding({ accessToken: this.mapboxToken });
+        this.geocodingClient = mbxGeocoding({
+            accessToken: NC_CONFIG.mapboxToken
+        });
 
         // Detects when the user click outside of the input and autocomplete
         // box.

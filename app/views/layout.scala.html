@@ -15,12 +15,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *@
 
+@import play.api.Configuration
+
 @import _root_.auth.DefaultEnv
 
 @(
     title: String, head: Html = Html(""), javascript: Html = Html(""),
-    user: Option[models.User] = None
-    )(content: Html)
+    user: Option[models.User] = None,
+    )(content: Html)(implicit config: Configuration)
 
 <!doctype html>
 <html lang="en" dir="ltr">
@@ -113,6 +115,8 @@
                 </ul>
             </div>
         </footer>
+
+        @jsConfig(config)
 
         <script src="@routes.Assets.versioned("javascripts/vendor/jquery.js")"></script>
         <script src="@routes.Assets.versioned("javascripts/vendor/what-input.js")"></script>

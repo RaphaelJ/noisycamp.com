@@ -42,6 +42,7 @@ import forms.auth.{ SignInForm, SignUpForm }
 class AuthController @Inject() (
   authInfoRepository: AuthInfoRepository,
   cc: ControllerComponents,
+  implicit val config: Configuration,
   credentialsProvider: CredentialsProvider,
   passwordHasherRegistry: PasswordHasherRegistry,
   silhouette: Silhouette[DefaultEnv],

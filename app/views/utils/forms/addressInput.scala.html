@@ -19,7 +19,7 @@
 
 @(
     form: Form[_], addressKey: String, coordinatesKey: String,
-    mapboxToken: String, messagesProvider: MessagesProvider)
+    messagesProvider: MessagesProvider)
 
 @implicitMessages = @{ messagesProvider.messages }
 
@@ -33,7 +33,6 @@
 @defining(form(coordinatesKey + ".lat")) { latField =>
 
 <address-input
-    mapbox-token='@mapboxToken'
     :countries="{
         'AU': {
             'name': 'Australia',

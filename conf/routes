@@ -32,6 +32,7 @@ GET     /account                        controllers.account.IndexController.inde
 
 GET     /account/studios                controllers.account.StudiosController.index
 GET     /account/studios/create         controllers.account.StudiosController.create
+POST    /account/studios/create         controllers.account.StudiosController.createSubmit
 
 # Studio listing
 

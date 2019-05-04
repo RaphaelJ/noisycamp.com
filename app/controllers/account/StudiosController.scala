@@ -29,7 +29,7 @@ import forms.account.StudioForm
 @Singleton
 class StudiosController @Inject() (
   cc: ControllerComponents,
-  config: Configuration,
+  implicit val config: Configuration,
   silhouette: Silhouette[DefaultEnv])
   extends AbstractController(cc)
   with I18nSupport {
@@ -41,8 +41,11 @@ class StudiosController @Inject() (
 
   /** Shows a form to list a new studio. */
   def create = silhouette.SecuredAction { implicit request =>
+    Ok(views.html.account.studioCreate(request.identity, StudioForm.form))
+  }
+
+  def createSubmit = silhouette.SecuredAction { implicit request =>
     Ok(views.html.account.studioCreate(
-      request.identity, StudioForm.form.bindFromRequest,
-      config.get[String]("mapbox.token")))
+      request.identity, StudioForm.form.bindFromRequest))
   }
 }

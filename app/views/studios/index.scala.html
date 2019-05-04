@@ -15,20 +15,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *@
 
-@(user: Option[models.User], mapboxToken: String)
+@import play.api.Configuration
+
+@(user: Option[models.User])(
+    implicit config: Configuration)
 
 @head = {
     <link
         rel="stylesheet"
         href="@routes.Assets.versioned("stylesheets/studios/index.css")">
-
-    <link
-        rel="stylesheet"
-        href="https://api.mapbox.com/mapbox-gl-js/v0.52.0/mapbox-gl.css">
 }
 
 @layout("Find a music studio", head=head, user=user) {
-    <div id="nc-app">
-        <studios-index mapbox-token='@mapboxToken'></studios-index>
-    </div>
+    <studios-index></studios-index>
 }

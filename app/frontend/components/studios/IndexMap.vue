@@ -24,9 +24,10 @@
 import * as mapboxgl from 'mapbox-gl';
 import Vue, { PropOptions } from "vue";
 
+declare var NC_CONFIG: any;
+
 export default Vue.extend({
     props: {
-        mapboxToken: { type: String, required: true },
         studios: <PropOptions<Object[]>>{ type: Array, required: true },
     },
     data() {
@@ -34,7 +35,7 @@ export default Vue.extend({
         }
     },
     mounted() {
-        mapboxgl.accessToken = this.mapboxToken;
+        mapboxgl.accessToken = NC_CONFIG.mapboxToken;
 
         this.map = new mapboxgl.Map({
             container: this.$refs.map,

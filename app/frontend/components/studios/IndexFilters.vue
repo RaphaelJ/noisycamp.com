@@ -21,9 +21,7 @@
         <div class="cell medium-6">
             <label>
                 Location
-                <location-input
-                    :mapbox-token="mapboxToken"
-                    v-model="location">
+                <location-input v-model="location">
                 </location-input>
             </label>
         </div>
@@ -50,8 +48,6 @@ import LocationInput from '../widgets/LocationInput.vue'
 
 export default Vue.extend({
     props: {
-        mapboxToken: { type: String, required: true },
-
         // A object containing the filter values
         //
         // Example:

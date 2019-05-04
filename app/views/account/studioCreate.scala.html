@@ -15,16 +15,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *@
 
+@import play.api.Configuration
+
 @import forms.account.StudioForm.Data
 
-@(user: models.User, studioForm: Form[Data], mapboxToken: String)(
-    implicit request: RequestHeader, messagesProvider: MessagesProvider)
-
-@head = {
-    <link
-        rel="stylesheet"
-        href="https://api.mapbox.com/mapbox-gl-js/v0.52.0/mapbox-gl.css">
-}
+@(user: models.User, studioForm: Form[Data])(
+    implicit request: RequestHeader, messagesProvider: MessagesProvider,
+    config: Configuration)
 
 @implicitField = @{
     helper.FieldConstructor(utils.forms.foundationFieldConstructor.f)
@@ -32,7 +29,7 @@
 
 @form(implicit field: views.html.helper.FieldConstructor) = {
     @helper.form(
-        action = controllers.account.routes.StudiosController.create()) {
+        action = controllers.account.routes.StudiosController.createSubmit) {
 
         @helper.CSRF.formField
 
@@ -47,6 +44,7 @@
                 "engines."))
 
         @helper.textarea(studioForm("name"),
+            'rows -> 10,
             '_label -> "Short description",
             '_showConstraints -> false,
             '_help -> "What makes your studio special.")
@@ -65,7 +63,7 @@
         </p>
 
         @utils.forms.addressInput(
-            studioForm, "address", "coordinates", mapboxToken, messagesProvider)
+            studioForm, "address", "coordinates", messagesProvider)
 
         <h4>Pictures</h4>
 
@@ -77,7 +75,7 @@
     }
 }
 
-@layout("Host a new studio", head=head, user=Some(user)) {
+@layout("Host a new studio", user=Some(user)) {
     <div class="grid-container">
         <div class="grid-x grid-padding-x grid-padding-y">
             <div class="cell auto">

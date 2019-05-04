@@ -27,10 +27,11 @@ import auth.DefaultEnv
 @Singleton
 class StudiosController @Inject() (
   cc: ControllerComponents,
+  implicit val config: Configuration,
   silhouette: Silhouette[DefaultEnv])
   extends AbstractController(cc) {
 
   def index = silhouette.UserAwareAction { implicit request =>
-    Ok(views.html.studios.index(user=request.identity, sys.env("MAPBOX_TOKEN")))
+    Ok(views.html.studios.index(user=request.identity))
   }
 }

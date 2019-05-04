@@ -21,9 +21,7 @@
         <div class="cell medium-12 large-7">
             <div class="grid-y grid-padding-x results">
                 <div class="cell shrink section">
-                    <studios-index-filters
-                        v-model="filters"
-                        :mapbox-token="mapboxToken">
+                    <studios-index-filters v-model="filters">
                     </studios-index-filters>
                 </div>
 
@@ -40,7 +38,6 @@
         <div class="cell large-5 show-for-large">
             <studios-index-map
                 ref="map"
-                :mapbox-token="mapboxToken"
                 :studios="studios"
                 @studio-hover="onMapStudioHover"
                 @studio-clicked="onMapStudioClick">
@@ -60,7 +57,6 @@ import StudiosIndexMap from './IndexMap.vue';
 
 export default Vue.extend({
     props: {
-        mapboxToken: { type: String, required: true }
     },
     data() {
         return {
