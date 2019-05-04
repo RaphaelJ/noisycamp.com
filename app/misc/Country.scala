@@ -158,10 +158,4 @@ object Country extends Enumeration {
     map(_.asInstanceOf[Val]).
     map { v => v.isoCode -> v }.
     toMap
-
-  /** Generates a sequence that can be used to render <select> tag options. */
-  def selectOptions: Seq[(String, String)] = byCode.
-    mapValues(_.name).
-    toSeq.
-    sortBy(_._2)
 }

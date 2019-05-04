@@ -33,9 +33,9 @@
                             required>
                             <option disabled value="">Please select a country</option>
                             <option
-                                v-for="(c, code) in countries"
-                                :value="code">
-                                {{ c.name }}
+                                v-for="country in orderedCountries"
+                                :value="country.isoCode">
+                                {{ country.name }}
                             </option>
                         </select>
 
@@ -134,9 +134,9 @@
                                         Please select a state or province
                                     </option>
                                     <option
-                                        v-for="(name, code) in states"
-                                        :value="code">
-                                        {{ name }}
+                                        v-for="state in orderedStates"
+                                        :value="state.code">
+                                        {{ state.name }}
                                     </option>
                                 </select>
 
@@ -174,19 +174,6 @@ declare var NC_CONFIG: any;
 
 export default Vue.extend({
     props: {
-        // Lists the provinces of every country.
-        //
-        // Exemple
-        // -------
-        //      {'AU': {
-        //          'name': 'Australia',
-        //          'states': {
-        //              'ACT': 'Australian Capital Territory',
-        //              'NSW': 'New South Wales'
-        //          }
-        //      }
-        countries: { type: Object, required: true },
-
         // Form field names and values
 
         countryName: { type: String, required: true },
@@ -273,11 +260,36 @@ export default Vue.extend({
         }
     },
     computed: {
+        countryFullname() {
+            if (this.address.country) {
+                return NC_CONFIG.countries[this.address.country].name;
+            } else {
+                return null;
+            }
+        },
+
         // Returns the list of states/provinces of the currently selected
         // country, if it has any.
         states() {
             if (this.hasStates(this.address.country)) {
-                return this.countries[this.address.country].states;
+                return NC_CONFIG.countries[this.address.country].states;
+            } else {
+                return null;
+            }
+        },
+
+        // Available countries, sorted by name.
+        orderedCountries() {
+            return Object.values(NC_CONFIG.countries)
+                .sort((lhs: any, rhs: any) => lhs.name.localeCompare(rhs.name));
+        },
+
+        orderedStates() {
+            if (this.hasStates(this.address.country)) {
+                return Object.keys(this.states)
+                    .map(code => ({ code: code, name: this.states[code] }))
+                    .sort((lhs: any, rhs: any) =>
+                        lhs.name.localeCompare(rhs.name));
             } else {
                 return null;
             }
@@ -290,7 +302,7 @@ export default Vue.extend({
     },
     methods: {
         hasStates(country) {
-            return country && this.countries[country].states;
+            return country && NC_CONFIG.countries[country].states;
         },
 
         // Updates the location of the marker and map with the currently
@@ -307,7 +319,7 @@ export default Vue.extend({
             // the city is not provided).
 
             let fieldHierachy = [
-                { value: this.address.country, required: true },
+                { value: this.countryFullname, required: true },
                 {
                     value: this.address.state,
                     required: this.hasStates(this.address.country) },

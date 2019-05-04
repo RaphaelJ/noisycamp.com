@@ -17,6 +17,8 @@
 
 @import play.api.Configuration
 
+@import misc.Country
+
 @* Exposes various configuration variables shared by the backend and the
  * frontend. *@
 @(implicit config: Configuration)
@@ -25,6 +27,26 @@
     var NC_CONFIG = {
         mapboxToken: "@config.get[String]("mapbox.token")",
 
-
+        // Lists the name, currency and provinces of every supported country.
+        countries: {
+            @for((code, country) <- Country.byCode) {
+                "@code": {
+                    isoCode: "@code",
+                    name: "@country.name",
+                    currency: {
+                        name: "@country.currency.name",
+                        symbol: "@country.currency.symbol",
+                        isoCode: "@country.currency.isoCode",
+                    },
+                    @if(country.states.nonEmpty) {
+                        states: {
+                            @for((stateCode, stateName) <- country.states) {
+                                "@stateCode": "@stateName",
+                            }
+                        },
+                    }
+                },
+            }
+        }
     };
 </script>
