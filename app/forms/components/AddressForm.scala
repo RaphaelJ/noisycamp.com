@@ -27,8 +27,8 @@ object AddressForm {
 
   val form = Form(
     mapping(
-      "address_1" -> nonEmptyText,
-      "address_2" -> CustomFields.optionalText,
+      "address1" -> nonEmptyText,
+      "address2" -> CustomFields.optionalText,
       "zipcode" -> nonEmptyText,
       "city" -> nonEmptyText,
       "state" -> CustomFields.optionalText,

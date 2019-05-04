@@ -14,6 +14,8 @@
 
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+  Provides an input field with an address autocompletion.
 -->
 
 <template>
@@ -154,8 +156,8 @@ export default Vue.extend({
                         query: [pos.coords.longitude, pos.coords.latitude],
                         limit: 1,
                         types: [
-                            'country', 'region', 'district', 'place',
-                            'locality', 'neighborhood'
+                            'address', 'poi', 'country', 'region', 'district',
+                            'place', 'locality', 'neighborhood'
                         ]
                     })
                     .send()

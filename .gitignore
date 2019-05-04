@@ -7,3 +7,4 @@ target/
 .DS_store
 
 .ensime
+.ensime_cache

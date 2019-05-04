@@ -18,8 +18,9 @@
 import Vue from 'vue';
 
 import StudiosIndex from './components/studios/Index.vue';
+import AddressInput from './components/widgets/AddressInput.vue';
 
 var ncApp = new Vue({
     el: "#nc-app",
-    components: { StudiosIndex },
+    components: { StudiosIndex, AddressInput },
 });

@@ -27,13 +27,13 @@ object CoordinatesForm {
 
   val form = Form(
     mapping(
-      "latitude" -> coordinate,
-      "longitude" -> coordinate
+      "long"  -> coordinate,
+      "lat"   -> coordinate
     )(Data.apply)(Data.unapply)
   )
 
   case class Data(
     // Coordinate values in [-90..90].
-    latitude:   BigDecimal,
-    longitude:  BigDecimal)
+    long:   BigDecimal,
+    lat:    BigDecimal)
 }

@@ -1,0 +1,98 @@
+@* Noisycamp is a platform for booking music studios.
+ * Copyright (C) 2019  Raphael Javaux <raphaeljavaux@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *@
+
+@import play.api.data.Mapping
+
+@(
+    form: Form[_], addressKey: String, coordinatesKey: String,
+    mapboxToken: String, messagesProvider: MessagesProvider)
+
+@implicitMessages = @{ messagesProvider.messages }
+
+@defining(form(addressKey + ".country")) { countryField =>
+@defining(form(addressKey + ".address1")) { address1Field =>
+@defining(form(addressKey + ".address2")) { address2Field =>
+@defining(form(addressKey + ".city")) { cityField =>
+@defining(form(addressKey + ".zipcode")) { zipcodeField =>
+@defining(form(addressKey + ".state")) { stateField =>
+@defining(form(coordinatesKey + ".long")) { longField =>
+@defining(form(coordinatesKey + ".lat")) { latField =>
+
+<address-input
+    mapbox-token='@mapboxToken'
+    :countries="{
+        'AU': {
+            'name': 'Australia',
+            'states': {
+                'ACT': 'Australian Capital Territory',
+                'NSW': 'New South Wales'
+            }
+        },
+        'BE': {
+            'name': 'Belgium',
+        },
+        'DE': {
+            'name': 'Germany',
+        },
+        'FR': {
+            'name': 'France',
+        }
+    }"
+
+    country="@countryField.value"
+    country-name="@countryField.name"
+    country-error="@countryField.error.map(_.format).getOrElse("")"
+
+    address1="@address1Field.value"
+    address1-name="@address1Field.name"
+    address1-error="@address1Field.error.map(_.format).getOrElse("")"
+
+    address2="@address2Field.value"
+    address2-name="@address2Field.name"
+    address2-error="@address2Field.error.map(_.format).getOrElse("")"
+
+    city="@cityField.value"
+    city-name="@cityField.name"
+    city-error="@cityField.error.map(_.format).getOrElse("")"
+
+    zipcode="@zipcodeField.value"
+    zipcode-name="@zipcodeField.name"
+    zipcode-error="@zipcodeField.error.map(_.format).getOrElse("")"
+
+    state="@stateField.value"
+    state-name="@stateField.name"
+    state-error="@stateField.error.map(_.format).getOrElse("")"
+
+    @if(longField.value) {
+        :long="@longField.value"
+    }
+    long-name="@longField.name"
+
+    @if(latField.value) {
+        :lat="@latField.value"
+    }
+    lat-name="@latField.name">
+</address-input>
+
+}
+}
+}
+}
+}
+}
+}
+}

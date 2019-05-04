@@ -17,7 +17,7 @@
 -->
 
 <template>
-    <div ref="map" class="map"></div>
+    <div ref="map" class="studios-map"></div>
 </template>
 
 <script lang="ts">
@@ -107,12 +107,12 @@ export default Vue.extend({
 </script>
 
 <style>
-.map {
+.studios-map {
     height: 100%;
 }
 
 /* Creates a pseudo element with a box-shadow that recovers the entire map. */
-.map::before {
+.studios-map::before {
     content: "";
     position: absolute;
     top: 0;
@@ -128,7 +128,7 @@ export default Vue.extend({
 
 /* Studio map marker */
 
-.map .studio-marker {
+.studios-map .studio-marker {
     padding: 0 0.65rem;
     cursor: pointer;
 
@@ -147,7 +147,7 @@ export default Vue.extend({
     color: white;
 }
 
-.map .studio-marker::after {
+.studios-map .studio-marker::after {
     /** Draws an arrow on top of the marker. */
 
     position: absolute;
@@ -161,16 +161,16 @@ export default Vue.extend({
     border-color: transparent transparent #2a1f0d transparent;
 }
 
-.map .studio-marker:hover, .map .studio-marker.highlighted {
+.studios-map .studio-marker:hover, .studios-map .studio-marker.highlighted {
     opacity: 1;
     z-index: 100;
 }
 
-.map .studio-marker.highlighted {
+.studios-map .studio-marker.highlighted {
     border: 2px solid #b37216;
 }
 
-.map .studio-marker.highlighted::after {
+.studios-map .studio-marker.highlighted::after {
     margin-left: -7px;
     border-width: 7px;
     border-color: transparent transparent #b37216 transparent;

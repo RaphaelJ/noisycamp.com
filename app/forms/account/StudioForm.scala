@@ -26,10 +26,12 @@ object StudioForm {
     mapping(
       "name" -> nonEmptyText,
       "address" -> forms.components.AddressForm.form.mapping,
+      "coordinates" -> forms.components.CoordinatesForm.form.mapping,
     )(Data.apply)(Data.unapply)
   )
 
   case class Data(
-    name:      String,
-    address:   forms.components.AddressForm.Data)
+    name:         String,
+    address:      forms.components.AddressForm.Data,
+    coordinates:  forms.components.CoordinatesForm.Data)
 }

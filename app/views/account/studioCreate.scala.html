@@ -17,8 +17,14 @@
 
 @import forms.account.StudioForm.Data
 
-@(user: models.User, studioForm: Form[Data])(
+@(user: models.User, studioForm: Form[Data], mapboxToken: String)(
     implicit request: RequestHeader, messagesProvider: MessagesProvider)
+
+@head = {
+    <link
+        rel="stylesheet"
+        href="https://api.mapbox.com/mapbox-gl-js/v0.52.0/mapbox-gl.css">
+}
 
 @implicitField = @{
     helper.FieldConstructor(utils.forms.foundationFieldConstructor.f)
@@ -36,30 +42,42 @@
             '_label -> "Studio name",
             '_showConstraints -> false,
             '_help -> (
-                "This is how your studio will appear on " +
-                "listings and on search engines."))
+                "Try to make it as descriptive and short as possible. This " +
+                "is how your studio will appear on listings and search " +
+                "engines."))
+
+        @helper.textarea(studioForm("name"),
+            '_label -> "Short description",
+            '_showConstraints -> false,
+            '_help -> "What makes your studio special.")
 
         <h4>Openning times</h4>
 
+        <h4>Pricing</h4>
+
+        <h4>Booking & cancellation policy</h4>
+
         <h4>Location</h4>
 
-        @utils.forms.inputHidden(studioForm("address.country"))
-        @utils.forms.inputHidden(studioForm("address.address_1"))
-        @utils.forms.inputHidden(studioForm("address.address_2"))
-        @utils.forms.inputHidden(studioForm("address.zipcode"))
-        @utils.forms.inputHidden(studioForm("address.state"))
-        @utils.forms.inputHidden(studioForm("address.country"))
+        <p>
+            We just need a little bit of information about the place
+            you want to list on NoisyCamp.
+        </p>
 
-        @utils.forms.inputHidden(studioForm("coordinates.latitude"))
-        @utils.forms.inputHidden(studioForm("coordinates.longitude"))
+        @utils.forms.addressInput(
+            studioForm, "address", "coordinates", mapboxToken, messagesProvider)
+
+        <h4>Pictures</h4>
+
+        <h4>Equipment & instruments</h4>
 
         <button type="submit" class="button large">
-            Create studio
+            Save and continue
         </button>
     }
 }
 
-@layout("Host a new studio", user=Some(user)) {
+@layout("Host a new studio", head=head, user=Some(user)) {
     <div class="grid-container">
         <div class="grid-x grid-padding-x grid-padding-y">
             <div class="cell auto">
