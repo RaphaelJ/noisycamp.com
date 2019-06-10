@@ -60,7 +60,9 @@ libraryDependencies ++= Seq(
   "com.mohiva" %% "play-silhouette-crypto-jca" % "5.0.7",
   "com.mohiva" %% "play-silhouette-password-bcrypt" % "5.0.7",
   "com.mohiva" %% "play-silhouette-persistence" % "5.0.7",
+  "com.sksamuel.scrimage" %% "scrimage-core" % "2.1.8",
   "com.typesafe.play" %% "play-slick" % "3.0.3",
+  "joda-time" % "joda-time" % "2.10.2",
   "net.codingwell" %% "scala-guice" % "4.1.0",
   "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test,
   "org.postgresql" % "postgresql" % "42.2.5"

@@ -1,5 +1,7 @@
 # --- !Ups
 
+-- Users and account
+
 create table "user" (
     id                      serial primary key,
     first_name              varchar,
@@ -26,8 +28,20 @@ create table "user_password_info" (
     salt                  varchar
 );
 
+-- Pictures and uploads
+
+create table "picture" (
+    id                  bytea primary key,
+    uploaded_at         timestamp not null,
+    format              varchar not null,
+    content             bytea not null
+);
+
+
 # --- !Downs
 
 drop table "user_password_info";
 drop table "user_login_info";
 drop table "user";
+
+drop table "picture";

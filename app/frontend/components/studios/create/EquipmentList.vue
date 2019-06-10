@@ -144,7 +144,6 @@
 </template>
 
 <script lang="ts">
-import * as _ from "lodash";
 import Vue from "vue";
 
 declare var NC_CONFIG: any;
