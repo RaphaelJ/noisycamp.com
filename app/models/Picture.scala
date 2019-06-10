@@ -17,12 +17,35 @@
 
 package models
 
+import java.nio.file.{ Files, Path }
+import java.security.MessageDigest
+
 import com.mohiva.play.silhouette.api.Identity
 import org.joda.time.DateTime
-import com.sksamuel.scrimage.Format
+import com.sksamuel.scrimage.{ Format, FormatDetector }
 
 case class Picture(
   id: Array[Byte],  // SHA-256 hash of the content
   uploadedAt: DateTime,
   format: Format,
-  content: Array[Byte])
+  content: Array[Byte]) {
+
+  def base64Id: String = java.util.Base64.getEncoder.encodeToString(id)
+}
+
+object PictureHelper {
+  
+  /** Creates a `Picture` object from the given file. Does not return anything
+   * with failed to open the file. */
+  def fromFile(path: Path): Option[Picture] = {
+    val content = Files.readAllBytes(path)
+    
+    FormatDetector.
+      detect(content).
+      map { format =>
+        val hash = MessageDigest.getInstance("SHA-256").digest(content)
+        Picture(id=hash, uploadedAt=new DateTime(), format=format,
+          content=content)
+      }
+  }
+}

@@ -17,51 +17,55 @@
 
 package controllers
 
-import java.nio.file.Files
-import java.security.MessageDigest
+import scala.concurrent.{ ExecutionContext, Future }
 
 import com.mohiva.play.silhouette.api.Silhouette
-import com.sksamuel.scrimage.FormatDetector
 import javax.inject._
 import org.joda.time.DateTime
 import play.api._
+import play.api.db.slick.{ DatabaseConfigProvider, HasDatabaseConfigProvider }
 import play.api.mvc._
+import slick.jdbc.JdbcProfile
 
 import auth.DefaultEnv
 import daos.{ PictureDAO }
+import models.{ Picture, PictureHelper }
 
 @Singleton
 class PictureController @Inject() (
   cc: ControllerComponents,
   implicit val config: Configuration,
+  protected val dbConfigProvider: DatabaseConfigProvider,
   pictureDao: PictureDAO,
   silhouette: Silhouette[DefaultEnv])
-  extends AbstractController(cc) {
+  (implicit executionContext: ExecutionContext)
+  extends AbstractController(cc)
+  with HasDatabaseConfigProvider[JdbcProfile] {
+    
+  import profile.api._
 
-  def show(id: String) = Action { implicit request =>
+  def view(id: String) = Action { implicit request =>
     Ok("")
   }
   
-  def upload = silhouette.SecuredAction(parse.multipartFormData) { implicit request =>
-    request.body
-      .file("picture")
-      .map { picture =>
-        
-        val content = Files.readAllBytes(picture.ref.path)
-      
-        FormatDetector.detect(content) match {
-          case Some(format) => {
-            val hash =  MessageDigest.getInstance("SHA-256").digest(content)
-    
-            models.Picture(id=hash, uploadedAt=new DateTime(), format=format, content=content)
-            
-            Ok("")
+  def upload = silhouette.SecuredAction(parse.multipartFormData).async {
+    implicit request =>
+      request.body
+        .file("picture")
+        .map { file =>
+          PictureHelper.fromFile(file.ref.path) match {
+            case Some(newPicture) => {              
+              pictureDao.insertIfNotExits(newPicture).
+                map { picture => 
+                  val uri = routes.PictureController.view(picture.base64Id).url
+                  Created.withHeaders("Location" -> uri)
+                }
+            }
+            case None => Future.successful(BadRequest("Invalid image format."))
           }
-          case None => BadRequest("Unknown image format.")
+        }.
+        getOrElse {
+          Future.successful(BadRequest("Missing file."))
         }
-      }
-      .getOrElse {
-        BadRequest("Missing file.")
-      }
   }
 }

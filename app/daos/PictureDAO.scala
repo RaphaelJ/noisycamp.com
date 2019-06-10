@@ -17,7 +17,7 @@
 
 package daos
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ ExecutionContext, Future }
 import java.nio.file.Files
 import javax.inject.Inject
 
@@ -48,6 +48,18 @@ class PictureDAO @Inject()
 
   lazy val query = TableQuery[PictureTable]
 
-  // lazy val insert = query returning
-  //   query.map(_.id) into ((user, id) => user.copy(id=id))
+  /** Inserts the picture in the database with its hash as ID if it does not
+   * exists and returns it. Returns the existing picture otherwise. */
+  def insertIfNotExits(picture: Picture): Future[Picture] = {
+    db.run({
+      query.
+        filter(_.id === picture.id).
+        result.
+        headOption.
+        flatMap {
+          case Some(oldPicture) => DBIO.successful(oldPicture)
+          case None => for { _ <- query += picture } yield picture
+        }
+      }.transactionally)
+  }
 }

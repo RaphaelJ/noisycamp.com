@@ -40,12 +40,12 @@ trait CustomColumnTypes {
   /** Stores Scrimage image format as text */
   implicit val scrimageFormat = 
     MappedColumnType.base[Format, String](
-      format => format match {
+      { 
         case Format.PNG => "png"
         case Format.GIF => "gif"
         case Format.JPEG => "jpeg" 
       },
-      str => str match {
+      {
         case "png" => Format.PNG
         case "gif" => Format.GIF
         case "jpeg" => Format.JPEG
