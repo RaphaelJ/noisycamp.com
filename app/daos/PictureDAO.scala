@@ -47,13 +47,14 @@ class PictureDAO @Inject()
   }
 
   lazy val query = TableQuery[PictureTable]
+  
+  def get(id: Array[Byte]) = query.filter(_.id === id)
 
   /** Inserts the picture in the database with its hash as ID if it does not
    * exists and returns it. Returns the existing picture otherwise. */
   def insertIfNotExits(picture: Picture): Future[Picture] = {
     db.run({
-      query.
-        filter(_.id === picture.id).
+      get(picture.id).
         result.
         headOption.
         flatMap {

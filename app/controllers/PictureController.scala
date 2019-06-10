@@ -19,11 +19,13 @@ package controllers
 
 import scala.concurrent.{ ExecutionContext, Future }
 
+import akka.util.ByteString
 import com.mohiva.play.silhouette.api.Silhouette
 import javax.inject._
 import org.joda.time.DateTime
 import play.api._
 import play.api.db.slick.{ DatabaseConfigProvider, HasDatabaseConfigProvider }
+import play.api.http.HttpEntity
 import play.api.mvc._
 import slick.jdbc.JdbcProfile
 
@@ -44,20 +46,40 @@ class PictureController @Inject() (
     
   import profile.api._
 
-  def view(id: String) = Action { implicit request =>
-    Ok("")
+  /** Returns the requested picture data. */
+  def view(id: String) = Action.async { implicit request =>
+    val idBytes = java.util.Base64.getDecoder.decode(id)
+    
+    val optPic: Future[Option[Picture]] = 
+      db.run {
+        pictureDao.get(idBytes).
+          result.
+          headOption
+      }
+      
+    optPic.map {
+      case Some(pic) => {
+        val bs = ByteString(pic.content)
+        Result(
+          header = ResponseHeader(200, Map.empty),
+          body = HttpEntity.Strict(bs, None)
+        )
+      }
+      case None => NotFound
+    }
   }
-  
+
+  /** Receives a new picture and stores it in the database. */
   def upload = silhouette.SecuredAction(parse.multipartFormData).async {
     implicit request =>
       request.body
         .file("picture")
         .map { file =>
           PictureHelper.fromFile(file.ref.path) match {
-            case Some(newPicture) => {              
-              pictureDao.insertIfNotExits(newPicture).
-                map { picture => 
-                  val uri = routes.PictureController.view(picture.base64Id).url
+            case Some(newPic) => {              
+              pictureDao.insertIfNotExits(newPic).
+                map { pic => 
+                  val uri = routes.PictureController.view(pic.base64Id).url
                   Created.withHeaders("Location" -> uri)
                 }
             }
