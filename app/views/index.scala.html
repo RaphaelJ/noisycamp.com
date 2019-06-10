@@ -17,7 +17,7 @@
 
 @import play.api.Configuration
 
-@(user: Option[models.User])(implicit config: Configuration)
+@(user: Option[models.User])(implicit req: RequestHeader, config: Configuration)
 
 @head = {
     <link

@@ -284,6 +284,7 @@ export default Vue.extend({
                 .sort((lhs: any, rhs: any) => lhs.name.localeCompare(rhs.name));
         },
 
+        // States of the currently selected country, sorted by name.
         orderedStates() {
             if (this.hasStates(this.address.country)) {
                 return Object.keys(this.states)
@@ -296,6 +297,8 @@ export default Vue.extend({
         },
 
         // Returns `true` if a marker being displayed in the map.
+        //
+        // No marker is displayed on the map until the user select a country.
         hasMarker() {
             return this.place ? true : false;
         }
@@ -363,7 +366,6 @@ export default Vue.extend({
         dragMarker() {
             var pos = this.marker.getLngLat();
             this.shouldUpdateMarker = false;
-            console.log(pos);
         },
 
         // Resets the map and marker position to the pre-drag address.

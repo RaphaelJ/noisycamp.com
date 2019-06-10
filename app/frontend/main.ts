@@ -17,10 +17,11 @@
 
 import Vue from 'vue';
 
-import StudiosIndex from './components/studios/Index.vue';
 import AddressInput from './components/widgets/AddressInput.vue';
+import EquipmentList from './components/studios/create/EquipmentList.vue';
+import StudiosIndex from './components/studios/Index.vue';
 
 var ncApp = new Vue({
     el: "#nc-app",
-    components: { StudiosIndex, AddressInput },
+    components: { AddressInput, EquipmentList, StudiosIndex, },
 });

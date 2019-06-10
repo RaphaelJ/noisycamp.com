@@ -16,13 +16,15 @@
  *@
 
 @import play.api.Configuration
+@import play.api.libs.json.Json
 
 @import _root_.auth.DefaultEnv
+@import _root_.frontend.JsConfig
 
 @(
     title: String, head: Html = Html(""), javascript: Html = Html(""),
     user: Option[models.User] = None,
-    )(content: Html)(implicit config: Configuration)
+    )(content: Html)(implicit req: RequestHeader, config: Configuration)
 
 <!doctype html>
 <html lang="en" dir="ltr">
@@ -112,11 +114,21 @@
                         </a>
                     </li>
                     <li>About us</li>
+                    <li>
+                        Icons by
+                        <a href="https://www.flaticon.com/authors/smashicons" title="Smashicons">Smashicons</a>
+                    </li>
                 </ul>
             </div>
         </footer>
 
-        @jsConfig(config)
+        <script>
+            var NC_CONFIG = @Html(Json.stringify(JsConfig()));
+        </script>
+
+        @helper.javascriptRouter("NC_ROUTES")(
+            routes.javascript.Assets.versioned
+        )
 
         <script src="@routes.Assets.versioned("javascripts/vendor/jquery.js")"></script>
         <script src="@routes.Assets.versioned("javascripts/vendor/what-input.js")"></script>

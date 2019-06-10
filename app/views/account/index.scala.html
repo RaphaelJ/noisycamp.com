@@ -17,7 +17,7 @@
 
 @import play.api.Configuration
 
-@(user: models.User)(implicit config: Configuration)
+@(user: models.User)(implicit req: RequestHeader, config: Configuration)
 
 @title = {
     Account (@user.fullName.getOrElse(user.email))

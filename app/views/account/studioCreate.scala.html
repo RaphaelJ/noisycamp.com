@@ -33,7 +33,7 @@
 
         @helper.CSRF.formField
 
-        <h4>General information</h4>
+        <h3>General information</h3>
 
         @helper.inputText(studioForm("name"),
             '_label -> "Studio name",
@@ -49,25 +49,30 @@
             '_showConstraints -> false,
             '_help -> "What makes your studio special.")
 
-        <h4>Openning times</h4>
-
-        <h4>Pricing</h4>
-
-        <h4>Booking & cancellation policy</h4>
-
-        <h4>Location</h4>
-
-        <p>
-            We just need a little bit of information about the place
-            you want to list on NoisyCamp.
-        </p>
+        <h3>Location</h3>
 
         @utils.forms.addressInput(
             studioForm, "address", "coordinates", messagesProvider)
 
-        <h4>Pictures</h4>
+        <h3>Openning times</h3>
 
-        <h4>Equipment & instruments</h4>
+        <h3>Pricing</h3>
+
+        <h3>Booking & cancellation policy</h3>
+
+        <h3>Extra rules</h3>
+
+        <h3>Equipment & instruments</h3>
+
+        <p>
+            List the instruments and various equipments that come with your rehearsal place. This
+            will allow user to easily find places that match their needs.<br>
+            You can request an extra fee for some of these items.
+        </p>
+
+        <equipment-list></equipment-list>
+
+        <h3>Pictures</h3>
 
         <button type="submit" class="button large">
             Save and continue

@@ -94,6 +94,18 @@ select:focus
     background-color: #e9e9e9cc;
 }
 
+.input-group > :last-child,
+.input-group > :last-child.input-group-button > * {
+    border-top-right-radius: 2px;
+    border-bottom-right-radius: 2px;
+}
+
+.input-group > :first-child,
+.input-group > :first-child.input-group-button > * {
+    border-top-left-radius: 2px;
+    border-bottom-left-radius: 2px;
+}
+
 form label .error {
     display: block;
     margin-top: -0.7rem;
