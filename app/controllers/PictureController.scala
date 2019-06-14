@@ -30,8 +30,9 @@ import play.api.mvc._
 import slick.jdbc.JdbcProfile
 
 import auth.DefaultEnv
-import daos.{ PictureDAO }
-import models.{ Picture, PictureHelper }
+import daos.PictureDAO
+import misc.{ PictureCache, PictureUtils }
+import models.{ Picture }
 
 @Singleton
 class PictureController @Inject() (
@@ -39,6 +40,7 @@ class PictureController @Inject() (
   implicit val config: Configuration,
   protected val dbConfigProvider: DatabaseConfigProvider,
   pictureDao: PictureDAO,
+  pictureCache: PictureCache,
   silhouette: Silhouette[DefaultEnv])
   (implicit executionContext: ExecutionContext)
   extends AbstractController(cc)
@@ -46,8 +48,10 @@ class PictureController @Inject() (
     
   import profile.api._
 
-  /** Returns the requested picture data. */
-  def view(id: String) = Action.async { implicit request =>
+  /** Returns the requested picture data, and resize the image if requested. */
+  def view(id: String, maxWidth: Option[Int] = None,
+      maxHeight: Option[Int] = None) = Action.async { implicit request =>
+  
     val idBytes = java.util.Base64.getDecoder.decode(id)
     
     val optPic: Future[Option[Picture]] = 
@@ -57,15 +61,20 @@ class PictureController @Inject() (
           headOption
       }
       
-    optPic.map {
+    println(maxWidth)
+      
+    optPic.flatMap {
       case Some(pic) => {
-        val bs = ByteString(pic.content)
-        Result(
-          header = ResponseHeader(200, Map.empty),
-          body = HttpEntity.Strict(bs, None)
-        )
+        pictureCache.get(pic, maxWidth, maxHeight).
+          map { resized =>
+            val bs = ByteString(resized.content)
+            Result(
+              header = ResponseHeader(200, Map.empty),
+              body = HttpEntity.Strict(bs, None)
+            )
+          }
       }
-      case None => NotFound
+      case None => Future.successful(NotFound)
     }
   }
 
@@ -75,7 +84,7 @@ class PictureController @Inject() (
       request.body
         .file("picture")
         .map { file =>
-          PictureHelper.fromFile(file.ref.path) match {
+          PictureUtils.fromFile(file.ref.path) match {
             case Some(newPic) => {              
               pictureDao.insertIfNotExits(newPic).
                 map { pic => 
