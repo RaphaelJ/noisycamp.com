@@ -15,43 +15,64 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package misc
+package pictures
 
 import javax.inject._
 import scala.concurrent.{ ExecutionContext, Future }
 
 import com.github.benmanes.caffeine.cache.{ Caffeine, Weigher }
 import play.api.Configuration
+import play.api.db.slick.{ DatabaseConfigProvider, HasDatabaseConfigProvider }
 import scalacache._
 import scalacache.caffeine._
 import scalacache.modes.scalaFuture._
+import slick.jdbc.JdbcProfile
 
 import models.Picture
+import daos.PictureDAO
 
-case class PictureCacheKey(
-  id: Array[Byte], maxWidth: Option[Int], maxHeight: Option[Int])
+case class PictureCacheKey(id: Array[Byte], transform: PictureTransform)
 
-/** Cache uploaded pictures resizing operations between HTTP requests. */
+/** Cache uploaded pictures transformations between HTTP requests. */
 @Singleton
-class PictureCache @Inject() (val config: Configuration)
-  (implicit executionContext: ExecutionContext) {
+class PictureCache @Inject() (
+  val config: Configuration,
+  protected val dbConfigProvider: DatabaseConfigProvider,
+  pictureDao: PictureDAO
+  )
+  (implicit executionContext: ExecutionContext)
+  extends HasDatabaseConfigProvider[JdbcProfile] {
 
-  def get(picture: Picture, maxWidth: Option[Int], maxHeight: Option[Int])
-    : Future[Picture] = {
+  import profile.api._
 
-    if (maxWidth.isEmpty && maxHeight.isEmpty) {
-      // TODO: does not process the image if maxWidth/Height > width/height
-      Future.successful(picture)
-    } else {
-      val key = PictureCacheKey(picture.id, maxWidth, maxHeight).toString
+  def get(id: Array[Byte], transform: PictureTransform)
+    : Future[Option[Picture]] = {
 
-      cachingF(key)(ttl = None){
-        Future { PictureUtils.resize(picture, maxWidth, maxHeight) }
+    val key = PictureCacheKey(id, transform).toString
+
+    final case class PictureNotFoundException()
+      extends Exception("Picture not found.")
+    
+    val pic: Future[Picture] = cachingF(key)(ttl = None) {
+      // Picture not in cache, fetches it from the database.
+      // TODO: don't query the DB if the raw picture is in cache.
+      val optPic: Future[Option[Picture]] = db.run {
+        pictureDao.get(id).
+          result.
+          headOption
+      }
+      
+      optPic.flatMap { 
+        case Some(pic) => Future { transform(pic) }
+        case None => Future.failed(PictureNotFoundException())
       }
     }
+    
+    // Converts `pic` exceptions to `None`.
+    pic.map(Some(_)).recover { case _: PictureNotFoundException => None }
   }
 
-  private implicit val _cache: Cache[Picture] = {
+  private implicit val cache: Cache[Picture] = {
     val maxCacheSize = config.underlying.
       getBytes("noisycamp.picturesMaxCacheSize")
     

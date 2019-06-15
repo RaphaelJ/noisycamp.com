@@ -31,8 +31,10 @@ import slick.jdbc.JdbcProfile
 
 import auth.DefaultEnv
 import daos.PictureDAO
-import misc.{ PictureCache, PictureUtils }
 import models.{ Picture }
+import pictures.{ 
+  BoundPicture, CoverPicture, MaxPicture, PictureCache, PictureTransform,
+  PictureUtils, RawPicture }
 
 @Singleton
 class PictureController @Inject() (
@@ -48,35 +50,16 @@ class PictureController @Inject() (
     
   import profile.api._
 
-  /** Returns the requested picture data, and resize the image if requested. */
-  def view(id: String, maxWidth: Option[Int] = None,
-      maxHeight: Option[Int] = None) = Action.async { implicit request =>
-  
-    val idBytes = java.util.Base64.getDecoder.decode(id)
-    
-    val optPic: Future[Option[Picture]] = 
-      db.run {
-        pictureDao.get(idBytes).
-          result.
-          headOption
-      }
-      
-    println(maxWidth)
-      
-    optPic.flatMap {
-      case Some(pic) => {
-        pictureCache.get(pic, maxWidth, maxHeight).
-          map { resized =>
-            val bs = ByteString(resized.content)
-            Result(
-              header = ResponseHeader(200, Map.empty),
-              body = HttpEntity.Strict(bs, None)
-            )
-          }
-      }
-      case None => Future.successful(NotFound)
-    }
-  }
+  def view(id: String) = Action.async { picWithTransform(id, RawPicture) }
+
+  def bound(id: String, size: String) = 
+    Action.async { picWithSizeTransform(id, size, BoundPicture) }
+
+  def cover(id: String, size: String) = 
+    Action.async { picWithSizeTransform(id, size, CoverPicture) }
+
+  def max(id: String, size: String) = 
+    Action.async { picWithSizeTransform(id, size, MaxPicture) }
 
   /** Receives a new picture and stores it in the database. */
   def upload = silhouette.SecuredAction(parse.multipartFormData).async {
@@ -98,5 +81,47 @@ class PictureController @Inject() (
         getOrElse {
           Future.successful(BadRequest("Missing file."))
         }
+  }
+  
+  // --
+
+  /** Parses image size URL parameter such as "640x480". */
+  private def parseSizeArg(sizeArg: String): Option[(Int, Int)] = {
+    val parser = raw"(\d+)x(\d+)".r
+    sizeArg match {
+      case parser(width, height) => {
+        Some((Integer.parseInt(width), Integer.parseInt(height)))
+      }
+      case _ => None
+    }
+  }
+  
+  /** Serves the provided picture with the specified transform. */
+  private def picWithTransform(id: String,
+    transform: PictureTransform): Future[Result] = {
+      
+    val idBytes = java.util.Base64.getDecoder.decode(id)
+    
+    pictureCache.get(idBytes, transform).
+      map {
+        case Some(pic) => {
+          val bs = ByteString(pic.content)
+          Result(
+            header = ResponseHeader(200, Map.empty),
+            body = HttpEntity.Strict(bs, None)
+          )
+        }
+        case None => NotFound("Picture not found.")
+      }
+  }
+  
+  /** Serves the provided picture with the specified size-parametered transform. */
+  private def picWithSizeTransform(id: String, size: String,
+    transform: (Int, Int) => PictureTransform) = {
+  
+    parseSizeArg(size).
+      map { case (width, height) => 
+        picWithTransform(id, transform(width, height)) }.
+      getOrElse { Future.successful(BadRequest("Invalid size format.")) }
   }
 }
