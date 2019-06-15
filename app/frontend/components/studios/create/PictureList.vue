@@ -19,10 +19,23 @@
 -->
 
 <template>
-
+    <div>
+        <label :for="'picture_input_' + id" class="button">
+            <span v-if="!isUploading">Upload pictures</span>
+            <span v-else>Uploading pictures ...</span>
+        </label>
+        <input type="file" multiple
+            :id="'picture_input_' + id"
+            :disable="isUploading"
+            @change="upload()"
+            ref="uploadInput" class="show-for-sr"
+            accept="image/*"
+            >
+    </div>
 </template>
 
 <script lang="ts">
+import axios from "axios";
 import Vue from "vue";
 
 declare var NC_CONFIG: any;
@@ -33,15 +46,32 @@ export default Vue.extend({
     },
     data() {
         return {
+            isUploading: false
         }
     },
-    computed: {
-    },
-    mounted() {
+    mounted () {
+        this.id = this._uid; // Component ID
     },
     methods: {
-    },
-    watch: {
+        upload() {
+            let formData = new FormData();
+            formData.append('picture', this.$refs.uploadInput.files[0]);
+
+            this.isUploading = true;
+            axios.post(
+                NC_ROUTES.controllers.PictureController.upload().url,
+                formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                        'Csrf-Token': NC_CONFIG.csrfToken,
+                    }
+                }
+            ).then(function (response) {
+                console.log(response);
+            }).catch(function (error) {
+                console.log(error);
+            }).then(() => { this.isUploading = false; });
+        },
     },
 });
 </script>

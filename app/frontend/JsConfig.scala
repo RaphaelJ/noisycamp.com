@@ -18,15 +18,22 @@
 package frontend
 
 import play.api.Configuration
-import play.api.libs.json.{JsNull, JsObject, Json, JsString, JsValue}
+import play.api.libs.json.{ JsNull, JsObject, Json, JsString, JsValue }
+import play.api.mvc.RequestHeader
+import views.html.helper.CSRF
 
 import misc.{Country, Equipment, EquipmentFamily}
 
-/** Provides a JSON dump of the configuration variables used by the front-end code. */
+/** Provides a JSON dump of the configuration variables used by the front-end
+ * code. */
 object JsConfig {
 
-  def apply()(implicit config: Configuration): JsValue = {
+  def apply()(implicit config: Configuration, request: RequestHeader)
+    : JsValue = {
+      
     Json.obj(
+      "csrfToken" -> CSRF.getToken.value,
+      
       "mapboxToken" -> config.get[String]("mapbox.token"),
 
       // Lists the name, currency and provinces of every supported country.

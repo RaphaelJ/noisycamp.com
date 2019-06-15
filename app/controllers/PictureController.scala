@@ -50,17 +50,6 @@ class PictureController @Inject() (
     
   import profile.api._
 
-  def view(id: String) = Action.async { picWithTransform(id, RawPicture) }
-
-  def bound(id: String, size: String) = 
-    Action.async { picWithSizeTransform(id, size, BoundPicture) }
-
-  def cover(id: String, size: String) = 
-    Action.async { picWithSizeTransform(id, size, CoverPicture) }
-
-  def max(id: String, size: String) = 
-    Action.async { picWithSizeTransform(id, size, MaxPicture) }
-
   /** Receives a new picture and stores it in the database. */
   def upload = silhouette.SecuredAction(parse.multipartFormData).async {
     implicit request =>
@@ -82,6 +71,17 @@ class PictureController @Inject() (
           Future.successful(BadRequest("Missing file."))
         }
   }
+
+  def view(id: String) = Action.async { picWithTransform(id, RawPicture) }
+
+  def bound(id: String, size: String) = 
+    Action.async { picWithSizeTransform(id, size, BoundPicture) }
+
+  def cover(id: String, size: String) = 
+    Action.async { picWithSizeTransform(id, size, CoverPicture) }
+
+  def max(id: String, size: String) = 
+    Action.async { picWithSizeTransform(id, size, MaxPicture) }
   
   // --
 
@@ -107,7 +107,9 @@ class PictureController @Inject() (
         case Some(pic) => {
           val bs = ByteString(pic.content)
           Result(
-            header = ResponseHeader(200, Map.empty),
+            header = ResponseHeader(200, Map(
+              // Cacheable, expires after a year.
+              "Cache-Control" -> "public, max-age=31536000")),
             body = HttpEntity.Strict(bs, None)
           )
         }

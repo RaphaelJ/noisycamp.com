@@ -127,7 +127,13 @@
         </script>
 
         @helper.javascriptRouter("NC_ROUTES")(
-            routes.javascript.Assets.versioned
+            routes.javascript.PictureController.upload,
+            
+            routes.javascript.PictureController.view,
+            routes.javascript.PictureController.cover,
+            routes.javascript.PictureController.max,
+
+            routes.javascript.Assets.versioned,
         )
 
         <script src="@routes.Assets.versioned("javascripts/vendor/jquery.js")"></script>

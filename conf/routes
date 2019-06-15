@@ -44,7 +44,6 @@ POST    /pictures                       controllers.PictureController.upload
 
 GET     /pictures/:id                   controllers.PictureController.view(id: String)
 
-# Transformations
 GET     /pictures/:id/bound/:size       controllers.PictureController.bound(id: String, size: String)
 GET     /pictures/:id/cover/:size       controllers.PictureController.cover(id: String, size: String)
 GET     /pictures/:id/max/:size         controllers.PictureController.max(id: String, size: String)
