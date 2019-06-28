@@ -32,12 +32,19 @@
 
         <div
             class="cell large-2 medium-3 small-4 picture"
-            v-for="picId in pictures">
+            v-for="(picId, index) in pictures">
 
             <reactive-picture
                 :picture-id="picId" alt="Uploaded picture"
                 :width="200" :height="200">
             </reactive-picture>
+
+            <button
+                class="close-button picture-remove"
+                type="button"
+                @click="pictureRemove(index)">
+                <span aria-hidden="true">×</span>
+            </button>
         </div>
 
         <div class="cell large-2 medium-3 small-4 picture-add">
@@ -90,7 +97,11 @@ export default Vue.extend({
         }
     },
     methods: {
-        // Uploads the files in the `uploadInput`.
+        pictureRemove(index: number) {
+            this.pictures.splice(index, 1);
+        },
+
+        // Uploads all the files in the `uploadInput`.
         upload() {
             this.error = null;
 
@@ -137,9 +148,32 @@ export default Vue.extend({
 .picture img, .picture-add label {
     width: 100%;
 
-    border: 1px solid #f2f2f2;
+    border: 1px solid rgba(0,0,0,0.1);
     border-radius: 2px;
     padding: 4px;
+}
+
+.picture {
+    position: relative;
+}
+
+.picture .picture-remove {
+    position: absolute;
+    top: 4px;
+    right: calc(4px + 0.35rem);
+    color: black;
+
+    /* Adds a white border around the button for contrast. */
+    text-shadow: -1px 0 rgba(255, 255, 255, 0.5),
+                 0    1px rgba(255, 255, 255, 0.5),
+                 1px  0 rgba(255, 255, 255, 0.5),
+                 0    -1px rgba(255, 255, 255, 0.5);
+
+    opacity: 0.5;
+}
+
+.picture .picture-remove:hover {
+    opacity: 1;
 }
 
 .picture-add {

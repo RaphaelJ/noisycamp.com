@@ -216,7 +216,7 @@ export default Vue.extend({
             this.newEquipment.extraFee = null;
         },
 
-        equipmentRemove(index) {
+        equipmentRemove(index: number) {
             this.equipments.splice(index, 1);
         },
 
@@ -253,7 +253,7 @@ export default Vue.extend({
     position: relative;
     display: inline-block;
 
-    border: 1px solid #f2f2f2;
+    border: 1px solid rgba(0,0,0,0.1);
     border-radius: 2px;
 }
 

@@ -35,7 +35,7 @@ a:hover {
 }
 
 hr {
-    border-bottom: 1px solid #cacaca66;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
 }
 
 main {
@@ -70,7 +70,7 @@ main {
 [type="search"], [type="tel"], [type="text"], [type="time"], [type="url"],
 [type="week"], textarea, select {
     background-color: #fefefecc;
-    border: 1px solid rgba(158, 158, 158, 0.3);
+    border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 2px;
     box-shadow: none;
 
@@ -84,7 +84,7 @@ main {
 [type="time"]:focus, [type="url"]:focus, [type="week"]:focus, textarea:focus,
 select:focus
 {
-    border: 1px solid rgba(158, 158, 158, 0.8);
+    border: 1px solid rgba(0, 0, 0, 0.2);
     box-shadow: 0 0 3px rgba(202, 202, 202, 0.2);
 }
 
