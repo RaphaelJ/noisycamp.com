@@ -32,7 +32,7 @@ import slick.jdbc.JdbcProfile
 import auth.DefaultEnv
 import daos.PictureDAO
 import models.{ Picture }
-import pictures.{ 
+import pictures.{
   BoundPicture, CoverPicture, MaxPicture, PictureCache, PictureTransform,
   PictureUtils, RawPicture }
 
@@ -47,7 +47,7 @@ class PictureController @Inject() (
   (implicit executionContext: ExecutionContext)
   extends AbstractController(cc)
   with HasDatabaseConfigProvider[JdbcProfile] {
-    
+
   import profile.api._
 
   /** Receives a new picture and stores it in the database. */
@@ -57,11 +57,12 @@ class PictureController @Inject() (
         .file("picture")
         .map { file =>
           PictureUtils.fromFile(file.ref.path) match {
-            case Some(newPic) => {              
+            case Some(newPic) => {
               pictureDao.insertIfNotExits(newPic).
-                map { pic => 
-                  val uri = routes.PictureController.view(pic.base64Id).url
-                  Created.withHeaders("Location" -> uri)
+                map { pic =>
+                  val id = pic.base64Id
+                  val uri = routes.PictureController.view(id).url
+                  Created(id).withHeaders("Location" -> uri)
                 }
             }
             case None => Future.successful(BadRequest("Invalid image format."))
@@ -74,15 +75,15 @@ class PictureController @Inject() (
 
   def view(id: String) = Action.async { picWithTransform(id, RawPicture) }
 
-  def bound(id: String, size: String) = 
+  def bound(id: String, size: String) =
     Action.async { picWithSizeTransform(id, size, BoundPicture) }
 
-  def cover(id: String, size: String) = 
+  def cover(id: String, size: String) =
     Action.async { picWithSizeTransform(id, size, CoverPicture) }
 
-  def max(id: String, size: String) = 
+  def max(id: String, size: String) =
     Action.async { picWithSizeTransform(id, size, MaxPicture) }
-  
+
   // --
 
   /** Parses image size URL parameter such as "640x480". */
@@ -95,13 +96,13 @@ class PictureController @Inject() (
       case _ => None
     }
   }
-  
+
   /** Serves the provided picture with the specified transform. */
   private def picWithTransform(id: String,
     transform: PictureTransform): Future[Result] = {
-      
+
     val idBytes = java.util.Base64.getDecoder.decode(id)
-    
+
     pictureCache.get(idBytes, transform).
       map {
         case Some(pic) => {
@@ -116,13 +117,13 @@ class PictureController @Inject() (
         case None => NotFound("Picture not found.")
       }
   }
-  
+
   /** Serves the provided picture with the specified size-parametered transform. */
   private def picWithSizeTransform(id: String, size: String,
     transform: (Int, Int) => PictureTransform) = {
-  
+
     parseSizeArg(size).
-      map { case (width, height) => 
+      map { case (width, height) =>
         picWithTransform(id, transform(width, height)) }.
       getOrElse { Future.successful(BadRequest("Invalid size format.")) }
   }

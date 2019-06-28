@@ -15,28 +15,63 @@
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-  Provides an input field with an address autocompletion.
+
+  Provides an input widget to display and add pictures.
 -->
 
 <template>
-    <div>
-        <label :for="'picture_input_' + id" class="button">
-            <span v-if="!isUploading">Upload pictures</span>
-            <span v-else>Uploading pictures ...</span>
-        </label>
-        <input type="file" multiple
-            :id="'picture_input_' + id"
-            :disable="isUploading"
-            @change="upload()"
-            ref="uploadInput" class="show-for-sr"
-            accept="image/*"
-            >
+    <div class="grid-x grid-margin-x grid-margin-y">
+        <div
+            class="cell small-12 callout alert"
+            v-if="error">
+
+            <h6>An error occured when uploading the picture</h6>
+
+            <p>{{ error.message }}</p>
+        </div>
+
+        <div
+            class="cell large-2 medium-3 small-4 picture"
+            v-for="picId in pictures">
+
+            <reactive-picture
+                :picture-id="picId" alt="Uploaded picture"
+                :width="200" :height="200">
+            </reactive-picture>
+        </div>
+
+        <div class="cell large-2 medium-3 small-4 picture-add">
+            <label :for="'picture_input_' + _uid">
+                <p>
+                    <i v-if="!isUploading" class="fi-photo"></i>
+                    <i v-else class="fi-upload"></i>
+
+                    <br>
+
+                    <span v-if="!isUploading">Add a picture</span>
+                    <span v-else>
+                        Uploading {{ isUploading }} picture<span v-if="isUploading > 1">s</span>
+                        ...
+                    </span>
+                </p>
+            </label>
+
+            <input type="file"
+                :id="'picture_input_' + _uid"
+                :disable="isUploading >= 1"
+                @change="upload()"
+                ref="uploadInput" class="show-for-sr"
+                accept="image/*"
+                >
+        </div>
     </div>
 </template>
 
 <script lang="ts">
 import axios from "axios";
 import Vue from "vue";
+
+import ReactivePicture from '../../widgets/ReactivePicture.vue'
 
 declare var NC_CONFIG: any;
 declare var NC_ROUTES: any;
@@ -46,18 +81,24 @@ export default Vue.extend({
     },
     data() {
         return {
-            isUploading: false
+            pictures: [],
+
+            error: null,
+
+            // If uploading, contains the number of images currently being uploaded.
+            isUploading: false,
         }
-    },
-    mounted () {
-        this.id = this._uid; // Component ID
     },
     methods: {
         upload() {
+            this.error = null;
+            this.isUploading = 1;
+
+            // TODO: add support for multiple uploads.
+
             let formData = new FormData();
             formData.append('picture', this.$refs.uploadInput.files[0]);
 
-            this.isUploading = true;
             axios.post(
                 NC_ROUTES.controllers.PictureController.upload().url,
                 formData, {
@@ -66,15 +107,65 @@ export default Vue.extend({
                         'Csrf-Token': NC_CONFIG.csrfToken,
                     }
                 }
-            ).then(function (response) {
-                console.log(response);
-            }).catch(function (error) {
-                console.log(error);
-            }).then(() => { this.isUploading = false; });
+            ).then(response => {
+                this.pictures.push(response.data);
+            }).catch(error => {
+                this.error = error;
+            }).then(() => {
+                this.isUploading = false;
+            });
         },
     },
+    components: { ReactivePicture }
 });
 </script>
 
 <style>
+.picture img, .picture-add label {
+    width: 100%;
+
+    border: 1px solid #f2f2f2;
+    border-radius: 2px;
+    padding: 4px;
+}
+
+.picture-add {
+    position: relative;
+}
+
+/* Uses a CSS trick to make the `picture-add` the same height as its width. */
+.picture-add:before{
+	content: "";
+	display: block;
+	padding-top: 100%;
+}
+
+.picture-add label {
+    position: absolute;
+
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+
+    opacity: 0.7;
+    cursor: pointer;
+
+    display: flex; /* required to center the icon and text vertucally. */
+}
+
+.picture-add label:hover {
+    opacity: 1;
+}
+
+.picture-add label p {
+    margin: auto;
+
+    text-align: center;
+    font-size: 1rem;
+}
+
+.picture-add label p i {
+    font-size: 44px;
+}
 </style>
