@@ -65,6 +65,10 @@ object Country extends Enumeration {
   val UnitedKingdom = Val(
     "United Kingdom", Currency.PoundSterling, "UK", Some(20))
 
+  /* Europe, non EU */
+  val Norway = Val("Norway", Currency.NorwegianKrone, "NO", Some(25))
+  val Switzerland = Val("Switzerland", Currency.SwissFranc , "CH", Some(25))
+
   /* Other */
   val Australia = Val("Australia", Currency.AustralianDollar, "AU", Some(10),
     Map(

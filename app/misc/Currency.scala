@@ -35,6 +35,10 @@ object Currency extends Enumeration {
   val RomanianLeu = Val("Romanian leu", "RON", "RON")
   val SwedishKrona = Val("Swedish krona", "kr", "SEK")
 
+  /* Europe, non EU */
+  val NorwegianKrone = Val("Norwegian krone", "kr", "NOK")
+  val SwissFranc = Val("Swiss franc", "CHF", "CHF")
+
   /* Other */
   val AustralianDollar = Val("Pound sterling", "AU$", "AUD")
   val CanadianDollar = Val("Canadian dollar", "CAD", "CAD")
