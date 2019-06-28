@@ -62,7 +62,7 @@
                 @change="upload()"
                 ref="uploadInput" class="show-for-sr"
                 accept="image/*"
-                >
+                multiple>
         </div>
     </div>
 </template>
@@ -90,30 +90,43 @@ export default Vue.extend({
         }
     },
     methods: {
+        // Uploads the files in the `uploadInput`.
         upload() {
             this.error = null;
-            this.isUploading = 1;
 
-            // TODO: add support for multiple uploads.
+            let pictures = Array.from(this.$refs.uploadInput.files);
 
-            let formData = new FormData();
-            formData.append('picture', this.$refs.uploadInput.files[0]);
+            this.uploadPictures(pictures);
+        },
 
-            axios.post(
-                NC_ROUTES.controllers.PictureController.upload().url,
-                formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                        'Csrf-Token': NC_CONFIG.csrfToken,
+        uploadPictures(pictures: File[]) {
+            this.isUploading = pictures.length;
+
+            if (pictures.length > 0) {
+                let formData = new FormData();
+                formData.append('picture', pictures[0]);
+
+                axios.post(
+                    NC_ROUTES.controllers.PictureController.upload().url,
+                    formData, {
+                        headers: {
+                            'Content-Type': 'multipart/form-data',
+                            'Csrf-Token': NC_CONFIG.csrfToken,
+                        }
                     }
-                }
-            ).then(response => {
-                this.pictures.push(response.data);
-            }).catch(error => {
-                this.error = error;
-            }).then(() => {
-                this.isUploading = false;
-            });
+                ).then(response => {
+                    this.pictures.push(response.data);
+
+                    if (pictures.length > 1) {
+                        this.uploadPictures(pictures.slice(1));
+                    } else {
+                        this.isUploading = false;
+                    }
+                }).catch(error => {
+                    this.error = error;
+                    this.isUploading = false
+                });
+            }
         },
     },
     components: { ReactivePicture }
@@ -148,7 +161,7 @@ export default Vue.extend({
 	bottom: 0;
 	right: 0;
 
-    opacity: 0.7;
+    opacity: 0.65;
     cursor: pointer;
 
     display: flex; /* required to center the icon and text vertucally. */

@@ -34,6 +34,10 @@ a:hover {
     color: #915c11;
 }
 
+hr {
+    border-bottom: 1px solid #cacaca66;
+}
+
 main {
     min-height: calc(100vh - 54px - 61px);
 }
