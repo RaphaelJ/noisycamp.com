@@ -26,18 +26,11 @@
                     <label>
                         Country
 
-                        <select
+                        <country-select
                             :name="countryName"
                             v-model="address.country"
-                            @change="updateMarker()"
                             required>
-                            <option disabled value="">Please select a country</option>
-                            <option
-                                v-for="country in orderedCountries"
-                                :value="country.isoCode">
-                                {{ country.name }}
-                            </option>
-                        </select>
+                        </country-select>
 
                         <span v-if="countryError" class="error">
                             {{ countryError }}
@@ -169,6 +162,8 @@ import * as mapboxgl from 'mapbox-gl';
 import * as mbxGeocoding from '@mapbox/mapbox-sdk/services/geocoding';
 import * as _ from "lodash";
 import Vue from "vue";
+
+import CountrySelect from '../widgets/CountrySelect.vue'
 
 declare var NC_CONFIG: any;
 
@@ -409,10 +404,13 @@ export default Vue.extend({
     },
     watch: {
         'address.country': function() {
+            this.updateMarker();
+
             // Resets the state field on country change.
             this.address.state = null;
         }
-    }
+    },
+    components: { CountrySelect },
 });
 </script>
 
