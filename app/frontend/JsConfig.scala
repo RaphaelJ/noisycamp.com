@@ -30,10 +30,10 @@ object JsConfig {
 
   def apply()(implicit config: Configuration, request: RequestHeader)
     : JsValue = {
-      
+
     Json.obj(
       "csrfToken" -> CSRF.getToken.value,
-      
+
       "mapboxToken" -> config.get[String]("mapbox.token"),
 
       // Lists the name, currency and provinces of every supported country.
@@ -55,7 +55,8 @@ object JsConfig {
                 JsNull
               }
             }
-          )
+          ),
+          "payoutMethod" -> country.payoutMethod.name
         )
       ),
 

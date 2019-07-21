@@ -17,44 +17,14 @@
 
 package misc
 
-sealed trait PayoutMethod
+object PayoutMethod extends Enumeration {
 
-object RecipientType extends Enumeration {
-  val Business = Value
-  val Private = Value
+  case class Val(val name: String)
+    extends super.Val
+
+  val Iban = Val("IBAN")
+  val Aba = Val("ABA")
+  val Canadian = Val("Canadian")
+  val Australian = Val("Australian")
+  val NewZealand = Val("NewZealand")
 }
-
-object AccountType extends Enumeration {
-  val Checking = Value
-  val Savings = Value
-}
-
-final case class Iban(
-    val recipientType: RecipientType.Value, val bic: Option[String],
-    val iban: String
-  ) extends PayoutMethod
-
-/** American Bankers Association routing number. */
-final case class Aba(
-    val recipientType: RecipientType.Value, val routingNumber: String,
-    val accountNumber: String, val accountType: AccountType.Value
-  ) extends PayoutMethod
-
-/** Canadian local bank account. */
-final case class Canadian(
-    val recipientType: RecipientType.Value, val institutionNumber: String,
-    val transitNumber: String, val accountNumber: String,
-    val accountType: AccountType.Value
-  ) extends PayoutMethod
-
-/** Australian local bank account. */
-final case class Australian(
-    val recipientType: RecipientType.Value, val bsbCode: String,
-    val businessNumber: Option[String], val accountNumber: String,
-    val accountType: AccountType.Value
-  ) extends PayoutMethod
-
-/** New Zealand bank account. */
-final case class NewZealand(
-    val recipientType: RecipientType.Value, val accountNumber: String
-  ) extends PayoutMethod

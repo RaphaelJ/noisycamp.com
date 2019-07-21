@@ -19,10 +19,12 @@ import Vue from 'vue';
 
 import AddressInput from './components/widgets/AddressInput.vue';
 import EquipmentList from './components/studios/create/EquipmentList.vue';
+import PayoutInput from './components/studios/create/PayoutInput.vue';
 import PictureList from './components/studios/create/PictureList.vue';
+
 import StudiosIndex from './components/studios/Index.vue';
 
 var ncApp = new Vue({
     el: "#nc-app",
-    components: { AddressInput, EquipmentList, PictureList, StudiosIndex, },
+    components: { AddressInput, EquipmentList, PayoutInput, PictureList, StudiosIndex, },
 });
