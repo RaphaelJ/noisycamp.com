@@ -26,6 +26,34 @@ h1, h2, h3, h4, h5, h6, .text-serif {
     font-family: 'Playfair Display', serif;
 }
 
+/* Overrides Foundation title sizes on large screens. */
+
+@media print,screen and (min-width: 40em) {
+    .h1, h1 {
+        font-size: 2.7rem;
+    }
+
+    .h2, h2 {
+        font-size: 2.2rem;
+    }
+
+    .h3, h3 {
+        font-size: 1.7rem;
+    }
+
+    .h4, h4 {
+        font-size: 1.4rem;
+    }
+
+    .h5, h5 {
+        font-size: 1.15rem;
+    }
+
+    .h6, h6 {
+        font-size: 1rem;
+    }
+}
+
 a {
     color: #b37216;
 }
@@ -194,7 +222,14 @@ form label .error {
     background-color: rgba(255, 255, 255, 1);
     border-radius: 5px;
     border: 1px solid rgba(0, 0, 0, 0.1);
-    padding: 18px 25px;
+    padding: 12px 19px;
+}
+
+/* Slightly larger padding on large screens. */
+@media screen and (min-width: 64em) {
+    .panel-section {
+        padding: 18px 25px;
+    }
 }
 
 /* Full-width hero picture */

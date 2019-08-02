@@ -71,7 +71,7 @@
         </div>
 
         <div class="cell small-12">
-            <h5>Add new equipment</h5>
+            <h4>Add new equipment</h4>
 
             <div class="grid-x grid-margin-x">
                 <label class="cell small-6 medium-3">
