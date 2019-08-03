@@ -74,7 +74,7 @@
             <h4>Add new equipment</h4>
 
             <div class="grid-x grid-margin-x">
-                <label class="cell small-6 medium-3">
+                <label class="cell small-12 medium-4 large-3">
                     Type
 
                     <select
@@ -95,7 +95,7 @@
                     </select>
                 </label>
 
-                <label class="cell small-6 medium-5">
+                <label class="cell small-12 medium-8 large-5">
                     Details
 
                     <input
@@ -117,7 +117,7 @@
                 </div>
 
                 <label
-                    class="cell small-12 medium-2 medium-offset-1"
+                    class="cell small-12 medium-4 medium-offset-1 large-2"
                     v-if="newEquipment.hasExtraFee">
 
                     Price per hour
