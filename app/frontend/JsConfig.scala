@@ -46,16 +46,16 @@ object JsConfig {
             "isoCode" -> country.currency.isoCode,
             "name" -> country.currency.name,
             "symbol" -> country.currency.symbol,
-            "states" -> {
-              if (country.states.nonEmpty) {
-                JsObject(
-                  for ((stateCode, stateName) <- country.states)
-                  yield stateCode -> JsString(stateName))
-              } else {
-                JsNull
-              }
-            }
           ),
+          "states" -> {
+            if (country.states.nonEmpty) {
+              JsObject(
+                for ((stateCode, stateName) <- country.states)
+                yield stateCode -> JsString(stateName))
+            } else {
+              JsNull
+            }
+          },
           "payoutMethod" -> country.payoutMethod.name
         )
       ),

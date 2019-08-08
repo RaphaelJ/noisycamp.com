@@ -15,13 +15,13 @@
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-  Provides an set of input widget for
+  Provides an set of input widget for the payout method.
 -->
 
 <template>
     <div>
         <div class="grid-x grid-margin-x">
-            <div class="cell small-12 medium-6 large-3">
+            <div class="cell small-12 medium-6 large-4">
                 <label>Billing country</label>
 
                 <country-select
@@ -58,7 +58,7 @@
                     required>
             </label>
 
-            <label class="cell small-12 medium-4 large-2">
+            <label class="cell small-12 medium-4 large-3">
                 Bank code (BIC/SWIFT)
 
                 <input

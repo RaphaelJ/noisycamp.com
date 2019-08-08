@@ -117,7 +117,7 @@
                 </div>
 
                 <label
-                    class="cell small-12 medium-4 medium-offset-1 large-2"
+                    class="cell small-12 medium-4 medium-offset-1 large-3"
                     v-if="newEquipment.hasExtraFee">
 
                     Price per hour
