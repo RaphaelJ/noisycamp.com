@@ -131,13 +131,13 @@
                     </div>
                 </label>
 
-                <label class="cell small-12">
+                <div class="cell small-12">
                     <button
                         type="button" class="button"
                         @click="equipmentAdd()">
                         Add equipment
                     </button>
-                </label>
+                </div>
             </div>
         </div>
     </div>

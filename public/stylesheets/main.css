@@ -90,7 +90,7 @@ main {
 .help-text {
     color: #666;
     font-size: 0.85rem;
-    margin-top: -.9rem;
+    /* margin-top: -.9rem; */
 }
 
 [type="color"], [type="date"], [type="datetime-local"], [type="datetime"],
