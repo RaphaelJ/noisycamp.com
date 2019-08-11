@@ -23,6 +23,7 @@ import EquipmentList from './components/studios/create/EquipmentList.vue';
 import OpenningTimesInput from './components/studios/create/OpenningTimesInput.vue';
 import PayoutInput from './components/studios/create/PayoutInput.vue';
 import PictureList from './components/studios/create/PictureList.vue';
+import PricingPolicyInput from './components/studios/create/PricingPolicyInput.vue';
 
 import StudiosIndex from './components/studios/Index.vue';
 
@@ -30,6 +31,6 @@ var ncApp = new Vue({
     el: "#nc-app",
     components: {
         AddressInput, BookingPolicyInput, EquipmentList, OpenningTimesInput, PayoutInput,
-        PictureList, StudiosIndex,
+        PictureList, PricingPolicyInput, StudiosIndex,
     },
 });

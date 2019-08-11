@@ -15,7 +15,7 @@
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-  Provides an set of input widget for the studio's openning time table.
+  Provides an set of input widgets for the studio's openning time table.
 -->
 
 <template>

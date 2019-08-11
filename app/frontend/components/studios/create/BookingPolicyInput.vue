@@ -45,12 +45,12 @@
                 v-model="automaticApproval">
 
             <label for="booking-policy-automatic-approval">
-                Automatically accept booking requests.
+                Automatically accept booking requests
             </label>
 
             <p class="help-text">
                 If disabled, every booking request will have to be manually approved within 7 days,
-                or will be automatically cancelled and the customer fully refunded.
+                or will be automatically cancelled and the customer fully refunded
             </p>
         </div>
 
@@ -61,7 +61,7 @@
                 v-model="refundCancelled">
 
             <label for="booking-policy-can-cancel">
-                Reimburse customers that cancel their booking before it begins.
+                Reimburse customers that cancel their booking before it begins
             </label>
         </div>
 
