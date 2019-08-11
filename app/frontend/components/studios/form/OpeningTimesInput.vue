@@ -1,0 +1,116 @@
+<!--
+  Noisycamp is a platform for booking music studios.
+  Copyright (C) 2019  Raphael Javaux <raphaeljavaux@gmail.com>
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+  Provides an set of input widgets for the studio's opening time table.
+-->
+
+<template>
+    <div class="grid-x grid-margin-x grid-padding-x grid-margin-y">
+        <div
+            v-for="(weekDay, dayIx) in weekDays"
+            class="cell small-12 medium-6 large-4">
+
+            <div class="grid-x grid-margin-x">
+                <div class="cell small-12">
+                    <input
+                        :id="'opening-times-' + weekDay.toLowerCase() + '-checkbox'"
+                        :name="fieldName(weekDay.toLowerCase())"
+                        type="checkbox"
+                        v-model="openingTimes[dayIx].isOpen">
+
+                    <label :for="'opening-times-' + weekDay.toLowerCase() + '-checkbox'">
+                        <h5>{{ weekDay }}</h5>
+
+                        <span v-if="fieldHasError(weekDay.toLowerCase())" class="error">
+                            {{ fieldError(weekDay.toLowerCase()) }}
+                        </span>
+                    </label>
+                </div>
+
+                <div class="cell small-6">
+                    <label>
+                        Opens at
+
+                        <input type="time"
+                            :name="fieldName(weekDay.toLowerCase() + '.opens-at')"
+                            v-model="openingTimes[dayIx].opensAt"
+                            :disabled="!openingTimes[dayIx].isOpen"
+                            pattern="[0-9]{2}:[0-9]{2}"
+                            required>
+
+                        <span
+                            v-if="fieldHasError(weekDay.toLowerCase() + '.opens-at')"
+                            class="error">
+                            {{ fieldError(weekDay.toLowerCase() + '.opens-at') }}
+                        </span>
+                    </label>
+                </div>
+
+                <div class="cell small-6">
+                    <label>
+                        Closes at
+
+                        <input type="time"
+                            :name="fieldName(weekDay.toLowerCase() + '.closes-at')"
+                            v-model="openingTimes[dayIx].closesAt"
+                            :disabled="!openingTimes[dayIx].isOpen"
+                            pattern="[0-9]{2}:[0-9]{2}"
+                            required>
+
+                        <span
+                            v-if="fieldHasError(weekDay.toLowerCase() + '.closes-at')"
+                            class="error">
+                            {{ fieldError(weekDay.toLowerCase() + '.closes-at') }}
+                        </span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script lang="ts">
+import Vue from "vue";
+
+import VueInput from '../../widgets/VueInput';
+
+export default Vue.extend({
+    mixins: [VueInput],
+    props: {
+    },
+    data() {
+        return {
+            weekDays: [
+                'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'
+            ],
+
+            openingTimes: Array(7).fill(null).map((_) => {
+                return {
+                    isOpen: false,
+                    opensAt: '08:00',
+                    closesAt: '20:00',
+                };
+            }),
+        };
+    },
+    computed: {
+    },
+});
+</script>
+
+<style>
+</style>
