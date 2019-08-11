@@ -38,13 +38,15 @@ export default {
         },
 
         fieldHasError(fieldName) {
-            return true;
             return this.fieldName(fieldName) in this.errors;
         },
 
-        fieldError(fieldName) {
-            return fieldName + ": this field as an invalid value, please retry.";
+        fieldErrors(fieldName) {
             return this.errors[this.fieldName(fieldName)];
+        },
+
+        fieldError(fieldName) {
+            return this.fieldErrors(fieldName)[0];
         },
     }
 };

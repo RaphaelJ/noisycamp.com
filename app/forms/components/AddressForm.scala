@@ -25,14 +25,20 @@ import forms.CustomFields
 
 object AddressForm {
 
+  val coordinate = bigDecimal.
+    verifying("Invalid coordinate", { value => value >= -90 && value <= 90 })
+
   val form = Form(
     mapping(
-      "address1" -> nonEmptyText,
-      "address2" -> CustomFields.optionalText,
+      "address-1" -> nonEmptyText,
+      "address-2" -> CustomFields.optionalText,
       "zipcode" -> nonEmptyText,
       "city" -> nonEmptyText,
       "state" -> CustomFields.optionalText,
-      "country" -> CustomFields.country
+      "country" -> CustomFields.country,
+
+      "long"  -> coordinate,
+      "lat"   -> coordinate
     )(Data.apply)(Data.unapply).
       verifying("Invalid state/province.", { address =>
         (address.country.states, address.stateCode) match {
@@ -50,5 +56,9 @@ object AddressForm {
     zipcode:    String,
     city:       String,
     stateCode:  Option[String],
-    country:    Country.Val)
+    country:    Country.Val,
+
+    // Coordinate values in [-90..90].
+    long:   BigDecimal,
+    lat:    BigDecimal)
 }

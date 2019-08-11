@@ -17,20 +17,10 @@
 
 import Vue from 'vue';
 
-import AddressInput from './components/widgets/AddressInput.vue';
-import BookingPolicyInput from './components/studios/create/BookingPolicyInput.vue';
-import EquipmentList from './components/studios/create/EquipmentList.vue';
-import OpenningTimesInput from './components/studios/create/OpenningTimesInput.vue';
-import PayoutInput from './components/studios/create/PayoutInput.vue';
-import PictureList from './components/studios/create/PictureList.vue';
-import PricingPolicyInput from './components/studios/create/PricingPolicyInput.vue';
-
+import StudioForm from './components/studios/Form.vue';
 import StudiosIndex from './components/studios/Index.vue';
 
 var ncApp = new Vue({
     el: "#nc-app",
-    components: {
-        AddressInput, BookingPolicyInput, EquipmentList, OpenningTimesInput, PayoutInput,
-        PictureList, PricingPolicyInput, StudiosIndex,
-    },
+    components: { StudioForm, StudiosIndex, },
 });

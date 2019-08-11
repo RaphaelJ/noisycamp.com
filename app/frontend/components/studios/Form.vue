@@ -36,7 +36,7 @@
 
             <h2>General information</h2>
 
-            <general-info-input name="general-info"></general-info-input>
+            <general-info-input name="general-info" :errors="errors"></general-info-input>
 
             <hr>
         </div>
@@ -49,7 +49,7 @@
 
             <h2>Location</h2>
 
-            <address-input name="location"></address-input>
+            <address-input name="location" :errors="errors"></address-input>
 
             <hr>
         </div>
@@ -190,6 +190,19 @@ export default Vue.extend({
 
         csrfToken: { type: String, required: false },
 
+        // The form data, indexed by the field's name.
+        data: {
+            type: Object, required: false,
+            default: function () { return {}; }
+        },
+
+        // The form errors, indexed by the field's name (see
+        // `play.api.data.Form.errorsAsJson`)
+        errors: {
+            type: Object, required: false,
+            default: function () { return {}; }
+        },
+
         // If true, the form will be displayed as a multipage form with next
         // and previous navigation buttons.
         isMultiPage: { type: Boolean, required: false, default: false },
@@ -200,7 +213,7 @@ export default Vue.extend({
     },
     methods: {
         isShown(section) {
-            return true;
+            return ['general-info', 'location'].includes(section);
         }
     },
     components: {

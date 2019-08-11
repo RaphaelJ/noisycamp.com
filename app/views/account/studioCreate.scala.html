@@ -23,105 +23,6 @@
     implicit request: RequestHeader, messagesProvider: MessagesProvider,
     config: Configuration)
 
-@implicitField = @{
-    helper.FieldConstructor(utils.forms.foundationFieldConstructor.f)
-}
-
-@form(implicit field: views.html.helper.FieldConstructor) = {
-    @helper.form(
-        action = controllers.account.routes.StudiosController.createSubmit) {
-
-        @helper.CSRF.formField
-
-        <h2>General information</h2>
-
-        @helper.inputText(studioForm("name"),
-            '_label -> "Studio name",
-            '_showConstraints -> false,
-            '_help -> (
-                "Try to make it as descriptive and short as possible. This " +
-                "is how your studio will appear on listings and search " +
-                "engines."))
-
-        @helper.textarea(studioForm("name"),
-            'rows -> 10,
-            '_label -> "Short description",
-            '_showConstraints -> false,
-            '_help -> "What makes your studio special.")
-
-        <hr>
-
-        <h2>Location</h2>
-
-        @utils.forms.addressInput(
-            studioForm, "address", "coordinates", messagesProvider)
-
-        <hr>
-
-        <h2>Openning times</h2>
-
-        <p>Select studio's openning days and hours.</p>
-
-        <p>
-            This will define the general avalaibility of your studio. More specific openning
-            schedule, like holidays, can be defined later in the calendar application.
-        </p>
-
-        <openning-times-input></openning-times-input>
-
-        <hr>
-
-        <h2>Pricing</h2>
-
-        <pricing-policy-input></pricing-policy-input>
-
-        <hr>
-
-        <h2>Booking & cancellation policy</h2>
-
-        <booking-policy-input></booking-policy-input>
-
-        <hr>
-
-        <h2>Extra rules</h2>
-
-        <hr>
-
-        <h2>Pictures</h2>
-
-        <picture-list></picture-list>
-
-        <hr>
-
-        <h2>Equipment & instruments</h2>
-
-        <p>
-            List the instruments and various equipments that come with your rehearsal place. This
-            will allow user to easily find places that match their needs.<br>
-            You can request an extra fee for some of these items.
-        </p>
-
-        <equipment-list></equipment-list>
-
-        <hr>
-
-        <h2>Payout</h2>
-
-        <p>
-            Noisycamp will send the revenue from your rentals twice per month using international
-            wire transfer. Read more about payouts.
-        </p>
-
-        <payout-input></payout-input>
-
-        <hr>
-
-        <button type="submit" class="button large small-only-expanded">
-            Save and continue
-        </button>
-    }
-}
-
 @head = {
     <link
         rel="stylesheet"
@@ -137,10 +38,17 @@
 
                     <p>
                         We just need a little bit of information about the place
-                        you want to list on NoisyCamp.
+                        you want to list on NoisyCamp. This should only take a few minutes.
                     </p>
 
-                    @form
+                    @utils.forms.dataAsJson(studioForm)
+
+                    <studio-form
+                        action="@controllers.account.routes.StudiosController.createSubmit"
+                        method="POST"
+                        csrf-token="@helper.CSRF.getToken.value"
+                        :errors="@studioForm.errorsAsJson">
+                    </studio-form>
                 </div>
             </div>
         </div>

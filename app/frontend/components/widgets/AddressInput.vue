@@ -27,13 +27,13 @@
                         Country
 
                         <country-select
-                            :name="countryName"
+                            :name="fieldName('country')"
                             v-model="address.country"
                             required>
                         </country-select>
 
-                        <span v-if="countryError" class="error">
-                            {{ countryError }}
+                        <span v-if="fieldHasError('country')" class="error">
+                            {{ fieldError('country') }}
                         </span>
                     </label>
                 </div>
@@ -44,14 +44,14 @@
 
                         <input
                             type="text"
-                            :name="address1Name"
+                            :name="fieldName('address-1')"
                             v-model="address.address1"
                             :disabled="!address.country"
                             @change="updateMarker()"
                             required>
 
-                        <span v-if="address1Error" class="error">
-                            {{ address1Error }}
+                        <span v-if="fieldHasError('address-1')" class="error">
+                            {{ fieldError('address-1') }}
                         </span>
                     </label>
                 </div>
@@ -62,14 +62,14 @@
 
                         <input
                             type="text"
-                            :name="address2Name"
+                            :name="fieldName('address-2')"
                             v-model="address.address2"
                             :disabled="!address.country"
                             @change="updateMarker()">
 
-                        <span v-if="address2Error" class="error">
-                            {{ address2Error }}
-                        </span>
+                            <span v-if="fieldHasError('address-2')" class="error">
+                                {{ fieldError('address-2') }}
+                            </span>
                     </label>
                 </div>
 
@@ -81,14 +81,14 @@
 
                                 <input
                                     type="text"
-                                    :name="cityName"
+                                    :name="fieldName('city')"
                                     v-model="address.city"
                                     :disabled="!address.country"
                                     @change="updateMarker()"
                                     required>
 
-                                <span v-if="cityError" class="error">
-                                    {{ cityError }}
+                                <span v-if="fieldHasError('city')" class="error">
+                                    {{ fieldError('city') }}
                                 </span>
                             </label>
                         </div>
@@ -99,14 +99,14 @@
 
                                 <input
                                     type="text"
-                                    :name="zipcodeName"
+                                    :name="fieldName('zipcode')"
                                     v-model="address.zipcode"
                                     :disabled="!address.country"
                                     @change="updateMarker()"
                                     required>
 
-                                <span v-if="zipcodeError" class="error">
-                                    {{ zipcodeError }}
+                                <span v-if="fieldHasError('zipcode')" class="error">
+                                    {{ fieldError('zipcode') }}
                                 </span>
                             </label>
                         </div>
@@ -116,7 +116,7 @@
                                 State/Province
 
                                 <select
-                                    :name="stateName"
+                                    :name="fieldName('state')"
                                     v-model="address.state"
                                     :disabled="!hasStates(address.country)"
                                     :required="hasStates(address.country)"
@@ -133,8 +133,8 @@
                                     </option>
                                 </select>
 
-                                <span v-if="stateError" class="error">
-                                    {{ stateError }}
+                                <span v-if="fieldHasError('state')" class="error">
+                                    {{ fieldError('state') }}
                                 </span>
                             </label>
                         </div>
@@ -151,8 +151,8 @@
                 location of your studio.
             </div>
 
-            <input type="hidden" name="long" :value="coordinates.long">
-            <input type="hidden" name="lat" :value="coordinates.lat">
+            <input type="hidden" :name="fieldName('long')" :value="coordinates.long">
+            <input type="hidden" :name="fieldName('lat')" :value="coordinates.lat">
         </div>
     </div>
 </template>
@@ -163,42 +163,22 @@ import * as mbxGeocoding from '@mapbox/mapbox-sdk/services/geocoding';
 import * as _ from "lodash";
 import Vue from "vue";
 
+import VueInput from '../widgets/VueInput';
 import CountrySelect from '../widgets/CountrySelect.vue'
 
 declare var NC_CONFIG: any;
 
 export default Vue.extend({
+    mixins: [VueInput],
     props: {
-        // Form field names and values
-
-        countryName: { type: String, required: true },
         country: { type: String, required: false },
-        countryError: { type: String, required: false },
-
-        address1Name: { type: String, required: true },
         address1: { type: String, required: false },
-        address1Error: { type: String, required: false },
-
-        address2Name: { type: String, required: true },
         address2: { type: String, required: false },
-        address2Error: { type: String, required: false },
-
-        cityName: { type: String, required: true },
         city: { type: String, required: false },
-        cityError: { type: String, required: false },
-
-        zipcodeName: { type: String, required: true },
         zipcode: { type: String, required: false },
-        zipcodeError: { type: String, required: false },
-
-        stateName: { type: String, required: true },
         state: { type: String, required: false },
-        stateError: { type: String, required: false },
 
-        longName: { type: String, required: true },
         long: { type: Number, required: false },
-
-        latName: { type: String, required: true },
         lat: { type: Number, required: false },
     },
     data() {

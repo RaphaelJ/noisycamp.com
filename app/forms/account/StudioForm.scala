@@ -20,18 +20,19 @@ package forms.account
 import play.api.data.Form
 import play.api.data.Forms._
 
+/** A form to create and edit studios. */
 object StudioForm {
 
   val form = Form(
     mapping(
-      "name" -> nonEmptyText,
-      "address" -> forms.components.AddressForm.form.mapping,
-      "coordinates" -> forms.components.CoordinatesForm.form.mapping,
+      "general-info.name" -> nonEmptyText,
+      "general-info.description" -> nonEmptyText,
+      "location" -> forms.components.AddressForm.form.mapping
     )(Data.apply)(Data.unapply)
   )
 
   case class Data(
     name:         String,
-    address:      forms.components.AddressForm.Data,
-    coordinates:  forms.components.CoordinatesForm.Data)
+    description:  String,
+    location:     forms.components.AddressForm.Data)
 }
