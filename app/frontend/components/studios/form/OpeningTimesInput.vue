@@ -27,16 +27,25 @@
             <div class="grid-x grid-margin-x">
                 <div class="cell small-12">
                     <input
-                        :id="'opening-times-' + weekDay.toLowerCase() + '-checkbox'"
-                        :name="fieldName(weekDay.toLowerCase())"
+                        :id="'opening-times-' + weekDay.toLowerCase() + '-is-open'"
+                        :name="fieldName(weekDay.toLowerCase() + '.is-open')"
                         type="checkbox"
+                        value="true"
                         v-model="openingTimes[dayIx].isOpen">
 
-                    <label :for="'opening-times-' + weekDay.toLowerCase() + '-checkbox'">
+                    <label :for="'opening-times-' + weekDay.toLowerCase() + '-is-open'">
                         <h5>{{ weekDay }}</h5>
 
-                        <span v-if="fieldHasError(weekDay.toLowerCase())" class="error">
+                        <span
+                            v-if="fieldHasError(weekDay.toLowerCase())"
+                            class="error">
                             {{ fieldError(weekDay.toLowerCase()) }}
+                        </span>
+
+                        <span
+                            v-if="fieldHasError(weekDay.toLowerCase() + '.is-open')"
+                            class="error">
+                            {{ fieldError(weekDay.toLowerCase() + '.is-open') }}
                         </span>
                     </label>
                 </div>
@@ -49,8 +58,8 @@
                             :name="fieldName(weekDay.toLowerCase() + '.opens-at')"
                             v-model="openingTimes[dayIx].opensAt"
                             :disabled="!openingTimes[dayIx].isOpen"
-                            pattern="[0-9]{2}:[0-9]{2}"
-                            required>
+                            :required="openingTimes[dayIx].isOpen"
+                            pattern="[0-9]{2}:[0-9]{2}">
 
                         <span
                             v-if="fieldHasError(weekDay.toLowerCase() + '.opens-at')"
@@ -68,8 +77,8 @@
                             :name="fieldName(weekDay.toLowerCase() + '.closes-at')"
                             v-model="openingTimes[dayIx].closesAt"
                             :disabled="!openingTimes[dayIx].isOpen"
-                            pattern="[0-9]{2}:[0-9]{2}"
-                            required>
+                            :required="openingTimes[dayIx].isOpen"
+                            pattern="[0-9]{2}:[0-9]{2}">
 
                         <span
                             v-if="fieldHasError(weekDay.toLowerCase() + '.closes-at')"

@@ -17,6 +17,7 @@
 
 package forms
 
+import org.joda.time.{LocalTime}
 import play.api.data.{ FormError, Mapping }
 import play.api.data.format.Formatter
 import play.api.data.Forms._
@@ -44,6 +45,30 @@ object CustomFields {
     }
 
     of[Country.Val](countryFormat)
+  }
+
+  /** Parses a `<input type="time">` as a JodaTime LocalTime value. */
+  val jodaLocalTime: Mapping[LocalTime] = {
+    val jodaLocalTimeFormat = new Formatter[LocalTime] {
+      def bind(key: String, data: Map[String, String]) = {
+        data.
+          get(key).
+          toRight(Seq(FormError(key, "error.required", Nil))).
+          flatMap { timeStr =>
+            try {
+              Right(LocalTime.parse(timeStr))
+            } catch {
+              case _: IllegalArgumentException => {
+                Left(Seq(FormError(key, "Invalid time format")))
+              }
+            }
+          }
+      }
+
+      def unbind(key: String, value: LocalTime) = Map(key -> value.toString)
+    }
+
+    of[LocalTime](jodaLocalTimeFormat)
   }
 
   /** Similar to `text`, but will bind empty string to a `None` value. */

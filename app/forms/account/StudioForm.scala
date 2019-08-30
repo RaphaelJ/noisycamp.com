@@ -27,12 +27,18 @@ object StudioForm {
     mapping(
       "general-info.name" -> nonEmptyText,
       "general-info.description" -> nonEmptyText,
-      "location" -> forms.components.AddressForm.form.mapping
+      "location" -> forms.components.AddressForm.form.mapping,
+      "opening-times" -> forms.components.OpeningTimesForm.form.mapping
     )(Data.apply)(Data.unapply)
   )
 
   case class Data(
+    // General info
     name:         String,
     description:  String,
-    location:     forms.components.AddressForm.Data)
+
+    location:     forms.components.AddressForm.Data,
+
+    openingTimes: forms.components.OpeningTimesForm.Data
+  )
 }

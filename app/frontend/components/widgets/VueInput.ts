@@ -21,7 +21,7 @@
 
 export default {
     props: {
-        // The prefix that will be used for <input> sub-fields.
+        // The prefix that will be used for <input> sub-fields. Can be empty (i.e. no prefix).
         name: { type: String, required: true },
 
         // The form errors, indexed by the field's name (see
@@ -34,7 +34,11 @@ export default {
     methods: {
         // Returns the prefixed field name.
         fieldName(fieldName) {
-            return this.name + '.' + fieldName;
+            if (this.name != '') {
+                return this.name + '.' + fieldName;
+            } else {
+                return fieldName;
+            }
         },
 
         fieldHasError(fieldName) {

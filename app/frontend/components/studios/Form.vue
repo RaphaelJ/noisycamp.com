@@ -69,7 +69,7 @@
                 schedule, like holidays, can be defined later in the calendar application.
             </p>
 
-            <opening-times-input name="opening-times"></opening-times-input>
+            <opening-times-input name="opening-times" :errors="errors"></opening-times-input>
 
             <hr>
         </div>
@@ -213,7 +213,7 @@ export default Vue.extend({
     },
     methods: {
         isShown(section) {
-            return ['general-info', 'location'].includes(section);
+            return [/*'general-info', 'location', 'opening-times'*/, 'pricing'].includes(section);
         }
     },
     components: {
