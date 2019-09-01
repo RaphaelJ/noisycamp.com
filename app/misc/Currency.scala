@@ -13,42 +13,46 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ * Provides additional definitions over Squants market and currency manipulation
+ * package.
  */
 
 package misc
 
-object Currency extends Enumeration {
+import squants.market
 
-  case class Val(
-    val name: String, val symbol: String, val isoCode: String)
-    extends super.Val
+object Currency {
 
-  /* EU */
-  val BulgarianLev = Val("Bulgarian lev", "лв.", "BGN")
-  val CroatianKuna = Val("Croatian kuna", "kn", "HRK")
-  val CzechKoruna = Val("Czech koruna", "Kč", "CZK")
-  val DanishKrone = Val("Danish krone", "kr.", "DKK")
-  val Euro = Val("Euro", "€", "EUR")
-  val HungarianForint = Val("Hungarian forint", "Ft", "HUF")
-  val PolishZloty = Val("Polish złoty", "zł", "PLN")
-  val PoundSterling = Val("Pound sterling", "£", "GBP")
-  val RomanianLeu = Val("Romanian leu", "RON", "RON")
-  val SwedishKrona = Val("Swedish krona", "kr", "SEK")
+  // Additional currencies not defined in Squants
+  object BGN extends market.Currency("BGN", "Bulgarian lev", "лв.", 2)
+  object HRK extends market.Currency("HRK", "Croatian kuna", "kn", 2)
+  object HUF extends market.Currency("HUF", "Hungarian forint", "Ft", 2)
+  object PLN extends market.Currency("PLN", "Polish złoty", "zł", 2)
+  object RON extends market.Currency("RON", "Romanian leu", "L", 2)
 
-  /* Europe, non EU */
-  val NorwegianKrone = Val("Norwegian krone", "kr", "NOK")
-  val SwissFranc = Val("Swiss franc", "CHF", "CHF")
+  // Export aliases to existing Squants currencies
+  def AUD = market.AUD
+  def CAD = market.CAD
+  def CHF = market.CHF
+  def CZK = market.CZK
+  def DKK = market.DKK
+  def EUR = market.EUR
+  def GBP = market.GBP
+  def NOK = market.NOK
+  def NZD = market.NZD
+  def SEK = market.SEK
+  def USD = market.USD
 
-  /* Other */
-  val AustralianDollar = Val("Pound sterling", "AU$", "AUD")
-  val CanadianDollar = Val("Canadian dollar", "CAD", "CAD")
-  val NZDollar = Val("New Zealand dollar", "NZ$", "NZD")
-  val USDollar = Val("U.S. dollar", "$", "USD")
+  val currencies: Set[market.Currency] = Set(
+    // EU
+    BGN, HRK, CZK, DKK, EUR, HUF, PLN, GBP, RON, SEK,
 
-  /** Maps currency ISO codes to `Currency` instances. */
-  val byCode: Map[String, Val] = values.
-    toList.
-    map(_.asInstanceOf[Val]).
-    map { v => v.isoCode -> v }.
-    toMap
+    // Europe, non EU
+    NOK, CHF,
+
+    // Other
+    AUD, CAD, NZD, USD)
+
+  def moneyContext = market.MoneyContext(EUR, currencies, Seq.empty)
 }

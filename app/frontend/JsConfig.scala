@@ -43,9 +43,9 @@ object JsConfig {
           "isoCode" -> code,
           "name" -> country.name,
           "currency" -> Json.obj(
-            "isoCode" -> country.currency.isoCode,
+            "isoCode" -> country.currency.code,
             "name" -> country.currency.name,
-            "symbol" -> country.currency.symbol,
+            "symbol" -> country.currency.symbol
           ),
           "states" -> {
             if (country.states.nonEmpty) {

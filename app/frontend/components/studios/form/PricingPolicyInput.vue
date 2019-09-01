@@ -57,9 +57,7 @@
             </label>
         </div>
 
-        <div
-            class="cell small-12 medium-4 medium-offset-1 large-3"
-            v-if="hasEveningPricing">
+        <div class="cell small-12 medium-4 medium-offset-1 large-3">
             <label>
                 Evening begins at
 
@@ -67,7 +65,8 @@
                     :name="fieldName('evening-pricing.begins-at')"
                     v-model="eveningBeginsAt"
                     pattern="[0-9]{2}:[0-9]{2}"
-                    required>
+                    :disabled="!hasEveningPricing"
+                    :required="hasEveningPricing">
 
                 <span v-if="fieldHasError('evening-pricing.begins-at')" class="error">
                     {{ fieldError('evening-pricing.begins-at') }}
@@ -75,9 +74,7 @@
             </label>
         </div>
 
-        <div
-            class="cell small-12 medium-4 medium-offset-1 large-3"
-            v-if="hasEveningPricing">
+        <div class="cell small-12 medium-4 medium-offset-1 large-3">
             <label>
                 Price per hour
 
@@ -87,7 +84,9 @@
                         class="input-group-field"
                         type="number"
                         :name="fieldName('evening-pricing.price-per-hour')"
-                        v-model="eveningPricePerHour">
+                        v-model="eveningPricePerHour"
+                        :disabled="!hasEveningPricing"
+                        :required="hasEveningPricing">
                 </div>
 
                 <span v-if="fieldHasError('evening-pricing.price-per-hour')" class="error">
@@ -114,9 +113,7 @@
             </label>
         </div>
 
-        <div
-            class="cell small-12 medium-4 medium-offset-1 large-3"
-            v-if="hasWeekendPricing">
+        <div class="cell small-12 medium-4 medium-offset-1 large-3">
             <label>
                 Price per hour
 
@@ -126,7 +123,9 @@
                         class="input-group-field"
                         type="number"
                         :name="fieldName('weekend-pricing.price-per-hour')"
-                        v-model="weekendPricePerHour">
+                        v-model="weekendPricePerHour"
+                        :disabled="!hasWeekendPricing"
+                        :required="hasWeekendPricing">
                 </div>
 
                 <span v-if="fieldHasError('weekend-pricing.price-per-hour')" class="error">
