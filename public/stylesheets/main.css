@@ -123,7 +123,7 @@ select:focus
 [type="text"]:disabled, [type="time"]:disabled, [type="url"]:disabled,
 [type="week"]:disabled, textarea:disabled, select:disabled
 {
-    background-color: #e9e9e9cc;
+    background-color: #f4f4f4;
 }
 
 .input-group > :last-child,
@@ -136,6 +136,11 @@ select:focus
 .input-group > :first-child.input-group-button > * {
     border-top-left-radius: 2px;
     border-bottom-left-radius: 2px;
+}
+
+.input-group-label {
+    border-color: #ddd;
+    background: #f9f9f9;
 }
 
 form label .error {
