@@ -46,13 +46,12 @@ class StudiosController @Inject() (
   }
 
   /** Shows a form to list a new studio. */
-  def create = silhouette.SecuredAction.async { implicit request =>
-    exchangeRateService.updateExchangeRate.
-      map { rates =>
-        val ctx = Currency.moneyContext withExchangeRates rates
-        println(Currency.NOK(50000).in(Currency.USD)(ctx))
-        Ok(views.html.account.studioCreate(request.identity, StudioForm.form))
-      }
+  def create = silhouette.SecuredAction { implicit request =>
+    val rates = exchangeRateService.exchangeRates
+    val date = rates.date
+    val ctx = rates.context
+    println(date + ": " + Currency.EUR(15).in(Currency.ISK)(ctx).toFormattedString)
+    Ok(views.html.account.studioCreate(request.identity, StudioForm.form))
   }
 
   def createSubmit = silhouette.SecuredAction { implicit request =>
