@@ -22,16 +22,13 @@
     <div class="grid-x grid-margin-x">
         <div class="cell small-12 medium-4 large-3">
             <label>
-                Price per hour
+                Price per hour ({{pricePerHour}})
 
-                <div class="input-group">
-                    <span class="input-group-label">$</span>
-                    <input
-                        class="input-group-field"
-                        type="number"
-                        :name="fieldName('price-per-hour')"
-                        v-model="pricePerHour">
-                </div>
+                <currency-input
+                    :name="fieldName('price-per-hour')"
+                    :currency="currency"
+                    v-model="pricePerHour">
+                </currency-input>
 
                 <span v-if="fieldHasError('price-per-hour')" class="error">
                     {{ fieldError('price-per-hour') }}
@@ -78,16 +75,13 @@
             <label>
                 Price per hour
 
-                <div class="input-group">
-                    <span class="input-group-label">$</span>
-                    <input
-                        class="input-group-field"
-                        type="number"
-                        :name="fieldName('evening-pricing.price-per-hour')"
-                        v-model="eveningPricePerHour"
-                        :disabled="!hasEveningPricing"
-                        :required="hasEveningPricing">
-                </div>
+                <currency-input
+                    :name="fieldName('evening-pricing.price-per-hour')"
+                    :currency="currency"
+                    v-model="eveningPricePerHour"
+                    :disabled="!hasEveningPricing"
+                    :required="hasEveningPricing">
+                </currency-input>
 
                 <span v-if="fieldHasError('evening-pricing.price-per-hour')" class="error">
                     {{ fieldError('evening-pricing.price-per-hour') }}
@@ -117,16 +111,13 @@
             <label>
                 Price per hour
 
-                <div class="input-group">
-                    <span class="input-group-label">$</span>
-                    <input
-                        class="input-group-field"
-                        type="number"
-                        :name="fieldName('weekend-pricing.price-per-hour')"
-                        v-model="weekendPricePerHour"
-                        :disabled="!hasWeekendPricing"
-                        :required="hasWeekendPricing">
-                </div>
+                <currency-input
+                    :name="fieldName('weekend-pricing.price-per-hour')"
+                    :currency="currency"
+                    v-model="weekendPricePerHour"
+                    :disabled="!hasWeekendPricing"
+                    :required="hasWeekendPricing">
+                </currency-input>
 
                 <span v-if="fieldHasError('weekend-pricing.price-per-hour')" class="error">
                     {{ fieldError('weekend-pricing.price-per-hour') }}
@@ -140,10 +131,12 @@
 import Vue from "vue";
 
 import VueInput from '../../widgets/VueInput';
+import CurrencyInput from '../../widgets/CurrencyInput.vue';
 
 export default Vue.extend({
     mixins: [VueInput],
     props: {
+        currency: { type: String, required: false },
     },
     data() {
         return {
@@ -159,6 +152,7 @@ export default Vue.extend({
     },
     computed: {
     },
+    components: { CurrencyInput, }
 });
 </script>
 

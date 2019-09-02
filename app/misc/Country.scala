@@ -81,7 +81,7 @@ object Country extends Enumeration {
   /* Europe, non EU */
   val Norway = Val("Norway", Currency.NOK, "NO", PayoutMethod.Iban, Some(25))
   val Switzerland = Val("Switzerland", Currency.CHF , "CH", PayoutMethod.Iban,
-    Some(25))
+    Some(7.7))
 
   /* Other */
   val Australia = Val("Australia", Currency.AUD, "AU", PayoutMethod.Australian,

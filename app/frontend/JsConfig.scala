@@ -22,7 +22,7 @@ import play.api.libs.json.{ JsNull, JsObject, Json, JsString, JsValue }
 import play.api.mvc.RequestHeader
 import views.html.helper.CSRF
 
-import misc.{Country, Equipment, EquipmentFamily}
+import misc.{Country, Currency, Equipment, EquipmentFamily}
 
 /** Provides a JSON dump of the configuration variables used by the front-end
  * code. */
@@ -36,17 +36,26 @@ object JsConfig {
 
       "mapboxToken" -> config.get[String]("mapbox.token"),
 
+      // Currencies
+
+      "currencies" -> JsObject(
+        for (curr <- Currency.currencies.toSeq)
+        yield curr.code -> Json.obj(
+          "isoCode" -> curr.code,
+          "name" -> curr.name,
+          "symbol" -> curr.symbol,
+          "decimals" -> curr.formatDecimals,
+        )
+      ),
+
       // Lists the name, currency and provinces of every supported country.
+
       "countries" -> JsObject(
         for ((code, country) <- Country.byCode)
         yield code -> Json.obj(
           "isoCode" -> code,
           "name" -> country.name,
-          "currency" -> Json.obj(
-            "isoCode" -> country.currency.code,
-            "name" -> country.currency.name,
-            "symbol" -> country.currency.symbol
-          ),
+          "currency" -> country.currency.code,
           "states" -> {
             if (country.states.nonEmpty) {
               JsObject(

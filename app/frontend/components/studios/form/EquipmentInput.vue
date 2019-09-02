@@ -140,19 +140,15 @@
                     </label>
                 </div>
 
-                <label
-                    class="cell small-12 medium-4 medium-offset-1 large-3"
-                    v-if="newEquipment.hasExtraFee">
-
+                <label class="cell small-12 medium-4 medium-offset-1 large-3">
                     Price per hour
 
-                    <div class="input-group">
-                        <span class="input-group-label">$</span>
-                        <input
-                            class="input-group-field"
-                            type="number"
-                            v-model="newEquipment.extraFee">
-                    </div>
+                    <currency-input
+                        :currency="currency"
+                        v-model="newEquipment.extraFee"
+                        :disabled="!newEquipment.hasExtraFee"
+                        :required="newEquipment.hasExtraFee">
+                    </currency-input>
                 </label>
 
                 <div class="cell small-12">
@@ -178,6 +174,7 @@ declare var NC_ROUTES: any;
 export default Vue.extend({
     mixins: [VueInput],
     props: {
+        currency: { type: String, required: false },
     },
     data() {
         return {

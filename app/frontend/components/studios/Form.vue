@@ -82,7 +82,10 @@
 
             <h2>Pricing</h2>
 
-            <pricing-policy-input name="pricing"></pricing-policy-input>
+            <pricing-policy-input
+                name="pricing"
+                currency="ISK">
+            </pricing-policy-input>
 
             <hr>
         </div>
@@ -138,7 +141,10 @@
                 You can request an extra fee for some of these items.
             </p>
 
-            <equipment-input name="equipment"></equipment-input>
+            <equipment-input
+                name="equipment"
+                currency="ISK">
+            </equipment-input>
 
             <hr>
         </div>

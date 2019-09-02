@@ -17,19 +17,25 @@
 
 package controllers.account
 
-import com.mohiva.play.silhouette.api.Silhouette
 import javax.inject._
+
+import scala.concurrent.ExecutionContext
+
+import com.mohiva.play.silhouette.api.Silhouette
 import play.api._
 import play.api.i18n.I18nSupport
 import play.api.mvc._
 
 import auth.DefaultEnv
 import forms.account.StudioForm
+import misc.{Currency, ExchangeRateService}
 
 @Singleton
 class StudiosController @Inject() (
   cc: ControllerComponents,
   implicit val config: Configuration,
+  exchangeRateService: ExchangeRateService,
+  implicit val executionContext: ExecutionContext,
   silhouette: Silhouette[DefaultEnv])
   extends AbstractController(cc)
   with I18nSupport {
@@ -40,8 +46,13 @@ class StudiosController @Inject() (
   }
 
   /** Shows a form to list a new studio. */
-  def create = silhouette.SecuredAction { implicit request =>
-    Ok(views.html.account.studioCreate(request.identity, StudioForm.form))
+  def create = silhouette.SecuredAction.async { implicit request =>
+    exchangeRateService.updateExchangeRate.
+      map { rates =>
+        val ctx = Currency.moneyContext withExchangeRates rates
+        println(Currency.NOK(50000).in(Currency.USD)(ctx))
+        Ok(views.html.account.studioCreate(request.identity, StudioForm.form))
+      }
   }
 
   def createSubmit = silhouette.SecuredAction { implicit request =>

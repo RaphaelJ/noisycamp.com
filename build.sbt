@@ -55,6 +55,8 @@ libraryDependencies ++= Seq(
 
   evolutions, jdbc, // Executes database evolutions
 
+  ws, // WebService library
+
   "com.github.cb372" %% "scalacache-caffeine" % "0.27.0",
   "com.iheart" %% "ficus" % "1.4.3",
   "com.mohiva" %% "play-silhouette" % "5.0.7",

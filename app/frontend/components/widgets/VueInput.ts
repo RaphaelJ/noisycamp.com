@@ -32,7 +32,7 @@ export default {
         },
     },
     methods: {
-        // Returns the prefixed field name.
+        // Returns a prefixed sub-field name.
         fieldName(fieldName) {
             if (this.name != '') {
                 return this.name + '.' + fieldName;

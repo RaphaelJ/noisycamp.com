@@ -52,7 +52,7 @@ class PictureCache @Inject() (
 
     final case class PictureNotFoundException()
       extends Exception("Picture not found.")
-    
+
     val pic: Future[Picture] = cachingF(key)(ttl = None) {
       // Picture not in cache, fetches it from the database.
       // TODO: don't query the DB if the raw picture is in cache.
@@ -61,13 +61,13 @@ class PictureCache @Inject() (
           result.
           headOption
       }
-      
-      optPic.flatMap { 
+
+      optPic.flatMap {
         case Some(pic) => Future { transform(pic) }
         case None => Future.failed(PictureNotFoundException())
       }
     }
-    
+
     // Converts `pic` exceptions to `None`.
     pic.map(Some(_)).recover { case _: PictureNotFoundException => None }
   }
@@ -75,7 +75,7 @@ class PictureCache @Inject() (
   private implicit val cache: Cache[Picture] = {
     val maxCacheSize = config.underlying.
       getBytes("noisycamp.picturesMaxCacheSize")
-    
+
     val underlying = Caffeine.newBuilder().
       maximumWeight(maxCacheSize).
       weigher(new Weigher[String, Entry[Picture]] {
