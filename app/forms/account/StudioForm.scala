@@ -27,8 +27,10 @@ object StudioForm {
     mapping(
       "general-info.name" -> nonEmptyText,
       "general-info.description" -> nonEmptyText,
+
       "location" -> forms.components.AddressForm.form.mapping,
-      "opening-times" -> forms.components.OpeningTimesForm.form.mapping
+      "opening-times" -> forms.components.OpeningTimesForm.form.mapping,
+      "pricing" -> forms.components.PricingForm.form.mapping,
     )(Data.apply)(Data.unapply)
   )
 
@@ -37,8 +39,7 @@ object StudioForm {
     name:         String,
     description:  String,
 
-    location:     forms.components.AddressForm.Data,
-
-    openingTimes: forms.components.OpeningTimesForm.Data
-  )
+    location:       forms.components.AddressForm.Data,
+    openingTimes:   forms.components.OpeningTimesForm.Data,
+    pricing:        forms.components.PricingForm.Data)
 }
