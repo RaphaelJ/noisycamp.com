@@ -20,6 +20,12 @@
 
 <template>
     <div class="grid-x grid-margin-x">
+        <div
+            class="cell small-12 error"
+            v-if="fieldHasError('')">
+            {{ fieldError('') }}
+        </div>
+
         <div class="cell small-12 medium-4 large-3">
             <label>
                 Price per hour
@@ -43,14 +49,14 @@
             <input
                 id="pricing-has-evening-pricing"
                 type="checkbox"
-                :name="fieldName('evening-pricing')"
+                :name="fieldName('has-evening-pricing')"
                 v-model="hasEveningPricing">
 
             <label for="pricing-has-evening-pricing">
                 This place has a different pricing for evening sessions
 
-                <span v-if="fieldHasError('evening-pricing')" class="error">
-                    {{ fieldError('evening-pricing') }}
+                <span v-if="fieldHasError('has-evening-pricing')" class="error">
+                    {{ fieldError('has-evening-pricing') }}
                 </span>
             </label>
         </div>
@@ -60,14 +66,14 @@
                 Evening begins at
 
                 <input type="time"
-                    :name="fieldName('evening-pricing.begins-at')"
+                    :name="fieldName('evening-begins-at')"
                     v-model="eveningBeginsAt"
                     pattern="[0-9]{2}:[0-9]{2}"
                     :disabled="!hasEveningPricing"
                     :required="hasEveningPricing">
 
-                <span v-if="fieldHasError('evening-pricing.begins-at')" class="error">
-                    {{ fieldError('evening-pricing.begins-at') }}
+                <span v-if="fieldHasError('evening-begins-at')" class="error">
+                    {{ fieldError('evening-begins-at') }}
                 </span>
             </label>
         </div>
@@ -77,15 +83,15 @@
                 Price per hour
 
                 <currency-input
-                    :name="fieldName('evening-pricing.price-per-hour')"
+                    :name="fieldName('evening-price-per-hour')"
                     :currency="currency"
                     v-model="eveningPricePerHour"
                     :disabled="!hasEveningPricing"
                     :required="hasEveningPricing">
                 </currency-input>
 
-                <span v-if="fieldHasError('evening-pricing.price-per-hour')" class="error">
-                    {{ fieldError('evening-pricing.price-per-hour') }}
+                <span v-if="fieldHasError('evening-price-per-hour')" class="error">
+                    {{ fieldError('evening-price-per-hour') }}
                 </span>
             </label>
         </div>
@@ -96,14 +102,14 @@
             <input
                 id="pricing-has-weekend-pricing"
                 type="checkbox"
-                :name="fieldName('weekend-pricing')"
+                :name="fieldName('has-weekend-pricing')"
                 v-model="hasWeekendPricing">
 
             <label for="pricing-has-weekend-pricing">
                 This place has a different pricing for weekend sessions
 
-                <span v-if="fieldHasError('weekend-pricing')" class="error">
-                    {{ fieldError('weekend-pricing') }}
+                <span v-if="fieldHasError('has-weekend-pricing')" class="error">
+                    {{ fieldError('has-weekend-pricing') }}
                 </span>
             </label>
         </div>
@@ -113,15 +119,15 @@
                 Price per hour
 
                 <currency-input
-                    :name="fieldName('weekend-pricing.price-per-hour')"
+                    :name="fieldName('weekend-price-per-hour')"
                     :currency="currency"
                     v-model="weekendPricePerHour"
                     :disabled="!hasWeekendPricing"
                     :required="hasWeekendPricing">
                 </currency-input>
 
-                <span v-if="fieldHasError('weekend-pricing.price-per-hour')" class="error">
-                    {{ fieldError('weekend-pricing.price-per-hour') }}
+                <span v-if="fieldHasError('weekend-price-per-hour')" class="error">
+                    {{ fieldError('weekend-price-per-hour') }}
                 </span>
             </label>
         </div>

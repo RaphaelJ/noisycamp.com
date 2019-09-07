@@ -41,6 +41,12 @@
                         you want to list on NoisyCamp. This should only take a few minutes.
                     </p>
 
+                    <p>Data: @utils.forms.dataAsJson(studioForm)</p>
+
+                    <p>Errors: @studioForm.errorsAsJson</p>
+
+                    <hr>
+
                     <studio-form
                         action="@controllers.account.routes.StudiosController.createSubmit"
                         method="POST"

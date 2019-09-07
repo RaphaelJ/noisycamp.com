@@ -93,13 +93,10 @@ object CustomFields {
     of[LocalTime](jodaLocalTimeFormat)
   }
 
-  /** Parses a pair of `currency` (as an ISO symbol) and `amount` fields. */
-  val money: Mapping[market.Money] = {
-    mapping(
-      "currency"  -> currency,
-      "amount"    -> bigDecimal.verifying(min(BigDecimal(0.0)))) {
-        case (curr, amount) => curr(amount)
-      } (v => Some((v.currency, v.amount)))
+  /** Parses a number field as a money amount. */
+  val money: Mapping[BigDecimal] = {
+    bigDecimal.
+      verifying(min(BigDecimal(0.0)))
   }
 
   /** Similar to `text`, but will bind empty string to a `None` value. */

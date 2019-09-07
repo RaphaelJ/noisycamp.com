@@ -17,46 +17,39 @@
 
 package forms.components
 
+import org.joda.time.LocalTime
 import play.api.data.Form
 import play.api.data.Forms._
 
 import forms.CustomFields
 
 object PricingPolicyForm {
-  // 
-  // val form = Form(
-  //   mapping(
-  //     "monday"    -> openingTimes,
-  //     "tuesday"   -> openingTimes,
-  //     "wednesday" -> openingTimes,
-  //     "thursday"  -> openingTimes,
-  //     "friday"    -> openingTimes,
-  //     "saturday"  -> openingTimes,
-  //     "sunday"    -> openingTimes
-  //   )(Data.apply)(Data.unapply))
-  //
-  // case class Data(
-  //   monday:     OpeningTimes,
-  //   tuesday:    OpeningTimes,
-  //   wednesday:  OpeningTimes,
-  //   thursday:   OpeningTimes,
-  //   friday:     OpeningTimes,
-  //   saturday:   OpeningTimes,
-  //   sunday:     OpeningTimes)
-  //
-  // case class OpeningTimes(
-  //   isOpen:   Boolean,
-  //   opensAt:  Option[LocalTime],
-  //   closesAt: Option[LocalTime])
-  //
-  // private def openingTimes: Mapping[OpeningTimes] = {
-  //   mapping(
-  //     "is-open"   -> boolean,
-  //     "opens-at"  -> optional(CustomFields.jodaLocalTime),
-  //     "closes-at" -> optional(CustomFields.jodaLocalTime)
-  //   )(OpeningTimes.apply)(OpeningTimes.unapply).
-  //     verifying("Open and close times required.", { openingTimes =>
-  //         !openingTimes.isOpen ||
-  //         (openingTimes.opensAt.isDefined && openingTimes.closesAt.isDefined)})
-  // }
+
+  val form = Form(
+    mapping(
+      "price-per-hour"          -> CustomFields.money,
+
+      "has-evening-pricing"     -> boolean,
+      "evening-begins-at"       -> optional(CustomFields.jodaLocalTime),
+      "evening-price-per-hour"  -> optional(CustomFields.money),
+
+      "has-weekend-pricing"     -> boolean,
+      "weekend-price-per-hour"  -> optional(CustomFields.money),
+    )(Data.apply)(Data.unapply).
+      verifying("Evening begin time and pricing required.", { data =>
+        !data.hasEveningPricing ||
+        (data.eveningBeginsAt.isDefined && data.eveningPricePerHour.isDefined)
+      }).
+      verifying("Weekend pricing required.", { data =>
+        !data.hasEveningPricing || data.weekendPricePerHour.isDefined }))
+
+  case class Data(
+    pricePerHour:         BigDecimal,
+
+    hasEveningPricing:    Boolean,
+    eveningBeginsAt:      Option[LocalTime],
+    eveningPricePerHour:  Option[BigDecimal],
+
+    hasWeekendPricing:    Boolean,
+    weekendPricePerHour:  Option[BigDecimal])
 }
