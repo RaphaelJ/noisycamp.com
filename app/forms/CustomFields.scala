@@ -17,12 +17,14 @@
 
 package forms
 
-import org.joda.time.{LocalTime}
+import org.joda.time.LocalTime
 import play.api.data.{ FormError, Mapping }
 import play.api.data.format.Formatter
 import play.api.data.Forms._
+import play.api.data.validation.Constraints._
+import squants.market
 
-import misc.Country
+import misc.{ Country, Currency }
 
 object CustomFields {
 
@@ -47,6 +49,26 @@ object CustomFields {
     of[Country.Val](countryFormat)
   }
 
+  /** Maps a currency code to a `Currency` value. */
+  val currency: Mapping[market.Currency] = {
+    val currencyFormat = new Formatter[market.Currency] {
+      def bind(key: String, data: Map[String, String]) = {
+        data.
+          get(key).
+          toRight(Seq(FormError(key, "error.required", Nil))).
+          flatMap { currStr =>
+            Currency.currenciesByCode.
+              get(currStr).
+              toRight(Seq(FormError(key, "Invalid currency")))
+          }
+      }
+
+      def unbind(key: String, value: market.Currency) = Map(key -> value.code)
+    }
+
+    of(currencyFormat)
+  }
+
   /** Parses a `<input type="time">` as a JodaTime LocalTime value. */
   val jodaLocalTime: Mapping[LocalTime] = {
     val jodaLocalTimeFormat = new Formatter[LocalTime] {
@@ -69,6 +91,15 @@ object CustomFields {
     }
 
     of[LocalTime](jodaLocalTimeFormat)
+  }
+
+  /** Parses a pair of `currency` (as an ISO symbol) and `amount` fields. */
+  val money: Mapping[market.Money] = {
+    mapping(
+      "currency"  -> currency,
+      "amount"    -> bigDecimal.verifying(min(BigDecimal(0.0)))) {
+        case (curr, amount) => curr(amount)
+      } (v => Some((v.currency, v.amount)))
   }
 
   /** Similar to `text`, but will bind empty string to a `None` value. */

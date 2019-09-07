@@ -22,12 +22,13 @@
     <div class="grid-x grid-margin-x">
         <div class="cell small-12 medium-4 large-3">
             <label>
-                Price per hour ({{pricePerHour}})
+                Price per hour
 
                 <currency-input
                     :name="fieldName('price-per-hour')"
                     :currency="currency"
-                    v-model="pricePerHour">
+                    v-model="pricePerHour"
+                    required="true">
                 </currency-input>
 
                 <span v-if="fieldHasError('price-per-hour')" class="error">
