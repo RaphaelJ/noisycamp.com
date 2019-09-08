@@ -20,6 +20,7 @@ package forms
 import org.joda.time.LocalTime
 import play.api.data.{ FormError, Mapping }
 import play.api.data.format.Formatter
+import play.api.data.format.Formats._
 import play.api.data.Forms._
 import play.api.data.validation.Constraints._
 import squants.market
@@ -33,14 +34,7 @@ object CustomFields {
   val country: Mapping[Country.Val] = {
     val countryFormat: Formatter[Country.Val] = new Formatter[Country.Val] {
       def bind(key: String, data: Map[String, String]) = {
-        data.
-          get(key).
-          toRight(Seq(FormError(key, "error.required", Nil))).
-          flatMap { isoCode =>
-            Country.byCode.
-              get(isoCode).
-              toRight(Seq(FormError(key, "Not a valid country")))
-          }
+        parsing(Country.byCode(_), "Not a valid country", Nil)(key, data)
       }
 
       def unbind(key: String, value: Country.Val) = Map(key -> value.isoCode)
@@ -53,14 +47,8 @@ object CustomFields {
   val currency: Mapping[market.Currency] = {
     val currencyFormat = new Formatter[market.Currency] {
       def bind(key: String, data: Map[String, String]) = {
-        data.
-          get(key).
-          toRight(Seq(FormError(key, "error.required", Nil))).
-          flatMap { currStr =>
-            Currency.currenciesByCode.
-              get(currStr).
-              toRight(Seq(FormError(key, "Invalid currency")))
-          }
+        parsing(Currency.currenciesByCode(_), "Invalid currency", Nil)(
+          key, data)
       }
 
       def unbind(key: String, value: market.Currency) = Map(key -> value.code)
@@ -73,18 +61,7 @@ object CustomFields {
   val jodaLocalTime: Mapping[LocalTime] = {
     val jodaLocalTimeFormat = new Formatter[LocalTime] {
       def bind(key: String, data: Map[String, String]) = {
-        data.
-          get(key).
-          toRight(Seq(FormError(key, "error.required", Nil))).
-          flatMap { timeStr =>
-            try {
-              Right(LocalTime.parse(timeStr))
-            } catch {
-              case _: IllegalArgumentException => {
-                Left(Seq(FormError(key, "Invalid time format")))
-              }
-            }
-          }
+        parsing(LocalTime.parse, "Invalid time format", Nil)(key, data)
       }
 
       def unbind(key: String, value: LocalTime) = Map(key -> value.toString)
