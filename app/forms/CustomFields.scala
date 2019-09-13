@@ -17,7 +17,7 @@
 
 package forms
 
-import org.joda.time.LocalTime
+import org.joda.time.{ Duration, LocalTime }
 import play.api.data.{ FormError, Mapping }
 import play.api.data.format.Formatter
 import play.api.data.format.Formats._
@@ -34,7 +34,7 @@ object CustomFields {
   val country: Mapping[Country.Val] = {
     val countryFormat: Formatter[Country.Val] = new Formatter[Country.Val] {
       def bind(key: String, data: Map[String, String]) = {
-        parsing(Country.byCode(_), "Not a valid country", Nil)(key, data)
+        parsing(Country.byCode(_), "Invalid country", Nil)(key, data)
       }
 
       def unbind(key: String, value: Country.Val) = Map(key -> value.isoCode)
@@ -55,6 +55,14 @@ object CustomFields {
     }
 
     of(currencyFormat)
+  }
+
+  /** Maps a number of seconds to a Joda's Duration instance. */
+  val seconds: Mapping[Duration] = {
+    longNumber(min = 0).
+      transform(
+        Duration.standardSeconds(_),
+        _.toStandardSeconds.getSeconds.toLong)
   }
 
   /** Parses a `<input type="time">` as a JodaTime LocalTime value. */

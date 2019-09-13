@@ -50,7 +50,8 @@
                 id="pricing-has-evening-pricing"
                 type="checkbox"
                 :name="fieldName('has-evening-pricing')"
-                v-model="hasEveningPricing">
+                v-model="hasEveningPricing"
+                value="true">
 
             <label for="pricing-has-evening-pricing">
                 This place has a different pricing for evening sessions
@@ -103,7 +104,8 @@
                 id="pricing-has-weekend-pricing"
                 type="checkbox"
                 :name="fieldName('has-weekend-pricing')"
-                v-model="hasWeekendPricing">
+                v-model="hasWeekendPricing"
+                value="true">
 
             <label for="pricing-has-weekend-pricing">
                 This place has a different pricing for weekend sessions

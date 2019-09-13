@@ -15,33 +15,29 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package forms.account
+package forms.components
 
+import org.joda.time.{ Duration, LocalTime }
 import play.api.data.Form
 import play.api.data.Forms._
 
-/** A form to create and edit studios. */
-object StudioForm {
+import forms.CustomFields
+
+object BookingPolicyForm {
 
   val form = Form(
     mapping(
-      "general-info.name" -> nonEmptyText,
-      "general-info.description" -> nonEmptyText,
-
-      "location" -> forms.components.AddressForm.form.mapping,
-      "opening-times" -> forms.components.OpeningTimesForm.form.mapping,
-      "pricing" -> forms.components.PricingForm.form.mapping,
-      "booking-policy" -> forms.components.BookingPolicyForm.form.mapping,
-    )(Data.apply)(Data.unapply)
-  )
+      "min-booking-duration"    -> CustomFields.seconds,
+      "automatic-approval"      -> boolean,
+      "can-cancel"              -> boolean,
+      "cancellation-notice"     -> optional(CustomFields.seconds)
+    )(Data.apply)(Data.unapply).
+      verifying("Cancellation notice required.", { data =>
+        !data.canCancel || data.cancellationNotice.isDefined}))
 
   case class Data(
-    // General info
-    name:         String,
-    description:  String,
-
-    location:       forms.components.AddressForm.Data,
-    openingTimes:   forms.components.OpeningTimesForm.Data,
-    pricing:        forms.components.PricingForm.Data,
-    bookingPolicy:  forms.components.BookingPolicyForm.Data)
+    minBookingDuration:   Duration,
+    automaticApproval:    Boolean,
+    canCancel:            Boolean,
+    cancellationNotice:   Option[Duration])
 }

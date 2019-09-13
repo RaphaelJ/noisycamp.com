@@ -98,7 +98,7 @@
 
             <h2>Booking &amp; cancellation policy</h2>
 
-            <booking-policy-input name="pricing"></booking-policy-input>
+            <booking-policy-input name="booking-policy"></booking-policy-input>
 
             <hr>
         </div>
@@ -219,7 +219,9 @@ export default Vue.extend({
     },
     methods: {
         isShown(section) {
-            return [/*'general-info', 'location', 'opening-times'*/, 'pricing'].includes(section);
+            return [
+                /*'general-info', 'location', 'opening-times', 'pricing', */ 'booking-policy'
+            ].includes(section);
         }
     },
     components: {

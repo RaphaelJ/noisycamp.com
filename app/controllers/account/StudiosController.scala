@@ -50,7 +50,7 @@ class StudiosController @Inject() (
     val rates = exchangeRateService.exchangeRates
     val date = rates.date
     val ctx = rates.context
-    println(date + ": " + Currency.EUR(15).in(Currency.ISK)(ctx).toFormattedString)
+    println(date + ": " + Currency.USD(15).in(Currency.ISK)(ctx).toFormattedString)
     Ok(views.html.account.studioCreate(request.identity, StudioForm.form))
   }
 

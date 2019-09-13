@@ -48,7 +48,8 @@
                 id="booking-policy-automatic-approval"
                 type="checkbox"
                 :name="fieldName('automatic-approval')"
-                v-model="automaticApproval">
+                v-model="automaticApproval"
+                value="true">
 
             <label for="booking-policy-automatic-approval">
                 Automatically accept booking requests
@@ -69,7 +70,8 @@
                 id="booking-policy-can-cancel"
                 type="checkbox"
                 :name="fieldName('can-cancel')"
-                v-model="refundCancelled">
+                v-model="refundCancelled"
+                value="true">
 
             <label for="booking-policy-can-cancel">
                 Reimburse customers that cancel their booking before it begins
@@ -80,18 +82,17 @@
             </label>
         </div>
 
-        <div
-            class="cell small-12 medium-10 medium-offset-1 large-5"
-            v-if="refundCancelled">
+        <div class="cell small-12 medium-10 medium-offset-1 large-5">
             <label>
                 Minimum cancellation notice
 
                 <select
                     :name="fieldName('cancellation-notice')"
                     v-model="cancellationNotice"
-                    required>
+                    :disabled="!refundCancelled"
+                    :required="refundCancelled">
                     <option value="" disabled>Please select a value</option>
-                    <option value="0">Any time</option>
+                    <option value="0">No notice</option>
                     <option value="3600">1 hour before the session</option>
                     <option value="43200">12 hours before the session</option>
                     <option value="86400">24 hours before the session</option>
