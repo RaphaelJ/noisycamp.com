@@ -20,6 +20,9 @@ package forms.account
 import play.api.data.Form
 import play.api.data.Forms._
 
+import forms.CustomFields
+import models.Picture
+
 /** A form to create and edit studios. */
 object StudioForm {
 
@@ -32,6 +35,7 @@ object StudioForm {
       "opening-times" -> forms.components.OpeningTimesForm.form.mapping,
       "pricing" -> forms.components.PricingForm.form.mapping,
       "booking-policy" -> forms.components.BookingPolicyForm.form.mapping,
+      "picures" -> seq(CustomFields.pictureId)
     )(Data.apply)(Data.unapply)
   )
 
@@ -43,5 +47,6 @@ object StudioForm {
     location:       forms.components.AddressForm.Data,
     openingTimes:   forms.components.OpeningTimesForm.Data,
     pricing:        forms.components.PricingForm.Data,
-    bookingPolicy:  forms.components.BookingPolicyForm.Data)
+    bookingPolicy:  forms.components.BookingPolicyForm.Data,
+    pictures:       Seq[Picture#Id])
 }

@@ -40,7 +40,7 @@
             class="cell large-2 medium-3 small-4 picture"
             v-for="(picId, index) in pictures">
 
-            <input type="hidden" :name="fieldName('pictures[]')" :value="picId">
+            <input type="hidden" :name="name" :value="picId">
 
             <reactive-picture
                 :picture-id="picId" alt="Uploaded picture"

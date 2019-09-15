@@ -26,6 +26,7 @@ import play.api.data.validation.Constraints._
 import squants.market
 
 import misc.{ Country, Currency }
+import models.Picture
 
 object CustomFields {
 
@@ -34,20 +35,20 @@ object CustomFields {
   val country: Mapping[Country.Val] = {
     val countryFormat: Formatter[Country.Val] = new Formatter[Country.Val] {
       def bind(key: String, data: Map[String, String]) = {
-        parsing(Country.byCode(_), "Invalid country", Nil)(key, data)
+        parsing(Country.byCode, "Invalid country", Nil)(key, data)
       }
 
       def unbind(key: String, value: Country.Val) = Map(key -> value.isoCode)
     }
 
-    of[Country.Val](countryFormat)
+    of(countryFormat)
   }
 
   /** Maps a currency code to a `Currency` value. */
   val currency: Mapping[market.Currency] = {
     val currencyFormat = new Formatter[market.Currency] {
       def bind(key: String, data: Map[String, String]) = {
-        parsing(Currency.currenciesByCode(_), "Invalid currency", Nil)(
+        parsing(Currency.currenciesByCode, "Invalid currency", Nil)(
           key, data)
       }
 
@@ -55,14 +56,6 @@ object CustomFields {
     }
 
     of(currencyFormat)
-  }
-
-  /** Maps a number of seconds to a Joda's Duration instance. */
-  val seconds: Mapping[Duration] = {
-    longNumber(min = 0).
-      transform(
-        Duration.standardSeconds(_),
-        _.toStandardSeconds.getSeconds.toLong)
   }
 
   /** Parses a `<input type="time">` as a JodaTime LocalTime value. */
@@ -75,7 +68,7 @@ object CustomFields {
       def unbind(key: String, value: LocalTime) = Map(key -> value.toString)
     }
 
-    of[LocalTime](jodaLocalTimeFormat)
+    of(jodaLocalTimeFormat)
   }
 
   /** Parses a number field as a money amount. */
@@ -93,5 +86,28 @@ object CustomFields {
       },
       _.getOrElse("")
     )
+  }
+
+  val pictureId: Mapping[Picture#Id] = {
+    val pictureIdFormat: Formatter[Picture#Id] = new Formatter[Picture#Id] {
+      def bind(key: String, data: Map[String, String]) = {
+        parsing(java.util.Base64.getDecoder.decode, "Invalid picture ID", Nil)(
+          key, data)
+      }
+
+      def unbind(key: String, value: Picture#Id) = {
+        Map(key -> java.util.Base64.getEncoder.encodeToString(value))
+      }
+    }
+
+    of(pictureIdFormat)
+  }
+
+  /** Maps a number of seconds to a Joda's Duration instance. */
+  val seconds: Mapping[Duration] = {
+    longNumber(min = 0).
+      transform(
+        Duration.standardSeconds,
+        _.toStandardSeconds.getSeconds.toLong)
   }
 }

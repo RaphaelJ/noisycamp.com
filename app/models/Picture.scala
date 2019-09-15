@@ -26,6 +26,7 @@ case class Picture(
   format: Format,
   content: Array[Byte]) {
 
+  type Id = Array[Byte]
+
   def base64Id: String = java.util.Base64.getEncoder.encodeToString(id)
 }
-

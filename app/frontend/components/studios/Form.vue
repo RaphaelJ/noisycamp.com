@@ -122,7 +122,7 @@
 
             <h2>Pictures</h2>
 
-            <picture-input name="pictures"></picture-input>
+            <picture-input name="pictures[]"></picture-input>
 
             <hr>
         </div>
@@ -220,7 +220,8 @@ export default Vue.extend({
     methods: {
         isShown(section) {
             return [
-                /*'general-info', 'location', 'opening-times', 'pricing', */ 'booking-policy'
+                'general-info', 'location', 'opening-times', 'pricing', 'booking-policy', 
+                'pictures'
             ].includes(section);
         }
     },
