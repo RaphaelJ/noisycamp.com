@@ -21,7 +21,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 
 import forms.CustomFields
-import models.Picture
+import models.{ Location, OpeningSchedule, Picture, PricingPolicy }
 
 /** A form to create and edit studios. */
 object StudioForm {
@@ -31,9 +31,9 @@ object StudioForm {
       "general-info.name" -> nonEmptyText,
       "general-info.description" -> nonEmptyText,
 
-      "location" -> forms.components.AddressForm.form.mapping,
-      "opening-times" -> forms.components.OpeningTimesForm.form.mapping,
-      "pricing" -> forms.components.PricingForm.form.mapping,
+      "location" -> forms.components.LocationForm.form.mapping,
+      "opening-schedule" -> forms.components.OpeningScheduleForm.form.mapping,
+      "pricing-policy" -> forms.components.PricingPolicyForm.form.mapping,
       "booking-policy" -> forms.components.BookingPolicyForm.form.mapping,
       "picures" -> seq(CustomFields.pictureId)
     )(Data.apply)(Data.unapply)
@@ -44,9 +44,9 @@ object StudioForm {
     name:         String,
     description:  String,
 
-    location:       forms.components.AddressForm.Data,
-    openingTimes:   forms.components.OpeningTimesForm.Data,
-    pricing:        forms.components.PricingForm.Data,
-    bookingPolicy:  forms.components.BookingPolicyForm.Data,
-    pictures:       Seq[Picture#Id])
+    location:         Location,
+    openingSchedule:  OpeningSchedule,
+    pricing:          PricingPolicy,
+    bookingPolicy:    forms.components.BookingPolicyForm.Data,
+    pictures:         Seq[Picture#Id])
 }

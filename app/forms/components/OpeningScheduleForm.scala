@@ -23,8 +23,11 @@ import play.api.data.format.Formatter
 import play.api.data.Forms._
 
 import forms.CustomFields
+import models.{ OpeningSchedule, OpeningTimes }
 
-object OpeningTimesForm {
+object OpeningScheduleForm {
+
+  type Data = OpeningSchedule
 
   val form = Form(
     mapping(
@@ -35,30 +38,33 @@ object OpeningTimesForm {
       "friday"    -> openingTimes,
       "saturday"  -> openingTimes,
       "sunday"    -> openingTimes
-    )(Data.apply)(Data.unapply))
+    )(OpeningSchedule.apply)(OpeningSchedule.unapply))
 
-  case class Data(
-    monday:     OpeningTimes,
-    tuesday:    OpeningTimes,
-    wednesday:  OpeningTimes,
-    thursday:   OpeningTimes,
-    friday:     OpeningTimes,
-    saturday:   OpeningTimes,
-    sunday:     OpeningTimes)
+  private def openingTimes: Mapping[Option[OpeningTimes]] = {
+    type TupleType = (Boolean, Option[LocalTime], Option[LocalTime])
 
-  case class OpeningTimes(
-    isOpen:   Boolean,
-    opensAt:  Option[LocalTime],
-    closesAt: Option[LocalTime])
-
-  private def openingTimes: Mapping[OpeningTimes] = {
-    mapping(
+    tuple(
       "is-open"   -> boolean,
       "opens-at"  -> optional(CustomFields.jodaLocalTime),
       "closes-at" -> optional(CustomFields.jodaLocalTime)
-    )(OpeningTimes.apply)(OpeningTimes.unapply).
-      verifying("Open and close times required.", { openingTimes =>
-          !openingTimes.isOpen ||
-          (openingTimes.opensAt.isDefined && openingTimes.closesAt.isDefined)})
+    ).
+      verifying("Open and close times required.", {
+        case ((isOpen, opensAt, closesAt)) =>
+          !isOpen || (opensAt.isDefined && closesAt.isDefined)
+      }: (TupleType) => Boolean).
+      transform(
+        {
+          case (true, Some(opensAt), Some(closesAt)) =>
+            Some(OpeningTimes(opensAt, closesAt))
+          case (false, _, _) => None
+          // Should never be reached because of hereabove constraint:
+          case _ => None
+        },
+        {
+          case Some(OpeningTimes(opensAt, closesAt)) =>
+            (true, Some(opensAt), Some(closesAt))
+          case None => (false, None, None)
+        }
+      )
   }
 }

@@ -21,11 +21,13 @@ import com.mohiva.play.silhouette.api.Identity
 
 /** Stores the information about an user. */
 case class User(
-  id: Long = 0L,
+  id: User#Id = 0L,
   firstName: Option[String],
   lastName: Option[String],
   email: String,
   avatarID: Option[Long]) extends Identity {
+
+  type Id = Long
 
   def fullName: Option[String] = (firstName, lastName) match {
     case (Some(fn), Some(ln)) => Some(fn + ' ' + ln)

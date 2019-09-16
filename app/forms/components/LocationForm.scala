@@ -20,10 +20,10 @@ package forms.components
 import play.api.data.Form
 import play.api.data.Forms._
 
-import misc.Country
+import models.Location
 import forms.CustomFields
 
-object AddressForm {
+object LocationForm {
 
   val coordinate = bigDecimal.
     verifying("Invalid coordinate", { value => value >= -90 && value <= 90 })
@@ -39,7 +39,7 @@ object AddressForm {
 
       "long"  -> coordinate,
       "lat"   -> coordinate
-    )(Data.apply)(Data.unapply).
+    )(Location.apply)(Location.unapply).
       verifying("Invalid state/province.", { address =>
         (address.country.states, address.stateCode) match {
           case (states, Some(stateCode)) if states.nonEmpty =>
@@ -47,18 +47,5 @@ object AddressForm {
           case (states, None) if states.isEmpty => true
           case _ => false
         }
-      })
-  )
-
-  case class Data(
-    address1:   String,
-    address2:   Option[String],
-    zipcode:    String,
-    city:       String,
-    stateCode:  Option[String],
-    country:    Country.Val,
-
-    // Coordinate values in [-90..90].
-    long:   BigDecimal,
-    lat:    BigDecimal)
+      }))
 }

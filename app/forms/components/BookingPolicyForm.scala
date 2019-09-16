@@ -17,27 +17,52 @@
 
 package forms.components
 
-import org.joda.time.{ Duration, LocalTime }
+import org.joda.time.Duration
 import play.api.data.Form
 import play.api.data.Forms._
 
 import forms.CustomFields
+import models.{ BookingPolicy, CancellationPolicy }
 
 object BookingPolicyForm {
 
-  val form = Form(
-    mapping(
+  type Data = BookingPolicy
+
+  val form = Form {
+    type TupleType = (Duration, Boolean, Boolean, Option[Duration])
+
+    tuple(
       "min-booking-duration"    -> CustomFields.seconds,
       "automatic-approval"      -> boolean,
       "can-cancel"              -> boolean,
       "cancellation-notice"     -> optional(CustomFields.seconds)
-    )(Data.apply)(Data.unapply).
-      verifying("Cancellation notice required.", { data =>
-        !data.canCancel || data.cancellationNotice.isDefined}))
+    ).
+      verifying("Cancellation notice required.", {
+        case (_, _, canCancel, cancellationNotice) =>
+          !canCancel || cancellationNotice.isDefined
+      }: (TupleType) => Boolean).
+      transform(
+        {
+          case (minBookingDuration, automaticApproval, canCancel,
+            cancellationNotice) =>
 
-  case class Data(
-    minBookingDuration:   Duration,
-    automaticApproval:    Boolean,
-    canCancel:            Boolean,
-    cancellationNotice:   Option[Duration])
+          val cancellationPolicy =
+            if (canCancel) {
+              cancellationNotice.map(CancellationPolicy(_))
+            } else {
+              None
+            }
+
+          BookingPolicy(minBookingDuration, automaticApproval,
+            cancellationPolicy)
+        },
+        {
+          case policy => (
+            policy.minBookingDuration, policy.automaticApproval,
+            policy.cancellationPolicy.isDefined,
+            policy.cancellationPolicy.map(_.notice),
+          )
+        }: BookingPolicy => TupleType
+      )
+  }
 }

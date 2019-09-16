@@ -55,11 +55,11 @@ class StudiosController @Inject() (
   }
 
   def createSubmit = silhouette.SecuredAction { implicit request =>
-    StudioForm.form.bindFromRequest(
+    StudioForm.form.bindFromRequest.fold(
       form => BadRequest(views.html.account.studioCreate(
         request.identity, StudioForm.form.bindFromRequest)),
       data => {
-
+        Ok("")
       })
   }
 }

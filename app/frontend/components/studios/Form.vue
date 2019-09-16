@@ -49,7 +49,7 @@
 
             <h2>Location</h2>
 
-            <address-input name="location" :errors="errors"></address-input>
+            <location-input name="location" :errors="errors"></location-input>
 
             <hr>
         </div>
@@ -178,11 +178,10 @@
 <script lang="ts">
 import Vue from "vue";
 
-import AddressInput from '../widgets/AddressInput.vue';
-
 import BookingPolicyInput from './form/BookingPolicyInput.vue';
 import EquipmentInput from './form/EquipmentInput.vue';
 import GeneralInfoInput from './form/GeneralInfoInput.vue';
+import LocationInput from '../form/LocationInput.vue';
 import OpeningTimesInput from './form/OpeningTimesInput.vue';
 import PayoutInput from './form/PayoutInput.vue';
 import PictureInput from './form/PictureInput.vue';
@@ -220,13 +219,13 @@ export default Vue.extend({
     methods: {
         isShown(section) {
             return [
-                'general-info', 'location', 'opening-times', 'pricing', 'booking-policy', 
+                'general-info', 'location', 'opening-times', 'pricing', 'booking-policy',
                 'pictures'
             ].includes(section);
         }
     },
     components: {
-        AddressInput, BookingPolicyInput, EquipmentInput, GeneralInfoInput,
+        BookingPolicyInput, EquipmentInput, GeneralInfoInput, LocationInput,
         OpeningTimesInput, PayoutInput, PictureInput, PricingPolicyInput,
     },
 });

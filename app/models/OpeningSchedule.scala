@@ -15,29 +15,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pictures
+package models
 
-import java.security.MessageDigest
-import java.nio.file.{ Files, Path }
+import org.joda.time.LocalTime
 
-import com.sksamuel.scrimage._
-import org.joda.time.DateTime
+case class OpeningSchedule(
+  monday:     Option[OpeningTimes],
+  tuesday:    Option[OpeningTimes],
+  wednesday:  Option[OpeningTimes],
+  thursday:   Option[OpeningTimes],
+  friday:     Option[OpeningTimes],
+  saturday:   Option[OpeningTimes],
+  sunday:     Option[OpeningTimes])
 
-import models.Picture
-
-object PictureUtils {
-
-  /** Creates a `Picture` object from the given file. Does not return anything
-   * with failed to open the file. */
-  def fromFile(path: Path): Option[Picture] = {
-    val content = Files.readAllBytes(path)
-
-    FormatDetector.
-      detect(content).
-      map { format =>
-        val hash = MessageDigest.getInstance("SHA-256").digest(content)
-        Picture(id=hash, uploadedAt=new DateTime(), format=format,
-          content=content)
-      }
-  }
-}
+case class OpeningTimes(
+  opensAt:  LocalTime,
+  closesAt: LocalTime)
