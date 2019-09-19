@@ -27,13 +27,20 @@ import play.api.i18n.I18nSupport
 import play.api.mvc._
 
 import auth.DefaultEnv
+import daos.StudioDAO
 import forms.account.StudioForm
-import misc.{Currency, ExchangeRateService}
+import misc.{ Country, Currency, ExchangeRateService }
+
+import models.{ BookingPolicy, CancellationPolicy, EveningPricingPolicy,
+  Location, OpeningSchedule, OpeningTimes, PricingPolicy, Studio, User,
+  WeekendPricingPolicy }
+import org.joda.time.{ Duration, Instant, LocalTime }
 
 @Singleton
 class StudiosController @Inject() (
   cc: ControllerComponents,
   implicit val config: Configuration,
+  studioDao: StudioDAO,
   exchangeRateService: ExchangeRateService,
   implicit val executionContext: ExecutionContext,
   silhouette: Silhouette[DefaultEnv])
@@ -45,12 +52,29 @@ class StudiosController @Inject() (
     Ok("")
   }
 
+  def make = silhouette.SecuredAction.async { implicit request =>
+    val studio = Studio(
+      ownerId = request.identity.id,
+      name = "Mon studio test",
+      description = "Super génial",
+      location = Location("Rue de la Légia", None, "4000", "Liège", None,
+        Country.Belgium, BigDecimal("50.6326"),
+        BigDecimal("5.5797")),
+      openingSchedule = OpeningSchedule(None, None, None, None, None, None,
+        None),
+      pricingPolicy = PricingPolicy(BigDecimal("15.01"), None, None),
+      bookingPolicy = BookingPolicy(new Duration(15*3600), true, None))
+
+    studioDao.insert(studio).map { s: Studio => Ok(s.id.toString) }
+  }
+
   /** Shows a form to list a new studio. */
   def create = silhouette.SecuredAction { implicit request =>
     val rates = exchangeRateService.exchangeRates
     val date = rates.date
     val ctx = rates.context
     println(date + ": " + Currency.USD(15).in(Currency.ISK)(ctx).toFormattedString)
+
     Ok(views.html.account.studioCreate(request.identity, StudioForm.form))
   }
 

@@ -17,10 +17,13 @@
 
 package models
 
-case class Studio(
-  id:               Long                  = 0L,
+import org.joda.time.Instant
 
-  owner:            User#Id,
+case class Studio(
+  id:               Studio#Id         = 0L,
+  createdAt:        Instant           = Instant.now(),
+
+  ownerId:          User#Id,
 
   name:             String,
   description:      String,
@@ -28,8 +31,7 @@ case class Studio(
   location:         Location,
   openingSchedule:  OpeningSchedule,
   pricingPolicy:    PricingPolicy,
-  bookingPolicy:    BookingPolicy,
+  bookingPolicy:    BookingPolicy) {
 
-  pictures:         Seq[Picture#Id],
-  ) {
+  type Id = Long
 }

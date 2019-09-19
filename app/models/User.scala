@@ -18,14 +18,16 @@
 package models
 
 import com.mohiva.play.silhouette.api.Identity
+import org.joda.time.Instant
 
 /** Stores the information about an user. */
 case class User(
   id: User#Id = 0L,
+  createdAt: Instant = Instant.now(),
   firstName: Option[String],
   lastName: Option[String],
   email: String,
-  avatarID: Option[Long]) extends Identity {
+  avatarId: Option[Long]) extends Identity {
 
   type Id = Long
 

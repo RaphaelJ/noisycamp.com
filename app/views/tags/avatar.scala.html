@@ -18,7 +18,7 @@
 @(user: models.User, size: Int = 26)
 
 <span class="avatar">
-    @if(user.avatarID) {
+    @if(user.avatarId) {
         <img src="#" alt="@user.displayName" width="@size" height="@size">
     } else {
         <!-- No avatar linked with the accounts, generates a SVG image with the

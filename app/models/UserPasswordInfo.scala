@@ -21,7 +21,7 @@ import  com.mohiva.play.silhouette.api.util.PasswordInfo
 
 /** Provides the hashed password credentials associated with a `LoginInfo`. */
 case class UserPasswordInfo(
-  loginInfoID: Long,
+  loginInfoID: UserLoginInfo#Id,
   hasher: String,
   password: String,
   salt: Option[String]) {

@@ -17,33 +17,55 @@
 
 package daos
 
-import java.sql.Timestamp
+import java.sql.{ Time, Timestamp }
 
 import com.sksamuel.scrimage.Format
-import org.joda.time.DateTime
+import org.joda.time.{ DateTime, Duration, Instant, LocalTime }
 import org.joda.time.DateTimeZone.UTC
 import play.api.db.slick.HasDatabaseConfigProvider
 import slick.jdbc.JdbcProfile
+
+import misc.Country
 
 trait CustomColumnTypes {
   this: HasDatabaseConfigProvider[JdbcProfile] =>
 
   import profile.api._
 
+  /** Maps a country value to its ISO code. */
+  implicit val countryVal =
+    MappedColumnType.base[Country.Val, String](
+      _.isoCode, Country.byCode(_)
+    )
+
   /** Stores a Joda's Datetime as an UTC Timestamp, in milliseconds. */
-  implicit val jodaDateTimeType =
+  implicit val jodaDateTime =
     MappedColumnType.base[DateTime, Timestamp](
       dt => new Timestamp(dt.getMillis),
       ts => new DateTime(ts.getTime, UTC)
     )
-    
+
+  /** Stores a Joda's Datetime as an UTC Timestamp, in milliseconds. */
+  implicit val jodaDuration =
+    MappedColumnType.base[Duration, Long](_.getMillis, new Duration(_))
+
+  /** Stores a Joda's Instant as an UTC Timestamp, in milliseconds. */
+  implicit val jodaInstant =
+    MappedColumnType.base[Instant, Timestamp](
+      inst => new Timestamp(inst.getMillis),
+      ts => new Instant(ts.getTime)
+    )
+
+  implicit val jodaLocalTime =
+    MappedColumnType.base[LocalTime, String](_.toString, LocalTime.parse(_))
+
   /** Stores Scrimage image format as text */
-  implicit val scrimageFormat = 
+  implicit val scrimageFormat =
     MappedColumnType.base[Format, String](
-      { 
+      {
         case Format.PNG => "png"
         case Format.GIF => "gif"
-        case Format.JPEG => "jpeg" 
+        case Format.JPEG => "jpeg"
       },
       {
         case "png" => Format.PNG

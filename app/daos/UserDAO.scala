@@ -20,7 +20,7 @@ package daos
 import scala.concurrent.ExecutionContext
 import javax.inject.Inject
 
-import org.joda.time.DateTime
+import org.joda.time.Instant
 import play.api.db.slick.{ DatabaseConfigProvider, HasDatabaseConfigProvider }
 import slick.jdbc.JdbcProfile
 
@@ -29,19 +29,20 @@ import models.User
 class UserDAO @Inject()
   (protected val dbConfigProvider: DatabaseConfigProvider)
   (implicit executionContext: ExecutionContext)
-  extends HasDatabaseConfigProvider[JdbcProfile] {
+  extends HasDatabaseConfigProvider[JdbcProfile] with CustomColumnTypes {
 
   import profile.api._
 
   final class UserTable(tag: Tag) extends Table[User](tag, "user") {
 
     def id                = column[Long]("id", O.PrimaryKey, O.AutoInc)
+    def createdAt         = column[Instant]("created_at")
     def firstName         = column[Option[String]]("first_name")
     def lastName          = column[Option[String]]("last_name")
     def email             = column[String]("email")
     def avatarID          = column[Option[Long]]("avatar_id")
 
-    def * = (id, firstName, lastName, email, avatarID).mapTo[User]
+    def * = (id, createdAt, firstName, lastName, email, avatarID).mapTo[User]
   }
 
   lazy val query = TableQuery[UserTable]

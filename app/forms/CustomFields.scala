@@ -30,6 +30,12 @@ import models.Picture
 
 object CustomFields {
 
+  /** Parses a number field as a money amount. */
+  val amount: Mapping[BigDecimal] = {
+    bigDecimal.
+      verifying(min(BigDecimal(0.0)))
+  }
+
   /** Accepts any valid country value (ISO code) from the `Country`
     * enumeration. */
   val country: Mapping[Country.Val] = {
@@ -69,12 +75,6 @@ object CustomFields {
     }
 
     of(jodaLocalTimeFormat)
-  }
-
-  /** Parses a number field as a money amount. */
-  val money: Mapping[BigDecimal] = {
-    bigDecimal.
-      verifying(min(BigDecimal(0.0)))
   }
 
   /** Similar to `text`, but will bind empty string to a `None` value. */

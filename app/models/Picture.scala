@@ -17,16 +17,16 @@
 
 package models
 
-import org.joda.time.DateTime
+import org.joda.time.Instant
 import com.sksamuel.scrimage.Format
 
 case class Picture(
-  id: Array[Byte],  // SHA-256 hash of the content
-  uploadedAt: DateTime,
-  format: Format,
-  content: Array[Byte]) {
+  id:         Picture#Id,
+  createdAt:  Instant     = Instant.now(),
+  format:     Format,
+  content:    Array[Byte]) {
 
-  type Id = Array[Byte]
+  type Id = Array[Byte] // SHA-256 hash of the content
 
   def base64Id: String = java.util.Base64.getEncoder.encodeToString(id)
 }

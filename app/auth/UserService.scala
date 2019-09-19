@@ -72,10 +72,10 @@ class UserService @Inject() (
                   firstName = profile.firstName,
                   lastName = profile.lastName,
                   email = profile.email.get,
-                  avatarID = None)
+                  avatarId = None)
                 _ <- userLoginInfoDAO.insert += UserLoginInfo(
-                  userID = user.id,
-                  loginProviderID = profile.loginInfo.providerID,
+                  userId = user.id,
+                  loginProviderId = profile.loginInfo.providerID,
                   loginProviderKey = profile.loginInfo.providerKey)
               } yield user
             }

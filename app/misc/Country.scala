@@ -21,8 +21,6 @@ import squants.market
 
 object Country extends Enumeration {
 
-  case class State(val name: String, val code: String)
-
   /**
     * @param vat Local VAT tax, as a percentage.
     * @param states If the country has state or province subdivisions, maps

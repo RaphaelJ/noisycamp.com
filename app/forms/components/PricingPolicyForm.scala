@@ -34,14 +34,14 @@ object PricingPolicyForm {
       Option[BigDecimal])
 
     tuple(
-      "price-per-hour"          -> CustomFields.money,
+      "price-per-hour"          -> CustomFields.amount,
 
       "has-evening-pricing"     -> boolean,
       "evening-begins-at"       -> optional(CustomFields.jodaLocalTime),
-      "evening-price-per-hour"  -> optional(CustomFields.money),
+      "evening-price-per-hour"  -> optional(CustomFields.amount),
 
       "has-weekend-pricing"     -> boolean,
-      "weekend-price-per-hour"  -> optional(CustomFields.money),
+      "weekend-price-per-hour"  -> optional(CustomFields.amount),
     ).
       verifying("Evening begin time and pricing required.", {
         case ((_, hasEveningPricing, eveningBeginsAt, eveningPricePerHour, _,

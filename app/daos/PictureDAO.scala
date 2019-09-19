@@ -22,7 +22,7 @@ import java.nio.file.Files
 import javax.inject.Inject
 
 import com.sksamuel.scrimage.Format
-import org.joda.time.DateTime
+import org.joda.time.{ DateTime, Instant }
 import play.api.db.slick.{ DatabaseConfigProvider, HasDatabaseConfigProvider }
 import slick.jdbc.JdbcProfile
 
@@ -39,15 +39,15 @@ class PictureDAO @Inject()
 
     // ID is the SHA-256 hashed content of the file.
     def id                = column[Array[Byte]]("id", O.PrimaryKey)
-    def uploadedAt        = column[DateTime]("uploaded_at")
+    def createdAt         = column[Instant]("created_at")
     def format            = column[Format]("format")
     def content           = column[Array[Byte]]("content")
 
-    def * = (id, uploadedAt, format, content).mapTo[Picture]
+    def * = (id, createdAt, format, content).mapTo[Picture]
   }
 
   lazy val query = TableQuery[PictureTable]
-  
+
   def get(id: Array[Byte]) = query.filter(_.id === id)
 
   /** Inserts the picture in the database with its hash as ID if it does not

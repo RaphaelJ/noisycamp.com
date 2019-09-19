@@ -21,10 +21,12 @@ import com.mohiva.play.silhouette.api.LoginInfo
 
 /** Associates a `LoginInfo` instance with a user. */
 case class UserLoginInfo(
-  id: Long = 0L,
-  userID: Long,
-  loginProviderID: String,
+  id: UserLoginInfo#Id = 0L,
+  userId: User#Id,
+  loginProviderId: String,
   loginProviderKey: String) {
 
-  def loginInfo = LoginInfo(loginProviderID, loginProviderKey)
+  type Id = Long
+
+  def loginInfo = LoginInfo(loginProviderId, loginProviderKey)
 }

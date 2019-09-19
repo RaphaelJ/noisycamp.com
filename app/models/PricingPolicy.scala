@@ -21,12 +21,12 @@ import org.joda.time.LocalTime
 
 case class PricingPolicy(
   pricePerHour:         BigDecimal,
-  eveningPricing:       Option[EveningPricingPolicy],
-  weekendPricing:       Option[WeekendPricingPolicy])
+  evening:              Option[EveningPricingPolicy],
+  weekend:              Option[WeekendPricingPolicy])
 
 case class EveningPricingPolicy(
-  beginsAt:      LocalTime,
-  pricePerHour:  BigDecimal)
+  beginsAt:             LocalTime,
+  pricePerHour:         BigDecimal)
 
 case class WeekendPricingPolicy(
-  pricePerHour:  BigDecimal)
+  pricePerHour:         BigDecimal)

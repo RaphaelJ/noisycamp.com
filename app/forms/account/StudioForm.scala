@@ -21,7 +21,8 @@ import play.api.data.Form
 import play.api.data.Forms._
 
 import forms.CustomFields
-import models.{ Location, OpeningSchedule, Picture, PricingPolicy }
+import models.{
+  BookingPolicy, Location, OpeningSchedule, Picture, PricingPolicy }
 
 /** A form to create and edit studios. */
 object StudioForm {
@@ -40,13 +41,13 @@ object StudioForm {
   )
 
   case class Data(
-    // General info
-    name:         String,
-    description:  String,
+    name:             String,
+    description:      String,
 
     location:         Location,
     openingSchedule:  OpeningSchedule,
     pricing:          PricingPolicy,
-    bookingPolicy:    forms.components.BookingPolicyForm.Data,
+    bookingPolicy:    BookingPolicy,
+
     pictures:         Seq[Picture#Id])
 }
