@@ -21,7 +21,6 @@ import java.security.MessageDigest
 import java.nio.file.{ Files, Path }
 
 import com.sksamuel.scrimage._
-import org.joda.time.DateTime
 
 import models.Picture
 
@@ -36,8 +35,7 @@ object PictureUtils {
       detect(content).
       map { format =>
         val hash = MessageDigest.getInstance("SHA-256").digest(content)
-        Picture(id=hash, uploadedAt=new DateTime(), format=format,
-          content=content)
+        Picture(id=hash, format=format, content=content)
       }
   }
 }

@@ -18,6 +18,7 @@
 package daos
 
 import scala.concurrent.{ ExecutionContext, Future }
+import scala.reflect.ClassTag
 import javax.inject.Inject
 
 import com.mohiva.play.silhouette.api.LoginInfo
@@ -30,8 +31,11 @@ import models.{ UserPasswordInfo, UserLoginInfo }
 
 class UserPasswordInfoDAO @Inject() (
   protected val dbConfigProvider: DatabaseConfigProvider,
-  val userLoginInfosDAO: UserLoginInfoDAO)
-  (implicit executionContext: ExecutionContext)
+  val userLoginInfosDAO: UserLoginInfoDAO
+  )(
+    implicit executionContext: ExecutionContext,
+    implicit val classTag: ClassTag[PasswordInfo]
+  )
   extends DelegableAuthInfoDAO[PasswordInfo]
   with HasDatabaseConfigProvider[JdbcProfile] {
 

@@ -45,13 +45,14 @@ import net.ceedubs.ficus.readers.ArbitraryTypeReader._
 import net.ceedubs.ficus.readers.ValueReader
 import net.codingwell.scalaguice.ScalaModule
 import play.api.Configuration
+import play.api.db.slick.DatabaseConfigProvider
 import play.api.libs.openid.OpenIdClient
 import play.api.libs.ws.WSClient
 import play.api.mvc.{ Cookie, CookieHeaderEncoding }
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import auth.{ CustomSecuredErrorHandler, DefaultEnv, UserService }
-import daos.{ UserPasswordInfoDAO }
+import daos.{ UserLoginInfoDAO, UserPasswordInfoDAO }
 
 /**
  * The Guice module which wires all Silhouette dependencies.
@@ -80,7 +81,7 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
   /**
    * Configures the module.
    */
-  def configure() {
+  override def configure() {
     bind[Silhouette[DefaultEnv]].to[SilhouetteProvider[DefaultEnv]]
     bind[SecuredErrorHandler].to[CustomSecuredErrorHandler]
     bind[IDGenerator].toInstance(new SecureRandomIDGenerator())
@@ -89,10 +90,15 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
     bind[Clock].toInstance(Clock())
 
     // Replace this with the bindings to your concrete DAOs
-    bind[DelegableAuthInfoDAO[PasswordInfo]].to[UserPasswordInfoDAO]
     bind[DelegableAuthInfoDAO[OAuth2Info]].toInstance(
       new InMemoryAuthInfoDAO[OAuth2Info])
   }
+
+  @Provides
+  def provideUserPasswordInfoDAO(
+    dbConfigProvider: DatabaseConfigProvider,
+    userLoginInfosDAO: UserLoginInfoDAO): DelegableAuthInfoDAO[PasswordInfo] =
+      new UserPasswordInfoDAO(dbConfigProvider, userLoginInfosDAO)
 
   /**
    * Provides the HTTP layer implementation.
