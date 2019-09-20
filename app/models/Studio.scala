@@ -17,7 +17,7 @@
 
 package models
 
-import org.joda.time.Instant
+import java.time.Instant
 
 case class Studio(
   id:               Studio#Id         = 0L,

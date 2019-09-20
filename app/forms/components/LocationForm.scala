@@ -26,7 +26,7 @@ import forms.CustomFields
 object LocationForm {
 
   val coordinate = bigDecimal.
-    verifying("Invalid coordinate", { value => value >= -90 && value <= 90 })
+    verifying("Invalid coordinate", { value => value >= -180 && value <= 180 })
 
   val form = Form(
     mapping(
@@ -34,18 +34,20 @@ object LocationForm {
       "address-2" -> CustomFields.optionalText,
       "zipcode" -> nonEmptyText,
       "city" -> nonEmptyText,
-      "state" -> CustomFields.optionalText,
+      "state" -> optional(nonEmptyText),
       "country" -> CustomFields.country,
 
       "long"  -> coordinate,
       "lat"   -> coordinate
     )(Location.apply)(Location.unapply).
-      verifying("Invalid state/province.", { address =>
+      verifying("Invalid state/province.", { address => {
         (address.country.states, address.stateCode) match {
           case (states, Some(stateCode)) if states.nonEmpty =>
             states.contains(stateCode)
           case (states, None) if states.isEmpty => true
           case _ => false
         }
-      }))
+      }
+    })
+  )
 }

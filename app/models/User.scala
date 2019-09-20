@@ -17,8 +17,9 @@
 
 package models
 
+import java.time.Instant
+
 import com.mohiva.play.silhouette.api.Identity
-import org.joda.time.Instant
 
 /** Stores the information about an user. */
 case class User(

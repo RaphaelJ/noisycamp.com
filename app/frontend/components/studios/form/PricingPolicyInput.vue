@@ -34,7 +34,7 @@
                     :name="fieldName('price-per-hour')"
                     :currency="currency"
                     v-model="pricePerHour"
-                    required="true">
+                    :required="true">
                 </currency-input>
 
                 <span v-if="fieldHasError('price-per-hour')" class="error">

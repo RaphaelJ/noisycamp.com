@@ -2,7 +2,16 @@
 
 -- Types
 
-create domain duration as bigint; -- Maps Joda Duration type.
+-- Maps java.time.Duration type.
+create domain duration as bigint;
+
+-- A amount of money.
+create domain amount as numeric
+    check (value >= 0);
+
+-- A decimal coordinate value.
+create domain coordinate as numeric
+    check (value >= -180 and value <= 180);
 
 -- Users and account
 
@@ -53,10 +62,8 @@ create table "studio" (
     country_code            char(2),
 
     -- Coordinates
-    long                    double precision not null
-        check (long >= -90 and long <= 90),
-    lat                     double precision not null
-        check (lat >= -90 and lat <= 90),
+    long                    coordinate not null,
+    lat                     coordinate not null,
 
     -- Opening schedule
 
@@ -92,22 +99,24 @@ create table "studio" (
 
     currency_code           char(3) not null,
 
-    price_per_hour          numeric not null,
+    price_per_hour          amount not null,
 
     has_evening_pricing     boolean not null,
     evening_begins_at       time without time zone,
-    evening_price_per_hour  numeric not null,
+    evening_price_per_hour  amount,
 
     has_weekend_pricing     boolean not null,
-    weekend_price_per_hour  numeric not null,
+    weekend_price_per_hour  amount,
 
     -- Booking policy
 
-    min_booking_duration    duration not null,
+    min_booking_duration    duration not null
+        check (min_booking_duration >= 0),
     automatic_approval      boolean not null,
 
     can_cancel              boolean not null,
-    cancellation_notice     duration,
+    cancellation_notice     duration
+        check (cancellation_notice >= 0),
 
     -- Constraints
 
@@ -139,7 +148,8 @@ create table "studio" (
 create table "picture" (
     id                  bytea primary key,
     created_at          timestamp,
-    format              varchar not null,
+    format              varchar not null
+        check (format in ('png', 'gif', 'jpeg')),
     content             bytea not null
 );
 
@@ -153,4 +163,6 @@ drop table "user_password_info";
 drop table "user_login_info";
 drop table "user";
 
+drop domain "coordinate";
+drop domain "amount";
 drop domain "duration";

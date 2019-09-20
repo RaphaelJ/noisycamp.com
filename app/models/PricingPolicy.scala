@@ -17,7 +17,7 @@
 
 package models
 
-import org.joda.time.LocalTime
+import java.time.LocalTime
 
 case class PricingPolicy(
   pricePerHour:         BigDecimal,

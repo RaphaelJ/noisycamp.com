@@ -17,7 +17,8 @@
 
 package forms.components
 
-import org.joda.time.LocalTime
+import java.time.LocalTime
+
 import play.api.data.{ Form, FormError, Mapping }
 import play.api.data.format.Formatter
 import play.api.data.Forms._

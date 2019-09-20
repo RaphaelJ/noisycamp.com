@@ -17,7 +17,7 @@
 
 package models
 
-import org.joda.time.LocalTime
+import java.time.LocalTime
 
 case class OpeningSchedule(
   monday:     Option[OpeningTimes],

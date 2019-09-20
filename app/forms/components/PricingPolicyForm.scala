@@ -17,7 +17,8 @@
 
 package forms.components
 
-import org.joda.time.LocalTime
+import java.time.LocalTime
+
 import play.api.data.Form
 import play.api.data.Forms._
 

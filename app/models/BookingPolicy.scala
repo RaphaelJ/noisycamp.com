@@ -17,7 +17,7 @@
 
 package models
 
-import org.joda.time.Duration
+import java.time.Duration
 
 case class BookingPolicy(
   minBookingDuration:   Duration,

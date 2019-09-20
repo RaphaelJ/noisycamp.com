@@ -17,7 +17,8 @@
 
 package forms.components
 
-import org.joda.time.Duration
+import java.time.Duration
+
 import play.api.data.Form
 import play.api.data.Forms._
 

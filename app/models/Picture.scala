@@ -17,7 +17,8 @@
 
 package models
 
-import org.joda.time.Instant
+import java.time.Instant
+
 import com.sksamuel.scrimage.Format
 
 case class Picture(

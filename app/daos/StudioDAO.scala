@@ -17,10 +17,10 @@
 
 package daos
 
+import java.time.{ Duration, Instant, LocalTime }
 import scala.concurrent.{ ExecutionContext, Future }
 import javax.inject.Inject
 
-import org.joda.time.{ Duration, Instant, LocalTime }
 import play.api.db.slick.{ DatabaseConfigProvider, HasDatabaseConfigProvider }
 import slick.jdbc.JdbcProfile
 
@@ -38,7 +38,7 @@ class StudioDAO @Inject()
 
   final class StudioTable(tag: Tag) extends Table[Studio](tag, "studio") {
 
-    def id                  = column[Studio#Id]("id", O.PrimaryKey)
+    def id                  = column[Studio#Id]("id", O.PrimaryKey, O.AutoInc)
     def createdAt           = column[Instant]("created_at")
 
     def ownerId             = column[User#Id]("owner_id")
@@ -84,6 +84,8 @@ class StudioDAO @Inject()
     def sundayOpensAt       = column[Option[LocalTime]]("sunday_opens_at")
     def sundayClosesAt      = column[Option[LocalTime]]("sunday_closes_at")
 
+    def currencyCode        = column[String]("currency_code")
+
     def pricePerHour        = column[BigDecimal]("price_per_hour")
 
     def hasEveningPricing   = column[Boolean]("has_evening_pricing")
@@ -119,13 +121,12 @@ class StudioDAO @Inject()
       Boolean, Option[LocalTime], Option[LocalTime])
 
     private type PricingPolicyTuple = (
-      BigDecimal, Boolean, Option[LocalTime], Option[BigDecimal], Boolean,
-      Option[BigDecimal])
+      String, BigDecimal, Boolean, Option[LocalTime], Option[BigDecimal],
+      Boolean, Option[BigDecimal])
 
     private type BookingPolicyTuple = (
       Duration, Boolean, Boolean, Option[Duration])
 
-      // slick.lifted.ShapedValue[StudioTuple, StudioTuple]
     private val studioShaped = (
       id, createdAt, ownerId, name, description,
       (address1, address2, zipcode, city, state, country, long, lat),
@@ -137,8 +138,8 @@ class StudioDAO @Inject()
         (fridayIsOpen, fridayOpensAt, fridayClosesAt),
         (saturdayIsOpen, saturdayOpensAt, saturdayClosesAt),
         (sundayIsOpen, sundayOpensAt, sundayClosesAt)),
-      (pricePerHour, hasEveningPricing, eveningBeginsAt, eveningPricePerHour,
-        hasWeekendPricing, weekendPricePerHour),
+      (currencyCode, pricePerHour, hasEveningPricing, eveningBeginsAt,
+        eveningPricePerHour, hasWeekendPricing, weekendPricePerHour),
       (minBookingDuration, automaticApproval, canCancel, cancellationNotice)
     ).shaped
 
@@ -154,7 +155,7 @@ class StudioDAO @Inject()
       Some((studio.id, studio.createdAt, studio.ownerId, studio.name,
         studio.description, Location.unapply(studio.location).get,
         fromOpeningSchedule(studio.openingSchedule),
-        fromPricingPolicy(studio.pricingPolicy),
+        fromPricingPolicy(studio.location.country, studio.pricingPolicy),
         fromBookingPolicy(studio.bookingPolicy)))
     }
 
@@ -193,23 +194,25 @@ class StudioDAO @Inject()
 
     private def toPricingPolicy(policyTuple: PricingPolicyTuple) = {
       val evening =
-        if (policyTuple._2) {
-          Some(EveningPricingPolicy(policyTuple._3.get, policyTuple._4.get))
+        if (policyTuple._3) {
+          Some(EveningPricingPolicy(policyTuple._4.get, policyTuple._5.get))
         } else {
           None
         }
 
-      val weekend = policyTuple._6.map(WeekendPricingPolicy)
+      val weekend = policyTuple._7.map(WeekendPricingPolicy)
 
-      PricingPolicy(policyTuple._1, evening, weekend)
+      PricingPolicy(policyTuple._2, evening, weekend)
     }
 
-    private def fromPricingPolicy(policy: PricingPolicy) = {
+    private def fromPricingPolicy(country: Country.Val, policy: PricingPolicy) =
+    {
+
       val evening = policy.evening
       val weekend = policy.weekend
 
       (
-        policy.pricePerHour, evening.isDefined,
+        country.isoCode, policy.pricePerHour, evening.isDefined,
         evening.map(_.beginsAt), evening.map(_.pricePerHour),
         weekend.isDefined, weekend.map(_.pricePerHour))
     }
@@ -230,9 +233,7 @@ class StudioDAO @Inject()
 
   lazy val query = TableQuery[StudioTable]
 
-  def insert(studio: Studio): Future[Studio] = {
-    db.run {
+  def insert(studio: Studio): DBIO[Studio] = {
       query returning query.map(_.id) into ((s, id) => s.copy(id=id)) += studio
-    }
   }
 }

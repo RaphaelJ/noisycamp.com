@@ -18,9 +18,9 @@
 package daos
 
 import scala.concurrent.ExecutionContext
+import java.time.Instant
 import javax.inject.Inject
 
-import org.joda.time.Instant
 import play.api.db.slick.{ DatabaseConfigProvider, HasDatabaseConfigProvider }
 import slick.jdbc.JdbcProfile
 

@@ -46,7 +46,7 @@ object StudioForm {
 
     location:         Location,
     openingSchedule:  OpeningSchedule,
-    pricing:          PricingPolicy,
+    pricingPolicy:    PricingPolicy,
     bookingPolicy:    BookingPolicy,
 
     pictures:         Seq[Picture#Id])

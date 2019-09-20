@@ -70,8 +70,6 @@ libraryDependencies ++= Seq(
 
   "com.typesafe.play" %% "play-slick" % "4.0.2",
 
-  "joda-time" % "joda-time" % "2.10.2",
-
   "net.codingwell" %% "scala-guice" % "4.2.6",
 
   "org.postgresql" % "postgresql" % "42.2.8",

@@ -34,8 +34,6 @@ GET     /account/studios                controllers.account.StudiosController.in
 GET     /account/studios/create         controllers.account.StudiosController.create
 POST    /account/studios/create         controllers.account.StudiosController.createSubmit
 
-GET     /account/studios/make           controllers.account.StudiosController.make
-
 # Studio listing
 
 GET     /studios                        controllers.StudiosController.index

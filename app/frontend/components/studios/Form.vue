@@ -69,7 +69,8 @@
                 schedule, like holidays, can be defined later in the calendar application.
             </p>
 
-            <opening-times-input name="opening-times" :errors="errors"></opening-times-input>
+            <opening-schedule-input name="opening-schedule" :errors="errors">
+            </opening-schedule-input>
 
             <hr>
         </div>
@@ -78,12 +79,12 @@
 
         <div
             class="cell"
-            v-if="isShown('pricing')">
+            v-if="isShown('pricing-policy')">
 
             <h2>Pricing</h2>
 
             <pricing-policy-input
-                name="pricing"
+                name="pricing-policy"
                 currency="ISK">
             </pricing-policy-input>
 
@@ -181,8 +182,8 @@ import Vue from "vue";
 import BookingPolicyInput from './form/BookingPolicyInput.vue';
 import EquipmentInput from './form/EquipmentInput.vue';
 import GeneralInfoInput from './form/GeneralInfoInput.vue';
-import LocationInput from '../form/LocationInput.vue';
-import OpeningTimesInput from './form/OpeningTimesInput.vue';
+import LocationInput from './form/LocationInput.vue';
+import OpeningScheduleInput from './form/OpeningScheduleInput.vue';
 import PayoutInput from './form/PayoutInput.vue';
 import PictureInput from './form/PictureInput.vue';
 import PricingPolicyInput from './form/PricingPolicyInput.vue';
@@ -219,14 +220,14 @@ export default Vue.extend({
     methods: {
         isShown(section) {
             return [
-                'general-info', 'location', 'opening-times', 'pricing', 'booking-policy',
-                'pictures'
+                'general-info', 'location', 'opening-times', 'pricing-policy',
+                'booking-policy', 'pictures'
             ].includes(section);
         }
     },
     components: {
         BookingPolicyInput, EquipmentInput, GeneralInfoInput, LocationInput,
-        OpeningTimesInput, PayoutInput, PictureInput, PricingPolicyInput,
+        OpeningScheduleInput, PayoutInput, PictureInput, PricingPolicyInput,
     },
 });
 </script>

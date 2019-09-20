@@ -19,10 +19,10 @@ package daos
 
 import scala.concurrent.{ ExecutionContext, Future }
 import java.nio.file.Files
+import java.time.Instant
 import javax.inject.Inject
 
 import com.sksamuel.scrimage.Format
-import org.joda.time.{ DateTime, Instant }
 import play.api.db.slick.{ DatabaseConfigProvider, HasDatabaseConfigProvider }
 import slick.jdbc.JdbcProfile
 

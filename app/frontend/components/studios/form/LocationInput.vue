@@ -148,7 +148,13 @@
 
             <div class="address-map-overlay" v-show="hasMarker">
                 Move the <i class="fi-marker"></i> marker to match the exact
-                location of your studio.
+                location of your studio
+                <a
+                    v-if="!shouldUpdateMarker"
+                    @click="resetMarker()">
+                    (reset)
+                </a>.
+
             </div>
 
             <input type="hidden" :name="fieldName('long')" :value="coordinates.long">
@@ -163,8 +169,8 @@ import * as mbxGeocoding from '@mapbox/mapbox-sdk/services/geocoding';
 import * as _ from "lodash";
 import Vue from "vue";
 
-import VueInput from '../widgets/VueInput';
-import CountrySelect from '../widgets/CountrySelect.vue'
+import VueInput from '../../widgets/VueInput';
+import CountrySelect from '../../widgets/CountrySelect.vue'
 
 declare var NC_CONFIG: any;
 
@@ -286,10 +292,6 @@ export default Vue.extend({
         // Updates the location of the marker and map with the currently
         // provided address.
         updateMarker: _.debounce(function () {
-            if (!this.shouldUpdateMarker) {
-                return;
-            }
-
             // Constructs the query from address components, sorted in a
             // hierarchical way (i.e. from the most component to the most
             // precise one). Does not continue to construct the query once a
@@ -337,9 +339,11 @@ export default Vue.extend({
         }, 300),
 
         // Handles a marker drag event. Disable automatic updates of the marker
-        // position.
+        // position with address changes.
         dragMarker() {
-            var pos = this.marker.getLngLat();
+            let pos = this.marker.getLngLat();
+            this.coordinates.long = pos.lng;
+            this.coordinates.lat = pos.lat;
             this.shouldUpdateMarker = false;
         },
 
@@ -353,6 +357,10 @@ export default Vue.extend({
         setMarker(place) {
             let hadPlace = this.place;
             this.place = place;
+
+            if (!this.shouldUpdateMarker) {
+                return;
+            }
 
             this.marker.setLngLat(place.center);
 

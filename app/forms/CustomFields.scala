@@ -17,7 +17,8 @@
 
 package forms
 
-import org.joda.time.{ Duration, LocalTime }
+import java.time.{ Duration, LocalTime }
+
 import play.api.data.{ FormError, Mapping }
 import play.api.data.format.Formatter
 import play.api.data.format.Formats._
@@ -80,9 +81,11 @@ object CustomFields {
   /** Similar to `text`, but will bind empty string to a `None` value. */
   val optionalText: Mapping[Option[String]] = {
     text.transform(
-      str => str match {
-        case "" => None
-        case _ => Some(str)
+      str => {
+        str match {
+          case "" => None
+          case _ => Some(str)
+        }
       },
       _.getOrElse("")
     )
@@ -106,8 +109,6 @@ object CustomFields {
   /** Maps a number of seconds to a Joda's Duration instance. */
   val seconds: Mapping[Duration] = {
     longNumber(min = 0).
-      transform(
-        Duration.standardSeconds,
-        _.toStandardSeconds.getSeconds.toLong)
+      transform(Duration.ofSeconds, _.getSeconds)
   }
 }
