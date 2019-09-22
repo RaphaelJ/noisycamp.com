@@ -57,39 +57,54 @@ class StudioDAO @Inject()
     def lat                 = column[BigDecimal]("lat")
 
     def mondayIsOpen        = column[Boolean]("monday_is_open")
-    def mondayOpensAt       = column[Option[LocalTime]]("monday_opens_at")
-    def mondayClosesAt      = column[Option[LocalTime]]("monday_closes_at")
+    def mondayOpensAt       =
+      column[Option[LocalTime]]("monday_opens_at")(localtime.optionType)
+    def mondayClosesAt      =
+      column[Option[LocalTime]]("monday_closes_at")(localtime.optionType)
 
     def tuesdayIsOpen       = column[Boolean]("tuesday_is_open")
-    def tuesdayOpensAt      = column[Option[LocalTime]]("tuesday_opens_at")
-    def tuesdayClosesAt     = column[Option[LocalTime]]("tuesday_closes_at")
+    def tuesdayOpensAt      =
+      column[Option[LocalTime]]("tuesday_opens_at")(localtime.optionType)
+    def tuesdayClosesAt     =
+      column[Option[LocalTime]]("tuesday_closes_at")(localtime.optionType)
 
     def wednesdayIsOpen     = column[Boolean]("wednesday_is_open")
-    def wednesdayOpensAt    = column[Option[LocalTime]]("wednesday_opens_at")
-    def wednesdayClosesAt   = column[Option[LocalTime]]("wednesday_closes_at")
+    def wednesdayOpensAt    =
+      column[Option[LocalTime]]("wednesday_opens_at")(localtime.optionType)
+    def wednesdayClosesAt   =
+      column[Option[LocalTime]]("wednesday_closes_at")(localtime.optionType)
 
     def thursdayIsOpen      = column[Boolean]("thursday_is_open")
-    def thursdayOpensAt     = column[Option[LocalTime]]("thursday_opens_at")
-    def thursdayClosesAt    = column[Option[LocalTime]]("thursday_closes_at")
+    def thursdayOpensAt     =
+      column[Option[LocalTime]]("thursday_opens_at")(localtime.optionType)
+    def thursdayClosesAt    =
+      column[Option[LocalTime]]("thursday_closes_at")(localtime.optionType)
 
     def fridayIsOpen        = column[Boolean]("friday_is_open")
-    def fridayOpensAt       = column[Option[LocalTime]]("friday_opens_at")
-    def fridayClosesAt      = column[Option[LocalTime]]("friday_closes_at")
+    def fridayOpensAt       =
+      column[Option[LocalTime]]("friday_opens_at")(localtime.optionType)
+    def fridayClosesAt      =
+      column[Option[LocalTime]]("friday_closes_at")(localtime.optionType)
 
     def saturdayIsOpen      = column[Boolean]("saturday_is_open")
-    def saturdayOpensAt     = column[Option[LocalTime]]("saturday_opens_at")
-    def saturdayClosesAt    = column[Option[LocalTime]]("saturday_closes_at")
+    def saturdayOpensAt     =
+      column[Option[LocalTime]]("saturday_opens_at")(localtime.optionType)
+    def saturdayClosesAt    =
+      column[Option[LocalTime]]("saturday_closes_at")(localtime.optionType)
 
     def sundayIsOpen        = column[Boolean]("sunday_is_open")
-    def sundayOpensAt       = column[Option[LocalTime]]("sunday_opens_at")
-    def sundayClosesAt      = column[Option[LocalTime]]("sunday_closes_at")
+    def sundayOpensAt       =
+      column[Option[LocalTime]]("sunday_opens_at")(localtime.optionType)
+    def sundayClosesAt      =
+      column[Option[LocalTime]]("sunday_closes_at")(localtime.optionType)
 
     def currencyCode        = column[String]("currency_code")
 
     def pricePerHour        = column[BigDecimal]("price_per_hour")
 
     def hasEveningPricing   = column[Boolean]("has_evening_pricing")
-    def eveningBeginsAt     = column[Option[LocalTime]]("evening_begins_at")
+    def eveningBeginsAt     =
+      column[Option[LocalTime]]("evening_begins_at")(localtime.optionType)
     def eveningPricePerHour =
       column[Option[BigDecimal]]("evening_price_per_hour")
 

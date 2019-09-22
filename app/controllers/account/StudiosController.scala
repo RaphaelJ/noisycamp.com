@@ -19,12 +19,14 @@ package controllers.account
 
 import javax.inject._
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ ExecutionContext, Future }
 
 import com.mohiva.play.silhouette.api.Silhouette
 import play.api._
 import play.api.i18n.I18nSupport
 import play.api.mvc._
+import play.api.db.slick.{ DatabaseConfigProvider, HasDatabaseConfigProvider }
+import slick.jdbc.JdbcProfile
 
 import auth.DefaultEnv
 import daos.StudioDAO
@@ -40,11 +42,13 @@ import java.time.{ Duration, Instant, LocalTime }
 class StudiosController @Inject() (
   cc: ControllerComponents,
   implicit val config: Configuration,
+  protected val dbConfigProvider: DatabaseConfigProvider,
   studioDao: StudioDAO,
   implicit val executionContext: ExecutionContext,
   silhouette: Silhouette[DefaultEnv])
   extends AbstractController(cc)
-  with I18nSupport {
+  with I18nSupport
+  with HasDatabaseConfigProvider[JdbcProfile] {
 
   /** Lists all studios from a single user. */
   def index = silhouette.SecuredAction { implicit request =>
@@ -72,10 +76,10 @@ class StudiosController @Inject() (
     Ok(views.html.account.studioCreate(request.identity, StudioForm.form))
   }
 
-  def createSubmit = silhouette.SecuredAction { implicit request =>
+  def createSubmit = silhouette.SecuredAction.async { implicit request =>
     StudioForm.form.bindFromRequest.fold(
-      form => BadRequest(views.html.account.studioCreate(
-        request.identity, StudioForm.form.bindFromRequest)),
+      form => Future.successful(BadRequest(views.html.account.studioCreate(
+        request.identity, StudioForm.form.bindFromRequest))),
       data => {
         val studio = Studio(
           ownerId = request.identity.id,
@@ -86,7 +90,9 @@ class StudiosController @Inject() (
           pricingPolicy = data.pricingPolicy,
           bookingPolicy = data.bookingPolicy)
 
-        Ok(studio.toString)
+        db.run {
+          studioDao.insert(studio)
+        }.map { studio: Studio => Ok(studio.toString) }
       })
   }
 }

@@ -13,6 +13,10 @@ create domain amount as numeric
 create domain coordinate as numeric
     check (value >= -180 and value <= 180);
 
+-- Maps a java.time.java_localtime as an ISO 8601 string.
+create domain java_localtime as varchar
+    check (value similar to '\d{2}:\d{2}(:\d{2}(.\d+)?)?');
+
 -- Users and account
 
 create table "user" (
@@ -68,32 +72,32 @@ create table "studio" (
     -- Opening schedule
 
     monday_is_open          boolean not null,
-    monday_opens_at         time without time zone,
-    monday_closes_at        time without time zone,
+    monday_opens_at         java_localtime,
+    monday_closes_at        java_localtime,
 
     tuesday_is_open         boolean not null,
-    tuesday_opens_at        time without time zone,
-    tuesday_closes_at       time without time zone,
+    tuesday_opens_at        java_localtime,
+    tuesday_closes_at       java_localtime,
 
     wednesday_is_open       boolean not null,
-    wednesday_opens_at      time without time zone,
-    wednesday_closes_at     time without time zone,
+    wednesday_opens_at      java_localtime,
+    wednesday_closes_at     java_localtime,
 
     thursday_is_open        boolean not null,
-    thursday_opens_at       time without time zone,
-    thursday_closes_at      time without time zone,
+    thursday_opens_at       java_localtime,
+    thursday_closes_at      java_localtime,
 
     friday_is_open          boolean not null,
-    friday_opens_at         time without time zone,
-    friday_closes_at        time without time zone,
+    friday_opens_at         java_localtime,
+    friday_closes_at        java_localtime,
 
     saturday_is_open        boolean not null,
-    saturday_opens_at       time without time zone,
-    saturday_closes_at      time without time zone,
+    saturday_opens_at       java_localtime,
+    saturday_closes_at      java_localtime,
 
     sunday_is_open          boolean not null,
-    sunday_opens_at         time without time zone,
-    sunday_closes_at        time without time zone,
+    sunday_opens_at         java_localtime,
+    sunday_closes_at        java_localtime,
 
     -- Pricing policy
 
@@ -102,7 +106,7 @@ create table "studio" (
     price_per_hour          amount not null,
 
     has_evening_pricing     boolean not null,
-    evening_begins_at       time without time zone,
+    evening_begins_at       java_localtime,
     evening_price_per_hour  amount,
 
     has_weekend_pricing     boolean not null,
@@ -153,8 +157,15 @@ create table "picture" (
     content             bytea not null
 );
 
+create table "studio_picture" (
+    id                  serial primary key,
+    studio_id           integer not null references "studio"(id),
+    picture_id          bytea not null references "picture"(id)
+);
+
 # --- !Downs
 
+drop table "studio_picture";
 drop table "picture";
 
 drop table "studio";
@@ -163,6 +174,7 @@ drop table "user_password_info";
 drop table "user_login_info";
 drop table "user";
 
+drop domain "java_localtime";
 drop domain "coordinate";
 drop domain "amount";
 drop domain "duration";

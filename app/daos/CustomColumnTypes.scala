@@ -17,12 +17,9 @@
 
 package daos
 
-import java.sql.{ Time, Timestamp }
-import java.time.Duration
+import java.time.{ Duration, LocalTime }
 
 import com.sksamuel.scrimage.Format
-import org.joda.time.{ DateTime, Instant, LocalTime }
-import org.joda.time.DateTimeZone.UTC
 import play.api.db.slick.HasDatabaseConfigProvider
 import slick.jdbc.JdbcProfile
 
@@ -40,6 +37,12 @@ trait CustomColumnTypes {
   /** Stores a java.time.Duration as an amount of milliseconds. */
   implicit val duration =
     MappedColumnType.base[Duration, Long](_.toMillis, Duration.ofMillis)
+
+  /** Alternative implementation of java.time.LocalTime that maps to a string
+   *
+   * See <https://github.com/tminglei/slick-pg/issues/381> */
+  implicit val localtime =
+    MappedColumnType.base[LocalTime, String](_.toString, LocalTime.parse)
 
   /** Stores Scrimage image format as text */
   implicit val scrimageFormat =

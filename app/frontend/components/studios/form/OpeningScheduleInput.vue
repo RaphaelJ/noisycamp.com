@@ -31,7 +31,7 @@
                         :name="fieldName(weekDay.toLowerCase() + '.is-open')"
                         type="checkbox"
                         value="true"
-                        v-model="openingTimes[dayIx].isOpen">
+                        v-model="schedule[dayIx].isOpen">
 
                     <label :for="'opening-times-' + weekDay.toLowerCase() + '-is-open'">
                         <h5>{{ weekDay }}</h5>
@@ -56,9 +56,9 @@
 
                         <input type="time"
                             :name="fieldName(weekDay.toLowerCase() + '.opens-at')"
-                            v-model="openingTimes[dayIx].opensAt"
-                            :disabled="!openingTimes[dayIx].isOpen"
-                            :required="openingTimes[dayIx].isOpen"
+                            v-model="schedule[dayIx].opensAt"
+                            :disabled="!schedule[dayIx].isOpen"
+                            :required="schedule[dayIx].isOpen"
                             pattern="[0-9]{2}:[0-9]{2}">
 
                         <span
@@ -75,9 +75,9 @@
 
                         <input type="time"
                             :name="fieldName(weekDay.toLowerCase() + '.closes-at')"
-                            v-model="openingTimes[dayIx].closesAt"
-                            :disabled="!openingTimes[dayIx].isOpen"
-                            :required="openingTimes[dayIx].isOpen"
+                            v-model="schedule[dayIx].closesAt"
+                            :disabled="!schedule[dayIx].isOpen"
+                            :required="schedule[dayIx].isOpen"
                             pattern="[0-9]{2}:[0-9]{2}">
 
                         <span
@@ -107,7 +107,7 @@ export default Vue.extend({
                 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'
             ],
 
-            openingTimes: Array(7).fill(null).map((_) => {
+            schedule: Array(7).fill(null).map((_) => {
                 return {
                     isOpen: false,
                     opensAt: '08:00',
