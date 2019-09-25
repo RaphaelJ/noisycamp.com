@@ -29,7 +29,7 @@ import play.api.db.slick.{ DatabaseConfigProvider, HasDatabaseConfigProvider }
 import slick.jdbc.JdbcProfile
 
 import auth.DefaultEnv
-import daos.StudioDAO
+import daos.{ StudioDAO, StudioPictureDAO }
 import forms.account.StudioForm
 import misc.{ Country, Currency, ExchangeRateService }
 
@@ -44,32 +44,19 @@ class StudiosController @Inject() (
   implicit val config: Configuration,
   protected val dbConfigProvider: DatabaseConfigProvider,
   studioDao: StudioDAO,
+  studioPictureDao: StudioPictureDAO,
   implicit val executionContext: ExecutionContext,
   silhouette: Silhouette[DefaultEnv])
   extends AbstractController(cc)
   with I18nSupport
   with HasDatabaseConfigProvider[JdbcProfile] {
 
+  import profile.api._
+
   /** Lists all studios from a single user. */
   def index = silhouette.SecuredAction { implicit request =>
     Ok("")
   }
-
-  // def make = silhouette.SecuredAction.async { implicit request =>
-  //   val studio = Studio(
-  //     ownerId = request.identity.id,
-  //     name = "Mon studio test",
-  //     description = "Super génial",
-  //     location = Location("Rue de la Légia", None, "4000", "Liège", None,
-  //       Country.Belgium, BigDecimal("50.6326"),
-  //       BigDecimal("5.5797")),
-  //     openingSchedule = OpeningSchedule(None, None, None, None, None, None,
-  //       None),
-  //     pricingPolicy = PricingPolicy(BigDecimal("15.01"), None, None),
-  //     bookingPolicy = BookingPolicy(Duration.ofSeconds(15*3600), true, None))
-  //
-  //   studioDao.insert(studio).map { s: Studio => Ok(s.id.toString) }
-  // }
 
   /** Shows a form to list a new studio. */
   def create = silhouette.SecuredAction { implicit request =>
@@ -90,9 +77,12 @@ class StudiosController @Inject() (
           pricingPolicy = data.pricingPolicy,
           bookingPolicy = data.bookingPolicy)
 
-        db.run {
-          studioDao.insert(studio)
-        }.map { studio: Studio => Ok(studio.toString) }
+        db.run({
+          for {
+            studio <- studioDao.insert(studio)
+            _ <- studioPictureDao.setStudioPics(studio.id, data.pictures)
+          } yield Ok(studio.toString)
+        }.transactionally)
       })
   }
 }

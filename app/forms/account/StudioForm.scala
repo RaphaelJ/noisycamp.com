@@ -36,7 +36,7 @@ object StudioForm {
       "opening-schedule" -> forms.components.OpeningScheduleForm.form.mapping,
       "pricing-policy" -> forms.components.PricingPolicyForm.form.mapping,
       "booking-policy" -> forms.components.BookingPolicyForm.form.mapping,
-      "picures" -> seq(CustomFields.pictureId)
+      "pictures" -> seq(CustomFields.pictureId)
     )(Data.apply)(Data.unapply)
   )
 

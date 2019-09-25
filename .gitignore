@@ -6,5 +6,7 @@ target/
 
 .DS_store
 
+.bloop
+.metals
 .ensime
 .ensime_cache
