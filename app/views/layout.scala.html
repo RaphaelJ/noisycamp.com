@@ -18,6 +18,8 @@
 @import play.api.Configuration
 @import play.api.libs.json.Json
 
+@import misc.Currency
+
 @import _root_.auth.DefaultEnv
 @import _root_.frontend.JsConfig
 
@@ -95,16 +97,16 @@
             @content
         </main>
 
-        <footer class="grid-x grid-padding-x">
-            <div class="cell small-6 text-left">
+        <footer class="grid-x grid-padding-x grid-padding-y">
+            <div class="cell small-12 medium-6">
                 <ul>
-                    <li>
-                        © 2019 <span class="text-serif">NoisyCamp</span>
-                    </li>
+                    <li><h6>© 2019 NoisyCamp</h6></li>
                 </ul>
             </div>
 
-            <div class="cell small-6 text-right">
+            <div class="cell small-12 medium-3">
+                <h5>Company</h5>
+
                 <ul>
                     <li>Terms of Service</li>
                     <li>Privacy</li>
@@ -119,6 +121,18 @@
                         <a href="https://www.flaticon.com/authors/smashicons" title="Smashicons">Smashicons</a>
                     </li>
                 </ul>
+            </div>
+
+            <div class="cell small-12 medium-3">
+                <label>
+                    <h5>Currency</h5>
+
+                    <select>
+                        @for(curr <- Currency.currencies.toSeq.sortBy(_.name)) {
+                            <option value="@curr.code">@curr.name - @curr.symbol</option>
+                        }
+                    </select>
+                </label>
             </div>
         </footer>
 
