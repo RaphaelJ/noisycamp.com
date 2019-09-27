@@ -24,6 +24,7 @@ import play.api.db.slick.HasDatabaseConfigProvider
 import slick.jdbc.JdbcProfile
 
 import misc.Country
+import models.PictureId
 
 trait CustomColumnTypes {
   this: HasDatabaseConfigProvider[JdbcProfile] =>
@@ -31,21 +32,24 @@ trait CustomColumnTypes {
   import profile.api._
 
   /** Maps a country value to its ISO code. */
-  implicit val countryVal =
+  implicit val countryValType =
     MappedColumnType.base[Country.Val, String](_.isoCode, Country.byCode(_))
 
   /** Stores a java.time.Duration as an amount of milliseconds. */
-  implicit val duration =
+  implicit val durationType =
     MappedColumnType.base[Duration, Long](_.toMillis, Duration.ofMillis)
 
   /** Alternative implementation of java.time.LocalTime that maps to a string
    *
    * See <https://github.com/tminglei/slick-pg/issues/381> */
-  implicit val localtime =
+  implicit val localtimeType =
     MappedColumnType.base[LocalTime, String](_.toString, LocalTime.parse)
 
+  implicit val pictureIdType =
+    MappedColumnType.base[PictureId, Array[Byte]](_.value, PictureId.apply _)
+
   /** Stores Scrimage image format as text */
-  implicit val scrimageFormat =
+  implicit val scrimageFormatType =
     MappedColumnType.base[Format, String](
       {
         case Format.PNG => "png"

@@ -17,21 +17,56 @@
 
 package controllers
 
-import com.mohiva.play.silhouette.api.Silhouette
 import javax.inject._
+import scala.concurrent.ExecutionContext
+
+import com.mohiva.play.silhouette.api.Silhouette
 import play.api._
+import play.api.db.slick.{ DatabaseConfigProvider, HasDatabaseConfigProvider }
 import play.api.mvc._
+import slick.jdbc.JdbcProfile
 
 import auth.DefaultEnv
+import daos.{ CustomColumnTypes, StudioDAO, StudioPictureDAO }
+import models.Studio
 
 @Singleton
 class StudiosController @Inject() (
   cc: ControllerComponents,
   implicit val config: Configuration,
+  protected val dbConfigProvider: DatabaseConfigProvider,
+  studioDao: StudioDAO,
+  studioPictureDao: StudioPictureDAO,
   silhouette: Silhouette[DefaultEnv])
-  extends AbstractController(cc) {
+  (implicit executionContext: ExecutionContext)
+  extends AbstractController(cc)
+  with HasDatabaseConfigProvider[JdbcProfile]
+  with CustomColumnTypes {
+
+  import profile.api._
 
   def index = silhouette.UserAwareAction { implicit request =>
     Ok(views.html.studios.index(user=request.identity))
+  }
+
+  def show(id: Studio#Id) = silhouette.UserAwareAction.async {
+    implicit request =>
+
+    db.run {
+      for {
+        studio <- studioDao.query.
+          filter(_.id === id).
+          result.headOption
+
+        picIds <- studioPictureDao.query.
+          filter(_.studioId === id).
+          map(_.pictureId).
+          result
+      } yield (studio, picIds)
+    }.map {
+      case (Some(studio), picIds) => Ok(
+        views.html.studios.show(user=request.identity, studio, picIds))
+      case (None, _) => NotFound("Studio not found.")
+      }
   }
 }

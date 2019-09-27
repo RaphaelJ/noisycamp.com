@@ -26,6 +26,11 @@ h1, h2, h3, h4, h5, h6, .text-serif {
     font-family: 'Playfair Display', serif;
 }
 
+.h1 small, .h2 small, .h3 small, .h4 small, .h5 small, .h6 small,
+h1 small, h2 small, h3 small, h4 small, h5 small, h6 small {
+    color: #aeadad;
+}
+
 /* Overrides Foundation title sizes on large screens. */
 
 @media print,screen and (min-width: 40em) {
@@ -225,8 +230,8 @@ form label .error {
 /* A section of content that appears in a box  */
 .panel-section {
     background-color: rgba(255, 255, 255, 1);
-    border-radius: 5px;
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+    border: 1px solid rgba(0, 0, 0, 0.06);
     padding: 12px 19px;
 }
 

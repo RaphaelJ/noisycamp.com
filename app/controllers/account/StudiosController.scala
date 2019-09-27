@@ -23,20 +23,15 @@ import scala.concurrent.{ ExecutionContext, Future }
 
 import com.mohiva.play.silhouette.api.Silhouette
 import play.api._
+import play.api.db.slick.{ DatabaseConfigProvider, HasDatabaseConfigProvider }
 import play.api.i18n.I18nSupport
 import play.api.mvc._
-import play.api.db.slick.{ DatabaseConfigProvider, HasDatabaseConfigProvider }
 import slick.jdbc.JdbcProfile
 
 import auth.DefaultEnv
 import daos.{ StudioDAO, StudioPictureDAO }
 import forms.account.StudioForm
-import misc.{ Country, Currency, ExchangeRateService }
-
-import models.{ BookingPolicy, CancellationPolicy, EveningPricingPolicy,
-  Location, OpeningSchedule, OpeningTimes, PricingPolicy, Studio, User,
-  WeekendPricingPolicy }
-import java.time.{ Duration, Instant, LocalTime }
+import models.Studio
 
 @Singleton
 class StudiosController @Inject() (

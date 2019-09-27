@@ -38,7 +38,7 @@ class PictureDAO @Inject()
   final class PictureTable(tag: Tag) extends Table[Picture](tag, "picture") {
 
     // ID is the SHA-256 hashed content of the file.
-    def id                = column[Array[Byte]]("id", O.PrimaryKey)
+    def id                = column[Picture#Id]("id", O.PrimaryKey)
     def createdAt         = column[Instant]("created_at")
     def format            = column[Format]("format")
     def content           = column[Array[Byte]]("content")
@@ -48,7 +48,7 @@ class PictureDAO @Inject()
 
   lazy val query = TableQuery[PictureTable]
 
-  def get(id: Array[Byte]) = query.filter(_.id === id)
+  def get(id: Picture#Id) = query.filter(_.id === id)
 
   /** Inserts the picture in the database with its hash as ID if it does not
    * exists and returns it. Returns the existing picture otherwise. */

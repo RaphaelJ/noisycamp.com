@@ -34,9 +34,10 @@ GET     /account/studios                controllers.account.StudiosController.in
 GET     /account/studios/create         controllers.account.StudiosController.create
 POST    /account/studios/create         controllers.account.StudiosController.createSubmit
 
-# Studio listing
+# Studios
 
 GET     /studios                        controllers.StudiosController.index
+GET     /studios/:id                    controllers.StudiosController.show(id: Long)
 
 # Pictures
 

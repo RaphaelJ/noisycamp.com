@@ -25,7 +25,7 @@
         href="@routes.Assets.versioned("stylesheets/index.css")">
 }
 
-@layout("Music and rehearsal studio rentals", head=head, user=user) {
+@layout(Seq("Music and rehearsal studio rentals"), head=head, user=user) {
     <div class="hero full-screen home-hero">
         <div class="top-content-section">
         </div>
@@ -64,7 +64,7 @@
                 <h5>
                     Want to list your professional or personal studio?
                 </h5>
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M24 12c0-6.627-5.373-12-12-12s-12 5.373-12 12 5.373 12 12 12 12-5.373 12-12zm-18.005-1.568l1.415-1.414 4.59 4.574 4.579-4.574 1.416 1.414-5.995 5.988-6.005-5.988z"/></svg>
+                <arrow direction="bottom"></arrow>
             </a>
         </div>
     </div>

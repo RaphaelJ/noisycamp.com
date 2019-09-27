@@ -27,7 +27,7 @@ import play.api.data.validation.Constraints._
 import squants.market
 
 import misc.{ Country, Currency }
-import models.Picture
+import models.{ Picture, PictureId }
 
 object CustomFields {
 
@@ -94,12 +94,12 @@ object CustomFields {
   val pictureId: Mapping[Picture#Id] = {
     val pictureIdFormat: Formatter[Picture#Id] = new Formatter[Picture#Id] {
       def bind(key: String, data: Map[String, String]) = {
-        parsing(java.util.Base64.getDecoder.decode, "Invalid picture ID", Nil)(
+        parsing(PictureId.fromString, "Invalid picture ID", Nil)(
           key, data)
       }
 
       def unbind(key: String, value: Picture#Id) = {
-        Map(key -> java.util.Base64.getEncoder.encodeToString(value))
+        Map(key -> value.base64)
       }
     }
 

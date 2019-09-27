@@ -30,7 +30,7 @@ class StudioPictureDAO @Inject() (
   val studioDao: StudioDAO,
   val pictureDao: PictureDAO)
   (implicit executionContext: ExecutionContext)
-  extends HasDatabaseConfigProvider[JdbcProfile] {
+  extends HasDatabaseConfigProvider[JdbcProfile] with CustomColumnTypes {
 
   import profile.api._
 

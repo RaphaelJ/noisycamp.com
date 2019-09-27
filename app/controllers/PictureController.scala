@@ -31,7 +31,7 @@ import slick.jdbc.JdbcProfile
 
 import auth.DefaultEnv
 import daos.PictureDAO
-import models.{ Picture }
+import models.{ Picture, PictureId }
 import pictures.{
   BoundPicture, CoverPicture, MaxPicture, PictureCache, PictureTransform,
   PictureUtils, RawPicture }
@@ -60,7 +60,7 @@ class PictureController @Inject() (
             case Some(newPic) => {
               pictureDao.insertIfNotExits(newPic).
                 map { pic =>
-                  val id = pic.base64Id
+                  val id = pic.id.base64
                   val uri = routes.PictureController.view(id).url
                   Created(id).withHeaders("Location" -> uri)
                 }
@@ -101,9 +101,9 @@ class PictureController @Inject() (
   private def picWithTransform(id: String,
     transform: PictureTransform): Future[Result] = {
 
-    val idBytes = java.util.Base64.getDecoder.decode(id)
+    val picId = PictureId.fromString(id)
 
-    pictureCache.get(idBytes, transform).
+    pictureCache.get(picId, transform).
       map {
         case Some(pic) => {
           val bs = ByteString(pic.content)
@@ -111,8 +111,7 @@ class PictureController @Inject() (
             header = ResponseHeader(200, Map(
               // Cacheable, expires after a year.
               "Cache-Control" -> "public, max-age=31536000")),
-            body = HttpEntity.Strict(bs, None)
-          )
+            body = HttpEntity.Strict(bs, None))
         }
         case None => NotFound("Picture not found.")
       }

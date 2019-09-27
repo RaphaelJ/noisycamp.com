@@ -15,18 +15,19 @@
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-  Renders the requested picture using the `srcset` parameter to support varying
-  screen pixel densities.
+  Displays a SVG arrow.
 -->
 
 <template>
-    <img
-        :alt="alt"
-        :srcset="pictureUrl(1) + ' , '  +
-            pictureUrl(1.5) + ' 1.5x, ' +
-            pictureUrl(2) + ' 2x, ' +
-            pictureUrl(2.5) + ' 2.5x'"
-        :src="pictureUrl(1)">
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24" height="24"
+        viewBox="0 0 24 24"
+        :style="style">
+
+        <path d="M24 12c0-6.627-5.373-12-12-12s-12 5.373-12 12 5.373 12 12 12 12-5.373 12-12zm-18.005-1.568l1.415-1.414 4.59 4.574 4.579-4.574 1.416 1.414-5.995 5.988-6.005-5.988z">
+        </path>
+    </svg>
 </template>
 
 <script lang="ts">
@@ -36,20 +37,20 @@ declare var NC_ROUTES: any;
 
 export default Vue.extend({
     props: {
-        pictureId: { type: String, required: true },
-        alt: { type: String, required: true },
-
-        width: { type: Number, required: true },
-        height: { type: Number, required: true },
+        direction: { type: String, default: 'bottom' },
     },
-    methods: {
-        pictureUrl(screenRatio) {
-            let width = this.width * screenRatio;
-            let height = this.height * screenRatio;
-
-            return NC_ROUTES.controllers.PictureController.cover(
-                this.pictureId, width + 'x' + height
-            ).url;
+    computed: {
+        style() {
+            switch (this.direction) {
+                case 'bottom':
+                    return {};
+                case 'up':
+                    return { transform: 'rotate(180deg)' };
+                case 'right':
+                    return { transform: 'rotate(-90deg)' };
+                case 'left':
+                    return { transform: 'rotate(90deg)' };
+            }
         }
     }
 });

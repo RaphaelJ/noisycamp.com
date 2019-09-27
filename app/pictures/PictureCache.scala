@@ -28,10 +28,10 @@ import scalacache.caffeine._
 import scalacache.modes.scalaFuture._
 import slick.jdbc.JdbcProfile
 
-import models.Picture
+import models.{ Picture, PictureId }
 import daos.PictureDAO
 
-case class PictureCacheKey(id: Array[Byte], transform: PictureTransform)
+case class PictureCacheKey(id: PictureId, transform: PictureTransform)
 
 /** Cache uploaded pictures transformations between HTTP requests. */
 @Singleton
@@ -45,7 +45,7 @@ class PictureCache @Inject() (
 
   import profile.api._
 
-  def get(id: Array[Byte], transform: PictureTransform)
+  def get(id: PictureId, transform: PictureTransform)
     : Future[Option[Picture]] = {
 
     val key = PictureCacheKey(id, transform).toString
