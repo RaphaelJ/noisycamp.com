@@ -184,6 +184,7 @@ form label .error {
     margin-right: 5px;
 }
 
+/* Creates an animated :hover effect on links. */
 .top-bar .top-bar-right a:not(.button)::after {
     content: "";
     position: absolute;
@@ -200,6 +201,17 @@ form label .error {
 
 .top-bar .top-bar-right a:not(.button):hover::after {
     width: 100%;
+}
+
+/* Center aligns the top bar content on small devices. */
+@media screen and (max-width: 39.9375em) {
+    .top-bar ul li {
+        margin: auto;
+    }
+
+    .top-bar .logo {
+        margin-bottom: 0.2rem;
+    }
 }
 
 /* Avatars */
