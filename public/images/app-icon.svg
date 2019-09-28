@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   inkscape:export-ydpi="25.4"
+   inkscape:export-xdpi="25.4"
+   inkscape:export-filename="/Users/rapha/noisycamp.com/public/images/app-icon-180.png"
+   sodipodi:docname="app-icon.svg"
+   inkscape:version="1.0beta1 (fe3e306, 2019-09-17)"
+   id="svg2107"
+   version="1.1"
+   viewBox="0 0 180 180"
+   height="180mm"
+   width="180mm">
+  <defs
+     id="defs2101" />
+  <sodipodi:namedview
+     inkscape:window-maximized="0"
+     inkscape:window-y="139"
+     inkscape:window-x="1060"
+     inkscape:window-height="907"
+     inkscape:window-width="1600"
+     showgrid="true"
+     inkscape:document-rotation="0"
+     inkscape:current-layer="layer1"
+     inkscape:document-units="mm"
+     inkscape:cy="560"
+     inkscape:cx="400"
+     inkscape:zoom="0.35"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     borderopacity="1.0"
+     bordercolor="#666666"
+     pagecolor="#ffffff"
+     id="base">
+    <inkscape:grid
+       id="grid2671"
+       type="xygrid" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata2104">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="layer1"
+     inkscape:groupmode="layer"
+     inkscape:label="Layer 1">
+    <rect
+       style="fill:#2a1f0d;fill-opacity:1;stroke-width:5.63427"
+       id="rect1417"
+       width="180"
+       height="180"
+       x="0"
+       y="-4.5474735e-13"
+       ry="42.333332" />
+    <rect
+       style="opacity:1;fill:#ffffff;fill-rule:evenodd;stroke-width:3.01202;stop-opacity:1"
+       id="rect46"
+       width="9.5250025"
+       height="95.248184"
+       x="85.195877"
+       y="42.334579" />
+    <rect
+       style="opacity:1;fill:#ffffff;fill-rule:evenodd;stroke-width:1.13845;stop-opacity:1"
+       id="rect56"
+       width="9.5250015"
+       height="13.606884"
+       x="28.045864"
+       y="83.154907" />
+    <rect
+       y="74.083832"
+       x="42.333351"
+       height="31.749399"
+       width="9.5250015"
+       id="rect58"
+       style="opacity:1;fill:#ffffff;fill-rule:evenodd;stroke-width:1.739;stop-opacity:1" />
+    <rect
+       y="65.012512"
+       x="70.908333"
+       height="49.891911"
+       width="9.5249996"
+       id="rect60"
+       style="opacity:1;fill:#ffffff;fill-rule:evenodd;stroke-width:2.17994;stop-opacity:1" />
+    <rect
+       y="55.941193"
+       x="56.620842"
+       height="68.034416"
+       width="9.5249968"
+       id="rect62"
+       style="opacity:1;fill:#ffffff;fill-rule:evenodd;stroke-width:2.54562;stop-opacity:1" />
+    <rect
+       y="-96.762016"
+       x="-151.87088"
+       height="13.606884"
+       width="9.5250187"
+       id="rect1066"
+       style="opacity:1;fill:#ffffff;fill-rule:evenodd;stroke-width:1.13845;stop-opacity:1"
+       transform="scale(-1)" />
+    <rect
+       style="opacity:1;fill:#ffffff;fill-rule:evenodd;stroke-width:1.739;stop-opacity:1"
+       id="rect1068"
+       width="9.5250015"
+       height="31.749399"
+       x="-137.58333"
+       y="-105.83334"
+       transform="scale(-1)" />
+    <rect
+       style="opacity:1;fill:#ffffff;fill-rule:evenodd;stroke-width:2.17994;stop-opacity:1"
+       id="rect1070"
+       width="9.5249996"
+       height="49.891911"
+       x="-109.00836"
+       y="-114.90441"
+       transform="scale(-1)" />
+    <rect
+       style="opacity:1;fill:#ffffff;fill-rule:evenodd;stroke-width:2.54562;stop-opacity:1"
+       id="rect1072"
+       width="9.5249968"
+       height="68.034416"
+       x="-123.29585"
+       y="-123.97573"
+       transform="scale(-1)" />
+  </g>
+</svg>
