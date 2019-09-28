@@ -31,6 +31,10 @@
     <link
         rel="stylesheet"
         href="@routes.Assets.versioned("stylesheets/studios/show.css")">
+
+    <link
+        rel="stylesheet"
+        href="https://api.mapbox.com/mapbox-gl-js/v0.52.0/mapbox-gl.css">
 }
 
 @layout(
@@ -67,13 +71,19 @@
 
                     <hr>
 
-                    <h2>Description</h2>
+                    <h3>Description</h3>
 
                     <p>@tags.nl2br(studio.description.trim)</p>
 
                     <hr>
 
-                    <h2>Location</h2>
+                    <h3>Location</h3>
+
+                    <location-map
+                        :lat="@studio.location.lat"
+                        :long="@studio.location.long"
+                        :zoom="13">
+                    </location-map>
                 </div>
             </div>
 

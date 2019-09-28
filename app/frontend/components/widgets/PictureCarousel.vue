@@ -27,8 +27,7 @@
         <div
             class="picture-container"
             v-for="(picId, i) in pictureIds"
-            key="picId">
-
+            :key="picId">
             <transition name="fade">
                 <reactive-picture
                     v-show="i == selected"
