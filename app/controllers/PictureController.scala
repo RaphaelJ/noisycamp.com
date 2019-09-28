@@ -17,20 +17,15 @@
 
 package controllers
 
+import javax.inject._
 import scala.concurrent.{ ExecutionContext, Future }
 
 import akka.util.ByteString
-import com.mohiva.play.silhouette.api.Silhouette
-import javax.inject._
 import org.joda.time.DateTime
 import play.api._
-import play.api.db.slick.{ DatabaseConfigProvider, HasDatabaseConfigProvider }
 import play.api.http.HttpEntity
 import play.api.mvc._
-import slick.jdbc.JdbcProfile
 
-import auth.DefaultEnv
-import daos.PictureDAO
 import models.{ Picture, PictureId }
 import pictures.{
   BoundPicture, CoverPicture, MaxPicture, PictureCache, PictureTransform,
@@ -38,15 +33,9 @@ import pictures.{
 
 @Singleton
 class PictureController @Inject() (
-  cc: ControllerComponents,
-  implicit val config: Configuration,
-  protected val dbConfigProvider: DatabaseConfigProvider,
-  pictureDao: PictureDAO,
-  pictureCache: PictureCache,
-  silhouette: Silhouette[DefaultEnv])
-  (implicit executionContext: ExecutionContext)
-  extends AbstractController(cc)
-  with HasDatabaseConfigProvider[JdbcProfile] {
+  ccc: CustomControllerCompoments,
+  pictureCache: PictureCache)
+  extends CustomBaseController(ccc) {
 
   import profile.api._
 
@@ -58,7 +47,7 @@ class PictureController @Inject() (
         .map { file =>
           PictureUtils.fromFile(file.ref.path) match {
             case Some(newPic) => {
-              pictureDao.insertIfNotExits(newPic).
+              daos.picture.insertIfNotExits(newPic).
                 map { pic =>
                   val id = pic.id.base64
                   val uri = routes.PictureController.view(id).url

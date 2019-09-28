@@ -17,31 +17,26 @@
 
 package controllers
 
+import javax.inject._
 import scala.concurrent.{ ExecutionContext, Future }
 
-import com.mohiva.play.silhouette.api.Silhouette
 import com.mohiva.play.silhouette.api.exceptions.ProviderException
 import com.mohiva.play.silhouette.api.repositories.AuthInfoRepository
 import com.mohiva.play.silhouette.impl.providers.{
   SocialProvider, SocialProviderRegistry, CommonSocialProfileBuilder }
-import javax.inject._
 import play.api._
-import play.api.i18n.I18nSupport
 import play.api.mvc._
 
-import auth.{ DefaultEnv, UserService }
+import auth.UserService
 
 @Singleton
 class SocialAuthController @Inject() (
-  cc: ControllerComponents,
-  implicit val config: Configuration,
-  silhouette: Silhouette[DefaultEnv],
+  ccc: CustomControllerCompoments,
+
   userService: UserService,
   authInfoRepository: AuthInfoRepository,
-  socialProviderRegistry: SocialProviderRegistry
-  )(implicit executionContext: ExecutionContext)
-  extends AbstractController(cc)
-  with I18nSupport {
+  socialProviderRegistry: SocialProviderRegistry)
+  extends CustomBaseController(ccc) {
 
   def authenticate(provider: String) = Action.async {
     implicit request: Request[AnyContent] =>

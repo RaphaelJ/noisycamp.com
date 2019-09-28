@@ -18,29 +18,16 @@
 package controllers
 
 import javax.inject._
-import scala.concurrent.ExecutionContext
 
-import com.mohiva.play.silhouette.api.Silhouette
 import play.api._
-import play.api.db.slick.{ DatabaseConfigProvider, HasDatabaseConfigProvider }
 import play.api.mvc._
-import slick.jdbc.JdbcProfile
 
-import auth.DefaultEnv
-import daos.{ CustomColumnTypes, StudioDAO, StudioPictureDAO }
+import daos.CustomColumnTypes
 import models.Studio
 
 @Singleton
-class StudiosController @Inject() (
-  cc: ControllerComponents,
-  implicit val config: Configuration,
-  protected val dbConfigProvider: DatabaseConfigProvider,
-  studioDao: StudioDAO,
-  studioPictureDao: StudioPictureDAO,
-  silhouette: Silhouette[DefaultEnv])
-  (implicit executionContext: ExecutionContext)
-  extends AbstractController(cc)
-  with HasDatabaseConfigProvider[JdbcProfile]
+class StudiosController @Inject() (ccc: CustomControllerCompoments)
+  extends CustomBaseController(ccc)
   with CustomColumnTypes {
 
   import profile.api._
@@ -54,11 +41,11 @@ class StudiosController @Inject() (
 
     db.run {
       for {
-        studio <- studioDao.query.
+        studio <- daos.studio.query.
           filter(_.id === id).
           result.headOption
 
-        picIds <- studioPictureDao.query.
+        picIds <- daos.studioPicture.query.
           filter(_.studioId === id).
           map(_.pictureId).
           result

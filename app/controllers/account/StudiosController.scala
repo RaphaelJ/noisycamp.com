@@ -19,32 +19,18 @@ package controllers.account
 
 import javax.inject._
 
-import scala.concurrent.{ ExecutionContext, Future }
+import scala.concurrent.Future
 
-import com.mohiva.play.silhouette.api.Silhouette
 import play.api._
-import play.api.db.slick.{ DatabaseConfigProvider, HasDatabaseConfigProvider }
-import play.api.i18n.I18nSupport
 import play.api.mvc._
-import slick.jdbc.JdbcProfile
 
-import auth.DefaultEnv
-import daos.{ StudioDAO, StudioPictureDAO }
 import forms.account.StudioForm
 import models.Studio
+import _root_.controllers.{ CustomBaseController, CustomControllerCompoments }
 
 @Singleton
-class StudiosController @Inject() (
-  cc: ControllerComponents,
-  implicit val config: Configuration,
-  protected val dbConfigProvider: DatabaseConfigProvider,
-  studioDao: StudioDAO,
-  studioPictureDao: StudioPictureDAO,
-  implicit val executionContext: ExecutionContext,
-  silhouette: Silhouette[DefaultEnv])
-  extends AbstractController(cc)
-  with I18nSupport
-  with HasDatabaseConfigProvider[JdbcProfile] {
+class StudiosController @Inject() (ccc: CustomControllerCompoments)
+  extends CustomBaseController(ccc) {
 
   import profile.api._
 
@@ -74,8 +60,8 @@ class StudiosController @Inject() (
 
         db.run({
           for {
-            studio <- studioDao.insert(studio)
-            _ <- studioPictureDao.setStudioPics(studio.id, data.pictures)
+            studio <- daos.studio.insert(studio)
+            _ <- daos.studioPicture.setStudioPics(studio.id, data.pictures)
           } yield Ok(studio.toString)
         }.transactionally)
       })

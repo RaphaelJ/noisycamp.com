@@ -70,13 +70,14 @@ libraryDependencies ++= Seq(
 
   "com.typesafe.play" %% "play-slick" % "4.0.2",
 
-  "net.codingwell" %% "scala-guice" % "4.2.6",
-
   "org.postgresql" % "postgresql" % "42.2.8",
 
   "org.typelevel" %% "squants" % "1.3.0",
 
-  "org.scalatestplus.play" %% "scalatestplus-play" % "4.0.3" % Test
+  "org.scalatestplus.play" %% "scalatestplus-play" % "4.0.3" % Test,
+
+  "net.codingwell" %% "scala-guice" % "4.2.6",
+  "net.iakovlev" % "timeshape" % "2018d.6"
 )
 
 // Creates Webpack bundle when compiling, based on

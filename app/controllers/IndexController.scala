@@ -17,19 +17,14 @@
 
 package controllers
 
-import com.mohiva.play.silhouette.api.Silhouette
 import javax.inject._
+
 import play.api._
 import play.api.mvc._
 
-import auth.DefaultEnv
-
 @Singleton
-class IndexController @Inject() (
-  cc: ControllerComponents,
-  implicit val config: Configuration,
-  silhouette: Silhouette[DefaultEnv])
-  extends AbstractController(cc) {
+class IndexController @Inject() (ccc: CustomControllerCompoments)
+  extends CustomBaseController(ccc) {
 
   def index = silhouette.UserAwareAction { implicit request =>
     Ok(views.html.index(user=request.identity))

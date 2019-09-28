@@ -17,40 +17,34 @@
 
 package controllers
 
+import javax.inject._
 import scala.concurrent.{ ExecutionContext, Future }
 
-import com.mohiva.play.silhouette.api.{ LoginInfo, Silhouette }
-import com.mohiva.play.silhouette.api.exceptions.ProviderException
+import com.mohiva.play.silhouette.api.LoginInfo
 import com.mohiva.play.silhouette.api.util.{
   Credentials, PasswordHasherRegistry }
-import com.mohiva.play.silhouette.api.repositories.AuthInfoRepository
 import com.mohiva.play.silhouette.impl.exceptions.{
   IdentityNotFoundException, InvalidPasswordException }
 import com.mohiva.play.silhouette.impl.providers.{
   CommonSocialProfile, CredentialsProvider, SocialProviderRegistry }
-import javax.inject._
+import com.mohiva.play.silhouette.api.repositories.AuthInfoRepository
 import play.api._
-import play.api.i18n.I18nSupport
 import play.api.mvc._
 
 import auth.{ DefaultEnv, UserService }
-import daos.{ UserDAO, UserLoginInfoDAO, UserPasswordInfoDAO }
 import forms.auth.{ SignInForm, SignUpForm }
 
 /** Provides endpoint to login and register using a email + password set. */
 @Singleton
 class AuthController @Inject() (
-  authInfoRepository: AuthInfoRepository,
-  cc: ControllerComponents,
-  implicit val config: Configuration,
-  credentialsProvider: CredentialsProvider,
-  passwordHasherRegistry: PasswordHasherRegistry,
-  silhouette: Silhouette[DefaultEnv],
-  socialProviderRegistry: SocialProviderRegistry,
-  implicit val userService: UserService
-  )(implicit executionContext: ExecutionContext)
-  extends AbstractController(cc)
-  with I18nSupport {
+  ccc: CustomControllerCompoments,
+
+  val authInfoRepository: AuthInfoRepository,
+  val credentialsProvider: CredentialsProvider,
+  val passwordHasherRegistry: PasswordHasherRegistry,
+  val socialProviderRegistry: SocialProviderRegistry,
+  implicit val userService: UserService)
+  extends CustomBaseController(ccc) {
 
   def signIn = silhouette.UnsecuredAction {
     implicit request: Request[AnyContent] =>
