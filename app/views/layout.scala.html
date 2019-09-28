@@ -38,7 +38,7 @@
 
         <link
             rel="shortcut icon" type="image/png"
-            href="@routes.Assets.versioned("images/favicon.png")">
+            href="@routes.Assets.versioned("images/favicon_32.png")">
 
         <link
             rel="stylesheet"
@@ -62,7 +62,10 @@
             <div class="top-bar-left">
                 <ul class="menu">
                     <li class="logo">
-                        <a href="@routes.IndexController.index()">NoisyCamp</a>
+                        <a href="@routes.IndexController.index()">
+                            <img src="@routes.Assets.versioned("images/logo.svg")">
+                            NoisyCamp
+                        </a>
                     </li>
                 </ul>
             </div>
