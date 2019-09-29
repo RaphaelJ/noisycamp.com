@@ -264,6 +264,16 @@ form label .error {
     }
 }
 
+/* Removes panel cell padding on small devices. */
+@media screen and (max-width: 39.9375em) {
+    .small-12 .panel-section {
+        border-radius: 0;
+
+        margin-right: -0.625rem;
+        margin-left: -0.625rem;
+    }
+}
+
 /* Full-width hero picture */
 
 .hero {
