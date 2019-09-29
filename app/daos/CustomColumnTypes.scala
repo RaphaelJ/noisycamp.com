@@ -17,7 +17,7 @@
 
 package daos
 
-import java.time.{ Duration, LocalTime }
+import java.time.{ Duration, LocalTime, ZoneId }
 
 import com.sksamuel.scrimage.Format
 import play.api.db.slick.HasDatabaseConfigProvider
@@ -62,4 +62,7 @@ trait CustomColumnTypes {
         case "jpeg" => Format.JPEG
       }
     )
+
+  implicit val zoneIdType =
+    MappedColumnType.base[ZoneId, String](_.getId, ZoneId.of)
 }

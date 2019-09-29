@@ -17,7 +17,7 @@
 
 package models
 
-import java.time.Instant
+import java.time.{ Instant, ZoneId }
 
 case class Studio(
   id:               Studio#Id         = 0L,
@@ -29,6 +29,7 @@ case class Studio(
   description:      String,
 
   location:         Location,
+  timezone:         ZoneId,
   openingSchedule:  OpeningSchedule,
   pricingPolicy:    PricingPolicy,
   bookingPolicy:    BookingPolicy) {

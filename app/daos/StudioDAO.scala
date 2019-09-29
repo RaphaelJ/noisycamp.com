@@ -17,7 +17,7 @@
 
 package daos
 
-import java.time.{ Duration, Instant, LocalTime }
+import java.time.{ Duration, Instant, LocalTime, ZoneId }
 import scala.concurrent.{ ExecutionContext, Future }
 import javax.inject.Inject
 
@@ -55,6 +55,8 @@ class StudioDAO @Inject()
 
     def long                = column[BigDecimal]("long")
     def lat                 = column[BigDecimal]("lat")
+
+    def timezone            = column[ZoneId]("timezone")
 
     def mondayIsOpen        = column[Boolean]("monday_is_open")
     def mondayOpensAt       =
@@ -120,7 +122,7 @@ class StudioDAO @Inject()
 
     private type StudioTuple = (
       Studio#Id, Instant, User#Id, String, String,
-      LocationTuple, OpeningScheduleTuple, PricingPolicyTuple,
+      LocationTuple, ZoneId, OpeningScheduleTuple, PricingPolicyTuple,
       BookingPolicyTuple)
 
     private type LocationTuple = (
@@ -145,7 +147,7 @@ class StudioDAO @Inject()
     private val studioShaped = (
       id, createdAt, ownerId, name, description,
       (address1, address2, zipcode, city, state, country, long, lat),
-      (
+      timezone, (
         (mondayIsOpen, mondayOpensAt, mondayClosesAt),
         (tuesdayIsOpen, tuesdayOpensAt, tuesdayClosesAt),
         (wednesdayIsOpen, wednesdayOpensAt, wednesdayClosesAt),
@@ -161,15 +163,15 @@ class StudioDAO @Inject()
     private def toStudio(studioTuple: StudioTuple): Studio = {
       Studio(studioTuple._1, studioTuple._2, studioTuple._3, studioTuple._4,
         studioTuple._5,
-        Location.tupled(studioTuple._6),
-        toOpeningSchedule(studioTuple._7), toPricingPolicy(studioTuple._8),
-        toBookingPolicy(studioTuple._9))
+        Location.tupled(studioTuple._6), studioTuple._7,
+        toOpeningSchedule(studioTuple._8), toPricingPolicy(studioTuple._9),
+        toBookingPolicy(studioTuple._10))
     }
 
     private def fromStudio(studio: Studio): Option[StudioTuple] = {
       Some((studio.id, studio.createdAt, studio.ownerId, studio.name,
         studio.description, Location.unapply(studio.location).get,
-        fromOpeningSchedule(studio.openingSchedule),
+        studio.timezone, fromOpeningSchedule(studio.openingSchedule),
         fromPricingPolicy(studio.location.country, studio.pricingPolicy),
         fromBookingPolicy(studio.bookingPolicy)))
     }

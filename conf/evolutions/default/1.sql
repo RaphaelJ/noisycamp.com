@@ -17,6 +17,9 @@ create domain coordinate as numeric
 create domain java_localtime as varchar
     check (value similar to '\d{2}:\d{2}(:\d{2}(.\d+)?)?');
 
+-- Maps a java.time.ZoneId as a string.
+create domain java_zoneid as varchar;
+
 -- Users and account
 
 create table "user" (
@@ -68,6 +71,8 @@ create table "studio" (
     -- Coordinates
     long                    coordinate not null,
     lat                     coordinate not null,
+
+    timezone                java_zoneid,
 
     -- Opening schedule
 
@@ -174,6 +179,7 @@ drop table "user_password_info";
 drop table "user_login_info";
 drop table "user";
 
+drop domain "java_zoneid";
 drop domain "java_localtime";
 drop domain "coordinate";
 drop domain "amount";

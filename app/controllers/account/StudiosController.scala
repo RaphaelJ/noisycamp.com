@@ -50,16 +50,16 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
       form => Future.successful(BadRequest(views.html.account.studioCreate(
         request.identity, StudioForm.form.bindFromRequest))),
       data => {
-        val timeZone: ZoneId = timeZoneService.
+        val timezone: ZoneId = timeZoneService.
           query(data.location.lat, data.location.long).
           getOrElse(ZoneId.of("UTC"))
-        println(timeZone)
 
         val studio = Studio(
           ownerId = request.identity.id,
           name = data.name,
           description = data.description,
           location = data.location,
+          timezone = timezone,
           openingSchedule = data.openingSchedule,
           pricingPolicy = data.pricingPolicy,
           bookingPolicy = data.bookingPolicy)
