@@ -22,7 +22,7 @@ import scala.concurrent.{ ExecutionContext, Future }
 import scala.reflect.ClassTag
 
 import com.mohiva.play.silhouette.api.Silhouette
-import play.api._
+import play.api.Configuration
 import play.api.db.slick.{ DatabaseConfigProvider, HasDatabaseConfigProvider }
 import play.api.i18n.I18nSupport
 import play.api.mvc._
@@ -31,6 +31,7 @@ import slick.jdbc.JdbcProfile
 import auth.{ DefaultEnv, UserService }
 import daos._
 import pictures.PictureCache
+import i18n.TimeZoneService
 
 /** The default DAOs provided to the controllers. */
 class Daos @Inject () (
@@ -52,7 +53,10 @@ class CustomControllerCompoments @Inject() (
   val daos: Daos,
 
   // Auth
-  val silhouette: Silhouette[DefaultEnv])
+  val silhouette: Silhouette[DefaultEnv],
+
+  // Misc
+  val timeZoneService: TimeZoneService)
 
 /** Provides a base class for controllers and simplifies the injection process
  * for common used objects.
@@ -70,4 +74,6 @@ abstract class CustomBaseController @Inject () (
   val daos = ccc.daos
 
   val silhouette = ccc.silhouette
+
+  val timeZoneService = ccc.timeZoneService
 }

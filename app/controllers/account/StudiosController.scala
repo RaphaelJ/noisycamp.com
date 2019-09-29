@@ -17,6 +17,7 @@
 
 package controllers.account
 
+import java.time.ZoneId
 import javax.inject._
 
 import scala.concurrent.Future
@@ -49,6 +50,11 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
       form => Future.successful(BadRequest(views.html.account.studioCreate(
         request.identity, StudioForm.form.bindFromRequest))),
       data => {
+        val timeZone: ZoneId = timeZoneService.
+          query(data.location.lat, data.location.long).
+          getOrElse(ZoneId.of("UTC"))
+        println(timeZone)
+
         val studio = Studio(
           ownerId = request.identity.id,
           name = data.name,

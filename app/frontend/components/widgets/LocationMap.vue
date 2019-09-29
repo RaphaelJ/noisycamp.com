@@ -62,9 +62,9 @@ export default Vue.extend({
 
 <style>
 .location-map {
-    /* Keeps a 16/9 aspect ratio. */
+    /* Keeps a 2:1 aspect ratio. */
     width: 100%;
     height: 0;
-    padding-bottom: calc(9 / 16 * 100%);
+    padding-bottom: 50%;
 }
 </style>
