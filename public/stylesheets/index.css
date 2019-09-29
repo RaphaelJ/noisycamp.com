@@ -28,8 +28,12 @@
 
 /* Become a host section */
 
-.section-title {
+.become-a-host .section-title {
     text-align: center;
     margin-top: 3rem;
     margin-bottom: 2rem;
+}
+
+.become-a-host img {
+    max-height: 200px;
 }
