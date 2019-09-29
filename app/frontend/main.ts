@@ -18,6 +18,7 @@
 import Vue from 'vue';
 
 import Arrow from './components/widgets/Arrow.vue';
+import Calendar from './components/calendar/Calendar.vue';
 import LocationMap from './components/widgets/LocationMap.vue';
 import PictureCarousel from './components/widgets/PictureCarousel.vue';
 import StudioForm from './components/studios/Form.vue';
@@ -25,5 +26,6 @@ import StudiosIndex from './components/studios/Index.vue';
 
 var ncApp = new Vue({
     el: "#nc-app",
-    components: { Arrow, LocationMap, PictureCarousel, StudioForm, StudiosIndex, },
+    components: { Arrow, Calendar, LocationMap, PictureCarousel, StudioForm,
+        StudiosIndex, },
 });
