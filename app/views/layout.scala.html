@@ -23,9 +23,13 @@
 @import _root_.auth.DefaultEnv
 @import _root_.frontend.JsConfig
 
+@** Main layout for the NoisyCamp website.
+ *
+ * @param fullScreen if true, will expand the header and footer to fill the screen.
+ *@
 @(
     title: Seq[String], head: Html = Html(""), javascript: Html = Html(""),
-    user: Option[models.User] = None,
+    user: Option[models.User] = None, fullScreen: Boolean = false
     )(content: Html)(implicit req: RequestHeader, config: Configuration)
 
 <!doctype html>
@@ -61,41 +65,43 @@
     </head>
 
     <body>
-        <div class="top-bar">
-            <div class="top-bar-left">
-                <ul class="menu">
-                    <li class="logo">
-                        <a href="@routes.IndexController.index()">
-                            <img src="@routes.Assets.versioned("images/logo.svg")">
-                            NoisyCamp
-                        </a>
-                    </li>
-                </ul>
-            </div>
-
-            <div class="top-bar-right">
-                <ul class="menu">
-                    <li>
-                        <a
-                            href="@controllers.account.routes.StudiosController.create()"
-                            class="button">Host a studio</a>
-                    </li>
-
-                    @if(user.isDefined) {
-                        <li>
-                            <a href="@controllers.account.routes.IndexController.index()">
-                                @user.get.displayName
+        <div class="top-bar-container">
+            <div class="top-bar @if(!fullScreen){ no-full-screen }">
+                <div class="top-bar-left">
+                    <ul class="menu">
+                        <li class="logo">
+                            <a href="@routes.IndexController.index()">
+                                <img src="@routes.Assets.versioned("images/logo.svg")">
+                                NoisyCamp
                             </a>
                         </li>
-                    } else {
+                    </ul>
+                </div>
+
+                <div class="top-bar-right">
+                    <ul class="menu">
                         <li>
-                            <a href="@routes.AuthController.signIn">Sign in</a>
+                            <a
+                                href="@controllers.account.routes.StudiosController.create()"
+                                class="button">Host a studio</a>
                         </li>
-                        <li>
-                            <a href="@routes.AuthController.signUp">Sign up</a>
-                        </li>
-                    }
-                </ul>
+
+                        @if(user.isDefined) {
+                            <li>
+                                <a href="@controllers.account.routes.IndexController.index()">
+                                    @user.get.displayName
+                                </a>
+                            </li>
+                        } else {
+                            <li>
+                                <a href="@routes.AuthController.signIn">Sign in</a>
+                            </li>
+                            <li>
+                                <a href="@routes.AuthController.signUp">Sign up</a>
+                            </li>
+                        }
+                    </ul>
+                </div>
             </div>
         </div>
 
@@ -103,42 +109,44 @@
             @content
         </main>
 
-        <footer class="grid-x grid-padding-x grid-padding-y">
-            <div class="cell small-12 medium-6">
-                <ul>
-                    <li><h6>© 2019 NoisyCamp</h6></li>
-                </ul>
-            </div>
+        <footer class="@if(!fullScreen){ no-full-screen }">
+            <div class="grid-x grid-padding-x grid-padding-y footer-container">
+                <div class="cell small-12 medium-6">
+                    <ul>
+                        <li><h6>© 2019 NoisyCamp</h6></li>
+                    </ul>
+                </div>
 
-            <div class="cell small-12 medium-3">
-                <h5>Company</h5>
+                <div class="cell small-12 medium-3">
+                    <h5>Company</h5>
 
-                <ul>
-                    <li>Terms of Service</li>
-                    <li>Privacy</li>
-                    <li>
-                        <a href="https://github.com/RaphaelJ/noisycamp.com">
-                            Sources
-                        </a>
-                    </li>
-                    <li>About us</li>
-                    <li>
-                        Icons by
-                        <a href="https://www.flaticon.com/authors/smashicons" title="Smashicons">Smashicons</a>
-                    </li>
-                </ul>
-            </div>
+                    <ul>
+                        <li>Terms of Service</li>
+                        <li>Privacy</li>
+                        <li>
+                            <a href="https://github.com/RaphaelJ/noisycamp.com">
+                                Sources
+                            </a>
+                        </li>
+                        <li>About us</li>
+                        <li>
+                            Icons by
+                            <a href="https://www.flaticon.com/authors/smashicons" title="Smashicons">Smashicons</a>
+                        </li>
+                    </ul>
+                </div>
 
-            <div class="cell small-12 medium-3">
-                <label>
-                    <h5>Currency</h5>
+                <div class="cell small-12 medium-3">
+                    <label>
+                        <h5>Currency</h5>
 
-                    <select>
-                        @for(curr <- Currency.currencies.toSeq.sortBy(_.name)) {
-                            <option value="@curr.code">@curr.name - @curr.symbol</option>
-                        }
-                    </select>
-                </label>
+                        <select>
+                            @for(curr <- Currency.currencies.toSeq.sortBy(_.name)) {
+                                <option value="@curr.code">@curr.name - @curr.symbol</option>
+                            }
+                        </select>
+                    </label>
+                </div>
             </div>
         </footer>
 

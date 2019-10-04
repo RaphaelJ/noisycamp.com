@@ -15,6 +15,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *@
 
+ @import java.time.Instant
+
 @import play.api.Configuration
 @import play.api.libs.json.{ Json, JsArray, JsString }
 @import play.api.mvc.RequestHeader
@@ -53,14 +55,14 @@
                         <h5>
                             <small>
                                 <i class="fi-marker"></i>&nbsp;
-                                @studio.location.city, @studio.location.country
+                                @studio.location.city, @studio.location.country.name
                             </small>
                         </h5>
                     </div>
                 </div>
             </div>
 
-            <div class="cell medium-8">
+            <div class="cell small-12 medium-8">
                 <div class="panel-section">
                     <picture-carousel
                         alt="@{studio.name} picture"
@@ -89,12 +91,25 @@
 
                     <h3>Availability</h3>
 
-                    <calendar timezone="@studio.timezone">
+                    <calendar
+                        current-time="@Instant.now.toString"
+                        :events="[
+                            {
+                                'starts-at': '2019-09-30T01:00',
+                                'ends-at': '2019-10-02T09:00',
+                                'classes': ['striped']
+                            },
+                            {
+                                'starts-at': '2019-10-02T21:00',
+                                'ends-at': '2019-10-03T00:00',
+                                'classes': ['striped']
+                            },
+                        ]">
                     </calendar>
                 </div>
             </div>
 
-            <div class="cell medium-4">
+            <div class="cell small-12 medium-4">
                 <div class="panel-section booking-panel">
                     <h4>
                         34€/hour<br>

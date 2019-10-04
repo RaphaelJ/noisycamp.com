@@ -161,11 +161,20 @@ form label .error {
 
 /* Top bar */
 
-.top-bar, .top-bar ul {
+.top-bar-container,
+.top-bar,
+.top-bar ul {
     background-color: #2a1f0d;
 }
 
 .top-bar {
+
+}
+
+.top-bar.no-full-screen {
+    max-width: 75rem;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .top-bar .logo {
@@ -364,6 +373,12 @@ footer ul {
     list-style-type: none;
     margin-bottom: 0;
     margin-left: 0;
+}
+
+footer.no-full-screen .footer-container {
+    max-width: 75rem;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 @media screen and (max-width: 39.9375em) {
