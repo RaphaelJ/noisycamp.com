@@ -21,6 +21,20 @@
 <template>
     <div>
         <div class="calendar">
+            <div class="week-nav-buttons clearfix">
+                <button class="week-nav-previous" @click="previousWeek()">
+                    <arrow direction="left"></arrow>
+                </button>
+                <button class="week-nav-next" @click="nextWeek()">
+                    <arrow direction="right"></arrow>
+                </button>
+
+                <div class="week-current-dates">
+                    {{ currentWeekDays[0].format('D MMM YYYY') }} -
+                    {{ currentWeekDays[6].format('D MMM YYYY') }}
+                </div>
+            </div>
+
             <div class="day-labels">
                 <div class="day-label"></div>
                 <div
@@ -28,10 +42,10 @@
                     v-for="day in 7"
                     :key="day">
                     <div class="day-label-name">
-                        {{ weekDays[day - 1].format("ddd") }}
+                        {{ currentWeekDays[day - 1].format("ddd") }}
                     </div>
                     <small class="day-label-date">
-                        {{ weekDays[day - 1].format("MMM D") }}
+                        {{ currentWeekDays[day - 1].format("MMM D") }}
                     </small>
                 </div>
             </div>
@@ -60,7 +74,7 @@
                     </div>
 
                     <div
-                        v-for="(event, index) in weekEvents"
+                        v-for="(event, index) in currentWeekEvents"
                         :key="'event-' + index"
                         class="event-container">
                         <div
@@ -81,6 +95,8 @@ import Vue, { PropOptions } from "vue";
 
 import * as moment from 'moment';
 
+import Arrow from '../widgets/Arrow.vue';
+
 declare var NC_CONFIG: any;
 
 export default Vue.extend({
@@ -96,12 +112,16 @@ export default Vue.extend({
         classes: <PropOptions<Object[]>>{ type: Array, default: () => [] },
     },
     data() {
-        return { }
+        return {
+            // The current position of the calendar, compared to `currentTime`.
+            currentWeekOffset: 0
+        }
     },
     computed: {
-        // Current time as a MomentJS object.
+
+        // Current server time as a MomentJS object.
         mCurrentTime() {
-            return moment(this.currentTime)
+            return moment(this.currentTime);
         },
 
         // Calendar events with MomentJS objects.
@@ -116,34 +136,57 @@ export default Vue.extend({
                 });
         },
 
-        // Returns the date (at 00:00) of the current week's Monday.
-        weekStart() {
-            return this.mCurrentTime.startOf('isoWeek');
+        // The current week Monday's date at 00:00.
+        currentWeek() {
+            return this.mCurrentTime.clone()
+                .startOf('isoWeek')
+                .add(this.currentWeekOffset, 'week');
+        },
+
+        // The next week Monday's date at 00:00.
+        currentWeekEnd() {
+            return this.currentWeek.clone().add(7, 'days');
         },
 
         // Returns day dates (at 00:00) of the current week.
-        weekDays() {
+        currentWeekDays() {
             let dates = Array(7);
             for (var i = 0; i < 7; ++i) {
-                dates[i] = this.weekStart.clone().add(i, 'days');
+                dates[i] = this.currentWeek.clone().add(i, 'days');
             }
             return dates;
         },
 
         // Events of the currently shown week.
-        weekEvents() {
-            let monday = this.weekStart;
+        currentWeekEvents() {
+            let monday = this.currentWeek;
             let nextMonday = monday.clone().add(7, 'days');
 
             return this.mEvents
                 .filter(event => {
-                    return event.startsAt >= monday && event.startsAt < nextMonday;
+                    return this.datesOverlap(monday, nextMonday, event.startsAt, event.endsAt);
                 });
         },
     },
     methods: {
+        nextWeek() {
+            ++this.currentWeekOffset;
+        },
+
+        previousWeek() {
+            --this.currentWeekOffset;
+        },
+
         eventClasses(event) {
             return ['event'].concat(event.classes);
+        },
+
+        // Returns true if the two date spans overlap.
+        //
+        // End values are non-inclusive.
+        datesOverlap(start1, end1, start2, end2) {
+            return (start1.isSameOrBefore(start2) && start2.isBefore(end1))
+                || (start2.isSameOrBefore(start1) && start1.isBefore(end2));
         },
 
         // Returns a list of CSS positioning parameters for event (one for each day the event
@@ -157,8 +200,12 @@ export default Vue.extend({
                     + datetime.second() / 3600.0;
             }
 
-            let startDay = event.startsAt.clone().startOf('day');
-            let endsDay = event.endsAt.clone().startOf('day');
+            // Limits the startsAt and endsAt values to this week's dates.
+            let startsAt = moment.max(event.startsAt, this.currentWeek);
+            let endsAt = moment.min(event.endsAt, this.currentWeekEnd);
+
+            let startDay = startsAt.clone().startOf('day');
+            let endsDay = endsAt.clone().startOf('day');
 
             // Loops over the days the event is applied on.
             let nDays = endsDay.diff(startDay, 'days') + 1;
@@ -169,19 +216,14 @@ export default Vue.extend({
                 // Does the event starts during the day?
                 let startTimeDec =
                     i == 0
-                    ? timeDecimal(event.startsAt)
+                    ? timeDecimal(startsAt)
                     : 0;
 
                 // Does the event stops during the day?
                 let endTimeDec =
                     i == nDays - 1
-                    ?  timeDecimal(event.endsAt)
+                    ?  timeDecimal(endsAt)
                     : 24;
-
-                console.log(day);
-                console.log(startTimeDec);
-                console.log(endTimeDec);
-                console.log();
 
                 styles[i] = {
                     top: `calc(${startTimeDec} / 24 * 100%)`,
@@ -193,6 +235,7 @@ export default Vue.extend({
             return styles;
         }
     },
+    components: { Arrow },
 });
 </script>
 
@@ -201,7 +244,61 @@ export default Vue.extend({
     width: 100%;
 }
 
-/* Top header */
+/* Week navigation buttons */
+
+.calendar .week-nav-buttons .week-current-dates {
+    line-height: 2.95rem;
+    text-align: center;
+}
+
+.calendar .week-nav-buttons .week-nav-previous {
+    float: left;
+}
+
+.calendar .week-nav-buttons .week-nav-next {
+    float: right;
+}
+
+.calendar .week-nav-buttons button {
+    cursor: pointer;
+    opacity: 0.7;
+
+    margin: 0.6rem;
+}
+
+.calendar .week-nav-buttons button[disabled] {
+    opacity: 1;
+    cursor: default;
+}
+
+.calendar .week-nav-buttons button:hover {
+    opacity: 1;
+}
+
+.calendar .week-nav-buttons button svg {
+    fill: #6c6c6c;
+
+    height: 1.75rem;
+    width: 1.75rem;
+}
+
+.calendar .week-nav-buttons button[disabled] svg {
+    fill: #dfdcdb;
+}
+
+/* Makes the navigation button slighlty larger on small screens. */
+@media screen and (max-width: 39.9375em) {
+    .calendar .week-nav-buttons .week-current-dates {
+        line-height: 3.2rem;
+    }
+
+    .calendar .week-nav-buttons button svg {
+        height: 2rem;
+        width: 2rem;
+    }
+}
+
+/* Top day labels */
 
 .calendar .day-labels {
     display: flex;

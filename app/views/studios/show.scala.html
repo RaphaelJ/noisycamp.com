@@ -79,16 +79,6 @@
 
                     <hr>
 
-                    <h3>Location</h3>
-
-                    <location-map
-                        :lat="@studio.location.lat"
-                        :long="@studio.location.long"
-                        :zoom="13">
-                    </location-map>
-
-                    <hr>
-
                     <h3>Availability</h3>
 
                     <calendar
@@ -101,11 +91,23 @@
                             },
                             {
                                 'starts-at': '2019-10-02T21:00',
-                                'ends-at': '2019-10-03T00:00',
+                                'ends-at': '2019-10-09T06:00',
                                 'classes': ['striped']
                             },
                         ]">
                     </calendar>
+
+                    <hr>
+
+                    <h3>Location</h3>
+
+                    <location-map
+                        :lat="@studio.location.lat"
+                        :long="@studio.location.long"
+                        :zoom="13">
+                    </location-map>
+
+                    <hr>
                 </div>
             </div>
 
