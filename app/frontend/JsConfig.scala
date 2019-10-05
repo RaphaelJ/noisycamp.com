@@ -22,7 +22,8 @@ import play.api.libs.json.{ JsNull, JsObject, Json, JsString, JsValue }
 import play.api.mvc.RequestHeader
 import views.html.helper.CSRF
 
-import misc.{Country, Currency, Equipment, EquipmentFamily}
+import i18n.{ Country, Currency }
+import misc.{ Equipment, EquipmentFamily }
 
 /** Provides a JSON dump of the configuration variables used by the front-end
  * code. */

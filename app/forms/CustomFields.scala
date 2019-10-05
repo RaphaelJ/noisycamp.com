@@ -26,7 +26,7 @@ import play.api.data.Forms._
 import play.api.data.validation.Constraints._
 import squants.market
 
-import misc.{ Country, Currency }
+import i18n.{ Country, Currency }
 import models.{ Picture, PictureId }
 
 object CustomFields {

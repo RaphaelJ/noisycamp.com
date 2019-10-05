@@ -17,7 +17,7 @@
  * Provides ways to fetch and manipulate currency exchange rates.
  */
 
-package misc
+package i18n
 
 import java.util.concurrent.atomic.AtomicReference
 import javax.inject.{ Inject, Singleton }

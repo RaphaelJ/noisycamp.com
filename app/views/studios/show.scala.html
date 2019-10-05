@@ -101,6 +101,10 @@
 
                     <h3>Location</h3>
 
+                    <p class="address">
+                        @tags.address(studio.location)
+                    </p>
+
                     <location-map
                         :lat="@studio.location.lat"
                         :long="@studio.location.long"

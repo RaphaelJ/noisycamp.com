@@ -15,19 +15,18 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package models
+package i18n
 
-import i18n.Country
+/** Defines how the country's addresses will be rendered. */
+object AddressFormat extends Enumeration {
+  val American = Value
 
-/** Contains the address and geographical location of a place. */
-case class Location(
-  address1:   String,
-  address2:   Option[String],
-  zipcode:    String,
-  city:       String,
-  stateCode:  Option[String],
-  country:    Country.Val,
+  val British = Value
 
-  // Coordinate values in [-90..90].
-  long:   BigDecimal,
-  lat:    BigDecimal)
+  /** Slightly different version on the American for NZ, AU and CA. */
+  val English = Value
+
+  val European = Value
+
+  val Hungarian = Value
+}

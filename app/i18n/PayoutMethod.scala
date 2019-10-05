@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package misc
+package i18n
 
 object PayoutMethod extends Enumeration {
 

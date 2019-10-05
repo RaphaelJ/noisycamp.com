@@ -23,7 +23,7 @@ import com.sksamuel.scrimage.Format
 import play.api.db.slick.HasDatabaseConfigProvider
 import slick.jdbc.JdbcProfile
 
-import misc.Country
+import i18n.Country
 import models.PictureId
 
 trait CustomColumnTypes {

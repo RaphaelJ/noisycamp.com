@@ -24,7 +24,7 @@ import javax.inject.Inject
 import play.api.db.slick.{ DatabaseConfigProvider, HasDatabaseConfigProvider }
 import slick.jdbc.JdbcProfile
 
-import misc.Country
+import i18n.Country
 import models.{ BookingPolicy, CancellationPolicy, EveningPricingPolicy,
   Location, OpeningSchedule, OpeningTimes, PricingPolicy, Studio, User,
   WeekendPricingPolicy }

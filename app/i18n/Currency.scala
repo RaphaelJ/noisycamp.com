@@ -18,7 +18,7 @@
  * package.
  */
 
-package misc
+package i18n
 
 import squants.market
 
