@@ -17,7 +17,10 @@
 
 @import play.api.Configuration
 
-@(user: Option[models.User])(implicit req: RequestHeader, config: Configuration)
+@import _root_.controllers.ClientConfig
+
+@(clientConfig: ClientConfig, user: Option[models.User])(
+    implicit req: RequestHeader, config: Configuration)
 
 @head = {
     <link
@@ -25,7 +28,10 @@
         href="@routes.Assets.versioned("stylesheets/index.css")">
 }
 
-@layout(Seq("Music and rehearsal studio rentals"), head=head, user=user, fullScreen=true) {
+@layout(
+    Seq("Music and rehearsal studio rentals"), head=head,
+    clientConfig=clientConfig, user=user, fullScreen=true) {
+
     <div class="hero full-screen home-hero">
         <div class="top-content-section">
         </div>

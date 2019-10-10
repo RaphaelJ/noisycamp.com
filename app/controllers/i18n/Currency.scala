@@ -15,21 +15,35 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package controllers.account
+package controllers.i18n
 
 import javax.inject._
+
 import play.api._
 import play.api.mvc._
 
 import _root_.controllers.{ CustomBaseController, CustomControllerCompoments }
 
 @Singleton
-class IndexController @Inject() (ccc: CustomControllerCompoments)
+class Currency @Inject() (ccc: CustomControllerCompoments)
   extends CustomBaseController(ccc) {
 
-  def index = silhouette.SecuredAction.async { implicit request =>
+  /** Sets the currency session variable to the requested currency. */
+  def set(currencyCode: String, redirectTo: Option[String]) =
+    silhouette.UserAwareAction.async { implicit request =>
+
     getClientConfig.map { clientConfig =>
-      Ok(views.html.account.index(clientConfig, user=request.identity))
+
+      val result = Redirect(redirectTo.
+        getOrElse(_root_.controllers.routes.IndexController.index.url))
+
+      _root_.i18n.Currency.byCode.get(currencyCode) match {
+        case Some(currency) => {
+          result.withSession(
+            request.session + ("config.currency" -> currency.code))
+        }
+        case None => result
+      }
     }
   }
 }

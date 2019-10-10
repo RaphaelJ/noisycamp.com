@@ -17,9 +17,12 @@
 
 @import play.api.Configuration
 
+@import _root_.controllers.ClientConfig
 @import forms.account.StudioForm.Data
 
-@(user: models.User, studioForm: Form[Data])(
+@(
+    clientConfig: ClientConfig, user: models.User,
+    studioForm: Form[Data])(
     implicit request: RequestHeader, messagesProvider: MessagesProvider,
     config: Configuration)
 
@@ -29,7 +32,10 @@
         href="https://api.mapbox.com/mapbox-gl-js/v0.52.0/mapbox-gl.css">
 }
 
-@layout(Seq("Host a new studio"), head=head, user=Some(user)) {
+@layout(
+    Seq("Host a new studio"),
+    head=head, clientConfig=clientConfig, user=Some(user)) {
+
     <div class="grid-container">
         <div class="grid-x grid-padding-x grid-padding-y">
             <div class="cell auto">

@@ -34,6 +34,10 @@ GET     /account/studios                controllers.account.StudiosController.in
 GET     /account/studios/create         controllers.account.StudiosController.create
 POST    /account/studios/create         controllers.account.StudiosController.createSubmit
 
+# Internationalisation
+
+GET     /i18n/currency/set/:currCode    controllers.i18n.Currency.set(currCode: String, redirectTo: Option[String] ?= None)
+
 # Studios
 
 GET     /studios                        controllers.StudiosController.index

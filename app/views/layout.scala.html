@@ -21,6 +21,7 @@
 @import i18n.Currency
 
 @import _root_.auth.DefaultEnv
+@import _root_.controllers.ClientConfig
 @import _root_.frontend.JsConfig
 
 @** Main layout for the NoisyCamp website.
@@ -29,8 +30,9 @@
  *@
 @(
     title: Seq[String], head: Html = Html(""), javascript: Html = Html(""),
-    user: Option[models.User] = None, fullScreen: Boolean = false
-    )(content: Html)(implicit req: RequestHeader, config: Configuration)
+    clientConfig: ClientConfig, user: Option[models.User],
+    fullScreen: Boolean = false)(content: Html)(
+    implicit req: RequestHeader, config: Configuration)
 
 <!doctype html>
 <html lang="en" dir="ltr">
@@ -65,96 +67,97 @@
     </head>
 
     <body>
-        <div class="top-bar-container">
-            <div class="top-bar @if(!fullScreen){ no-full-screen }">
-                <div class="top-bar-left">
-                    <ul class="menu">
-                        <li class="logo">
-                            <a href="@routes.IndexController.index()">
-                                <img src="@routes.Assets.versioned("images/logo.svg")">
-                                NoisyCamp
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-
-                <div class="top-bar-right">
-                    <ul class="menu">
-                        <li>
-                            <a
-                                href="@controllers.account.routes.StudiosController.create()"
-                                class="button">Host a studio</a>
-                        </li>
-
-                        @if(user.isDefined) {
-                            <li>
-                                <a href="@controllers.account.routes.IndexController.index()">
-                                    @user.get.displayName
+        <div id="nc-app">
+            <div class="top-bar-container">
+                <div class="top-bar @if(!fullScreen){ no-full-screen }">
+                    <div class="top-bar-left">
+                        <ul class="menu">
+                            <li class="logo">
+                                <a href="@routes.IndexController.index()">
+                                    <img src="@routes.Assets.versioned("images/logo.svg")">
+                                    NoisyCamp
                                 </a>
                             </li>
-                        } else {
+                        </ul>
+                    </div>
+
+                    <div class="top-bar-right">
+                        <ul class="menu">
                             <li>
-                                <a href="@routes.AuthController.signIn">Sign in</a>
+                                <a
+                                    href="@controllers.account.routes.StudiosController.create()"
+                                    class="button">Host a studio</a>
                             </li>
-                            <li>
-                                <a href="@routes.AuthController.signUp">Sign up</a>
-                            </li>
-                        }
-                    </ul>
-                </div>
-            </div>
-        </div>
 
-        <main id="nc-app">
-            @content
-        </main>
-
-        <footer class="@if(!fullScreen){ no-full-screen }">
-            <div class="grid-x grid-padding-x grid-padding-y footer-container">
-                <div class="cell small-12 medium-6">
-                    <ul>
-                        <li><h6>© 2019 NoisyCamp</h6></li>
-                    </ul>
-                </div>
-
-                <div class="cell small-12 medium-3">
-                    <h5>Company</h5>
-
-                    <ul>
-                        <li>Terms of Service</li>
-                        <li>Privacy</li>
-                        <li>
-                            <a href="https://github.com/RaphaelJ/noisycamp.com">
-                                Sources
-                            </a>
-                        </li>
-                        <li>About us</li>
-                        <li>
-                            Icons by
-                            <a href="https://www.flaticon.com/authors/smashicons" title="Smashicons">Smashicons</a>
-                        </li>
-                    </ul>
-                </div>
-
-                <div class="cell small-12 medium-3">
-                    <label>
-                        <h5>Currency</h5>
-
-                        <select>
-                            @for(curr <- Currency.currencies.toSeq.sortBy(_.name)) {
-                                <option value="@curr.code">@curr.name - @curr.symbol</option>
+                            @if(user.isDefined) {
+                                <li>
+                                    <a href="@controllers.account.routes.IndexController.index()">
+                                        @user.get.displayName
+                                    </a>
+                                </li>
+                            } else {
+                                <li>
+                                    <a href="@routes.AuthController.signIn">Sign in</a>
+                                </li>
+                                <li>
+                                    <a href="@routes.AuthController.signUp">Sign up</a>
+                                </li>
                             }
-                        </select>
-                    </label>
+                        </ul>
+                    </div>
                 </div>
             </div>
-        </footer>
+
+            <main>
+                @content
+            </main>
+
+            <footer class="@if(!fullScreen){ no-full-screen }">
+                <div class="grid-x grid-padding-x grid-padding-y footer-container">
+                    <div class="cell small-12 medium-6">
+                        <ul>
+                            <li><h6>© 2019 NoisyCamp</h6></li>
+                        </ul>
+                    </div>
+
+                    <div class="cell small-12 medium-3">
+                        <h5>Company</h5>
+
+                        <ul>
+                            <li>Terms of Service</li>
+                            <li>Privacy</li>
+                            <li>
+                                <a href="https://github.com/RaphaelJ/noisycamp.com">
+                                    Sources
+                                </a>
+                            </li>
+                            <li>About us</li>
+                            <li>
+                                Icons by
+                                <a href="https://www.flaticon.com/authors/smashicons" title="Smashicons">Smashicons</a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="cell small-12 medium-3">
+                        <label>
+                            <h5>Currency</h5>
+
+                            <currency-selector value="@clientConfig.currency.code">
+                            </currency-selector>
+                        </label>
+                    </div>
+                </div>
+            </footer>
+        </div>
 
         <script>
             var NC_CONFIG = @Html(Json.stringify(JsConfig()));
         </script>
 
         @helper.javascriptRouter("NC_ROUTES")(
+            i18n.routes.javascript.Currency.set,
+
             routes.javascript.PictureController.upload,
 
             routes.javascript.PictureController.view,

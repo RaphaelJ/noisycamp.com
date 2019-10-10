@@ -55,7 +55,7 @@ object Currency {
     // Other
     AUD, CAD, NZD, USD)
 
-  def currenciesByCode: Map[String, market.Currency] = {
+  def byCode: Map[String, market.Currency] = {
     currencies.map(c => c.code -> c).toMap
   }
 

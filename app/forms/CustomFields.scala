@@ -55,7 +55,7 @@ object CustomFields {
   val currency: Mapping[market.Currency] = {
     val currencyFormat = new Formatter[market.Currency] {
       def bind(key: String, data: Map[String, String]) = {
-        parsing(Currency.currenciesByCode, "Invalid currency", Nil)(
+        parsing(Currency.byCode, "Invalid currency", Nil)(
           key, data)
       }
 

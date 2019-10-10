@@ -27,11 +27,12 @@ import play.api.db.slick.{ DatabaseConfigProvider, HasDatabaseConfigProvider }
 import play.api.i18n.I18nSupport
 import play.api.mvc._
 import slick.jdbc.JdbcProfile
+import squants.market
 
 import auth.{ DefaultEnv, UserService }
 import daos._
 import pictures.PictureCache
-import i18n.TimeZoneService
+import i18n.{ Country, Currency, GeoIpService, GeoIpLocation, TimeZoneService }
 
 /** The default DAOs provided to the controllers. */
 class Daos @Inject () (
@@ -42,6 +43,12 @@ class Daos @Inject () (
   val studioPicture: StudioPictureDAO,
 
   val picture: PictureDAO)
+
+/** Client configuration variables, based on session, location and HTTP
+ * headers. */
+case class ClientConfig(
+  location: Option[GeoIpLocation],
+  currency: market.Currency)
 
 class CustomControllerCompoments @Inject() (
   val cc: ControllerComponents,
@@ -56,7 +63,8 @@ class CustomControllerCompoments @Inject() (
   val silhouette: Silhouette[DefaultEnv],
 
   // Misc
-  val timeZoneService: TimeZoneService)
+  val timeZoneService: TimeZoneService,
+  val geoIpService: GeoIpService)
 
 /** Provides a base class for controllers and simplifies the injection process
  * for common used objects.
@@ -76,4 +84,23 @@ abstract class CustomBaseController @Inject () (
   val silhouette = ccc.silhouette
 
   val timeZoneService = ccc.timeZoneService
+  val geoIpService = ccc.geoIpService
+
+  def getClientConfig[A](implicit request: Request[A])
+    : Future[ClientConfig] = {
+
+    for {
+      location <- geoIpService.get(request.remoteAddress)
+
+      currency = request.
+        session.
+        get("config.currency").
+        flatMap(Currency.byCode.get _).
+        orElse {
+          // No session value, use IP location
+          location.map(_.country.currency)
+        }.
+        getOrElse(Currency.USD) // Default to USD
+    } yield ClientConfig(location, currency)
+  }
 }

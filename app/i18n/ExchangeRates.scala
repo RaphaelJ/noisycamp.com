@@ -67,7 +67,6 @@ class ExchangeRateService @Inject() (
       withFollowRedirects(true).
       get.
       map { response =>
-        val currByCode = Currency.currenciesByCode
         val date = DateTime.now()
 
         val nodes = response.xml \ "Cube" \ "Cube" \ "Cube"
@@ -77,7 +76,7 @@ class ExchangeRateService @Inject() (
             val code: String = node.attribute("currency").get(0).text
             val rate: Double = node.attribute("rate").get(0).text.toDouble
 
-            currByCode.
+            Currency.byCode.
               get(code).
               map(curr => Currency.EUR / curr(rate))
           }.

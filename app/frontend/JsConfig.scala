@@ -35,6 +35,8 @@ object JsConfig {
     Json.obj(
       "csrfToken" -> CSRF.getToken.value,
 
+      "currentUri" -> request.uri,
+
       "mapboxToken" -> config.get[String]("mapbox.token"),
 
       // Currencies

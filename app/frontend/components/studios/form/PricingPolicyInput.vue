@@ -83,13 +83,13 @@
             <label>
                 Price per hour
 
-                <currency-input
+                <money-input
                     :name="fieldName('evening-price-per-hour')"
                     :currency="currency"
                     v-model="eveningPricePerHour"
                     :disabled="!hasEveningPricing"
                     :required="hasEveningPricing">
-                </currency-input>
+                </money-input>
 
                 <span v-if="fieldHasError('evening-price-per-hour')" class="error">
                     {{ fieldError('evening-price-per-hour') }}
@@ -120,13 +120,13 @@
             <label>
                 Price per hour
 
-                <currency-input
+                <money-input
                     :name="fieldName('weekend-price-per-hour')"
                     :currency="currency"
                     v-model="weekendPricePerHour"
                     :disabled="!hasWeekendPricing"
                     :required="hasWeekendPricing">
-                </currency-input>
+                </money-input>
 
                 <span v-if="fieldHasError('weekend-price-per-hour')" class="error">
                     {{ fieldError('weekend-price-per-hour') }}
@@ -140,7 +140,7 @@
 import Vue from "vue";
 
 import VueInput from '../../widgets/VueInput';
-import CurrencyInput from '../../widgets/CurrencyInput.vue';
+import MoneyInput from '../../widgets/MoneyInput.vue';
 
 export default Vue.extend({
     mixins: [VueInput],
@@ -161,7 +161,7 @@ export default Vue.extend({
     },
     computed: {
     },
-    components: { CurrencyInput, }
+    components: { MoneyInput, }
 });
 </script>
 

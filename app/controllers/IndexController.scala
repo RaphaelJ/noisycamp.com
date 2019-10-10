@@ -26,7 +26,9 @@ import play.api.mvc._
 class IndexController @Inject() (ccc: CustomControllerCompoments)
   extends CustomBaseController(ccc) {
 
-  def index = silhouette.UserAwareAction { implicit request =>
-    Ok(views.html.index(user=request.identity))
+  def index = silhouette.UserAwareAction.async { implicit request =>
+    getClientConfig.map { clientConfig =>
+      Ok(views.html.index(clientConfig, user=request.identity))
+    }
   }
 }

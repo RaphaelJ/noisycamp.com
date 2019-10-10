@@ -18,9 +18,12 @@
 @import com.mohiva.play.silhouette.impl.providers.SocialProviderRegistry
 @import play.api.Configuration
 
+@import _root_.controllers.ClientConfig
 @import forms.auth.SignInForm.Data
 
-@(signInForm: Form[Data], socialProviders: SocialProviderRegistry)(
+@(
+    clientConfig: ClientConfig,
+    signInForm: Form[Data], socialProviders: SocialProviderRegistry)(
     implicit request: RequestHeader, messagesProvider: MessagesProvider,
     config: Configuration)
 
@@ -37,7 +40,10 @@
     helper.FieldConstructor(utils.forms.foundationFieldConstructor.f)
 }
 
-@layout(Seq("Sign in"), head=head, fullScreen=true) {
+@layout(
+    Seq("Sign in"),
+    head=head, clientConfig=clientConfig, user=None, fullScreen=true) {
+
     <div class="hero full-screen-with-bars sign-in-hero">
         <div class="top-content-section"></div>
 

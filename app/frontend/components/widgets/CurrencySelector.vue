@@ -15,19 +15,19 @@
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-  Provides a select input for countries.
+  Provides a widget to select a currency.
 -->
 
 <template>
     <select
-        :name="name"
-        v-model="country"
-        :required="required">
-        <option disabled value="">Please select a country</option>
+        v-model="currency"
+        @change="setCurrency(currency)">
+        <option disabled value="">Please select a currency</option>
         <option
-            v-for="c in orderedCountries"
-            :value="c.isoCode">
-            {{ c.name }}
+            v-for="c in orderedCurrencies"
+            :value="c.isoCode"
+            @selected>
+            {{ c.name }} - {{ c.symbol }}
         </option>
     </select>
 </template>
@@ -37,30 +37,37 @@ import * as _ from "lodash";
 import Vue from "vue";
 
 declare var NC_CONFIG: any;
+declare var NC_ROUTES: any;
 
 export default Vue.extend({
     props: {
-        name: { type: String, required: true },
-        value: { type: String, required: false }, // Country ISO code.
-        required: { type: Boolean, required: false, default: false },
+        value: { type: String, required: false }, // Currency ISO code.
     },
     data() {
         return {
-            country: this.value,
+            currency: this.value,
         }
     },
     computed: {
-        // Available countries, sorted by name.
-        orderedCountries() {
-            return Object.values(NC_CONFIG.countries)
+        // Available currencies, sorted by name.
+        orderedCurrencies() {
+            return Object.values(NC_CONFIG.currencies)
                 .sort((lhs: any, rhs: any) => lhs.name.localeCompare(rhs.name));
         },
     },
-    watch: {
-        country(val) {
-            this.$emit('input', val);
+    methods: {
+        setCurrency(value) {
+            if (!value) {
+                return;
+            }
+
+            let url = NC_ROUTES.controllers.i18n.Currency.set(
+                value, NC_CONFIG.currentUri
+            ).url;
+
+            window.location.href = url;
         }
-    },
+    }
 });
 </script>
 

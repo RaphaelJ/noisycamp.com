@@ -32,28 +32,37 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
 
   import profile.api._
 
-  def index = silhouette.UserAwareAction { implicit request =>
-    Ok(views.html.studios.index(user=request.identity))
+  def index = silhouette.UserAwareAction.async { implicit request =>
+    getClientConfig.map { clientConfig =>
+      Ok(views.html.studios.index(clientConfig, user=request.identity))
+    }
   }
 
   def show(id: Studio#Id) = silhouette.UserAwareAction.async {
     implicit request =>
 
-    db.run {
-      for {
-        studio <- daos.studio.query.
-          filter(_.id === id).
-          result.headOption
+    getClientConfig.onComplete(println _)
 
-        picIds <- daos.studioPicture.query.
-          filter(_.studioId === id).
-          map(_.pictureId).
-          result
-      } yield (studio, picIds)
-    }.map {
-      case (Some(studio), picIds) => Ok(
-        views.html.studios.show(user=request.identity, studio, picIds))
-      case (None, _) => NotFound("Studio not found.")
+    for {
+      clientConfig <- getClientConfig
+
+      dbStudio <- db.run {
+        for {
+          studio <- daos.studio.query.
+            filter(_.id === id).
+            result.headOption
+
+          picIds <- daos.studioPicture.query.
+            filter(_.studioId === id).
+            map(_.pictureId).
+            result
+        } yield (studio, picIds)
       }
+    } yield dbStudio match {
+      case (Some(studio), picIds) => Ok(
+        views.html.studios.show(
+          clientConfig=clientConfig, user=request.identity, studio, picIds))
+      case (None, _) => NotFound("Studio not found.")
+    }
   }
 }

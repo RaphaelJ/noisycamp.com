@@ -46,93 +46,110 @@ class AuthController @Inject() (
   implicit val userService: UserService)
   extends CustomBaseController(ccc) {
 
-  def signIn = silhouette.UnsecuredAction {
+  def signIn = silhouette.UnsecuredAction.async {
     implicit request: Request[AnyContent] =>
 
-    Ok(views.html.auth.signIn(SignInForm.form, socialProviderRegistry))
+    getClientConfig.map { clientConfig =>
+
+      Ok(views.html.auth.signIn(
+        clientConfig, SignInForm.form, socialProviderRegistry))
+    }
   }
 
   def signInSubmit = silhouette.UnsecuredAction.async {
     implicit request: Request[AnyContent] =>
 
-    SignInForm.form.bindFromRequest.fold(
-      form => Future.successful(
-        BadRequest(views.html.auth.signIn(form, socialProviderRegistry))),
-      data => {
-        val credentials = Credentials(data.email, data.password)
-        credentialsProvider.authenticate(credentials).
-          flatMap { loginInfo =>
-            userService.retrieve(loginInfo).flatMap {
-              case Some(user) => {
-                for {
-                  authenticator <-
-                    silhouette.env.authenticatorService.create(loginInfo)
-                  v <- silhouette.env.authenticatorService.init(authenticator)
-                  resp <- silhouette.env.authenticatorService.embed(
-                    v, Redirect(routes.IndexController.index()))
-                } yield resp
+    getClientConfig.flatMap { clientConfig =>
+
+      SignInForm.form.bindFromRequest.fold(
+        form => Future.successful(
+          BadRequest(views.html.auth.signIn(
+            clientConfig, form, socialProviderRegistry))),
+        data => {
+          val credentials = Credentials(data.email, data.password)
+          credentialsProvider.authenticate(credentials).
+            flatMap { loginInfo =>
+              userService.retrieve(loginInfo).flatMap {
+                case Some(user) => {
+                  for {
+                    authenticator <-
+                      silhouette.env.authenticatorService.create(loginInfo)
+                    v <- silhouette.env.authenticatorService.init(authenticator)
+                    resp <- silhouette.env.authenticatorService.embed(
+                      v, Redirect(routes.IndexController.index()))
+                  } yield resp
+                }
+                case None => Future.failed(
+                  new IdentityNotFoundException(
+                    "Can not authenticate user with a password."))
               }
-              case None => Future.failed(
-                new IdentityNotFoundException(
-                  "Can not authenticate user with a password."))
+            }.
+            recover {
+              case _: InvalidPasswordException => {
+                val form = SignInForm.form.bindFromRequest.
+                  withError("password", "Invalid password.")
+                BadRequest(views.html.auth.signIn(
+                  clientConfig, form, socialProviderRegistry))
+              }
+              case _: IdentityNotFoundException => {
+                val form = SignInForm.form.bindFromRequest.
+                  withError("email", "This user does not exists.")
+                BadRequest(views.html.auth.signIn(
+                  clientConfig, form, socialProviderRegistry))
+              }
             }
-          }.
-          recover {
-            case _: InvalidPasswordException => {
-              val form = SignInForm.form.bindFromRequest.
-                withError("password", "Invalid password.")
-              BadRequest(views.html.auth.signIn(form, socialProviderRegistry))
-            }
-            case _: IdentityNotFoundException => {
-              val form = SignInForm.form.bindFromRequest.
-                withError("email", "This user does not exists.")
-              BadRequest(views.html.auth.signIn(form, socialProviderRegistry))
-            }
-          }
-      }
-    )
+        }
+      )
+    }
   }
 
-  def signUp = silhouette.UnsecuredAction {
+  def signUp = silhouette.UnsecuredAction.async {
     implicit request: Request[AnyContent] =>
-
-    Ok(views.html.auth.signUp(SignUpForm.form, socialProviderRegistry))
+    getClientConfig.map { clientConfig =>
+      Ok(views.html.auth.signUp(
+        clientConfig, SignUpForm.form, socialProviderRegistry))
+    }
   }
 
   def signUpSubmit = silhouette.UnsecuredAction.async {
     implicit request: Request[AnyContent] =>
 
-    SignUpForm.form.bindFromRequest.fold(
-      form => Future.successful(
-        BadRequest(views.html.auth.signUp(form, socialProviderRegistry))),
-      data => {
-        val loginInfo = LoginInfo(CredentialsProvider.ID, data.email)
+    getClientConfig.flatMap { clientConfig =>
 
-        userService.retrieve(loginInfo).flatMap {
-          case Some(user) => {
-            // User already exists with this email, notifies the user.
-            val form = SignUpForm.form.bindFromRequest.
-              withError(
-                "email", "An account already exists with this email address.")
+      SignUpForm.form.bindFromRequest.fold(
+        form => Future.successful(
+          BadRequest(views.html.auth.signUp(
+            clientConfig, form, socialProviderRegistry))),
+        data => {
+          val loginInfo = LoginInfo(CredentialsProvider.ID, data.email)
 
-            Future.successful(
-              BadRequest(views.html.auth.signUp(form, socialProviderRegistry)))
-          }
+          userService.retrieve(loginInfo).flatMap {
+            case Some(user) => {
+              // User already exists with this email, notifies the user.
+              val form = SignUpForm.form.bindFromRequest.
+                withError(
+                  "email", "An account already exists with this email address.")
 
-          case None => {
-            for {
-              user <- userService.save(CommonSocialProfile(
-                loginInfo = loginInfo,
-                firstName = Some(data.firstName),
-                lastName = Some(data.lastName),
-                email = Some(data.email)))
-              authInfo <- authInfoRepository.add(
-                loginInfo, passwordHasherRegistry.current.hash(data.password))
-            } yield Redirect(routes.IndexController.index()).
-              flashing("top-message" -> "Account successfully created.")
+              Future.successful(
+                BadRequest(views.html.auth.signUp(
+                  clientConfig, form, socialProviderRegistry)))
+            }
+
+            case None => {
+              for {
+                user <- userService.save(CommonSocialProfile(
+                  loginInfo = loginInfo,
+                  firstName = Some(data.firstName),
+                  lastName = Some(data.lastName),
+                  email = Some(data.email)))
+                authInfo <- authInfoRepository.add(
+                  loginInfo, passwordHasherRegistry.current.hash(data.password))
+              } yield Redirect(routes.IndexController.index()).
+                flashing("top-message" -> "Account successfully created.")
+            }
           }
         }
-      }
-    )
+      )
+    }
   }
 }

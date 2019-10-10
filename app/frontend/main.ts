@@ -17,15 +17,21 @@
 
 import Vue from 'vue';
 
-import Arrow from './components/widgets/Arrow.vue';
 import Calendar from './components/calendar/Calendar.vue';
+
+import Arrow from './components/widgets/Arrow.vue';
+import CurrencySelector from './components/widgets/CurrencySelector.vue';
 import LocationMap from './components/widgets/LocationMap.vue';
 import PictureCarousel from './components/widgets/PictureCarousel.vue';
+
 import StudioForm from './components/studios/Form.vue';
 import StudiosIndex from './components/studios/Index.vue';
 
 var ncApp = new Vue({
     el: "#nc-app",
-    components: { Arrow, Calendar, LocationMap, PictureCarousel, StudioForm,
-        StudiosIndex, },
+    components: {
+        Calendar,
+        Arrow, CurrencySelector, LocationMap, PictureCarousel,
+        StudioForm, StudiosIndex,
+    },
 });

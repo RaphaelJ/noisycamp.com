@@ -21,9 +21,11 @@
 @import play.api.libs.json.{ Json, JsArray, JsString }
 @import play.api.mvc.RequestHeader
 
+@import _root_.controllers.ClientConfig
 @import models.Picture
 
 @(
+    clientConfig: ClientConfig,
     user: Option[models.User],
     studio: models.Studio,
     pictures: Seq[models.Picture#Id])(
@@ -41,7 +43,7 @@
 
 @layout(
     Seq(studio.name, "Music studio to rent in " + studio.location.city),
-    head=head, user=user) {
+    head=head, clientConfig=clientConfig, user=user) {
 
     <div class="grid-container">
         <div class="grid-x grid-padding-x grid-padding-y">
