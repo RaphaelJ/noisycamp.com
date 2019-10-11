@@ -104,6 +104,9 @@ export default Vue.extend({
         // The current calendar time, without timezone.
         currentTime: { type: String, required: true },
 
+        // An array of {is-open, opens-at, closes-at} 7 objects. Starts on Monday.
+        openingSchedule: <PropOptions<Object[]>>{ type: Array, required: true },
+
         // The list of events to be displayed in the calendar, with calendar
         // local dates as ISO 8601 strings.
         events: <PropOptions<Object[]>>{ type: Array, required: true },
@@ -157,15 +160,77 @@ export default Vue.extend({
             return dates;
         },
 
+        // Returns the closed hours as event objects.
+        openingScheduleEvents() {
+            var prevDay = this.openingSchedule[6];
+
+            let events = [];
+
+            function setTimeComponent(date, time) {
+                return moment(date.format('YYYY-MM-DD') + 'T' + time);
+            }
+
+            for (var i = 0; i < 7; ++i) {
+                // In case of the previous day closing during today's night.
+                var prevDayOverlap;
+                if (
+                    prevDay['is-open']
+                    && prevDay['closes-at'] < prevDay['opens-at']
+                ) {
+                    prevDayOverlap = prevDay['closes-at'];
+                } else {
+                    prevDayOverlap = '00:00';
+                }
+
+                let todaySDate = this.currentWeekDays[i];
+                let tomorrowSDate = todaySDate.clone().add(1, 'day');
+
+                let today = this.openingSchedule[i];
+
+                if (today['is-open']) {
+                    events.push({ // Morning closure
+                        startsAt: setTimeComponent(todaySDate, prevDayOverlap),
+                        endsAt: setTimeComponent(
+                            todaySDate, today['opens-at']
+                        ),
+                        classes: ['closing-time']
+                    });
+
+                    if (today['closes-at'] > today['opens-at']) {
+                        events.push({ // Evening closure
+                            startsAt: setTimeComponent(
+                                todaySDate, today['closes-at']
+                            ),
+                            endsAt: setTimeComponent(tomorrowSDate, '00:00'),
+                            classes: ['closing-time']
+                        });
+                    }
+                } else {
+                    events.push({
+                        startsAt: setTimeComponent(todaySDate, prevDayOverlap),
+                        endsAt: setTimeComponent(tomorrowSDate, '00:00'),
+                        classes: ['closing-time']
+                    });
+                }
+
+                prevDay = today;
+            }
+
+            return events;
+        },
+
         // Events of the currently shown week.
         currentWeekEvents() {
             let monday = this.currentWeek;
             let nextMonday = monday.clone().add(7, 'days');
 
-            return this.mEvents
-                .filter(event => {
-                    return this.datesOverlap(monday, nextMonday, event.startsAt, event.endsAt);
-                });
+            let events = this.mEvents.filter(event => {
+                    return this.datesOverlap(
+                        monday, nextMonday, event.startsAt, event.endsAt
+                    );
+                })
+
+            return events.concat(this.openingScheduleEvents);
         },
     },
     methods: {
@@ -386,7 +451,8 @@ export default Vue.extend({
     width: calc(100% / 8);
 }
 
-.calendar .schedule .event.striped {
+.calendar .schedule .event.striped,
+.calendar .schedule .event.closing-time {
     background: repeating-linear-gradient(
         -45deg, #f5f3f2c2, #f5f3f2c2 5px, #dfdcdbc2 5px, #dfdcdbc2 10px
     );

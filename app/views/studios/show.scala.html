@@ -18,11 +18,12 @@
  @import java.time.Instant
 
 @import play.api.Configuration
-@import play.api.libs.json.{ Json, JsArray, JsString }
+@import play.api.libs.json.{ Json, JsString }
 @import play.api.mvc.RequestHeader
 
 @import _root_.controllers.ClientConfig
 @import models.Picture
+@import misc.JsonWrites._
 
 @(
     clientConfig: ClientConfig,
@@ -40,6 +41,8 @@
         rel="stylesheet"
         href="https://api.mapbox.com/mapbox-gl-js/v0.52.0/mapbox-gl.css">
 }
+
+@jsOpeningSchedule = {}
 
 @layout(
     Seq(studio.name, "Music studio to rent in " + studio.location.city),
@@ -68,7 +71,7 @@
                 <div class="panel-section">
                     <picture-carousel
                         alt="@{studio.name} picture"
-                        :picture-ids='@Html(Json.stringify(JsArray(pictures.map(v => JsString(v.base64)))))'
+                        :picture-ids='@tags.asJson(Json.toJson(pictures))'
                         :width="800"
                         :height="450">
                     </picture-carousel>
@@ -85,6 +88,7 @@
 
                     <calendar
                         current-time="@Instant.now.toString"
+                        :opening-schedule='@tags.asJson(Json.toJson(studio.openingSchedule))'
                         :events="[
                             {
                                 'starts-at': '2019-09-30T01:00',
