@@ -42,8 +42,6 @@
         href="https://api.mapbox.com/mapbox-gl-js/v0.52.0/mapbox-gl.css">
 }
 
-@jsOpeningSchedule = {}
-
 @layout(
     Seq(studio.name, "Music studio to rent in " + studio.location.city),
     head=head, clientConfig=clientConfig, user=user) {
@@ -112,11 +110,25 @@
 
             <div class="cell small-12 medium-4">
                 <div class="panel-section booking-panel">
-                    <h4>
-                        34€/hour<br>
-                        <small>Weekend 24€/hour</small><br>
-                        <small>After 6pm 20€/hour</small>
-                    </h4>
+                    <div class="grid-x grid-padding-x">
+                        <div class="cell mall-12 text-center">
+                            <h3>
+                                34€/hour
+                            </h3>
+
+                            <hr>
+                        </div>
+
+                        <div class="cell small-12">
+                            <h4>Opening schedule</h4>
+
+                            @tags.openingSchedule(studio.openingSchedule)
+                        </div>
+
+                        <div class="cell small-12 text-center">
+                            <a href="#">Show availabilities</a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

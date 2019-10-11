@@ -1,0 +1,45 @@
+@* Noisycamp is a platform for booking music studios.
+ * Copyright (C) 2019  Raphael Javaux <raphaeljavaux@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *@
+
+@import models.{ OpeningSchedule, OpeningTimes }
+
+@* Renders the opening schedule as a timetable. *@
+
+@(schedule: OpeningSchedule)
+
+@showDayTimes(day: String, optTimes: Option[OpeningTimes]) = {
+    <div class="cell small-5 text-left">@day</div>
+
+    <div class="cell small-7 text-right">
+        @optTimes match {
+            case Some(OpeningTimes(opensAt, closesAt)) => {
+                @opensAt.toString - @closesAt.toString
+            }
+            case None => {Closed}
+        }
+    </div>
+}
+
+<div class="grid-x grid-padding-x opening-schedule">
+    @showDayTimes("Monday", schedule.monday)
+    @showDayTimes("Tuesday", schedule.tuesday)
+    @showDayTimes("Wednesday", schedule.wednesday)
+    @showDayTimes("Thursday", schedule.thursday)
+    @showDayTimes("Friday", schedule.friday)
+    @showDayTimes("Saturday", schedule.saturday)
+    @showDayTimes("Sunday", schedule.sunday)
+</div>
