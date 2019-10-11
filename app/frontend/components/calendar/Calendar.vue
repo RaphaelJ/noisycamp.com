@@ -56,7 +56,8 @@
                         <div
                             class="hour-label"
                             v-for="hour in 24"
-                            :key="hour">
+                            :key="hour"
+                            :ref="'scheduleHour' + (hour - 1)">
                             <small>{{ hour - 1 }}:00</small>
                         </div>
                     </div>
@@ -119,6 +120,10 @@ export default Vue.extend({
             // The current position of the calendar, compared to `currentTime`.
             currentWeekOffset: 0
         }
+    },
+    mounted() {
+        // Scrolls the schedule to the 8th hour.
+        this.$refs.scheduleHour8[0].scrollIntoView(true);
     },
     computed: {
 

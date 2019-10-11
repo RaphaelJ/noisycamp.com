@@ -89,18 +89,7 @@
                     <calendar
                         current-time="@Instant.now.toString"
                         :opening-schedule='@tags.asJson(Json.toJson(studio.openingSchedule))'
-                        :events="[
-                            {
-                                'starts-at': '2019-09-30T01:00',
-                                'ends-at': '2019-10-02T09:00',
-                                'classes': ['striped']
-                            },
-                            {
-                                'starts-at': '2019-10-02T21:00',
-                                'ends-at': '2019-10-09T06:00',
-                                'classes': ['striped']
-                            },
-                        ]">
+                        :events="[]">
                     </calendar>
 
                     <hr>
