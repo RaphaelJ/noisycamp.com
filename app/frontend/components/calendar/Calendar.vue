@@ -415,6 +415,7 @@ export default Vue.extend({
 
     /* Only shows 14h of the day. */
     height: calc(100% / 14 * 24);
+    min-height: calc(24 * 25px);
 }
 
 .calendar .schedule .hour-labels,
