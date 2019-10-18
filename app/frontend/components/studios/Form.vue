@@ -169,7 +169,7 @@
         </div>
 
         <div class="cell text-right">
-            <button type="submit" class="button large small-only-expanded">
+            <button type="submit" class="button primary large small-only-expanded">
                 Save and continue
             </button>
         </div>

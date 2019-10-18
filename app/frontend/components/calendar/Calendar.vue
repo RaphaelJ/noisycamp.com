@@ -50,7 +50,7 @@
                 </div>
             </div>
 
-            <div class="schedule">
+            <div class="schedule" ref="schedule">
                 <div class="schedule-container">
                     <div class="hour-labels">
                         <div
@@ -97,6 +97,7 @@ import Vue, { PropOptions } from "vue";
 import * as moment from 'moment';
 
 import Arrow from '../widgets/Arrow.vue';
+import { withTimeComponent } from '../../misc/DateUtils';
 
 declare var NC_CONFIG: any;
 
@@ -122,8 +123,8 @@ export default Vue.extend({
         }
     },
     mounted() {
-        // Scrolls the schedule to the 8th hour.
-        this.$refs.scheduleHour8[0].scrollIntoView(true);
+        // Scrolls the schedule to the 9th hour.
+        this.$refs.schedule.scroll(0, this.$refs.scheduleHour9[0].offsetTop);
     },
     computed: {
 
@@ -171,10 +172,6 @@ export default Vue.extend({
 
             let events = [];
 
-            function setTimeComponent(date, time) {
-                return moment(date.format('YYYY-MM-DD') + 'T' + time);
-            }
-
             for (var i = 0; i < 7; ++i) {
                 // In case of the previous day closing during today's night.
                 var prevDayOverlap;
@@ -194,8 +191,8 @@ export default Vue.extend({
 
                 if (today['is-open']) {
                     events.push({ // Morning closure
-                        startsAt: setTimeComponent(todaySDate, prevDayOverlap),
-                        endsAt: setTimeComponent(
+                        startsAt: withTimeComponent(todaySDate, prevDayOverlap),
+                        endsAt: withTimeComponent(
                             todaySDate, today['opens-at']
                         ),
                         classes: ['closing-time']
@@ -203,17 +200,17 @@ export default Vue.extend({
 
                     if (today['closes-at'] > today['opens-at']) {
                         events.push({ // Evening closure
-                            startsAt: setTimeComponent(
+                            startsAt: withTimeComponent(
                                 todaySDate, today['closes-at']
                             ),
-                            endsAt: setTimeComponent(tomorrowSDate, '00:00'),
+                            endsAt: withTimeComponent(tomorrowSDate, '00:00'),
                             classes: ['closing-time']
                         });
                     }
                 } else {
                     events.push({
-                        startsAt: setTimeComponent(todaySDate, prevDayOverlap),
-                        endsAt: setTimeComponent(tomorrowSDate, '00:00'),
+                        startsAt: withTimeComponent(todaySDate, prevDayOverlap),
+                        endsAt: withTimeComponent(tomorrowSDate, '00:00'),
                         classes: ['closing-time']
                     });
                 }

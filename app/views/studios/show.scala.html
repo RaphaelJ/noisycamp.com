@@ -42,6 +42,49 @@
         href="https://api.mapbox.com/mapbox-gl-js/v0.52.0/mapbox-gl.css">
 }
 
+@bookingPanel = {
+    <div class="grid-x grid-padding-x">
+        <div class="cell small-12 text-center">
+            <h2>34€ <small>per hour</small></h2>
+        </div>
+
+        <div class="cell small-6 text-left specific-pricing">
+            Weekend
+        </div>
+        <div class="cell small-6 text-right specific-pricing">
+            25€/hour
+        </div>
+
+        <div class="cell small-6 text-left specific-pricing">
+            After 8pm
+        </div>
+        <div class="cell small-6 text-right specific-pricing">
+            35€/hour
+        </div>
+
+        <div class="cell small-12"><hr></div>
+
+        <div class="cell small-12">
+            <booking-form
+                current-time="@Instant.now.toString"
+                :opening-schedule='@tags.asJson(Json.toJson(studio.openingSchedule))'
+                :occupancies="[]"
+                :min-booking-duration="@studio.bookingPolicy.minBookingDuration.getSeconds()">
+            </booking-form>
+        </div>
+
+        <div class="cell small-12 text-center">
+            <a
+                href="#availability"
+                onclick="$('html, body').animate({
+                    scrollTop: $('#availability').offset().top
+                }, 500); return false">
+                Show availabilities
+            </a>
+        </div>
+    </div>
+}
+
 @layout(
     Seq(studio.name, "Music studio to rent in " + studio.location.city),
     head=head, clientConfig=clientConfig, user=user) {
@@ -82,7 +125,13 @@
 
                     <hr>
 
-                    <h3>Availability</h3>
+                    <h3>Opening schedule</h3>
+
+                    @tags.openingSchedule(studio.openingSchedule)
+
+                    <hr>
+
+                    <h3 id="availability">Availability</h3>
 
                     <calendar
                         current-time="@Instant.now.toString"
@@ -110,25 +159,7 @@
 
             <div class="cell small-12 medium-4">
                 <div class="panel-section booking-panel">
-                    <div class="grid-x grid-padding-x">
-                        <div class="cell mall-12 text-center">
-                            <h3>
-                                34€/hour
-                            </h3>
-
-                            <hr>
-                        </div>
-
-                        <div class="cell small-12">
-                            <h4>Opening schedule</h4>
-
-                            @tags.openingSchedule(studio.openingSchedule)
-                        </div>
-
-                        <div class="cell small-12 text-center">
-                            <a href="#">Show availabilities</a>
-                        </div>
-                    </div>
+                    @bookingPanel
                 </div>
             </div>
         </div>

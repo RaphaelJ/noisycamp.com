@@ -24,6 +24,7 @@ import CurrencySelector from './components/widgets/CurrencySelector.vue';
 import LocationMap from './components/widgets/LocationMap.vue';
 import PictureCarousel from './components/widgets/PictureCarousel.vue';
 
+import BookingForm from './components/studios/show/BookingForm.vue';
 import StudioForm from './components/studios/Form.vue';
 import StudiosIndex from './components/studios/Index.vue';
 
@@ -32,6 +33,6 @@ var ncApp = new Vue({
     components: {
         Calendar,
         Arrow, CurrencySelector, LocationMap, PictureCarousel,
-        StudioForm, StudiosIndex,
+        BookingForm, StudioForm, StudiosIndex,
     },
 });

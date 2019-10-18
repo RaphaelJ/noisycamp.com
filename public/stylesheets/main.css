@@ -79,12 +79,29 @@ main {
 /* Buttons and forms */
 
 .button {
-    background-color: #b37216;
     border-radius: 2px;
 }
 
+.button {
+    color: #b37216;
+    background-color: rgba(0, 0, 0, 0);
+}
+
 .button:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.button.primary {
+    color: white;
+    background-color: #b37216;
+}
+
+.button.primary:hover {
     background-color: #915c11;
+}
+
+.button.secondary {
+    border: 1px solid #b37216;
 }
 
 .button.large {
@@ -105,10 +122,16 @@ main {
 [type="week"], textarea, select {
     background-color: #fefefecc;
     border: 1px solid rgba(0, 0, 0, 0.1);
-    border-radius: 2px;
+    border-radius: 3px;
     box-shadow: none;
 
-    line-height: 1rem;
+    height: 2.7rem;
+    padding: 0.6rem .75rem;
+    line-height: 1.5rem;
+}
+
+select {
+    padding-right: 1.5rem;
 }
 
 [type="color"]:focus, [type="date"]:focus, [type="datetime-local"]:focus,
