@@ -17,9 +17,11 @@
 
 package misc
 
-import play.api.libs.json.{ Json, JsString, JsValue, Writes }
+import play.api.libs.json.{ JsNull, Json, JsString, JsValue, Writes }
 
-import models.{ OpeningSchedule, OpeningTimes, PictureId }
+import models.{
+  EveningPricingPolicy, OpeningSchedule, OpeningTimes, PictureId, PricingPolicy,
+  WeekendPricingPolicy }
 
 /** Provides JSON Writes implementation for model objects. */
 object JsonWrites {
@@ -50,5 +52,29 @@ object JsonWrites {
 
   implicit object PictureIdWrites extends Writes[PictureId] {
     def writes(id: PictureId): JsValue = JsString(id.base64)
+  }
+
+  implicit object PricingPolicyWrites extends Writes[PricingPolicy] {
+    def writes(policy: PricingPolicy): JsValue = Json.obj(
+        "price-per-hour" -> policy.pricePerHour.toString,
+        "evening" -> {
+          policy.evening match {
+            case Some(EveningPricingPolicy(beginsAt, pricePerHour)) => {
+              Json.obj(
+                "begins-at" -> beginsAt,
+                "price-per-hour" -> pricePerHour.toString)
+            }
+            case None => JsNull
+          }
+        },
+        "weekend" -> {
+          policy.weekend match {
+            case Some(WeekendPricingPolicy(pricePerHour)) => {
+              Json.obj("price-per-hour" -> pricePerHour.toString)
+            }
+            case None => JsNull
+          }
+        },
+      )
   }
 }

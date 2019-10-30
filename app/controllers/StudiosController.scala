@@ -54,6 +54,7 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
 
           picIds <- daos.studioPicture.query.
             filter(_.studioId === id).
+            sortBy(_.id).
             map(_.pictureId).
             result
         } yield (studio, picIds)

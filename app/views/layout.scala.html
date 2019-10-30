@@ -152,7 +152,7 @@
         </div>
 
         <script>
-            var NC_CONFIG = @Html(Json.stringify(JsConfig()));
+            var NC_CONFIG = @tags.asJson(JsConfig());
         </script>
 
         @helper.javascriptRouter("NC_ROUTES")(

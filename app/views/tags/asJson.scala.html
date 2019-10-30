@@ -18,6 +18,4 @@
 @import play.api.libs.json.{ Json, JsValue }
 
 @* Formats the given JSON value as a JSON string. *@
-@(value: JsValue)
-
-@Html(Json.stringify(value))
+@(value: JsValue)@Html(Json.stringify(value))

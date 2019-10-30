@@ -52,14 +52,14 @@
             Weekend
         </div>
         <div class="cell small-6 text-right specific-pricing">
-            25€/hour
+            25€ <small>per hour</small>
         </div>
 
         <div class="cell small-6 text-left specific-pricing">
             After 8pm
         </div>
         <div class="cell small-6 text-right specific-pricing">
-            35€/hour
+            35€ <small>per hour</small>
         </div>
 
         <div class="cell small-12"><hr></div>
@@ -69,7 +69,8 @@
                 current-time="@Instant.now.toString"
                 :opening-schedule='@tags.asJson(Json.toJson(studio.openingSchedule))'
                 :occupancies="[]"
-                :min-booking-duration="@studio.bookingPolicy.minBookingDuration.getSeconds()">
+                :min-booking-duration="@studio.bookingPolicy.minBookingDuration.getSeconds()"
+                :pricing-policy='@tags.asJson(Json.toJson(studio.pricingPolicy))'>
             </booking-form>
         </div>
 
