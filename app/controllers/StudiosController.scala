@@ -60,9 +60,16 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
         } yield (studio, picIds)
       }
     } yield dbStudio match {
-      case (Some(studio), picIds) => Ok(
-        views.html.studios.show(
-          clientConfig=clientConfig, user=request.identity, studio, picIds))
+      case (Some(studio), picIds) => {
+        val pricingPolicy = studio.
+          localPricingPolicy.
+          in(clientConfig.currency)(exchangeRatesService.exchangeRates)
+        Ok(
+          views.html.studios.show(
+            clientConfig = clientConfig,
+            user = request.identity,
+            studio, pricingPolicy, picIds))
+      }
       case (None, _) => NotFound("Studio not found.")
     }
   }

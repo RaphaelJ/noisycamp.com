@@ -20,6 +20,7 @@
 @import play.api.Configuration
 @import play.api.libs.json.{ Json, JsString }
 @import play.api.mvc.RequestHeader
+@import squants.market.MoneyContext
 
 @import _root_.controllers.ClientConfig
 @import models.Picture
@@ -29,6 +30,7 @@
     clientConfig: ClientConfig,
     user: Option[models.User],
     studio: models.Studio,
+    pricingPolicy: LocalPricingPolicy,
     pictures: Seq[models.Picture#Id])(
     implicit req: RequestHeader, config: Configuration)
 
@@ -45,22 +47,31 @@
 @bookingPanel = {
     <div class="grid-x grid-padding-x">
         <div class="cell small-12 text-center">
-            <h2>34€ <small>per hour</small></h2>
+            <h2>
+                @tags.moneyAmount(pricingPolicy.pricePerHour)
+                <small>per hour</small>
+            </h2>
         </div>
 
-        <div class="cell small-6 text-left specific-pricing">
-            Weekend
-        </div>
-        <div class="cell small-6 text-right specific-pricing">
-            25€ <small>per hour</small>
-        </div>
+        @for(eveningPolicy <- pricingPolicy.evening) {
+            <div class="cell small-6 text-left specific-pricing">
+                After @eveningPolicy.beginsAt
+            </div>
+            <div class="cell small-6 text-right specific-pricing">
+                @tags.moneyAmount(eveningPolicy.pricePerHour)
+                <small>per hour</small>
+            </div>
+        }
 
-        <div class="cell small-6 text-left specific-pricing">
-            After 8pm
-        </div>
-        <div class="cell small-6 text-right specific-pricing">
-            35€ <small>per hour</small>
-        </div>
+        @for(weekendPolicy <- pricingPolicy.weekend) {
+            <div class="cell small-6 text-left specific-pricing">
+                Weekend
+            </div>
+            <div class="cell small-6 text-right specific-pricing">
+                @tags.moneyAmount(weekendPolicy.pricePerHour)
+                <small>per hour</small>
+            </div>
+        }
 
         <div class="cell small-12"><hr></div>
 
@@ -70,7 +81,7 @@
                 :opening-schedule='@tags.asJson(Json.toJson(studio.openingSchedule))'
                 :occupancies="[]"
                 :min-booking-duration="@studio.bookingPolicy.minBookingDuration.getSeconds()"
-                :pricing-policy='@tags.asJson(Json.toJson(studio.pricingPolicy))'>
+                :pricing-policy='@tags.asJson(Json.toJson(pricingPolicy))'>
             </booking-form>
         </div>
 

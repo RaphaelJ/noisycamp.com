@@ -31,8 +31,9 @@ import squants.market
 
 import auth.{ DefaultEnv, UserService }
 import daos._
+import _root_.i18n.{ Country, Currency, ExchangeRatesService, GeoIpService,
+  GeoIpLocation, TimeZoneService }
 import pictures.PictureCache
-import i18n.{ Country, Currency, GeoIpService, GeoIpLocation, TimeZoneService }
 
 /** The default DAOs provided to the controllers. */
 class Daos @Inject () (
@@ -63,8 +64,9 @@ class CustomControllerCompoments @Inject() (
   val silhouette: Silhouette[DefaultEnv],
 
   // Misc
-  val timeZoneService: TimeZoneService,
-  val geoIpService: GeoIpService)
+  val exchangeRatesService: ExchangeRatesService,
+  val geoIpService: GeoIpService,
+  val timeZoneService: TimeZoneService)
 
 /** Provides a base class for controllers and simplifies the injection process
  * for common used objects.
@@ -83,8 +85,9 @@ abstract class CustomBaseController @Inject () (
 
   val silhouette = ccc.silhouette
 
-  val timeZoneService = ccc.timeZoneService
+  val exchangeRatesService = ccc.exchangeRatesService
   val geoIpService = ccc.geoIpService
+  val timeZoneService = ccc.timeZoneService
 
   def getClientConfig[A](implicit request: Request[A])
     : Future[ClientConfig] = {

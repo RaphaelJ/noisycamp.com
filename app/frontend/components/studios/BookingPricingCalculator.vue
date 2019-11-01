@@ -17,80 +17,64 @@
 -->
 
 <template>
-    <div class="grid-x grid-margin-x">
+    <div>
         <div
-            class="cell small-6"
+            class="grid-x grid-margin-x"
             v-if="pricingBreakdown['regular']">
 
-            {{ renderDurationAsHours(pricingBreakdown['regular']['duration']) }} h
-            ×
-            <money-amount
-                :value="pricingPolicy['price-per-hour']"
-                currency="EUR">
-            </money-amount>
-        </div>
-        <div
-            class="cell small-6 text-right"
-            v-if="pricingBreakdown['regular']">
-
-            <money-amount
-                :value="pricingBreakdown['regular']['total'].format()"
-                currency="EUR">
-            </money-amount>
-        </div>
-
-        <div
-            class="cell small-6"
-            v-if="pricingBreakdown['evening']">
-
-            {{ renderDurationAsHours(pricingBreakdown['evening']['duration']) }} h
-            ×
-            <money-amount
-                :value="pricingPolicy['evening']['price-per-hour']"
-                currency="EUR">
-            </money-amount> (evening)
-        </div>
-        <div
-            class="cell small-6 text-right"
-            v-if="pricingBreakdown['evening']">
-
-            <money-amount
-                :value="pricingBreakdown['evening']['total'].format()"
-                currency="EUR">
-            </money-amount>
-        </div>
-
-        <div
-            class="cell small-6"
-            v-if="pricingBreakdown['weekend']">
-
-            {{ renderDurationAsHours(pricingBreakdown['weekend']['duration']) }} h
-            ×
-            <money-amount
-                :value="pricingPolicy['weekend']['price-per-hour']"
-                currency="EUR">
-            </money-amount> (weekend)
-        </div>
-        <div
-            class="cell small-6 text-right"
-            v-if="pricingBreakdown['weekend']">
-
-            <money-amount
-                :value="pricingBreakdown['weekend']['total'].format()"
-                currency="EUR">
-            </money-amount>
-        </div>
-
-        <div class="cell small-6">
-            <strong>Total</strong>
-        </div>
-        <div class="cell small-6 text-right">
-            <strong>
-                <money-amount
-                    :value="total.format()"
-                    currency="EUR">
+            <div class="cell shrink">
+                {{ renderDurationAsHours(pricingBreakdown['regular']['duration']) }} h
+                ×
+                <money-amount :value="pricingPolicy['price-per-hour']">
                 </money-amount>
-            </strong>
+            </div>
+            <div class="cell auto text-right">
+                <money-amount :value="pricingBreakdown['regular']['total']">
+                </money-amount>
+            </div>
+        </div>
+
+        <div
+            class="grid-x grid-margin-x"
+            v-if="pricingBreakdown['evening']">
+
+            <div class="cell shrink">
+                {{ renderDurationAsHours(pricingBreakdown['evening']['duration']) }} h
+                ×
+                <money-amount :value="pricingPolicy['evening']['price-per-hour']">
+                </money-amount> (evening)
+            </div>
+            <div class="cell auto text-right">
+                <money-amount :value="pricingBreakdown['evening']['total']">
+                </money-amount>
+            </div>
+        </div>
+
+        <div
+            class="grid-x grid-margin-x"
+            v-if="pricingBreakdown['weekend']">
+
+            <div class="cell shrink">
+                {{ renderDurationAsHours(pricingBreakdown['weekend']['duration']) }} h
+                ×
+                <money-amount :value="pricingPolicy['weekend']['price-per-hour']">
+                </money-amount> (weekend)
+            </div>
+            <div class="cell auto text-right">
+                <money-amount :value="pricingBreakdown['weekend']['total']">
+                </money-amount>
+            </div>
+        </div>
+
+        <div class="grid-x grid-margin-x">
+            <div class="cell shrink">
+                <strong>Total</strong>
+            </div>
+            <div class="cell auto text-right">
+                <strong>
+                    <money-amount :value="total"></money-amount>
+                </strong>
+            </div>
         </div>
     </div>
 </template>
@@ -102,6 +86,7 @@ import * as currency from 'currency.js';
 import * as moment from 'moment';
 
 import { renderDuration, withTimeComponent } from '../../misc/DateUtils';
+import { asCurrency } from '../../misc/MoneyUtils';
 import MoneyAmount from '../widgets/MoneyAmount.vue'
 
 export default Vue.extend({
@@ -125,7 +110,7 @@ export default Vue.extend({
 
             let bookingDate = moment(this.bookingTimes['date']);
             let weekDay = bookingDate.isoWeekday();
-            let opensAt = this.openingSchedule[weekDay]['opens-at'];
+            let opensAt = this.openingSchedule[weekDay - 1]['opens-at'];
             // The moment's instance the booking starts.
             let bookingStartAt =
                 this.bookingTimes.time < opensAt
@@ -162,6 +147,11 @@ export default Vue.extend({
                             eveningPolicy['begins-at']
                         );
 
+                    console.log(eveningBeginsAt);
+                    console.log(bookingStartAt);
+                    console.log(opensAt);
+                    console.log(eveningPolicy['begins-at'] < opensAt);
+
                     durations['regular'] = Math.max(
                         0,
                         Math.min(
@@ -181,7 +171,7 @@ export default Vue.extend({
             // Computes the total prices given the durations.
 
             function toPricingBreakdown(pricePerHour, duration) {
-                let total = currency(pricePerHour)
+                let total = asCurrency(pricePerHour)
                     .multiply(duration)
                     .divide(3600);
 
@@ -216,7 +206,10 @@ export default Vue.extend({
         },
 
         total() {
-            var sum = currency(0);
+            // Creates a 0-valued sum currency.js object with the same currency
+            // as the pricing policy.
+            let pricePerHour = asCurrency(this.pricingPolicy['price-per-hour'])
+            var sum = pricePerHour.subtract(pricePerHour);
 
             if (this.pricingBreakdown['regular']) {
                 sum = sum.add(this.pricingBreakdown['regular']['total']);

@@ -18,6 +18,9 @@
 package models
 
 import java.time.{ Instant, ZoneId }
+import scala.math.BigDecimal.RoundingMode
+
+import squants.market.Money
 
 case class Studio(
   id:               Studio#Id         = 0L,
@@ -35,4 +38,19 @@ case class Studio(
   bookingPolicy:    BookingPolicy) {
 
   type Id = Long
+
+  def currency = location.country.currency
+
+  def localPricingPolicy = {
+    LocalPricingPolicy(
+      currency(pricingPolicy.pricePerHour),
+      pricingPolicy.evening.map { eveningPolicy => LocalEveningPricingPolicy(
+        eveningPolicy.beginsAt,
+        currency(eveningPolicy.pricePerHour)
+      ) },
+      pricingPolicy.weekend.map { weekendPolicy => LocalWeekendPricingPolicy(
+        currency(weekendPolicy.pricePerHour)
+      ) },
+    )
+  }
 }

@@ -27,35 +27,43 @@ import Vue from "vue";
 
 import * as currency from 'currency.js';
 
+import { asCurrency } from '../../misc/MoneyUtils';
+
 declare var NC_CONFIG: any;
-declare var NC_ROUTES: any;
 
 export default Vue.extend({
     props: {
-        value: { type: String, required: false }, // Currency value.
-        currency: { type: String, required: false }, // Currency ISO code.
+        // The amount of money, as a currency.js object, or as a
+        // { currency, value } object.
+        value: { type: Object, required: true },
 
         // If false, will truncate the decimal part if the decimal value amount
         // to zero.
         showZeroCents: { type: Boolean, required: false, default: false },
     },
     computed: {
-        renderedAmount() {
-            let currencyObj = NC_CONFIG.currencies[this.currency]
+        currencyValue() {
+            if ('currency' in this.value && 'value' in this.value) {
+                return asCurrency(this.value);
+            } else {
+                return this.value;
+            }
+        },
 
+        renderedAmount() {
             // Does not show zero decimals if `showZeroCents` is false.
-            let hasDecimals = currency(this.value).cents() > 0;
+            let hasDecimals = this.currencyValue.cents() > 0;
             let precision = this.showZeroCents || hasDecimals
-                ? currencyObj.decimals
+                ? this.currencyValue.s.precision
                 : 0;
 
             let currencyConfig = {
                 formatWithSymbol: true,
-                symbol: currencyObj.symbol,
+                symbol: this.currencyValue.s.symbol,
                 precision: precision,
-            }
+            };
 
-            return currency(this.value, currencyConfig).format()
+            return currency(this.currencyValue.value, currencyConfig).format();
         }
     }
 });

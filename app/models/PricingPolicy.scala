@@ -19,6 +19,10 @@ package models
 
 import java.time.LocalTime
 
+import squants.market.{ Currency, Money }
+
+import i18n.ExchangeRates
+
 case class PricingPolicy(
   pricePerHour:         BigDecimal,
   evening:              Option[EveningPricingPolicy],
@@ -30,3 +34,35 @@ case class EveningPricingPolicy(
 
 case class WeekendPricingPolicy(
   pricePerHour:         BigDecimal)
+
+/** Same as `PricingPolicy` but with a local currency. */
+case class LocalPricingPolicy(
+  pricePerHour:         Money,
+  evening:              Option[LocalEveningPricingPolicy],
+  weekend:              Option[LocalWeekendPricingPolicy]) {
+
+  /** Converts the prices to the given currency. */
+  def in(curr: Currency)(implicit er: ExchangeRates) = {
+    copy(
+      pricePerHour = er.exchange(pricePerHour, curr),
+      evening = evening.map(_.in(curr)(er)),
+      weekend = weekend.map(_.in(curr)(er)))
+  }
+}
+
+case class LocalEveningPricingPolicy(
+  beginsAt:             LocalTime,
+  pricePerHour:         Money) {
+
+  def in(curr: Currency)(implicit er: ExchangeRates) = {
+    copy(pricePerHour = er.exchange(pricePerHour, curr))
+  }
+}
+
+case class LocalWeekendPricingPolicy(
+  pricePerHour:         Money) {
+
+  def in(curr: Currency)(implicit er: ExchangeRates) = {
+    copy(pricePerHour = er.exchange(pricePerHour, curr))
+  }
+}

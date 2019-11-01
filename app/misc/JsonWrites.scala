@@ -18,13 +18,47 @@
 package misc
 
 import play.api.libs.json.{ JsNull, Json, JsString, JsValue, Writes }
+import squants.market.Money
 
 import models.{
-  EveningPricingPolicy, OpeningSchedule, OpeningTimes, PictureId, PricingPolicy,
-  WeekendPricingPolicy }
+  LocalPricingPolicy, LocalEveningPricingPolicy, LocalWeekendPricingPolicy,
+  OpeningSchedule, OpeningTimes, PictureId }
 
 /** Provides JSON Writes implementation for model objects. */
 object JsonWrites {
+
+  implicit object MoneyWrites extends Writes[Money] {
+    def writes(amount: Money): JsValue = Json.obj(
+      "currency" -> amount.currency.code,
+      "value" -> amount.amount.toString
+    )
+  }
+
+  implicit object LocalEveningPricingPolicyWrites
+    extends Writes[LocalEveningPricingPolicy] {
+
+    def writes(policy: LocalEveningPricingPolicy): JsValue = Json.obj(
+      "begins-at" -> policy.beginsAt,
+      "price-per-hour" -> policy.pricePerHour
+    )
+  }
+
+  implicit object LocalWeekendPricingPolicyWrites
+    extends Writes[LocalWeekendPricingPolicy] {
+
+    def writes(policy: LocalWeekendPricingPolicy): JsValue = Json.obj(
+      "price-per-hour" -> policy.pricePerHour
+    )
+  }
+
+  implicit object LocalPricingPolicyWrites extends Writes[LocalPricingPolicy] {
+    def writes(policy: LocalPricingPolicy): JsValue = Json.obj(
+      "price-per-hour" -> policy.pricePerHour,
+      "evening" -> policy.evening,
+      "weekend" -> policy.weekend
+    )
+  }
+
   implicit object OpeningScheduleWrites extends Writes[OpeningSchedule] {
 
     def writes(schedule: OpeningSchedule): JsValue = {
@@ -52,29 +86,5 @@ object JsonWrites {
 
   implicit object PictureIdWrites extends Writes[PictureId] {
     def writes(id: PictureId): JsValue = JsString(id.base64)
-  }
-
-  implicit object PricingPolicyWrites extends Writes[PricingPolicy] {
-    def writes(policy: PricingPolicy): JsValue = Json.obj(
-        "price-per-hour" -> policy.pricePerHour.toString,
-        "evening" -> {
-          policy.evening match {
-            case Some(EveningPricingPolicy(beginsAt, pricePerHour)) => {
-              Json.obj(
-                "begins-at" -> beginsAt,
-                "price-per-hour" -> pricePerHour.toString)
-            }
-            case None => JsNull
-          }
-        },
-        "weekend" -> {
-          policy.weekend match {
-            case Some(WeekendPricingPolicy(pricePerHour)) => {
-              Json.obj("price-per-hour" -> pricePerHour.toString)
-            }
-            case None => JsNull
-          }
-        },
-      )
   }
 }

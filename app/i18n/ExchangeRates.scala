@@ -24,6 +24,7 @@ import javax.inject.{ Inject, Singleton }
 
 import scala.concurrent.{ Await, ExecutionContext, Future }
 import scala.concurrent.duration._
+import scala.math.BigDecimal.RoundingMode
 
 import akka.actor.ActorSystem
 import org.joda.time.DateTime
@@ -38,12 +39,19 @@ case class ExchangeRates(rates: List[market.CurrencyExchangeRate],
   def context: market.MoneyContext = {
     Currency.moneyContext withExchangeRates rates
   }
+
+  /** Converts the provided money amount to the target currency, rounding the
+   * value to the nearest representable value (e.g. cents). */
+  def exchange(src: market.Money, dst: market.Currency): market.Money = {
+    val decimals = dst.formatDecimals
+    src.in(dst)(context).rounded(decimals, RoundingMode.CEILING)
+  }
 }
 
 /** Periodically checks the ECB exchange rates server and provides up to date
  * exchange rates to the Euro. */
 @Singleton
-class ExchangeRateService @Inject() (
+class ExchangeRatesService @Inject() (
   actorSystem: ActorSystem,
   implicit val executionContext: ExecutionContext,
   ws: WSClient) {
