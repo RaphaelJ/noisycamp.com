@@ -14,42 +14,44 @@
 
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-  Renders the requested picture using the `srcset` parameter to support varying
-  screen pixel densities.
 -->
 
 <template>
-    <img
-        :alt="alt"
-        :srcset="pictureUrl(1) + ' , '  +
-            pictureUrl(1.5) + ' 1.5x, ' +
-            pictureUrl(2) + ' 2x, ' +
-            pictureUrl(2.5) + ' 2.5x'"
-        :src="pictureUrl(1)">
+    <transition
+        name="slide-down"
+        @enter="enter">
+
+        <slot></slot>
+    </transition>
 </template>
 
 <script lang="ts">
+import * as $ from 'jquery'
 import Vue from "vue";
-
-declare var NC_ROUTES: any;
 
 export default Vue.extend({
     props: {
-        pictureId: { type: String, required: true },
-        alt: { type: String, required: true },
-
-        width: { type: Number, required: true },
-        height: { type: Number, required: true },
+        maxHeight: { type: Number, required: false },
+    },
+    computed: {
+        duration() {
+            // Duration is 100ms per 100px.
+            return this.maxHeight / 100 * 100;
+        }
     },
     methods: {
-        pictureUrl(screenRatio) {
-            let width = Math.round(this.width * screenRatio);
-            let height = Math.round(this.height * screenRatio);
+        enter(el, done) {
+            let oldStyle = Object.assign({}, el.style);
 
-            return NC_ROUTES.controllers.PictureController.cover(
-                this.pictureId, width + 'x' + height
-            ).url;
+            el.style.maxHeight = 0;
+            el.style.overflow = 'hidden';
+
+            $(el).animate({
+                maxHeight: this.maxHeight
+            }, this.duration, function () {
+                el.style = oldStyle;
+                done();
+            });
         }
     }
 });

@@ -29,41 +29,62 @@
                 {{ fieldError('payout-method') }}
             </div>
 
-            <div class="cell small-12 medium-6 large-4">
-                <label>
-                    Billing country
+            <label class="cell small-12 medium-6">
+                Billing country
 
-                    <country-select
-                        :name="fieldName('country')"
-                        v-model="country">
-                    </country-select>
+                <country-select
+                    :name="fieldName('country')"
+                    v-model="country">
+                </country-select>
 
-                    <span v-if="fieldHasError('country')" class="error">
-                        {{ fieldError('country') }}
-                    </span>
-                </label>
-            </div>
+                <span v-if="fieldHasError('country')" class="error">
+                    {{ fieldError('country') }}
+                </span>
+            </label>
+        </div>
 
-            <label class="cell small-12 medium-6 large-3">
+        <div class="grid-x grid-margin-x">
+            <label class="cell small-12 medium-6">
                 Recipient type
 
                 <select
                     :name="fieldName('recipient-type')"
                     required>
                     <option value="business">Business</option>
-                    <option value="private">Private</option>
+                    <option value="private">Private/Personal</option>
                 </select>
 
                 <span v-if="fieldHasError('recipient-type')" class="error">
                     {{ fieldError('recipient-type') }}
                 </span>
             </label>
+
+            <label class="cell small-12 medium-6">
+                Recipient's name
+
+                <input
+                    type="text"
+                    :name="fieldName('recipient-name')"
+                    required>
+
+                <span v-if="fieldHasError('recipient-name')" class="error">
+                    {{ fieldError('recipient-name') }}
+                </span>
+            </label>
+        </div>
+
+        <div v-if="requireAddress">
+            <address-input
+                :name="fieldName('address')"
+                :country="country"
+                :has-address-2-input="false">
+            </address-input>
         </div>
 
         <div class="grid-x grid-margin-x"
             v-if="payoutMethod == 'IBAN'">
             <!-- IBAN -->
-            <label class="cell small-12 medium-8 large-4">
+            <label class="cell small-12 medium-8">
                 IBAN
 
                 <input
@@ -78,8 +99,8 @@
                 </span>
             </label>
 
-            <label class="cell small-12 medium-4 large-3">
-                Bank code (BIC/SWIFT)
+            <label class="cell small-12 medium-4">
+                BIC/SWIFT
 
                 <input
                     type="text"
@@ -97,7 +118,7 @@
         <div class="grid-x grid-margin-x"
             v-if="payoutMethod == 'ABA'">
             <!-- ABA -->
-            <label class="cell small-12 medium-4 large-3">
+            <label class="cell small-12 medium-6">
                 Routing number
 
                 <input
@@ -114,7 +135,7 @@
                 </span>
             </label>
 
-            <label class="cell small-12 medium-4 large-3">
+            <label class="cell small-12 medium-6">
                 Account Number
 
                 <input
@@ -131,7 +152,7 @@
                 </span>
             </label>
 
-            <div class="cell small-12 medium-4 large-3">
+            <div class="cell small-12 medium-6">
                 <label>
                     Account type
 
@@ -152,7 +173,7 @@
         <div class="grid-x grid-margin-x"
             v-if="payoutMethod == 'Canadian'">
             <!-- Canadian -->
-            <label class="cell small-12 medium-4 large-3">
+            <label class="cell small-12 medium-6">
                 Institution number
 
                 <input
@@ -169,7 +190,7 @@
                 </span>
             </label>
 
-            <label class="cell small-12 medium-4 large-3">
+            <label class="cell small-12 medium-6">
                 Transit number
 
                 <input
@@ -186,7 +207,7 @@
                 </span>
             </label>
 
-            <label class="cell small-12 medium-4 large-3">
+            <label class="cell small-12 medium-6">
                 Account Number
 
                 <input
@@ -204,7 +225,7 @@
                 </span>
             </label>
 
-            <div class="cell small-12 medium-4 large-3">
+            <div class="cell small-12 medium-6">
                 <label>
                     Account type
 
@@ -225,7 +246,7 @@
         <div class="grid-x grid-margin-x"
             v-if="payoutMethod == 'Australian'">
             <!-- Australian -->
-            <label class="cell small-12 medium-4 large-3">
+            <label class="cell small-12 medium-6">
                 BSB code
 
                 <input
@@ -242,7 +263,7 @@
                 </span>
             </label>
 
-            <label class="cell small-12 medium-4 large-3">
+            <label class="cell small-12 medium-6">
                 Business number (optional)
 
                 <input
@@ -258,7 +279,7 @@
                 </span>
             </label>
 
-            <label class="cell small-12 medium-4 large-3">
+            <label class="cell small-12 medium-6">
                 Account Number
 
                 <input
@@ -280,7 +301,7 @@
             v-if="payoutMethod == 'NewZealand'">
             <!-- New Zealand -->
 
-            <label class="cell small-12 large-6">
+            <label class="cell small-12 large-12">
                 Account Number
 
                 <input
@@ -305,8 +326,10 @@
 import * as _ from "lodash";
 import Vue from "vue";
 
-import CountrySelect from '../../widgets/CountrySelect.vue'
 import VueInput from '../../widgets/VueInput';
+import CountrySelect from '../../widgets/CountrySelect.vue'
+
+import AddressInput from './AddressInput.vue';
 
 declare var NC_CONFIG: any;
 
@@ -317,6 +340,8 @@ export default Vue.extend({
     data() {
         return {
             country: null,
+
+            address: null,
         };
     },
     computed: {
@@ -326,9 +351,13 @@ export default Vue.extend({
             } else {
                 return null;
             }
-        }
+        },
+
+        requireAddress() {
+            return this.payoutMethod == 'ABA' || this.payoutMethod == 'Australian';
+        },
     },
-    components: { CountrySelect },
+    components: { AddressInput, CountrySelect },
 });
 </script>
 

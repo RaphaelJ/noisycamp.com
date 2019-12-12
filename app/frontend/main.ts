@@ -23,16 +23,20 @@ import Arrow from './components/widgets/Arrow.vue';
 import CurrencySelector from './components/widgets/CurrencySelector.vue';
 import LocationMap from './components/widgets/LocationMap.vue';
 import PictureCarousel from './components/widgets/PictureCarousel.vue';
+import ReactivePicture from './components/widgets/ReactivePicture.vue';
 
 import BookingForm from './components/studios/show/BookingForm.vue';
+import BookingPricingCalculator from './components/studios/BookingPricingCalculator.vue';
 import StudioForm from './components/studios/Form.vue';
+
 import StudiosIndex from './components/studios/Index.vue';
 
 var ncApp = new Vue({
     el: "#nc-app",
     components: {
         Calendar,
-        Arrow, CurrencySelector, LocationMap, PictureCarousel,
-        BookingForm, StudioForm, StudiosIndex,
+        Arrow, CurrencySelector, LocationMap, PictureCarousel, ReactivePicture,
+        BookingForm, BookingPricingCalculator, StudioForm,
+        StudiosIndex,
     },
 });

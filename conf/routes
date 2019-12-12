@@ -43,6 +43,8 @@ GET     /i18n/currency/set/:currCode    controllers.i18n.Currency.set(currCode: 
 GET     /studios                        controllers.StudiosController.index
 GET     /studios/:id                    controllers.StudiosController.show(id: Long)
 
+GET     /studios/:id/book               controllers.studios.Booking.show(id: Long, date: String, time: String, duration: Int)
+
 # Pictures
 
 POST    /pictures                       controllers.PictureController.upload

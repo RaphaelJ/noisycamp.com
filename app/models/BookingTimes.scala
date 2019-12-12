@@ -15,16 +15,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package i18n
+package models
 
-object PayoutMethod extends Enumeration {
+import java.time.{ LocalDate, LocalTime, Duration }
 
-  case class Val(val name: String)
-    extends super.Val
-
-  val Iban = Val("IBAN")
-  val AbaAccount = Val("ABA")
-  val CanadianAccount = Val("Canadian")
-  val AustralianAccount = Val("Australian")
-  val NewZealandAccount = Val("NewZealand")
-}
+/** Time information related to a booking. */
+case class BookingTimes(
+  date:               LocalDate,
+  time:               LocalTime,
+  duration:           Duration)

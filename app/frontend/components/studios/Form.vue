@@ -49,8 +49,11 @@
 
             <h2>Location</h2>
 
-            <location-input name="location" :errors="errors"></location-input>
-
+            <location-input
+                name="location"
+                v-model="location"
+                :errors="errors">
+            </location-input>
             <hr>
         </div>
 
@@ -85,7 +88,7 @@
 
             <pricing-policy-input
                 name="pricing-policy"
-                currency="ISK">
+                :currency="currency">
             </pricing-policy-input>
 
             <hr>
@@ -100,6 +103,19 @@
             <h2>Booking &amp; cancellation policy</h2>
 
             <booking-policy-input name="booking-policy"></booking-policy-input>
+
+            <hr>
+        </div>
+
+        <!-- Payment policy -->
+
+        <div
+            class="cell"
+            v-if="isShown('payment-policy')">
+
+            <h2>Payment policy</h2>
+
+            <payment-policy-input name="payment-policy"></payment-policy-input>
 
             <hr>
         </div>
@@ -144,7 +160,7 @@
 
             <equipment-input
                 name="equipment"
-                currency="ISK">
+                :currency="currency">
             </equipment-input>
 
             <hr>
@@ -184,9 +200,11 @@ import EquipmentInput from './form/EquipmentInput.vue';
 import GeneralInfoInput from './form/GeneralInfoInput.vue';
 import LocationInput from './form/LocationInput.vue';
 import OpeningScheduleInput from './form/OpeningScheduleInput.vue';
-import PayoutInput from './form/PayoutInput.vue';
+import PaymentPolicyInput from './form/PaymentPolicyInput.vue';
 import PictureInput from './form/PictureInput.vue';
 import PricingPolicyInput from './form/PricingPolicyInput.vue';
+
+declare var NC_CONFIG: any;
 
 export default Vue.extend({
     props: {
@@ -215,19 +233,31 @@ export default Vue.extend({
     },
     data() {
         return {
+            location: {}
         };
+    },
+    computed: {
+        currency() {
+            let address = this.location.address;
+
+            if (address && address.country) {
+                return NC_CONFIG.countries[address.country].currency;
+            } else {
+                return 'EUR';
+            }
+        }
     },
     methods: {
         isShown(section) {
             return [
-                'general-info', 'location', 'opening-times', 'pricing-policy',
-                'booking-policy', 'pictures'
+                'general-info', 'location', 'opening-times', 'payment-policy',
+                'pricing-policy', 'booking-policy', 'pictures'
             ].includes(section);
         }
     },
     components: {
         BookingPolicyInput, EquipmentInput, GeneralInfoInput, LocationInput,
-        OpeningScheduleInput, PayoutInput, PictureInput, PricingPolicyInput,
+        OpeningScheduleInput, PaymentPolicyInput, PictureInput, PricingPolicyInput,
     },
 });
 </script>

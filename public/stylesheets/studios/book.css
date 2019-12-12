@@ -15,16 +15,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package i18n
+.card-icons {
+    margin-left: 1.5rem;
+}
 
-object PayoutMethod extends Enumeration {
-
-  case class Val(val name: String)
-    extends super.Val
-
-  val Iban = Val("IBAN")
-  val AbaAccount = Val("ABA")
-  val CanadianAccount = Val("Canadian")
-  val AustralianAccount = Val("Australian")
-  val NewZealandAccount = Val("NewZealand")
+.card-icons img {
+    height: 1.5rem;
 }

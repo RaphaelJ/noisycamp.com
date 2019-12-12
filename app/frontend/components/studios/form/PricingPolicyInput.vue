@@ -30,12 +30,12 @@
             <label>
                 Price per hour
 
-                <currency-input
+                <money-input
                     :name="fieldName('price-per-hour')"
                     :currency="currency"
                     v-model="pricePerHour"
                     :required="true">
-                </currency-input>
+                </money-input>
 
                 <span v-if="fieldHasError('price-per-hour')" class="error">
                     {{ fieldError('price-per-hour') }}
@@ -62,40 +62,47 @@
             </label>
         </div>
 
-        <div class="cell small-12 medium-4 medium-offset-1 large-3">
-            <label>
-                Evening begins at
+        <slide-down-transition :max-height="85">
+            <div
+                class="cell grid-x grid-margin-x"
+                v-if="hasEveningPricing">
+                <div class="cell small-12 medium-4 medium-offset-1 large-3">
+                    <label>
+                        Evening begins at
 
-                <input type="time"
-                    :name="fieldName('evening-begins-at')"
-                    v-model="eveningBeginsAt"
-                    pattern="[0-9]{2}:[0-9]{2}"
-                    :disabled="!hasEveningPricing"
-                    :required="hasEveningPricing">
+                        <input type="time"
+                            :name="fieldName('evening-begins-at')"
+                            v-model="eveningBeginsAt"
+                            pattern="[0-9]{2}:[0-9]{2}"
+                            :disabled="!hasEveningPricing"
+                            :required="hasEveningPricing">
 
-                <span v-if="fieldHasError('evening-begins-at')" class="error">
-                    {{ fieldError('evening-begins-at') }}
-                </span>
-            </label>
-        </div>
+                        <span v-if="fieldHasError('evening-begins-at')" class="error">
+                            {{ fieldError('evening-begins-at') }}
+                        </span>
+                    </label>
+                </div>
 
-        <div class="cell small-12 medium-4 medium-offset-1 large-3">
-            <label>
-                Price per hour
+                <div class="cell small-12 medium-4 medium-offset-1 large-3">
 
-                <money-input
-                    :name="fieldName('evening-price-per-hour')"
-                    :currency="currency"
-                    v-model="eveningPricePerHour"
-                    :disabled="!hasEveningPricing"
-                    :required="hasEveningPricing">
-                </money-input>
+                    <label>
+                        Price per hour
 
-                <span v-if="fieldHasError('evening-price-per-hour')" class="error">
-                    {{ fieldError('evening-price-per-hour') }}
-                </span>
-            </label>
-        </div>
+                        <money-input
+                            :name="fieldName('evening-price-per-hour')"
+                            :currency="currency"
+                            v-model="eveningPricePerHour"
+                            :disabled="!hasEveningPricing"
+                            :required="hasEveningPricing">
+                        </money-input>
+
+                        <span v-if="fieldHasError('evening-price-per-hour')" class="error">
+                            {{ fieldError('evening-price-per-hour') }}
+                        </span>
+                    </label>
+                </div>
+            </div>
+        </slide-down-transition>
 
         <!-- Weekend sessions -->
 
@@ -116,23 +123,28 @@
             </label>
         </div>
 
-        <div class="cell small-12 medium-4 medium-offset-1 large-3">
-            <label>
-                Price per hour
+        <slide-down-transition :max-height="85">
+            <div
+                class="cell small-12 medium-4 medium-offset-1 large-3"
+                v-if="hasWeekendPricing">
 
-                <money-input
-                    :name="fieldName('weekend-price-per-hour')"
-                    :currency="currency"
-                    v-model="weekendPricePerHour"
-                    :disabled="!hasWeekendPricing"
-                    :required="hasWeekendPricing">
-                </money-input>
+                <label>
+                    Price per hour
 
-                <span v-if="fieldHasError('weekend-price-per-hour')" class="error">
-                    {{ fieldError('weekend-price-per-hour') }}
-                </span>
-            </label>
-        </div>
+                    <money-input
+                        :name="fieldName('weekend-price-per-hour')"
+                        :currency="currency"
+                        v-model="weekendPricePerHour"
+                        :disabled="!hasWeekendPricing"
+                        :required="hasWeekendPricing">
+                    </money-input>
+
+                    <span v-if="fieldHasError('weekend-price-per-hour')" class="error">
+                        {{ fieldError('weekend-price-per-hour') }}
+                    </span>
+                </label>
+            </div>
+        </slide-down-transition>
     </div>
 </template>
 
@@ -141,6 +153,7 @@ import Vue from "vue";
 
 import VueInput from '../../widgets/VueInput';
 import MoneyInput from '../../widgets/MoneyInput.vue';
+import SlideDownTransition from '../../../transitions/SlideDownTransition.vue';
 
 export default Vue.extend({
     mixins: [VueInput],
@@ -161,7 +174,7 @@ export default Vue.extend({
     },
     computed: {
     },
-    components: { MoneyInput, }
+    components: { MoneyInput, SlideDownTransition }
 });
 </script>
 

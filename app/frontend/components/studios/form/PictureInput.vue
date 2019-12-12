@@ -37,14 +37,14 @@
         </div>
 
         <div
-            class="cell large-2 medium-3 small-4 picture"
+            class="cell medium-4 small-6 picture"
             v-for="(picId, index) in pictures">
 
             <input type="hidden" :name="name" :value="picId">
 
             <reactive-picture
                 :picture-id="picId" alt="Uploaded picture"
-                :width="200" :height="200">
+                :width="250" :height="250">
             </reactive-picture>
 
             <button
@@ -55,7 +55,7 @@
             </button>
         </div>
 
-        <div class="cell large-2 medium-3 small-4 picture-add">
+        <div class="cell medium-4 small-6 picture-add">
             <label :for="'picture_input_' + _uid">
                 <p>
                     <i v-if="!isUploading" class="fi-photo"></i>
@@ -73,7 +73,7 @@
 
             <input type="file"
                 :id="'picture_input_' + _uid"
-                :disable="isUploading >= 1"
+                :disabled="isUploading >= 1"
                 @change="upload()"
                 ref="uploadInput" class="show-for-sr"
                 accept="image/*"
@@ -158,8 +158,8 @@ export default Vue.extend({
 .picture img, .picture-add label {
     width: 100%;
 
-    border: 1px solid rgba(0,0,0,0.1);
-    border-radius: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
     padding: 4px;
 }
 
@@ -205,14 +205,18 @@ export default Vue.extend({
 	bottom: 0;
 	right: 0;
 
-    opacity: 0.65;
     cursor: pointer;
 
     display: flex; /* required to center the icon and text vertucally. */
+
+    color: #363636;
 }
 
 .picture-add label:hover {
-    opacity: 1;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    box-shadow: 0 0 3px rgba(202, 202, 202, 0.2);
+
+    color: #262626;
 }
 
 .picture-add label p {
@@ -223,6 +227,6 @@ export default Vue.extend({
 }
 
 .picture-add label p i {
-    font-size: 44px;
+    font-size: 4rem;
 }
 </style>

@@ -15,16 +15,22 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package i18n
+package forms.components
 
-object PayoutMethod extends Enumeration {
+import play.api.data.Form
+import play.api.data.Forms._
 
-  case class Val(val name: String)
-    extends super.Val
+import models.{ NewZealandAccount, PayoutMethod, RecipientType }
+import forms.CustomFields
 
-  val Iban = Val("IBAN")
-  val AbaAccount = Val("ABA")
-  val CanadianAccount = Val("Canadian")
-  val AustralianAccount = Val("Australian")
-  val NewZealandAccount = Val("NewZealand")
+object PayoutMethodForm {
+
+  type Data = PayoutMethod
+
+  val form = Form(
+    mapping(
+      "test" -> boolean
+    )(_ => NewZealandAccount(RecipientType.Business, "").asInstanceOf[PayoutMethod]
+    )(_ => Some(true))
+  )
 }

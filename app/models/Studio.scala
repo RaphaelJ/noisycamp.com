@@ -35,7 +35,8 @@ case class Studio(
   timezone:         ZoneId,
   openingSchedule:  OpeningSchedule,
   pricingPolicy:    PricingPolicy,
-  bookingPolicy:    BookingPolicy) {
+  bookingPolicy:    BookingPolicy/*,
+  paymentPolicy:    PaymentPolicy*/) {
 
   type Id = Long
 

@@ -21,8 +21,8 @@ import play.api.libs.json.{ JsNull, Json, JsString, JsValue, Writes }
 import squants.market.Money
 
 import models.{
-  LocalPricingPolicy, LocalEveningPricingPolicy, LocalWeekendPricingPolicy,
-  OpeningSchedule, OpeningTimes, PictureId }
+  BookingTimes, LocalPricingPolicy, LocalEveningPricingPolicy,
+  LocalWeekendPricingPolicy, OpeningSchedule, OpeningTimes, PictureId }
 
 /** Provides JSON Writes implementation for model objects. */
 object JsonWrites {
@@ -82,6 +82,14 @@ object JsonWrites {
         timeToJsValue(schedule.friday), timeToJsValue(schedule.saturday),
         timeToJsValue(schedule.sunday))
     }
+  }
+
+  implicit object BookingTimesWrites extends Writes[BookingTimes] {
+    def writes(times: BookingTimes): JsValue = Json.obj(
+      "date" -> times.date.toString,
+      "time" -> times.time.toString,
+      "duration" -> times.duration.getSeconds
+    )
   }
 
   implicit object PictureIdWrites extends Writes[PictureId] {

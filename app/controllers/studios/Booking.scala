@@ -15,31 +15,36 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package controllers
+package controllers.studios
 
 import javax.inject._
+import java.time.{ Duration, LocalDate, LocalTime }
+
+import scala.concurrent.Future
 
 import play.api._
 import play.api.mvc._
 
+import _root_.controllers.{ CustomBaseController, CustomControllerCompoments }
 import daos.CustomColumnTypes
-import models.Studio
+import models.{ BookingTimes, Studio }
 
 @Singleton
-class StudiosController @Inject() (ccc: CustomControllerCompoments)
+class Booking @Inject() (ccc: CustomControllerCompoments)
   extends CustomBaseController(ccc)
   with CustomColumnTypes {
 
   import profile.api._
 
-  def index = silhouette.UserAwareAction.async { implicit request =>
-    getClientConfig.map { clientConfig =>
-      Ok(views.html.studios.index(clientConfig, user=request.identity))
-    }
-  }
+  def show(id: Studio#Id, date: String, time: String, duration: Int)
+    = silhouette.SecuredAction.async { implicit request =>
 
-  def show(id: Studio#Id) = silhouette.UserAwareAction.async {
-    implicit request =>
+    // Parses string arguments
+    // TODO: handle errors.
+    val bookingTimes = BookingTimes(
+      date = LocalDate.parse(date),
+      time = LocalTime.parse(time),
+      duration = Duration.ofSeconds(duration.toLong))
 
     for {
       clientConfig <- getClientConfig
@@ -50,11 +55,13 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
           localPricingPolicy.
           in(clientConfig.currency)(exchangeRatesService.exchangeRates)
 
+
+
         Ok(
-          views.html.studios.show(
+          views.html.studios.book(
             clientConfig = clientConfig,
-            user = request.identity,
-            studio, pricingPolicy, picIds))
+            user = Some(request.identity),
+            studio, pricingPolicy, picIds, bookingTimes))
       }
       case (None, _) => NotFound("Studio not found.")
     }

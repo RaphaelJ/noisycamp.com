@@ -155,6 +155,11 @@ select:focus
     background-color: #f4f4f4;
 }
 
+/* Makes checkboxes and radio buttons 30% larger. */
+[type="checkbox"], [type="radio"] {
+    transform: scale(1.3, 1.3);
+}
+
 .input-group > :last-child,
 .input-group > :last-child.input-group-button > * {
     border-top-right-radius: 2px;
@@ -289,8 +294,8 @@ form label .error {
     padding: 11px;
 }
 
-/* Slightly larger padding on large screens. */
-@media screen and (min-width: 64em) {
+/* Slightly larger padding on medium and large screens. */
+@media screen and (min-width: 40em) {
     .panel-section {
         padding: 18px 25px;
     }
@@ -304,6 +309,18 @@ form label .error {
         margin-right: -0.625rem;
         margin-left: -0.625rem;
     }
+}
+
+/* Callouts */
+
+.callout {
+    border: none;
+    color: #262626;
+    border-radius: 4px;
+}
+
+.callout.secondary {
+    background-color: #f5f3f2;
 }
 
 /* Full-width hero picture */

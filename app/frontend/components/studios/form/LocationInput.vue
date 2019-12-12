@@ -21,126 +21,8 @@
 <template>
     <div class="grid-x grid-margin-x">
         <div class="cell large-6">
-            <div class="grid-y">
-                <div class="cell">
-                    <label>
-                        Country
-
-                        <country-select
-                            :name="fieldName('country')"
-                            v-model="address.country"
-                            required>
-                        </country-select>
-
-                        <span v-if="fieldHasError('country')" class="error">
-                            {{ fieldError('country') }}
-                        </span>
-                    </label>
-                </div>
-
-                <div class="cell">
-                    <label>
-                        Street address
-
-                        <input
-                            type="text"
-                            :name="fieldName('address-1')"
-                            v-model="address.address1"
-                            :disabled="!address.country"
-                            @change="updateMarker()"
-                            required>
-
-                        <span v-if="fieldHasError('address-1')" class="error">
-                            {{ fieldError('address-1') }}
-                        </span>
-                    </label>
-                </div>
-
-                <div class="cell">
-                    <label>
-                        Street address (line 2)
-
-                        <input
-                            type="text"
-                            :name="fieldName('address-2')"
-                            v-model="address.address2"
-                            :disabled="!address.country"
-                            @change="updateMarker()">
-
-                            <span v-if="fieldHasError('address-2')" class="error">
-                                {{ fieldError('address-2') }}
-                            </span>
-                    </label>
-                </div>
-
-                <div class="cell">
-                    <div class="grid-x grid-margin-x">
-                        <div class="cell medium-4">
-                            <label>
-                                City
-
-                                <input
-                                    type="text"
-                                    :name="fieldName('city')"
-                                    v-model="address.city"
-                                    :disabled="!address.country"
-                                    @change="updateMarker()"
-                                    required>
-
-                                <span v-if="fieldHasError('city')" class="error">
-                                    {{ fieldError('city') }}
-                                </span>
-                            </label>
-                        </div>
-
-                        <div class="cell medium-3">
-                            <label>
-                                Zipcode
-
-                                <input
-                                    type="text"
-                                    :name="fieldName('zipcode')"
-                                    v-model="address.zipcode"
-                                    :disabled="!address.country"
-                                    @change="updateMarker()"
-                                    required>
-
-                                <span v-if="fieldHasError('zipcode')" class="error">
-                                    {{ fieldError('zipcode') }}
-                                </span>
-                            </label>
-                        </div>
-
-                        <div class="cell medium-5">
-                            <label>
-                                State/Province
-
-                                <select
-                                    :name="fieldName('state')"
-                                    v-model="address.state"
-                                    :disabled="!hasStates(address.country)"
-                                    :required="hasStates(address.country)"
-                                    @change="updateMarker()">
-                                    <option
-                                        v-if="hasStates(address.country)"
-                                        value="" disabled>
-                                        Please select a state or province
-                                    </option>
-                                    <option
-                                        v-for="state in orderedStates"
-                                        :value="state.code">
-                                        {{ state.name }}
-                                    </option>
-                                </select>
-
-                                <span v-if="fieldHasError('state')" class="error">
-                                    {{ fieldError('state') }}
-                                </span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <address-input name="address" v-model="address">
+            </address-input>
         </div>
 
         <div class="cell large-6 address-map-container">
@@ -170,37 +52,29 @@ import * as _ from "lodash";
 import Vue from "vue";
 
 import VueInput from '../../widgets/VueInput';
-import CountrySelect from '../../widgets/CountrySelect.vue'
+import AddressInput from './AddressInput.vue';
 
 declare var NC_CONFIG: any;
 
 export default Vue.extend({
     mixins: [VueInput],
     props: {
-        country: { type: String, required: false },
-        address1: { type: String, required: false },
-        address2: { type: String, required: false },
-        city: { type: String, required: false },
-        zipcode: { type: String, required: false },
-        state: { type: String, required: false },
-
-        long: { type: Number, required: false },
-        lat: { type: Number, required: false },
+        value: { type: Object, required: false },
     },
     data() {
         return {
             address: {
-                country: this.country,
-                address1: this.address1,
-                address2: this.address2,
-                city: this.city,
-                zipcode: this.zipcode,
-                state: this.state,
+                country: this.value.country,
+                address1: this.value.address1,
+                address2: this.value.address2,
+                city: this.value.city,
+                zipcode: this.value.zipcode,
+                state: this.value.state,
             },
 
             coordinates: {
-                long: this.long,
-                lat: this.lat,
+                long: this.value.long,
+                lat: this.value.lat,
             },
 
             // The last Geocoding object returned by Mapbox.
@@ -209,7 +83,7 @@ export default Vue.extend({
             // If set to `false`, the marker position will not be updated when
             // the address changes. Will be automatically set to `false` once
             // the marker has been manually dragged.
-            shouldUpdateMarker: !this.long || !this.lat,
+            shouldUpdateMarker: !this.value.long || !this.value.lat,
         }
     },
     mounted() {
@@ -232,51 +106,15 @@ export default Vue.extend({
             accessToken: NC_CONFIG.mapboxToken
         });
 
-        if (!this.long || !this.lat) {
+        if (!this.value.long || !this.value.lat) {
             this.updateMarker();
         } else {
             this.setMarker({
-                center: [this.long, this.lat],
+                center: [this.value.long, this.value.lat],
             });
         }
     },
     computed: {
-        countryFullname() {
-            if (this.address.country) {
-                return NC_CONFIG.countries[this.address.country].name;
-            } else {
-                return null;
-            }
-        },
-
-        // Returns the list of states/provinces of the currently selected
-        // country, if it has any.
-        states() {
-            if (this.hasStates(this.address.country)) {
-                return NC_CONFIG.countries[this.address.country].states;
-            } else {
-                return null;
-            }
-        },
-
-        // Available countries, sorted by name.
-        orderedCountries() {
-            return Object.values(NC_CONFIG.countries)
-                .sort((lhs: any, rhs: any) => lhs.name.localeCompare(rhs.name));
-        },
-
-        // States of the currently selected country, sorted by name.
-        orderedStates() {
-            if (this.hasStates(this.address.country)) {
-                return Object.keys(this.states)
-                    .map(code => ({ code: code, name: this.states[code] }))
-                    .sort((lhs: any, rhs: any) =>
-                        lhs.name.localeCompare(rhs.name));
-            } else {
-                return null;
-            }
-        },
-
         // Returns `true` if a marker being displayed in the map.
         //
         // No marker is displayed on the map until the user select a country.
@@ -335,7 +173,11 @@ export default Vue.extend({
                     limit: 1,
                 })
                 .send()
-                .then(resp => { this.setMarker(resp.body.features[0]); });
+                .then(resp => {
+                    if (resp.body.features.length > 0) {
+                        this.setMarker(resp.body.features[0]);
+                    }
+                });
         }, 300),
 
         // Handles a marker drag event. Disable automatic updates of the marker
@@ -391,14 +233,14 @@ export default Vue.extend({
         },
     },
     watch: {
-        'address.country': function() {
-            this.updateMarker();
-
-            // Resets the state field on country change.
-            this.address.state = null;
-        }
+        'address': {
+            deep: true,
+            handler() {
+                this.updateMarker();
+            }
+        },
     },
-    components: { CountrySelect },
+    components: { AddressInput },
 });
 </script>
 
@@ -408,7 +250,7 @@ export default Vue.extend({
 }
 
 .address-map {
-    height: 300px;
+    height: 350px;
 }
 
 .address-map-overlay {

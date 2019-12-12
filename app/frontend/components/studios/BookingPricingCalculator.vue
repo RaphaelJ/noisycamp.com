@@ -17,7 +17,7 @@
 -->
 
 <template>
-    <div>
+    <div class="booking-pricing-calculator">
         <div
             class="grid-x grid-margin-x"
             v-if="pricingBreakdown['regular']">
@@ -66,7 +66,7 @@
             </div>
         </div>
 
-        <div class="grid-x grid-margin-x">
+        <div class="grid-x grid-margin-x total">
             <div class="cell shrink">
                 <strong>Total</strong>
             </div>
@@ -246,4 +246,7 @@ export default Vue.extend({
 </script>
 
 <style>
+.booking-pricing-calculator .total {
+    font-size: 1.2em;
+}
 </style>

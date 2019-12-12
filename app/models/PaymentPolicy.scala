@@ -15,16 +15,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package i18n
+package models
 
-object PayoutMethod extends Enumeration {
+/** Lists the supported payment methods. */
+case class PaymentPolicy(
+  /** If defined, allows online payments to the provided payout method. */
+  online:   Option[PayoutMethod],
 
-  case class Val(val name: String)
-    extends super.Val
-
-  val Iban = Val("IBAN")
-  val AbaAccount = Val("ABA")
-  val CanadianAccount = Val("Canadian")
-  val AustralianAccount = Val("Australian")
-  val NewZealandAccount = Val("NewZealand")
-}
+  /** If true, accepts payment-less booking. */
+  onsite:   Boolean)

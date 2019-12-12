@@ -103,8 +103,8 @@ object Country extends Enumeration {
     Some(7.7), AddressFormat.European)
 
   /* Other */
-  val Australia = Val("Australia", Currency.AUD, "AU", PayoutMethod.Australian,
-    Some(10), AddressFormat.English, Map(
+  val Australia = Val("Australia", Currency.AUD, "AU",
+    PayoutMethod.AustralianAccount, Some(10), AddressFormat.English, Map(
       "ACT" -> "Australian Capital Territory",
       "NSW" -> "New South Wales",
       "NT" -> "Northern Territory",
@@ -113,8 +113,8 @@ object Country extends Enumeration {
       "TAS" -> "Tasmania",
       "VIC" -> "Victoria",
       "WA" -> "Western Australia"))
-  val Canada = Val("Canada", Currency.CAD, "CA", PayoutMethod.Canadian, None,
-    AddressFormat.English, Map(
+  val Canada = Val("Canada", Currency.CAD, "CA", PayoutMethod.CanadianAccount,
+    None, AddressFormat.English, Map(
       "AB" -> "Alberta",
       "BC" -> "British Columbia",
       "MB" -> "Manitoba",
@@ -129,9 +129,9 @@ object Country extends Enumeration {
       "SK" -> "Saskatchewan",
       "YT" -> "Yulon"))
   val NewZealand = Val("New Zealand", Currency.NZD, "NZ",
-    PayoutMethod.NewZealand, Some(15), AddressFormat.English)
-  val UnitedStates = Val("United States", Currency.USD, "US", PayoutMethod.Aba,
-    None, AddressFormat.American, Map(
+    PayoutMethod.NewZealandAccount, Some(15), AddressFormat.English)
+  val UnitedStates = Val("United States", Currency.USD, "US",
+    PayoutMethod.AbaAccount, None, AddressFormat.American, Map(
       /* States */
       "AL" -> "Alabama",
       "AK" -> "Alaska",

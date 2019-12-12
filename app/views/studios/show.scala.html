@@ -15,12 +15,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *@
 
- @import java.time.Instant
+@import java.time.Instant
 
 @import play.api.Configuration
-@import play.api.libs.json.{ Json, JsString }
+@import play.api.libs.json.Json
 @import play.api.mvc.RequestHeader
-@import squants.market.MoneyContext
 
 @import _root_.controllers.ClientConfig
 @import models.Picture
@@ -103,13 +102,13 @@
 
     <div class="grid-container">
         <div class="grid-x grid-padding-x grid-padding-y">
-            <div class="cell medium-12">
+            <div class="cell small-12">
                 <div class="grid-x">
-                    <div class="cell small-12">
+                    <div class="cell">
                         <h1>@studio.name</h1>
                     </div>
 
-                    <div class="cell small-12 studio-city">
+                    <div class="cell studio-city">
                         <h5>
                             <small>
                                 <i class="fi-marker"></i>&nbsp;

@@ -74,7 +74,7 @@
                 value="true">
 
             <label for="booking-policy-can-cancel">
-                Reimburse customers that cancel their booking before it begins
+                Reimburse customers that cancel their booking
 
                 <span v-if="fieldHasError('can-cancel')" class="error">
                     {{ fieldError('can-cancel') }}
@@ -82,33 +82,38 @@
             </label>
         </div>
 
-        <div class="cell small-12 medium-10 medium-offset-1 large-5">
-            <label>
-                Minimum cancellation notice
+        <slide-down-transition :max-height="135">
+            <div
+                class="cell small-12 medium-10 medium-offset-1 large-5"
+                v-if="refundCancelled">
 
-                <select
-                    :name="fieldName('cancellation-notice')"
-                    v-model="cancellationNotice"
-                    :disabled="!refundCancelled"
-                    :required="refundCancelled">
-                    <option value="" disabled>Please select a value</option>
-                    <option value="0">No notice</option>
-                    <option value="3600">1 hour before the session</option>
-                    <option value="43200">12 hours before the session</option>
-                    <option value="86400">24 hours before the session</option>
-                    <option value="172800">48 hours before the session</option>
-                    <option value="604800">1 week before the session</option>
-                </select>
+                <label>
+                    Minimum cancellation notice
 
-                <span v-if="fieldHasError('cancellation-notice')" class="error">
-                    {{ fieldError('cancellation-notice') }}
-                </span>
-            </label>
+                    <select
+                        :name="fieldName('cancellation-notice')"
+                        v-model="cancellationNotice"
+                        :disabled="!refundCancelled"
+                        :required="refundCancelled">
+                        <option value="" disabled>Please select a value</option>
+                        <option value="0">No notice</option>
+                        <option value="3600">1 hour before the session</option>
+                        <option value="43200">12 hours before the session</option>
+                        <option value="86400">24 hours before the session</option>
+                        <option value="172800">48 hours before the session</option>
+                        <option value="604800">1 week before the session</option>
+                    </select>
 
-            <p class="help-text">
-                Customers that cancel their booking before that time period will be fully refunded.
-            </p>
-        </div>
+                    <span v-if="fieldHasError('cancellation-notice')" class="error">
+                        {{ fieldError('cancellation-notice') }}
+                    </span>
+                </label>
+
+                <p class="help-text">
+                    Customers that cancel their booking before that time period will be fully refunded.
+                </p>
+            </div>
+        </slide-down-transition>
     </div>
 </template>
 
@@ -116,6 +121,7 @@
 import Vue from "vue";
 
 import VueInput from '../../widgets/VueInput';
+import SlideDownTransition from '../../../transitions/SlideDownTransition.vue';
 
 export default Vue.extend({
     mixins: [VueInput],
@@ -133,6 +139,7 @@ export default Vue.extend({
     },
     computed: {
     },
+    components: { SlideDownTransition }
 });
 </script>
 

@@ -35,25 +35,25 @@ final case class Iban(
   ) extends PayoutMethod
 
 /** American Bankers Association routing number. */
-final case class Aba(
+final case class AbaAccount(
     val recipientType: RecipientType.Value, val routingNumber: String,
     val accountNumber: String, val accountType: AccountType.Value
   ) extends PayoutMethod
 
 /** Canadian local bank account. */
-final case class Canadian(
+final case class CanadianAccount(
     val recipientType: RecipientType.Value, val institutionNumber: String,
     val transitNumber: String, val accountNumber: String,
     val accountType: AccountType.Value
   ) extends PayoutMethod
 
 /** Australian local bank account. */
-final case class Australian(
+final case class AustralianAccount(
     val recipientType: RecipientType.Value, val bsbCode: String,
     val businessNumber: Option[String], val accountNumber: String
   ) extends PayoutMethod
 
 /** New Zealand bank account. */
-final case class NewZealand(
+final case class NewZealandAccount(
     val recipientType: RecipientType.Value, val accountNumber: String
   ) extends PayoutMethod

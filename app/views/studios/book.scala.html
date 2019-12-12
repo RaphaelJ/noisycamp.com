@@ -1,0 +1,178 @@
+@* Noisycamp is a platform for booking music studios.
+ * Copyright (C) 2019  Raphael Javaux <raphaeljavaux@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *@
+
+@import play.api.Configuration
+@import play.api.libs.json.Json
+@import play.api.mvc.RequestHeader
+
+@import _root_.controllers.ClientConfig
+@import misc.JsonWrites._
+
+@(
+    clientConfig: ClientConfig,
+    user: Option[models.User],
+    studio: models.Studio,
+    pricingPolicy: LocalPricingPolicy,
+    pictures: Seq[models.Picture#Id],
+    bookingTimes: models.BookingTimes)(
+    implicit req: RequestHeader, config: Configuration)
+
+@head = {
+    <link
+        rel="stylesheet"
+        href="@routes.Assets.versioned("stylesheets/studios/book.css")">
+}
+
+@leftPanel = {
+    <div class="grid-y grid-padding-y">
+        <div class="cell text-center">
+            <reactive-picture
+                alt="@{studio.name} picture"
+                picture-id="@pictures.head.base64"
+                :width="400"
+                :height="225">
+            </reactive-picture>
+        </div>
+
+        <div class="cell">
+            <div class="grid-y">
+                <div class="cell">
+                    <a href="@routes.StudiosController.show(studio.id)">
+                        ← Get back to studio page
+                    </a>
+                </div>
+
+                <div class="cell">
+                    <h4>@studio.name</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@rightPanel = {
+    <h3>Summary</h3>
+
+    <div class="grid-y">
+        <div class="cell">
+            <i class="fi-marker"></i>&nbsp;
+            @studio.location.city, @studio.location.country.name
+        </div>
+
+        <div class="cell">
+            <i class="fi-calendar"></i>&nbsp;
+            Wed Nov 17 2019 at 6:00
+        </div>
+
+        <div class="cell">
+            <i class="fi-clock"></i>&nbsp;
+            2 hours
+        </div>
+    </div>
+
+    <hr>
+
+    <h3>Price breakdown</h3>
+
+    <booking-pricing-calculator
+        :opening-schedule='@tags.asJson(Json.toJson(studio.openingSchedule))'
+        :pricing-policy='@tags.asJson(Json.toJson(pricingPolicy))'
+        :booking-times='@tags.asJson(Json.toJson(bookingTimes))'>
+    </booking-pricing-calculator>
+
+    <hr>
+
+    <fieldset>
+        <h3>Please choose your payment method</h3>
+
+        <div class="grid-y">
+            <div class="cell">
+                <input
+                    type="radio"
+                    name="payment-method"
+                    value="online"
+                    id="payment-method-online" checked>
+                <label for="payment-method-online">
+                    Credit/Debit card
+
+                    <span class="card-icons">
+                        <img
+                            alt="Visa"
+                            src="@routes.Assets.versioned("images/vendor/card-icons/visa.svg")">
+                        <img
+                            alt="MasterCard"
+                            src="@routes.Assets.versioned("images/vendor/card-icons/mastercard-1.svg")">
+                        <img
+                            alt="Amex"
+                            src="@routes.Assets.versioned("images/vendor/card-icons/Amex.svg")">
+                    </span>
+                </label>
+            </div>
+
+            <div class="cell">
+                <input
+                    type="radio"
+                    name="payment-method"
+                    value="on-site"
+                    id="payment-method-on-site">
+                <label for="payment-method-on-site">Onsite</label>
+                <p class="help-text">
+                    Payment will be requested by the studio's manager before or after you begin your
+                    session.
+                </p>
+            </div>
+        </div>
+    </fieldset>
+
+    <hr>
+
+    <div class="text-right">
+        <a class="button primary large small-only-expanded">
+            Proceed to checkout
+        </a>
+    </div>
+}
+
+@layout(
+    Seq("Book music studio in " + studio.name),
+    head=head, clientConfig=clientConfig, user=user) {
+
+    <div class="grid-container">
+        <div class="grid-x grid-padding-x grid-padding-y">
+            <div class="cell">
+                <h1>Booking review</h1>
+            </div>
+
+            <div class="cell small-12 medium-4">
+                <div class="panel-section">
+                    @leftPanel
+                </div>
+            </div>
+
+            <div class="cell small-12 medium-8">
+                <div class="grid-y grid-padding-y">
+
+                    <div class="cell">
+                        <div class="panel-section">
+                            @rightPanel
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
