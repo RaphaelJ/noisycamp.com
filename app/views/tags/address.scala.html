@@ -17,51 +17,51 @@
  * Displays the location's address in the country's format.
  *@
 
-@import i18n.AddressFormat
+@import _root_.i18n.AddressFormat
 
-@(location: Location)
+@(address: Address)
 
-@location.country.addressFormat match {
+@address.country.addressFormat match {
 case AddressFormat.American => {
-    @location.address1<br>
-    @for(address2 <- location.address2) {
+    @address.address1<br>
+    @for(address2 <- address.address2) {
         @address2<br>
     }
-    @location.city, @location.stateCode.get @location.zipcode<br>
-    @location.country.name
+    @address.city, @address.stateCode.get @address.zipcode<br>
+    @address.country.name
 }
 case AddressFormat.British => {
-    @location.address1<br>
-    @for(address2 <- location.address2) {
+    @address.address1<br>
+    @for(address2 <- address.address2) {
         @address2<br>
     }
-    @location.city<br>
-    @location.zipcode<br>
-    @location.country.name
+    @address.city<br>
+    @address.zipcode<br>
+    @address.country.name
 }
 case AddressFormat.English => {
-    @location.address1<br>
-    @for(address2 <- location.address2) {
+    @address.address1<br>
+    @for(address2 <- address.address2) {
         @address2<br>
     }
-    @location.city @for(stateCode <- location.stateCode) { stateCode } @location.zipcode<br>
-    @location.country.name
+    @address.city @for(stateCode <- address.stateCode) { stateCode } @address.zipcode<br>
+    @address.country.name
 }
 case AddressFormat.European => {
-    @location.address1<br>
-    @for(address2 <- location.address2) {
+    @address.address1<br>
+    @for(address2 <- address.address2) {
         @address2<br>
     }
-    @location.zipcode @location.city<br>
-    @location.country.name
+    @address.zipcode @address.city<br>
+    @address.country.name
 }
 case AddressFormat.Hungarian => {
-    @location.city<br>
-    @location.address1<br>
-    @for(address2 <- location.address2) {
+    @address.city<br>
+    @address.address1<br>
+    @for(address2 <- address.address2) {
         @address2<br>
     }
-    @location.zipcode<br>
-    @location.country.name
+    @address.zipcode<br>
+    @address.country.name
 }
 }

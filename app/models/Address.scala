@@ -15,18 +15,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package i18n
+package models
 
-/** Defines how the country's addresses will be rendered as text. */
-object AddressFormat extends Enumeration {
-  val American = Value
+import i18n.Country
 
-  val British = Value
-
-  /** Slightly different version on the American for NZ, AU and CA. */
-  val English = Value
-
-  val European = Value
-
-  val Hungarian = Value
-}
+case class Address(
+  address1:   String,
+  address2:   Option[String],
+  zipcode:    String,
+  city:       String,
+  stateCode:  Option[String],
+  country:    Country.Val)

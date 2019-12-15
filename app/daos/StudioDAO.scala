@@ -25,9 +25,9 @@ import play.api.db.slick.{ DatabaseConfigProvider, HasDatabaseConfigProvider }
 import slick.jdbc.JdbcProfile
 
 import i18n.Country
-import models.{ BookingPolicy, CancellationPolicy, EveningPricingPolicy,
-  Location, OpeningSchedule, OpeningTimes, PricingPolicy, Studio, User,
-  WeekendPricingPolicy }
+import models.{ Address, BookingPolicy, CancellationPolicy,
+  EveningPricingPolicy, Location, OpeningSchedule, OpeningTimes, PricingPolicy,
+  Studio, User, WeekendPricingPolicy }
 
 class StudioDAO @Inject()
   (protected val dbConfigProvider: DatabaseConfigProvider)
@@ -125,9 +125,10 @@ class StudioDAO @Inject()
       LocationTuple, ZoneId, OpeningScheduleTuple, PricingPolicyTuple,
       BookingPolicyTuple)
 
-    private type LocationTuple = (
-      String, Option[String], String, String, Option[String], Country.Val,
-      BigDecimal, BigDecimal)
+    private type AddressTuple = (
+      String, Option[String], String, String, Option[String], Country.Val)
+
+    private type LocationTuple = (AddressTuple, BigDecimal, BigDecimal)
 
     private type OpeningScheduleTuple = (
       OpeningTimesTuple, OpeningTimesTuple, OpeningTimesTuple,
@@ -145,8 +146,9 @@ class StudioDAO @Inject()
       Duration, Boolean, Boolean, Option[Duration])
 
     private val studioShaped = (
-      id, createdAt, ownerId, name, description,
-      (address1, address2, zipcode, city, state, country, long, lat),
+      id, createdAt, ownerId, name, description, (
+        (address1, address2, zipcode, city, state, country),
+        long, lat),
       timezone, (
         (mondayIsOpen, mondayOpensAt, mondayClosesAt),
         (tuesdayIsOpen, tuesdayOpensAt, tuesdayClosesAt),
@@ -163,17 +165,27 @@ class StudioDAO @Inject()
     private def toStudio(studioTuple: StudioTuple): Studio = {
       Studio(studioTuple._1, studioTuple._2, studioTuple._3, studioTuple._4,
         studioTuple._5,
-        Location.tupled(studioTuple._6), studioTuple._7,
+        toLocation(studioTuple._6), studioTuple._7,
         toOpeningSchedule(studioTuple._8), toPricingPolicy(studioTuple._9),
         toBookingPolicy(studioTuple._10))
     }
 
     private def fromStudio(studio: Studio): Option[StudioTuple] = {
       Some((studio.id, studio.createdAt, studio.ownerId, studio.name,
-        studio.description, Location.unapply(studio.location).get,
+        studio.description, fromLocation(studio.location),
         studio.timezone, fromOpeningSchedule(studio.openingSchedule),
-        fromPricingPolicy(studio.location.country, studio.pricingPolicy),
+        fromPricingPolicy(
+          studio.location.address.country, studio.pricingPolicy),
         fromBookingPolicy(studio.bookingPolicy)))
+    }
+
+    private def toLocation(locationTuple: LocationTuple): Location = {
+      Location(Address.tupled(locationTuple._1),
+        locationTuple._2, locationTuple._3)
+    }
+
+    private def fromLocation(location: Location): LocationTuple = {
+      (Address.unapply(location.address).get, location.long, location.lat)
     }
 
     private def toOpeningSchedule(scheduleTuple: OpeningScheduleTuple)

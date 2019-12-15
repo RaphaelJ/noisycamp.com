@@ -22,8 +22,8 @@
     <div>
         <div class="grid-x grid-margin-x">
             <input type="hidden"
-                :name="fieldName('payout-method')"
-                :value="payoutMethod">
+                :name="fieldName('account-type')"
+                :value="accountType">
 
             <div class="cell callout alert" v-if="fieldHasError('payout-method')">
                 {{ fieldError('payout-method') }}
@@ -82,7 +82,7 @@
         </div>
 
         <div class="grid-x grid-margin-x"
-            v-if="payoutMethod == 'IBAN'">
+            v-if="accountType == 'IBAN'">
             <!-- IBAN -->
             <label class="cell small-12 medium-8">
                 IBAN
@@ -116,7 +116,7 @@
         </div>
 
         <div class="grid-x grid-margin-x"
-            v-if="payoutMethod == 'ABA'">
+            v-if="accountType == 'ABA'">
             <!-- ABA -->
             <label class="cell small-12 medium-6">
                 Routing number
@@ -171,7 +171,7 @@
         </div>
 
         <div class="grid-x grid-margin-x"
-            v-if="payoutMethod == 'Canadian'">
+            v-if="accountType == 'Canadian'">
             <!-- Canadian -->
             <label class="cell small-12 medium-6">
                 Institution number
@@ -244,7 +244,7 @@
         </div>
 
         <div class="grid-x grid-margin-x"
-            v-if="payoutMethod == 'Australian'">
+            v-if="accountType == 'Australian'">
             <!-- Australian -->
             <label class="cell small-12 medium-6">
                 BSB code
@@ -298,7 +298,7 @@
         </div>
 
         <div class="grid-x grid-margin-x"
-            v-if="payoutMethod == 'NewZealand'">
+            v-if="accountType == 'NewZealand'">
             <!-- New Zealand -->
 
             <label class="cell small-12 large-12">
@@ -345,16 +345,16 @@ export default Vue.extend({
         };
     },
     computed: {
-        payoutMethod() {
+        accountType() {
             if (this.country) {
-                return NC_CONFIG.countries[this.country].payoutMethod;
+                return NC_CONFIG.countries[this.country].accountType;
             } else {
                 return null;
             }
         },
 
         requireAddress() {
-            return this.payoutMethod == 'ABA' || this.payoutMethod == 'Australian';
+            return this.accountType == 'ABA' || this.accountType == 'Australian';
         },
     },
     components: { AddressInput, CountrySelect },

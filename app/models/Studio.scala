@@ -40,7 +40,7 @@ case class Studio(
 
   type Id = Long
 
-  def currency = location.country.currency
+  def currency = location.address.country.currency
 
   def localPricingPolicy = {
     LocalPricingPolicy(

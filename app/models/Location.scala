@@ -17,17 +17,10 @@
 
 package models
 
-import i18n.Country
-
 /** Contains the address and geographical location of a place. */
 case class Location(
-  address1:   String,
-  address2:   Option[String],
-  zipcode:    String,
-  city:       String,
-  stateCode:  Option[String],
-  country:    Country.Val,
+  address:    Address,
 
   // Coordinate values in [-90..90].
-  long:   BigDecimal,
-  lat:    BigDecimal)
+  long:       BigDecimal,
+  lat:        BigDecimal)

@@ -68,7 +68,7 @@ object JsConfig {
               JsNull
             }
           },
-          "payoutMethod" -> country.payoutMethod.name
+          "accountType" -> country.accountType.name
         )
       ),
 

@@ -17,7 +17,7 @@
 
 package i18n
 
-object PayoutMethod extends Enumeration {
+object AccountType extends Enumeration {
 
   case class Val(val name: String)
     extends super.Val

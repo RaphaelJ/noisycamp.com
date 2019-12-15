@@ -30,13 +30,13 @@ object PaymentPolicyForm {
     type TupleType = (Boolean, Option[PayoutMethod], Boolean)
 
     tuple(
-      "has-online-payment" -> boolean,
-      "payout-method" -> optional(PayoutMethodForm.form.mapping),
-      "has-onsite-payment" -> boolean
+      "has-online-payment"  -> boolean,
+      "payout-method"       -> optional(PayoutMethodForm.form.mapping),
+      "has-onsite-payment"  -> boolean
     ).
       verifying("Payout method required.", {
         case (hasOnlinePayment, payoutMethod, _) =>
-         !hasOnlinePayment || payoutMethod.isDefined
+          !hasOnlinePayment || payoutMethod.isDefined
       }: (TupleType) => Boolean).
       transform(
         {

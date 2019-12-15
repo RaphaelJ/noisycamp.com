@@ -97,7 +97,7 @@
 }
 
 @layout(
-    Seq(studio.name, "Music studio to rent in " + studio.location.city),
+    Seq(studio.name, "Music studio to rent in " + studio.location.address.city),
     head=head, clientConfig=clientConfig, user=user) {
 
     <div class="grid-container">
@@ -112,7 +112,8 @@
                         <h5>
                             <small>
                                 <i class="fi-marker"></i>&nbsp;
-                                @studio.location.city, @studio.location.country.name
+                                @studio.location.address.city,
+                                @studio.location.address.country.name
                             </small>
                         </h5>
                     </div>
@@ -155,7 +156,7 @@
                     <h3>Location</h3>
 
                     <p class="address">
-                        @tags.address(studio.location)
+                        @tags.address(studio.location.address)
                     </p>
 
                     <location-map

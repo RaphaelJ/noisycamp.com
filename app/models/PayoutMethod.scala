@@ -17,12 +17,20 @@
 
 package models
 
-sealed trait PayoutMethod
+import i18n.Country
 
 object RecipientType extends Enumeration {
   val Business = Value
   val Private = Value
 }
+
+case class PayoutMethod(
+  val country: Country.Val,
+  val recipientType: RecipientType.Value,
+  val recipientName: String,
+  val account: PayoutAccount)
+
+sealed trait PayoutAccount
 
 object AccountType extends Enumeration {
   val Checking = Value
@@ -30,30 +38,35 @@ object AccountType extends Enumeration {
 }
 
 final case class Iban(
-    val recipientType: RecipientType.Value, val bic: Option[String],
+    val bic: Option[String],
     val iban: String
-  ) extends PayoutMethod
+  ) extends PayoutAccount
 
 /** American Bankers Association routing number. */
 final case class AbaAccount(
-    val recipientType: RecipientType.Value, val routingNumber: String,
-    val accountNumber: String, val accountType: AccountType.Value
-  ) extends PayoutMethod
+    val recipientAddress: Address,
+    val routingNumber: String,
+    val accountNumber: String,
+    val accountType: AccountType.Value
+  ) extends PayoutAccount
 
 /** Canadian local bank account. */
 final case class CanadianAccount(
-    val recipientType: RecipientType.Value, val institutionNumber: String,
-    val transitNumber: String, val accountNumber: String,
+    val institutionNumber: String,
+    val transitNumber: String,
+    val accountNumber: String,
     val accountType: AccountType.Value
-  ) extends PayoutMethod
+  ) extends PayoutAccount
 
 /** Australian local bank account. */
 final case class AustralianAccount(
-    val recipientType: RecipientType.Value, val bsbCode: String,
-    val businessNumber: Option[String], val accountNumber: String
-  ) extends PayoutMethod
+    val recipientAddress: Address,
+    val bsbCode: String,
+    val businessNumber: Option[String],
+    val accountNumber: String
+  ) extends PayoutAccount
 
 /** New Zealand bank account. */
 final case class NewZealandAccount(
-    val recipientType: RecipientType.Value, val accountNumber: String
-  ) extends PayoutMethod
+    val accountNumber: String
+  ) extends PayoutAccount

@@ -20,19 +20,28 @@ package forms.components
 import play.api.data.Form
 import play.api.data.Forms._
 
-import models.Location
+import models.Address
+import forms.CustomFields
 
-object LocationForm {
-
-  val coordinate = bigDecimal.
-    verifying("Invalid coordinate", { value => value >= -180 && value <= 180 })
+object AddressForm {
 
   val form = Form(
     mapping(
-      "address" -> AddressForm.form.mapping,
-
-      "long"  -> coordinate,
-      "lat"   -> coordinate
-    )(Location.apply)(Location.unapply)
+      "address-1" -> nonEmptyText,
+      "address-2" -> CustomFields.optionalText,
+      "zipcode" -> nonEmptyText,
+      "city" -> nonEmptyText,
+      "state" -> optional(nonEmptyText),
+      "country" -> CustomFields.country,
+    )(Address.apply)(Address.unapply).
+      verifying("Invalid state/province.", { address => {
+        (address.country.states, address.stateCode) match {
+          case (states, Some(stateCode)) if states.nonEmpty =>
+            states.contains(stateCode)
+          case (states, None) if states.isEmpty => true
+          case _ => false
+        }
+      }
+    })
   )
 }

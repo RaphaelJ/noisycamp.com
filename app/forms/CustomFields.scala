@@ -55,14 +55,31 @@ object CustomFields {
   val currency: Mapping[market.Currency] = {
     val currencyFormat = new Formatter[market.Currency] {
       def bind(key: String, data: Map[String, String]) = {
-        parsing(Currency.byCode, "Invalid currency", Nil)(
-          key, data)
+        parsing(Currency.byCode, "Invalid currency", Nil)(key, data)
       }
 
       def unbind(key: String, value: market.Currency) = Map(key -> value.code)
     }
 
     of(currencyFormat)
+  }
+
+  /** Maps a hashable value of type `T` (such as `Enumeration.Value`) to as
+   * string.
+   */
+  def enumeration[T](mapper: (T, String)*): Mapping[T] = {
+    val mapperMap = mapper.toMap
+    val reverseMapperMap = mapper.map { case (k, v) => (v, k) }.toMap
+
+    val enumFormat = new Formatter[T] {
+      def bind(key: String, data: Map[String, String]) = {
+        parsing(reverseMapperMap, "Invalid enumeration value", Nil)(key, data)
+      }
+
+      def unbind(key: String, value: T) = Map(key -> mapperMap(value))
+    }
+
+    of(enumFormat)
   }
 
   /** Parses a `<input type="time">` as a JodaTime LocalTime value. */
@@ -94,8 +111,7 @@ object CustomFields {
   val pictureId: Mapping[Picture#Id] = {
     val pictureIdFormat: Formatter[Picture#Id] = new Formatter[Picture#Id] {
       def bind(key: String, data: Map[String, String]) = {
-        parsing(PictureId.fromString, "Invalid picture ID", Nil)(
-          key, data)
+        parsing(PictureId.fromString, "Invalid picture ID", Nil)(key, data)
       }
 
       def unbind(key: String, value: Picture#Id) = {

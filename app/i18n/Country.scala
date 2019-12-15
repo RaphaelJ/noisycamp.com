@@ -28,83 +28,83 @@ object Country extends Enumeration {
     */
   case class Val(
     val name: String, val currency: market.Currency, val isoCode: String,
-    val payoutMethod: PayoutMethod.Val, val vat: Option[Double] = None,
+    val accountType: AccountType.Val, val vat: Option[Double] = None,
     val addressFormat: AddressFormat.Value,
     val states: Map[String, String] = Map())
     extends super.Val
 
   /** Eurozone (EU-19) */
   val Austria = Val(
-    "Austria", Currency.EUR, "AT", PayoutMethod.Iban, Some(20),
+    "Austria", Currency.EUR, "AT", AccountType.Iban, Some(20),
     AddressFormat.European)
-  val Belgium = Val("Belgium", Currency.EUR, "BE", PayoutMethod.Iban, Some(21),
+  val Belgium = Val("Belgium", Currency.EUR, "BE", AccountType.Iban, Some(21),
     AddressFormat.European)
-  val Cyprus = Val("Cyprus", Currency.EUR, "CY", PayoutMethod.Iban, Some(19),
+  val Cyprus = Val("Cyprus", Currency.EUR, "CY", AccountType.Iban, Some(19),
     AddressFormat.European)
-  val Estonia = Val("Estonia", Currency.EUR, "EE", PayoutMethod.Iban, Some(20),
+  val Estonia = Val("Estonia", Currency.EUR, "EE", AccountType.Iban, Some(20),
     AddressFormat.European)
-  val Finland = Val("Finland", Currency.EUR, "FI", PayoutMethod.Iban, Some(24),
+  val Finland = Val("Finland", Currency.EUR, "FI", AccountType.Iban, Some(24),
     AddressFormat.European)
-  val France = Val("France", Currency.EUR, "FR", PayoutMethod.Iban, Some(20),
+  val France = Val("France", Currency.EUR, "FR", AccountType.Iban, Some(20),
     AddressFormat.European)
-  val Germany = Val("Germany", Currency.EUR, "DE", PayoutMethod.Iban, Some(19),
+  val Germany = Val("Germany", Currency.EUR, "DE", AccountType.Iban, Some(19),
     AddressFormat.European)
-  val Greece = Val("Greece", Currency.EUR, "GR", PayoutMethod.Iban, Some(24),
+  val Greece = Val("Greece", Currency.EUR, "GR", AccountType.Iban, Some(24),
     AddressFormat.European)
-  val Ireland = Val("Ireland", Currency.EUR, "IE", PayoutMethod.Iban, Some(23),
+  val Ireland = Val("Ireland", Currency.EUR, "IE", AccountType.Iban, Some(23),
     AddressFormat.European)
-  val Italy = Val("Italy", Currency.EUR, "IT", PayoutMethod.Iban, Some(22),
+  val Italy = Val("Italy", Currency.EUR, "IT", AccountType.Iban, Some(22),
     AddressFormat.European)
-  val Latvia = Val("Latvia", Currency.EUR, "LV", PayoutMethod.Iban, Some(21),
+  val Latvia = Val("Latvia", Currency.EUR, "LV", AccountType.Iban, Some(21),
     AddressFormat.European)
-  val Lithuania = Val("Lithuania", Currency.EUR, "LT", PayoutMethod.Iban,
+  val Lithuania = Val("Lithuania", Currency.EUR, "LT", AccountType.Iban,
     Some(21), AddressFormat.European)
-  val Luxembourg = Val("Luxembourg", Currency.EUR, "LU", PayoutMethod.Iban,
+  val Luxembourg = Val("Luxembourg", Currency.EUR, "LU", AccountType.Iban,
     Some(17), AddressFormat.European)
-  val Malta = Val("Malta", Currency.EUR, "MT", PayoutMethod.Iban, Some(18),
+  val Malta = Val("Malta", Currency.EUR, "MT", AccountType.Iban, Some(18),
     AddressFormat.European)
-  val Netherlands = Val("Netherlands", Currency.EUR, "NL", PayoutMethod.Iban,
+  val Netherlands = Val("Netherlands", Currency.EUR, "NL", AccountType.Iban,
     Some(21), AddressFormat.European)
-  val Portugal = Val("Portugal", Currency.EUR, "PT", PayoutMethod.Iban,
+  val Portugal = Val("Portugal", Currency.EUR, "PT", AccountType.Iban,
     Some(23), AddressFormat.European)
-  val Slovakia = Val("Slovakia", Currency.EUR, "SK", PayoutMethod.Iban,
+  val Slovakia = Val("Slovakia", Currency.EUR, "SK", AccountType.Iban,
     Some(20), AddressFormat.European)
-  val Slovenia = Val("Slovenia", Currency.EUR, "SI", PayoutMethod.Iban,
+  val Slovenia = Val("Slovenia", Currency.EUR, "SI", AccountType.Iban,
     Some(22), AddressFormat.European)
-  val Spain = Val("Spain", Currency.EUR, "ES", PayoutMethod.Iban, Some(21),
+  val Spain = Val("Spain", Currency.EUR, "ES", AccountType.Iban, Some(21),
     AddressFormat.European)
 
   /* Rest of EU */
-  val Bulgaria = Val("Bulgaria", Currency.BGN, "BG", PayoutMethod.Iban,
+  val Bulgaria = Val("Bulgaria", Currency.BGN, "BG", AccountType.Iban,
     Some(20), AddressFormat.European)
-  val Denmark = Val("Denmark", Currency.DKK, "DK", PayoutMethod.Iban,
+  val Denmark = Val("Denmark", Currency.DKK, "DK", AccountType.Iban,
     Some(25), AddressFormat.European)
-  val Croatia = Val("Croatia", Currency.HRK, "HR", PayoutMethod.Iban,
+  val Croatia = Val("Croatia", Currency.HRK, "HR", AccountType.Iban,
     Some(25), AddressFormat.European)
   val CzechRepublic = Val("Czech Republic", Currency.CZK, "CZ",
-    PayoutMethod.Iban, Some(21), AddressFormat.European)
-  val Hungary = Val("Hungary", Currency.HUF, "HU", PayoutMethod.Iban, Some(27),
+    AccountType.Iban, Some(21), AddressFormat.European)
+  val Hungary = Val("Hungary", Currency.HUF, "HU", AccountType.Iban, Some(27),
     AddressFormat.Hungarian)
-  val Poland = Val("Poland", Currency.PLN, "PL", PayoutMethod.Iban, Some(23),
+  val Poland = Val("Poland", Currency.PLN, "PL", AccountType.Iban, Some(23),
     AddressFormat.European)
-  val Romania = Val("Romania", Currency.RON, "RO", PayoutMethod.Iban,
+  val Romania = Val("Romania", Currency.RON, "RO", AccountType.Iban,
     Some(19), AddressFormat.European)
-  val Sweden = Val("Sweden", Currency.SEK, "SE", PayoutMethod.Iban, Some(25),
+  val Sweden = Val("Sweden", Currency.SEK, "SE", AccountType.Iban, Some(25),
     AddressFormat.European)
   val UnitedKingdom = Val("United Kingdom", Currency.GBP, "UK",
-    PayoutMethod.Iban, Some(20), AddressFormat.British)
+    AccountType.Iban, Some(20), AddressFormat.British)
 
   /* Europe, non EU */
-  val Iceland = Val("Iceland", Currency.ISK, "IS", PayoutMethod.Iban, Some(24),
+  val Iceland = Val("Iceland", Currency.ISK, "IS", AccountType.Iban, Some(24),
     AddressFormat.European)
-  val Norway = Val("Norway", Currency.NOK, "NO", PayoutMethod.Iban, Some(25),
+  val Norway = Val("Norway", Currency.NOK, "NO", AccountType.Iban, Some(25),
     AddressFormat.European)
-  val Switzerland = Val("Switzerland", Currency.CHF , "CH", PayoutMethod.Iban,
+  val Switzerland = Val("Switzerland", Currency.CHF , "CH", AccountType.Iban,
     Some(7.7), AddressFormat.European)
 
   /* Other */
   val Australia = Val("Australia", Currency.AUD, "AU",
-    PayoutMethod.AustralianAccount, Some(10), AddressFormat.English, Map(
+    AccountType.AustralianAccount, Some(10), AddressFormat.English, Map(
       "ACT" -> "Australian Capital Territory",
       "NSW" -> "New South Wales",
       "NT" -> "Northern Territory",
@@ -113,7 +113,7 @@ object Country extends Enumeration {
       "TAS" -> "Tasmania",
       "VIC" -> "Victoria",
       "WA" -> "Western Australia"))
-  val Canada = Val("Canada", Currency.CAD, "CA", PayoutMethod.CanadianAccount,
+  val Canada = Val("Canada", Currency.CAD, "CA", AccountType.CanadianAccount,
     None, AddressFormat.English, Map(
       "AB" -> "Alberta",
       "BC" -> "British Columbia",
@@ -129,9 +129,9 @@ object Country extends Enumeration {
       "SK" -> "Saskatchewan",
       "YT" -> "Yulon"))
   val NewZealand = Val("New Zealand", Currency.NZD, "NZ",
-    PayoutMethod.NewZealandAccount, Some(15), AddressFormat.English)
+    AccountType.NewZealandAccount, Some(15), AddressFormat.English)
   val UnitedStates = Val("United States", Currency.USD, "US",
-    PayoutMethod.AbaAccount, None, AddressFormat.American, Map(
+    AccountType.AbaAccount, None, AddressFormat.American, Map(
       /* States */
       "AL" -> "Alabama",
       "AK" -> "Alaska",
