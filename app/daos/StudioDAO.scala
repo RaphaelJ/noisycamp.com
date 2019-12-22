@@ -26,8 +26,8 @@ import slick.jdbc.JdbcProfile
 
 import i18n.Country
 import models.{ Address, BookingPolicy, CancellationPolicy,
-  EveningPricingPolicy, Location, OpeningSchedule, OpeningTimes, PricingPolicy,
-  Studio, User, WeekendPricingPolicy }
+  EveningPricingPolicy, Location, OpeningSchedule, OpeningTimes, PaymentPolicy,
+  PayoutMethod, PricingPolicy, Studio, User, WeekendPricingPolicy }
 
 class StudioDAO @Inject()
   (protected val dbConfigProvider: DatabaseConfigProvider)
@@ -50,7 +50,7 @@ class StudioDAO @Inject()
     def address2            = column[Option[String]]("address2")
     def zipcode             = column[String]("zipcode")
     def city                = column[String]("city")
-    def state               = column[Option[String]]("state_code")
+    def stateCode           = column[Option[String]]("state_code")
     def country             = column[Country.Val]("country_code")
 
     def long                = column[BigDecimal]("long")
@@ -120,10 +120,15 @@ class StudioDAO @Inject()
     def canCancel           = column[Boolean]("can_cancel")
     def cancellationNotice  = column[Option[Duration]]("cancellation_notice")
 
+    def hasOnlinePayment    = column[Boolean]("has_online_payment")
+    def payoutMethodId      =
+      column[Option[PayoutMethod#Id]]("payout_method_id")
+    def hasOnsitePayment    = column[Boolean]("has_onsite_payment")
+
     private type StudioTuple = (
       Studio#Id, Instant, User#Id, String, String,
       LocationTuple, ZoneId, OpeningScheduleTuple, PricingPolicyTuple,
-      BookingPolicyTuple)
+      BookingPolicyTuple, PaymentPolicyTuple)
 
     private type AddressTuple = (
       String, Option[String], String, String, Option[String], Country.Val)
@@ -145,9 +150,12 @@ class StudioDAO @Inject()
     private type BookingPolicyTuple = (
       Duration, Boolean, Boolean, Option[Duration])
 
+    private type PaymentPolicyTuple = (Boolean, Option[PayoutMethod#Id],
+      Boolean)
+
     private val studioShaped = (
       id, createdAt, ownerId, name, description, (
-        (address1, address2, zipcode, city, state, country),
+        (address1, address2, zipcode, city, stateCode, country),
         long, lat),
       timezone, (
         (mondayIsOpen, mondayOpensAt, mondayClosesAt),
@@ -159,15 +167,15 @@ class StudioDAO @Inject()
         (sundayIsOpen, sundayOpensAt, sundayClosesAt)),
       (currencyCode, pricePerHour, hasEveningPricing, eveningBeginsAt,
         eveningPricePerHour, hasWeekendPricing, weekendPricePerHour),
-      (minBookingDuration, automaticApproval, canCancel, cancellationNotice)
-    ).shaped
+      (minBookingDuration, automaticApproval, canCancel, cancellationNotice),
+      (hasOnlinePayment, payoutMethodId, hasOnsitePayment)).shaped
 
     private def toStudio(studioTuple: StudioTuple): Studio = {
       Studio(studioTuple._1, studioTuple._2, studioTuple._3, studioTuple._4,
         studioTuple._5,
         toLocation(studioTuple._6), studioTuple._7,
         toOpeningSchedule(studioTuple._8), toPricingPolicy(studioTuple._9),
-        toBookingPolicy(studioTuple._10))
+        toBookingPolicy(studioTuple._10), toPaymentPolicy(studioTuple._11))
     }
 
     private def fromStudio(studio: Studio): Option[StudioTuple] = {
@@ -176,7 +184,8 @@ class StudioDAO @Inject()
         studio.timezone, fromOpeningSchedule(studio.openingSchedule),
         fromPricingPolicy(
           studio.location.address.country, studio.pricingPolicy),
-        fromBookingPolicy(studio.bookingPolicy)))
+        fromBookingPolicy(studio.bookingPolicy),
+        fromPaymentPolicy(studio.paymentPolicy)))
     }
 
     private def toLocation(locationTuple: LocationTuple): Location = {
@@ -257,12 +266,23 @@ class StudioDAO @Inject()
         policy.cancellationPolicy.map(_.notice))
     }
 
+    private def toPaymentPolicy(policyTuple: PaymentPolicyTuple) = {
+      PaymentPolicy(policyTuple._2, policyTuple._3)
+    }
+
+    private def fromPaymentPolicy(policy: PaymentPolicy) = {
+      (policy.onlinePayment.isDefined, policy.onlinePayment,
+        policy.onsitePayment)
+    }
+
     def * = studioShaped <> (toStudio, fromStudio)
   }
 
   lazy val query = TableQuery[StudioTable]
 
+  /** Inserts a studio and returns the newly created object with its inserted
+   * ID. */
   def insert(studio: Studio): DBIO[Studio] = {
-      query returning query.map(_.id) into ((s, id) => s.copy(id=id)) += studio
+    query returning query.map(_.id) into ((s, id) => s.copy(id=id)) += studio
   }
 }

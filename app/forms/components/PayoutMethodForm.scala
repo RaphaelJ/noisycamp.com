@@ -24,20 +24,24 @@ import play.api.data.Forms._
 import i18n.Country
 import models.{
   AccountType, AbaAccount, AustralianAccount, CanadianAccount, Iban,
-  NewZealandAccount, PayoutAccount, PayoutMethod, RecipientType }
+  NewZealandAccount, PayoutAccount, RecipientType }
 import forms.CustomFields
 
 object PayoutMethodForm {
 
-  type Data = PayoutMethod
+  case class Data (
+    val country: Country.Val,
+    val recipientType: RecipientType.Value,
+    val recipientName: String,
+    val account: PayoutAccount)
 
   private val recipientTypeMapping = CustomFields.enumeration(
     RecipientType.Business  -> "business",
     RecipientType.Private   -> "private")
 
   private val ibanMapping: Mapping[Iban] = mapping(
-    "iban"  -> CustomFields.optionalText,
-    "bic"   -> nonEmptyText)(Iban.apply)(Iban.unapply)
+    "bic"   -> CustomFields.optionalText,
+    "iban"  -> nonEmptyText)(Iban.apply)(Iban.unapply)
 
   private val accountType = CustomFields.enumeration(
     AccountType.Checking  -> "checking",
@@ -113,12 +117,12 @@ object PayoutMethodForm {
               case _ => throw new Exception("Unknown account type.")
             }
 
-            PayoutMethod(
+            Data(
               country, recipientType, recipientName, account)
           }
         },
         {
-          case PayoutMethod(country, recipientType, recipientName, account) =>
+          case Data(country, recipientType, recipientName, account) =>
 
             val iban = if (account.isInstanceOf[Iban]) {
                 Some(account.asInstanceOf[Iban])
@@ -153,7 +157,7 @@ object PayoutMethodForm {
 
             (country, recipientType, recipientName, iban, abaAccount,
               canadianAccount, australianAccount, newZealandAccount)
-        }: PayoutMethod => TupleType
+        }: Data => TupleType
       )
   }
 }

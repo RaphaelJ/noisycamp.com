@@ -43,6 +43,8 @@ class Daos @Inject () (
   val studio: StudioDAO,
   val studioPicture: StudioPictureDAO,
 
+  val payoutMethod: PayoutMethodDAO,
+
   val picture: PictureDAO)
 
 /** Client configuration variables, based on session, location and HTTP

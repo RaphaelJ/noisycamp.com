@@ -21,6 +21,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 
 import forms.CustomFields
+import forms.components.PaymentPolicyForm
 import models.{
   BookingPolicy, Location, OpeningSchedule, Picture, PricingPolicy }
 
@@ -36,9 +37,9 @@ object StudioForm {
       "opening-schedule" -> forms.components.OpeningScheduleForm.form.mapping,
       "pricing-policy" -> forms.components.PricingPolicyForm.form.mapping,
       "booking-policy" -> forms.components.BookingPolicyForm.form.mapping,
+      "payment-policy" -> forms.components.PaymentPolicyForm.form.mapping,
       "pictures" -> seq(CustomFields.pictureId)
-    )(Data.apply)(Data.unapply)
-  )
+    )(Data.apply)(Data.unapply))
 
   case class Data(
     name:             String,
@@ -48,6 +49,7 @@ object StudioForm {
     openingSchedule:  OpeningSchedule,
     pricingPolicy:    PricingPolicy,
     bookingPolicy:    BookingPolicy,
+    paymentPolicy:    PaymentPolicyForm.Data,
 
     pictures:         Seq[Picture#Id])
 }

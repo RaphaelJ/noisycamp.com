@@ -21,7 +21,7 @@
 <template>
     <div class="grid-x grid-margin-x">
         <div class="cell large-6">
-            <address-input name="address" v-model="address">
+            <address-input :name="fieldName('address')" v-model="address">
             </address-input>
         </div>
 
@@ -59,23 +59,21 @@ declare var NC_CONFIG: any;
 export default Vue.extend({
     mixins: [VueInput],
     props: {
+        // A {address: {}, coordinates: {}} object.
         value: { type: Object, required: false },
     },
     data() {
-        return {
-            address: {
-                country: this.value.country,
-                address1: this.value.address1,
-                address2: this.value.address2,
-                city: this.value.city,
-                zipcode: this.value.zipcode,
-                state: this.value.state,
-            },
+        var address = {};
+        var coordinates = {};
 
-            coordinates: {
-                long: this.value.long,
-                lat: this.value.lat,
-            },
+        if (this.value) {
+            address = this.value.address;
+            coordinates = this.value.coordinates;
+        }
+
+        return {
+            address: address,
+            coordinates: coordinates,
 
             // The last Geocoding object returned by Mapbox.
             place: null,
@@ -115,6 +113,14 @@ export default Vue.extend({
         }
     },
     computed: {
+        countryFullname() {
+            if (this.address.country) {
+                return NC_CONFIG.countries[this.address.country].name;
+            } else {
+                return null;
+            }
+        },
+
         // Returns `true` if a marker being displayed in the map.
         //
         // No marker is displayed on the map until the user select a country.
@@ -231,12 +237,28 @@ export default Vue.extend({
                 });
             }
         },
+
+        // Emits the new address and coordinate value as an 'input' signal.
+        emitValueChanged() {
+            this.$emit('input', {
+                address: this.address,
+                coordinates: this.coordinates
+            });
+        }
     },
     watch: {
         'address': {
             deep: true,
             handler() {
                 this.updateMarker();
+                this.emitValueChanged();
+            }
+        },
+
+        'coordinates': {
+            deep: true,
+            handler() {
+                this.emitValueChanged();
             }
         },
     },

@@ -36,6 +36,12 @@
             </label>
         </div>
 
+        <input
+            v-if="!hasCountrySelector"
+            type="hidden"
+            :name="fieldName('country')"
+            v-model="address.country">
+
         <div class="cell">
             <label>
                 Street address
@@ -184,14 +190,6 @@ export default Vue.extend({
 
         countryValue() {
             return this.country ? this.country : this.value.country;
-        },
-
-        countryFullname() {
-            if (this.address.country) {
-                return NC_CONFIG.countries[this.countryValue].name;
-            } else {
-                return null;
-            }
         },
 
         hasStates() {

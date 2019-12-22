@@ -17,6 +17,8 @@
 
 package models
 
+import java.time.Instant
+
 import i18n.Country
 
 object RecipientType extends Enumeration {
@@ -25,10 +27,18 @@ object RecipientType extends Enumeration {
 }
 
 case class PayoutMethod(
+  val id: PayoutMethod#Id = 0L,
+  val createdAt: Instant = Instant.now(),
+
+  val ownerId: User#Id,
+
   val country: Country.Val,
   val recipientType: RecipientType.Value,
   val recipientName: String,
-  val account: PayoutAccount)
+  val account: PayoutAccount) {
+
+  type Id = Long
+}
 
 sealed trait PayoutAccount
 

@@ -23,11 +23,12 @@ import play.api.data.Forms._
 import models.{ PaymentPolicy, PayoutMethod }
 
 object PaymentPolicyForm {
-
-  type Data = PaymentPolicy
+  case class Data(
+    onlinePayment: Option[PayoutMethodForm.Data],
+    onsitePayment: Boolean)
 
   val form = Form {
-    type TupleType = (Boolean, Option[PayoutMethod], Boolean)
+    type TupleType = (Boolean, Option[PayoutMethodForm.Data], Boolean)
 
     tuple(
       "has-online-payment"  -> boolean,
@@ -41,11 +42,12 @@ object PaymentPolicyForm {
       transform(
         {
           case (_, payoutMethod, hasOnsitePayment) =>
-            PaymentPolicy(payoutMethod, hasOnsitePayment)
+            Data(payoutMethod, hasOnsitePayment)
         },
         {
-          case policy => (policy.online.isDefined, policy.online, policy.onsite)
-        }: PaymentPolicy => TupleType
+          case policy => (policy.onlinePayment.isDefined, policy.onlinePayment,
+            policy.onsitePayment)
+        }: Data => TupleType
       )
   }
 }

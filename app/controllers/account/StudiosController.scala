@@ -26,7 +26,7 @@ import play.api._
 import play.api.mvc._
 
 import forms.account.StudioForm
-import models.Studio
+import models.{ PaymentPolicy, PayoutMethod, Studio }
 import _root_.controllers.{ CustomBaseController, CustomControllerCompoments }
 
 @Singleton
@@ -59,18 +59,40 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
             query(data.location.lat, data.location.long).
             getOrElse(ZoneId.of("UTC"))
 
-          val studio = Studio(
-            ownerId = request.identity.id,
-            name = data.name,
-            description = data.description,
-            location = data.location,
-            timezone = timezone,
-            openingSchedule = data.openingSchedule,
-            pricingPolicy = data.pricingPolicy,
-            bookingPolicy = data.bookingPolicy)
+          val payoutMethod = data.paymentPolicy.onlinePayment.map {
+            method =>
+              PayoutMethod(
+                ownerId = request.identity.id,
+
+                country = method.country,
+                recipientType = method.recipientType,
+                recipientName = method.recipientName,
+                account = method.account)
+            }
 
           db.run({
             for {
+              payoutMethodId <- payoutMethod match {
+                case Some(method) => {
+                  daos.payoutMethod.insert(method).map(_.id).map(Some(_))
+                }
+                case None => DBIO.successful(None)
+              }
+
+              paymentPolicy = PaymentPolicy(
+                payoutMethodId, data.paymentPolicy.onsitePayment)
+
+              studio = Studio(
+                ownerId = request.identity.id,
+                name = data.name,
+                description = data.description,
+                location = data.location,
+                timezone = timezone,
+                openingSchedule = data.openingSchedule,
+                pricingPolicy = data.pricingPolicy,
+                bookingPolicy = data.bookingPolicy,
+                paymentPolicy = paymentPolicy)
+
               studio <- daos.studio.insert(studio)
               _ <- daos.studioPicture.setStudioPics(studio.id, data.pictures)
             } yield Ok(studio.toString)

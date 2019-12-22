@@ -29,7 +29,8 @@
                 id="payment-policy-has-online-payment"
                 type="checkbox"
                 :name="fieldName('has-online-payment')"
-                v-model="hasOnlinePayment">
+                v-model="hasOnlinePayment"
+                value="true">
 
             <label for="payment-policy-has-online-payment">
                 Allow online payments using credit and debit cards
@@ -74,7 +75,8 @@
                 id="payment-policy-has-onsite-payment"
                 type="checkbox"
                 :name="fieldName('has-onsite-payment')"
-                v-model="hasOnsitePayment">
+                v-model="hasOnsitePayment"
+                value="true">
 
             <label for="payment-policy-has-onsite-payment">
                 Allow onsite payments

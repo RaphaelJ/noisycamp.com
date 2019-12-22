@@ -21,10 +21,6 @@
 <template>
     <div>
         <div class="grid-x grid-margin-x">
-            <input type="hidden"
-                :name="fieldName('account-type')"
-                :value="accountType">
-
             <div class="cell callout alert" v-if="fieldHasError('payout-method')">
                 {{ fieldError('payout-method') }}
             </div>
@@ -73,14 +69,6 @@
             </label>
         </div>
 
-        <div v-if="requireAddress">
-            <address-input
-                :name="fieldName('address')"
-                :country="country"
-                :has-address-2-input="false">
-            </address-input>
-        </div>
-
         <div class="grid-x grid-margin-x"
             v-if="accountType == 'IBAN'">
             <!-- IBAN -->
@@ -89,28 +77,27 @@
 
                 <input
                     type="text"
-                    :name="fieldName('iban')"
+                    :name="fieldName('iban.iban')"
                     placeholder="DE89370400440532013000"
                     minlength="2"
                     required>
 
-                <span v-if="fieldHasError('iban')" class="error">
-                    {{ fieldError('iban') }}
+                <span v-if="fieldHasError('iban.iban')" class="error">
+                    {{ fieldError('iban.iban') }}
                 </span>
             </label>
 
             <label class="cell small-12 medium-4">
-                BIC/SWIFT
+                BIC/SWIFT (optional)
 
                 <input
                     type="text"
-                    :name="fieldName('bic')"
+                    :name="fieldName('iban.bic')"
                     placeholder="GKCCBEBB"
-                    pattern="(?i)[A-Z]{6}[A-Z\\d]{2}([A-Z\\d]{3})?"
-                    required>
+                    pattern="(?i)[A-Z]{6}[A-Z\d]{2}([A-Z\d]{3})?">
 
-                <span v-if="fieldHasError('bic')" class="error">
-                    {{ fieldError('bic') }}
+                <span v-if="fieldHasError('iban.bic')" class="error">
+                    {{ fieldError('iban.bic') }}
                 </span>
             </label>
         </div>
@@ -118,20 +105,28 @@
         <div class="grid-x grid-margin-x"
             v-if="accountType == 'ABA'">
             <!-- ABA -->
+            <div class="cell">
+                <address-input
+                    :name="fieldName('aba-account.address')"
+                    :country="country"
+                    :has-address-2-input="false">
+                </address-input>
+            </div>
+
             <label class="cell small-12 medium-6">
                 Routing number
 
                 <input
                     type="text"
-                    :name="fieldName('routing-number')"
+                    :name="fieldName('aba-account.routing-number')"
                     placeholder="111000025"
                     minlength="9"
                     maxlength="9"
-                    pattern="^\\d{9}$"
+                    pattern="^\d{9}$"
                     required>
 
-                <span v-if="fieldHasError('routing-number')" class="error">
-                    {{ fieldError('routing-number') }}
+                <span v-if="fieldHasError('aba-account.routing-number')" class="error">
+                    {{ fieldError('aba-account.routing-number') }}
                 </span>
             </label>
 
@@ -140,15 +135,15 @@
 
                 <input
                     type="text"
-                    :name="fieldName('account-number')"
+                    :name="fieldName('aba-account.account-number')"
                     placeholder="12345678"
                     minlength="4"
                     maxlength="17"
-                    pattern="^\\d{4,17}$"
+                    pattern="^\d{4,17}$"
                     required>
 
-                <span v-if="fieldHasError('account-number')" class="error">
-                    {{ fieldError('account-number') }}
+                <span v-if="fieldHasError('aba-account.account-number')" class="error">
+                    {{ fieldError('aba-account.account-number') }}
                 </span>
             </label>
 
@@ -157,14 +152,14 @@
                     Account type
 
                     <select
-                        :name="fieldName('account-type')"
+                        :name="fieldName('aba-account.account-type')"
                         required>
                         <option value="checking">Checking</option>
                         <option value="savings">Savings</option>
                     </select>
 
-                    <span v-if="fieldHasError('account-type')" class="error">
-                        {{ fieldError('account-type') }}
+                    <span v-if="fieldHasError('aba-account.account-type')" class="error">
+                        {{ fieldError('aba-account.account-type') }}
                     </span>
                 </label>
             </div>
@@ -178,15 +173,15 @@
 
                 <input
                     type="text"
-                    :name="fieldName('institution-number')"
+                    :name="fieldName('canadian-account.institution-number')"
                     placeholder="006"
                     minlength="3"
                     maxlength="3"
-                    pattern="\\d{3}"
+                    pattern="\d{3}"
                     required>
 
-                <span v-if="fieldHasError('institution-number')" class="error">
-                    {{ fieldError('institution-number') }}
+                <span v-if="fieldHasError('canadian-account.institution-number')" class="error">
+                    {{ fieldError('canadian-account.institution-number') }}
                 </span>
             </label>
 
@@ -195,15 +190,15 @@
 
                 <input
                     type="text"
-                    :name="fieldName('transit-number')"
+                    :name="fieldName('canadian-account.transit-number')"
                     placeholder="04841"
                     minlength="5"
                     maxlength="5"
-                    pattern="\\d{5}"
+                    pattern="\d{5}"
                     required>
 
-                <span v-if="fieldHasError('transit-number')" class="error">
-                    {{ fieldError('transit-number') }}
+                <span v-if="fieldHasError('canadian-account.transit-number')" class="error">
+                    {{ fieldError('canadian-account.transit-number') }}
                 </span>
             </label>
 
@@ -212,16 +207,16 @@
 
                 <input
                     type="text"
-                    :name="fieldName('account-number')"
+                    :name="fieldName('canadian-account.account-number')"
                     name="account-number"
                     placeholder="1234567"
                     minlength="7"
                     maxlength="12"
-                    pattern="\\d{7,12}"
+                    pattern="\d{7,12}"
                     required>
 
-                <span v-if="fieldHasError('account-number')" class="error">
-                    {{ fieldError('account-number') }}
+                <span v-if="fieldHasError('canadian-account.account-number')" class="error">
+                    {{ fieldError('canadian-account.account-number') }}
                 </span>
             </label>
 
@@ -230,14 +225,14 @@
                     Account type
 
                     <select
-                        :name="fieldName('account-type')"
+                        :name="fieldName('canadian-account.account-type')"
                         required>
                         <option value="checking">Checking</option>
                         <option value="savings">Savings</option>
                     </select>
 
-                    <span v-if="fieldHasError('account-type')" class="error">
-                        {{ fieldError('account-type') }}
+                    <span v-if="fieldHasError('canadian-account.account-type')" class="error">
+                        {{ fieldError('canadian-account.account-type') }}
                     </span>
                 </label>
             </div>
@@ -246,20 +241,28 @@
         <div class="grid-x grid-margin-x"
             v-if="accountType == 'Australian'">
             <!-- Australian -->
+            <div class="cell">
+                <address-input
+                    :name="fieldName('australian-account.address')"
+                    :country="country"
+                    :has-address-2-input="false">
+                </address-input>
+            </div>
+
             <label class="cell small-12 medium-6">
                 BSB code
 
                 <input
                     type="text"
-                    :name="fieldName('bsb-code')"
+                    :name="fieldName('australian-account.bsb-code')"
                     placeholder="023604"
                     minlength="6"
                     maxlength="6"
-                    pattern="^\\d{6}$"
+                    pattern="^\d{6}$"
                     required>
 
-                <span v-if="fieldHasError('bsb-code')" class="error">
-                    {{ fieldError('bsb-code') }}
+                <span v-if="fieldHasError('australian-account.bsb-code')" class="error">
+                    {{ fieldError('australian-account.bsb-code') }}
                 </span>
             </label>
 
@@ -268,14 +271,14 @@
 
                 <input
                     type="text"
-                    :name="fieldName('business-number')"
+                    :name="fieldName('australian-account.business-number')"
                     placeholder="11 222 333 444"
                     minlength="9"
                     maxlength="14"
-                    pattern="^(\\d{2,3}\\s?){3,4}$">
+                    pattern="^(\d{2,3}\s?){3,4}$">
 
-                <span v-if="fieldHasError('business-number')" class="error">
-                    {{ fieldError('business-number') }}
+                <span v-if="fieldHasError('australian-account.business-number')" class="error">
+                    {{ fieldError('australian-account.business-number') }}
                 </span>
             </label>
 
@@ -284,15 +287,15 @@
 
                 <input
                     type="text"
-                    :name="fieldName('account-number')"
+                    :name="fieldName('australian-account.account-number')"
                     placeholder="123456789"
                     minlength="4"
                     maxlength="9"
-                    pattern="^\\d{4,9}$"
+                    pattern="^\d{4,9}$"
                     required>
 
-                <span v-if="fieldHasError('account-number')" class="error">
-                    {{ fieldError('account-number') }}
+                <span v-if="fieldHasError('australian-account.account-number')" class="error">
+                    {{ fieldError('australian-account.account-number') }}
                 </span>
             </label>
         </div>
@@ -307,15 +310,15 @@
                 <input
                     type="text"
                     name="account-number"
-                    :name="fieldName('account-number')"
+                    :name="fieldName('new-zealand-account.account-number')"
                     placeholder="03-1587-0050000-00"
                     minlength="15"
                     maxlength="22"
-                    pattern="^\\d{2}([- ])?\\d{4}\\1?\\d{7}\\1?\\d{2,3}$"
+                    pattern="^\d{2}([- ])?\d{4}\1?\d{7}\1?\d{2,3}$"
                     required>
 
-                <span v-if="fieldHasError('account-number')" class="error">
-                    {{ fieldError('account-number') }}
+                <span v-if="fieldHasError('new-zealand-account.account-number')" class="error">
+                    {{ fieldError('new-zealand-account.account-number') }}
                 </span>
             </label>
         </div>

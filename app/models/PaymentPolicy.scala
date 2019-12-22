@@ -20,7 +20,7 @@ package models
 /** Lists the supported payment methods. */
 case class PaymentPolicy(
   /** If defined, allows online payments to the provided payout method. */
-  online:   Option[PayoutMethod],
+  onlinePayment:   Option[PayoutMethod#Id],
 
   /** If true, accepts payment-less booking. */
-  onsite:   Boolean)
+  onsitePayment:   Boolean)

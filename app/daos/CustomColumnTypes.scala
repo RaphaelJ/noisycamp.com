@@ -24,12 +24,24 @@ import play.api.db.slick.HasDatabaseConfigProvider
 import slick.jdbc.JdbcProfile
 
 import i18n.Country
-import models.PictureId
+import models.{ AccountType, PictureId, RecipientType }
 
 trait CustomColumnTypes {
   this: HasDatabaseConfigProvider[JdbcProfile] =>
 
   import profile.api._
+
+  /** Maps a country value to its ISO code. */
+  implicit val accountTypeValue =
+    MappedColumnType.base[AccountType.Value, String](
+      {
+        case AccountType.Checking => "checking"
+        case AccountType.Savings  => "savings"
+      },
+      {
+        case "checking" => AccountType.Checking
+        case "savings" => AccountType.Savings
+      })
 
   /** Maps a country value to its ISO code. */
   implicit val countryValType =
@@ -48,6 +60,17 @@ trait CustomColumnTypes {
   implicit val pictureIdType =
     MappedColumnType.base[PictureId, Array[Byte]](_.value, PictureId.apply _)
 
+  implicit val recipientTypeValue =
+    MappedColumnType.base[RecipientType.Value, String](
+      {
+        case RecipientType.Business => "business"
+        case RecipientType.Private  => "private"
+      },
+      {
+        case "business" => RecipientType.Business
+        case "private" => RecipientType.Private
+      })
+
   /** Stores Scrimage image format as text */
   implicit val scrimageFormatType =
     MappedColumnType.base[Format, String](
@@ -60,8 +83,7 @@ trait CustomColumnTypes {
         case "png" => Format.PNG
         case "gif" => Format.GIF
         case "jpeg" => Format.JPEG
-      }
-    )
+      })
 
   implicit val zoneIdType =
     MappedColumnType.base[ZoneId, String](_.getId, ZoneId.of)

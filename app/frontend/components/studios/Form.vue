@@ -166,24 +166,6 @@
             <hr>
         </div>
 
-        <!-- Payout -->
-
-        <div
-            class="cell"
-            v-if="isShown('payout')">
-
-            <h2>Payout</h2>
-
-            <p>
-                Noisycamp will send the revenue from your rentals twice per month using international
-                wire transfer. Read more about payouts.
-            </p>
-
-            <payout-input name="payout"></payout-input>
-
-            <hr>
-        </div>
-
         <div class="cell text-right">
             <button type="submit" class="button primary large small-only-expanded">
                 Save and continue
@@ -233,12 +215,17 @@ export default Vue.extend({
     },
     data() {
         return {
-            location: {}
+            location: {
+                address: {},
+                coordinates: {}
+            }
         };
     },
     computed: {
         currency() {
             let address = this.location.address;
+
+            console.log(this.location);
 
             if (address && address.country) {
                 return NC_CONFIG.countries[address.country].currency;
