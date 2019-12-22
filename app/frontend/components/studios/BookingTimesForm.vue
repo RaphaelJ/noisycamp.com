@@ -23,6 +23,7 @@
                 Date
                 <input
                     type="date"
+                    name="date"
                     v-model="value.date"
                     @change="updateValue()"
                     :min="mCurrentTime.format('YYYY-MM-DD')"
@@ -37,6 +38,7 @@
                 Starting at
 
                 <select
+                    name="time"
                     v-model="value.time"
                     :disabled="!value.date"
                     @change="updateValue()"
@@ -61,6 +63,7 @@
                 Duration
 
                 <select
+                    name="duration"
                     v-model="value.duration"
                     :disabled="!value.date || !value.time"
                     @change="updateValue()"

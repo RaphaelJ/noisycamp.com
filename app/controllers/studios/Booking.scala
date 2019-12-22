@@ -55,8 +55,6 @@ class Booking @Inject() (ccc: CustomControllerCompoments)
           localPricingPolicy.
           in(clientConfig.currency)(exchangeRatesService.exchangeRates)
 
-
-
         Ok(
           views.html.studios.book(
             clientConfig = clientConfig,

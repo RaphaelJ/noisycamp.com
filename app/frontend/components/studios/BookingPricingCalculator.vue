@@ -147,11 +147,6 @@ export default Vue.extend({
                             eveningPolicy['begins-at']
                         );
 
-                    console.log(eveningBeginsAt);
-                    console.log(bookingStartAt);
-                    console.log(opensAt);
-                    console.log(eveningPolicy['begins-at'] < opensAt);
-
                     durations['regular'] = Math.max(
                         0,
                         Math.min(

@@ -17,7 +17,11 @@
 -->
 
 <template>
-    <form class="grid-y booking-form">
+    <form
+        class="grid-y booking-form"
+        :action="bookingUrl"
+        method="get">
+
         <div class="cell small-12">
             <booking-times-form
                 :current-time="currentTime"
@@ -45,7 +49,8 @@
         <div class="cell small-12">
             <button
                 type="submit"
-                class="button primary large expanded">
+                class="button primary large expanded"
+                @click="bookNow()">
                 Book now
             </button>
 
@@ -62,10 +67,14 @@ import * as moment from 'moment';
 import BookingPricingCalculator from '../BookingPricingCalculator.vue';
 import BookingTimesForm from '../BookingTimesForm.vue';
 
+declare var NC_ROUTES: any;
+
 export default Vue.extend({
     props: {
         // The current local time, without timezone.
         currentTime: { type: String, required: true },
+
+        studioId: { type: Number, required: true },
 
         // An array of {is-open, opens-at, closes-at} 7 objects. Starts on Monday.
         openingSchedule: <PropOptions<Object[]>>{ type: Array, required: true },
@@ -89,6 +98,12 @@ export default Vue.extend({
         }
     },
     computed: {
+        bookingUrl() {
+            let url = NC_ROUTES.controllers.studios.Booking.show(this.studioId).url;
+            // Removes any unspecified URL parameter.
+            return url.substring(0, url.indexOf('?'));
+        },
+
         canComputePricing() {
             return this.bookingTimes.date
                 && this.bookingTimes.time
