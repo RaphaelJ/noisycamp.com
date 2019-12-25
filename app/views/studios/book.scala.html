@@ -75,12 +75,12 @@
 
         <div class="cell">
             <i class="fi-calendar"></i>&nbsp;
-            Wed Nov 17 2019 at 6:00
+            @tags.localDate(bookingTimes.date) at @bookingTimes.time
         </div>
 
         <div class="cell">
             <i class="fi-clock"></i>&nbsp;
-            2 hours
+            @tags.duration(bookingTimes.duration)
         </div>
     </div>
 
