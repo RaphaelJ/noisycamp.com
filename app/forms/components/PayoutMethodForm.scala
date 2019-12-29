@@ -35,17 +35,17 @@ object PayoutMethodForm {
     val recipientName: String,
     val account: PayoutAccount)
 
-  private val recipientTypeMapping = CustomFields.enumeration(
+  private val recipientTypeMapping = CustomFields.enumeration(Seq(
     RecipientType.Business  -> "business",
-    RecipientType.Private   -> "private")
+    RecipientType.Private   -> "private"))
 
   private val ibanMapping: Mapping[Iban] = mapping(
     "bic"   -> CustomFields.optionalText,
     "iban"  -> nonEmptyText)(Iban.apply)(Iban.unapply)
 
-  private val accountType = CustomFields.enumeration(
+  private val accountType = CustomFields.enumeration(Seq(
     AccountType.Checking  -> "checking",
-    AccountType.Savings   -> "savings")
+    AccountType.Savings   -> "savings"))
 
   private val abaAccountMapping: Mapping[AbaAccount] = mapping(
     "address"         -> AddressForm.form.mapping,

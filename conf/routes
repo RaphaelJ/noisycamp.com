@@ -44,6 +44,7 @@ GET     /studios                        controllers.StudiosController.index
 GET     /studios/:id                    controllers.StudiosController.show(id: Long)
 
 GET     /studios/:id/book               controllers.studios.Booking.show(id: Long, date: String, time: String, duration: Int)
+POST    /studios/:id/book               controllers.studios.Booking.submit(id: Long)
 
 # Pictures
 

@@ -38,7 +38,7 @@ object PricingPolicyForm {
       "price-per-hour"          -> CustomFields.amount,
 
       "has-evening-pricing"     -> boolean,
-      "evening-begins-at"       -> optional(CustomFields.jodaLocalTime),
+      "evening-begins-at"       -> optional(CustomFields.localTime),
       "evening-price-per-hour"  -> optional(CustomFields.amount),
 
       "has-weekend-pricing"     -> boolean,

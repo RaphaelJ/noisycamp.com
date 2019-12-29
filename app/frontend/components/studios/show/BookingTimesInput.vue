@@ -85,7 +85,7 @@ import Vue, { PropOptions } from "vue";
 
 import * as moment from 'moment';
 
-import { renderDuration, withTimeComponent } from '../../misc/DateUtils';
+import { renderDuration, withTimeComponent } from '../../../misc/DateUtils';
 
 export default Vue.extend({
     props: {

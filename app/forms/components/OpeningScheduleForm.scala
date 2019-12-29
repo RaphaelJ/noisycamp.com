@@ -46,8 +46,8 @@ object OpeningScheduleForm {
 
     tuple(
       "is-open"   -> boolean,
-      "opens-at"  -> optional(CustomFields.jodaLocalTime),
-      "closes-at" -> optional(CustomFields.jodaLocalTime)
+      "opens-at"  -> optional(CustomFields.localTime),
+      "closes-at" -> optional(CustomFields.localTime)
     ).
       verifying("Open and close times required.", {
         case ((isOpen, opensAt, closesAt)) =>

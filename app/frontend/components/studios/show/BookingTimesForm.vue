@@ -23,13 +23,13 @@
         method="get">
 
         <div class="cell small-12">
-            <booking-times-form
+            <booking-times-input
                 :current-time="currentTime"
                 :opening-schedule='openingSchedule'
                 :occupancies="occupancies"
                 :min-booking-duration="minBookingDuration"
                 v-model="bookingTimes">
-            </booking-times-form>
+            </booking-times-input>
         </div>
 
         <transition name="slide">
@@ -49,8 +49,7 @@
         <div class="cell small-12">
             <button
                 type="submit"
-                class="button primary large expanded"
-                @click="bookNow()">
+                class="button primary large expanded">
                 Book now
             </button>
 
@@ -65,7 +64,7 @@ import Vue, { PropOptions } from "vue";
 import * as moment from 'moment';
 
 import BookingPricingCalculator from '../BookingPricingCalculator.vue';
-import BookingTimesForm from '../BookingTimesForm.vue';
+import BookingTimesInput from './BookingTimesInput.vue';
 
 declare var NC_ROUTES: any;
 
@@ -110,7 +109,7 @@ export default Vue.extend({
                 && this.bookingTimes.duration;
         },
     },
-    components: { BookingPricingCalculator, BookingTimesForm }
+    components: { BookingPricingCalculator, BookingTimesInput }
 });
 </script>
 

@@ -23,11 +23,6 @@
         :action="action" :method="method"
         class="grid-x">
 
-        <input
-            v-if="csrfToken"
-            type="hidden" name="csrfToken"
-            :value="csrfToken">
-
         <!-- General information -->
 
         <div

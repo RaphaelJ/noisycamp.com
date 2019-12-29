@@ -25,9 +25,12 @@ import scala.concurrent.Future
 import play.api._
 import play.api.mvc._
 
-import _root_.controllers.{ CustomBaseController, CustomControllerCompoments }
+import _root_.controllers.{ ClientConfig, CustomBaseController,
+  CustomControllerCompoments }
 import daos.CustomColumnTypes
-import models.{ BookingTimes, Studio }
+import forms.studios.{ BookingForm, BookingTimesForm }
+import models.{ BookingTimes, LocalPricingPolicy, PaymentMethod, Picture,
+  Studio }
 
 @Singleton
 class Booking @Inject() (ccc: CustomControllerCompoments)
@@ -39,29 +42,81 @@ class Booking @Inject() (ccc: CustomControllerCompoments)
   def show(id: Studio#Id, date: String, time: String, duration: Int)
     = silhouette.SecuredAction.async { implicit request =>
 
-    // Parses string arguments
-    // TODO: handle errors.
-    val bookingTimes = BookingTimes(
-      date = LocalDate.parse(date),
-      time = LocalTime.parse(time),
-      duration = Duration.ofSeconds(duration.toLong))
+    withStudio(id, { case (clientConfig, studio, picIds, pricingPolicy) =>
+      val params = Map(
+        "date"            -> date,
+        "time"            -> time,
+        "duration"        -> duration.toString)
 
-    for {
-      clientConfig <- getClientConfig
-      dbStudio <- db.run { daos.studioPicture.getStudioWithPictures(id) }
-    } yield dbStudio match {
-      case (Some(studio), picIds) => {
-        val pricingPolicy = studio.
-          localPricingPolicy.
-          in(clientConfig.currency)(exchangeRatesService.exchangeRates)
+      BookingTimesForm.form.bind(params).fold(
+        form => DBIO.successful(BadRequest("Invalid booking request.")),
+        bookingTimes => {
+          DBIO.successful(Ok(
+            views.html.studios.book(
+              clientConfig = clientConfig,
+              user = Some(request.identity),
+              studio, pricingPolicy, picIds, bookingTimes)))
+        }
+      )
+    })
+  }
 
-        Ok(
-          views.html.studios.book(
-            clientConfig = clientConfig,
-            user = Some(request.identity),
-            studio, pricingPolicy, picIds, bookingTimes))
+  def submit(id: Studio#Id)
+    = silhouette.SecuredAction.async {
+    implicit request =>
+
+    withStudio(id, { case (clientConfig, studio, picIds, pricingPolicy) =>
+      BookingForm.form.bindFromRequest.fold(
+        form => DBIO.successful(BadRequest("Invalid booking request.")),
+        data => {
+          val handler = data.paymentMethod match {
+            case PaymentMethod.Online => handleOnlinePayment _
+            case PaymentMethod.Onsite => handleOnsitePayment _
+          }
+
+          DBIO.from(handler(studio, pricingPolicy, data))
+        }
+      )
+    })
+  }
+
+  /** Executes the function within the DBIO monad, or returns a 404 response. */
+  private def withStudio[T](id: Studio#Id,
+    f: (
+      (ClientConfig, Studio, Seq[Picture#Id], LocalPricingPolicy)
+      => DBIOAction[Result, NoStream, Effect.All]))
+    (implicit request: Request[T]):
+    Future[Result] = {
+
+    getClientConfig.flatMap { clientConfig =>
+      db.run {
+        val dbStudio = daos.studioPicture.getStudioWithPictures(id)
+
+        dbStudio.flatMap {
+          case (Some(studio), picIds) => {
+            val pricingPolicy = studio.
+              localPricingPolicy.
+              in(clientConfig.currency)(exchangeRatesService.exchangeRates)
+
+            f(clientConfig, studio, picIds, pricingPolicy)
+          }
+          case (None, _) => DBIO.successful(NotFound("Studio not found."))
+        }: DBIOAction[Result, NoStream, Effect.All]
       }
-      case (None, _) => NotFound("Studio not found.")
     }
+  }
+
+  private def handleOnlinePayment(studio: Studio,
+    pricingPolicy: LocalPricingPolicy, formData: BookingForm.Data)
+    : Future[Result] = {
+
+    Future.successful(Ok(formData.toString))
+  }
+
+  private def handleOnsitePayment(studio: Studio,
+    pricingPolicy: LocalPricingPolicy, formData: BookingForm.Data)
+    : Future[Result] = {
+
+    Future.successful(Ok(formData.toString))
   }
 }

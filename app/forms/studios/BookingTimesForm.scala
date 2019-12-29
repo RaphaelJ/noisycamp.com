@@ -15,15 +15,25 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package models
+package forms.studios
 
-/** Lists the supported payment methods. */
-case class PaymentPolicy(
-  /** If defined, allows online payments to the provided payout method. */
-  onlinePayment:   Option[PayoutMethod#Id],
+import java.time.{ Duration, LocalDate, LocalTime }
 
-  /** If true, accepts payment-less booking. */
-  hasOnsitePayment:   Boolean) {
+import play.api.data.Form
+import play.api.data.Forms._
 
-  def hasOnlinePayment = onlinePayment.isDefined
+import forms.CustomFields
+import models.BookingTimes
+
+/** A form to place a booking request. */
+object BookingTimesForm {
+
+  type Data = BookingTimes
+
+  val form = Form(
+    mapping(
+      "date"            -> CustomFields.localDate,
+      "time"            -> CustomFields.localTime,
+      "duration"        -> CustomFields.seconds
+    )(BookingTimes.apply)(BookingTimes.unapply))
 }

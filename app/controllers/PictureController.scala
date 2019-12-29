@@ -42,24 +42,25 @@ class PictureController @Inject() (
   /** Receives a new picture and stores it in the database. */
   def upload = silhouette.SecuredAction(parse.multipartFormData).async {
     implicit request =>
-      request.body
-        .file("picture")
-        .map { file =>
-          PictureUtils.fromFile(file.ref.path) match {
-            case Some(newPic) => {
-              daos.picture.insertIfNotExits(newPic).
-                map { pic =>
-                  val id = pic.id.base64
-                  val uri = routes.PictureController.view(id).url
-                  Created(id).withHeaders("Location" -> uri)
-                }
-            }
-            case None => Future.successful(BadRequest("Invalid image format."))
+    
+    request.body
+      .file("picture")
+      .map { file =>
+        PictureUtils.fromFile(file.ref.path) match {
+          case Some(newPic) => {
+            daos.picture.insertIfNotExits(newPic).
+              map { pic =>
+                val id = pic.id.base64
+                val uri = routes.PictureController.view(id).url
+                Created(id).withHeaders("Location" -> uri)
+              }
           }
-        }.
-        getOrElse {
-          Future.successful(BadRequest("Missing file."))
+          case None => Future.successful(BadRequest("Invalid image format."))
         }
+      }.
+      getOrElse {
+        Future.successful(BadRequest("Missing file."))
+      }
   }
 
   def view(id: String) = Action.async { picWithTransform(id, RawPicture) }

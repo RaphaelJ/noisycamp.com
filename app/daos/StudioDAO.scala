@@ -271,8 +271,7 @@ class StudioDAO @Inject()
     }
 
     private def fromPaymentPolicy(policy: PaymentPolicy) = {
-      (policy.onlinePayment.isDefined, policy.onlinePayment,
-        policy.onsitePayment)
+      (policy.hasOnlinePayment, policy.onlinePayment, policy.hasOnsitePayment)
     }
 
     def * = studioShaped <> (toStudio, fromStudio)

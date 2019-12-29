@@ -80,7 +80,7 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
               }
 
               paymentPolicy = PaymentPolicy(
-                payoutMethodId, data.paymentPolicy.onsitePayment)
+                payoutMethodId, data.paymentPolicy.hasOnsitePayment)
 
               studio = Studio(
                 ownerId = request.identity.id,

@@ -25,7 +25,7 @@ import models.{ PaymentPolicy, PayoutMethod }
 object PaymentPolicyForm {
   case class Data(
     onlinePayment: Option[PayoutMethodForm.Data],
-    onsitePayment: Boolean)
+    hasOnsitePayment: Boolean)
 
   val form = Form {
     type TupleType = (Boolean, Option[PayoutMethodForm.Data], Boolean)
@@ -46,7 +46,7 @@ object PaymentPolicyForm {
         },
         {
           case policy => (policy.onlinePayment.isDefined, policy.onlinePayment,
-            policy.onsitePayment)
+            policy.hasOnsitePayment)
         }: Data => TupleType
       )
   }

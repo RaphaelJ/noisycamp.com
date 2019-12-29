@@ -60,7 +60,7 @@
 
                     <studio-form
                         action="@controllers.account.routes.StudiosController.createSubmit"
-                        method="POST"
+                        method="post"
                         csrf-token="@helper.CSRF.getToken.value"
                         :errors="@studioForm.errorsAsJson">
                     </studio-form>

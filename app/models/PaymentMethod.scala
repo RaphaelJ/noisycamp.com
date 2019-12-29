@@ -15,10 +15,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-.card-icons {
-    margin-left: 1.5rem;
-}
+package models
 
-.card-icons img {
-    height: 1.5rem;
+object PaymentMethod extends Enumeration {
+  val Online = Value
+  val Onsite = Value
 }

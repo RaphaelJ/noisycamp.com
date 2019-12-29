@@ -17,7 +17,7 @@
 
 package forms
 
-import java.time.{ Duration, LocalTime }
+import java.time.{ Duration, LocalDate, LocalTime }
 
 import play.api.data.{ FormError, Mapping }
 import play.api.data.format.Formatter
@@ -39,41 +39,28 @@ object CustomFields {
 
   /** Accepts any valid country value (ISO code) from the `Country`
     * enumeration. */
-  val country: Mapping[Country.Val] = {
-    val countryFormat: Formatter[Country.Val] = new Formatter[Country.Val] {
-      def bind(key: String, data: Map[String, String]) = {
-        parsing(Country.byCode, "Invalid country", Nil)(key, data)
-      }
-
-      def unbind(key: String, value: Country.Val) = Map(key -> value.isoCode)
-    }
-
-    of(countryFormat)
-  }
+  val country: Mapping[Country.Val] = enumeration[Country.Val](
+    Country.values.
+      toSeq.
+      map(_.asInstanceOf[Country.Val]).
+      map { v => v -> v.isoCode }, "Invalid country code")
 
   /** Maps a currency code to a `Currency` value. */
-  val currency: Mapping[market.Currency] = {
-    val currencyFormat = new Formatter[market.Currency] {
-      def bind(key: String, data: Map[String, String]) = {
-        parsing(Currency.byCode, "Invalid currency", Nil)(key, data)
-      }
-
-      def unbind(key: String, value: market.Currency) = Map(key -> value.code)
-    }
-
-    of(currencyFormat)
-  }
+  val currency: Mapping[market.Currency] = enumeration[market.Currency](
+    Currency.currencies.toSeq.map { v => v -> v.code }, "Invalid currency code")
 
   /** Maps a hashable value of type `T` (such as `Enumeration.Value`) to as
    * string.
    */
-  def enumeration[T](mapper: (T, String)*): Mapping[T] = {
+  def enumeration[T](mapper: Seq[(T, String)],
+    errorMsg: String = "Invalid enumeration value"): Mapping[T] = {
+
     val mapperMap = mapper.toMap
     val reverseMapperMap = mapper.map { case (k, v) => (v, k) }.toMap
 
     val enumFormat = new Formatter[T] {
       def bind(key: String, data: Map[String, String]) = {
-        parsing(reverseMapperMap, "Invalid enumeration value", Nil)(key, data)
+        parsing(reverseMapperMap, errorMsg, Nil)(key, data)
       }
 
       def unbind(key: String, value: T) = Map(key -> mapperMap(value))
@@ -82,9 +69,22 @@ object CustomFields {
     of(enumFormat)
   }
 
-  /** Parses a `<input type="time">` as a JodaTime LocalTime value. */
-  val jodaLocalTime: Mapping[LocalTime] = {
-    val jodaLocalTimeFormat = new Formatter[LocalTime] {
+  /** Parses a `<input type="date">` as a LocalDate value. */
+  val localDate: Mapping[LocalDate] = {
+    val localDateFormat = new Formatter[LocalDate] {
+      def bind(key: String, data: Map[String, String]) = {
+        parsing(LocalDate.parse, "Invalid date format", Nil)(key, data)
+      }
+
+      def unbind(key: String, value: LocalDate) = Map(key -> value.toString)
+    }
+
+    of(localDateFormat)
+  }
+
+  /** Parses a `<input type="time">` as a LocalTime value. */
+  val localTime: Mapping[LocalTime] = {
+    val localTimeFormat = new Formatter[LocalTime] {
       def bind(key: String, data: Map[String, String]) = {
         parsing(LocalTime.parse, "Invalid time format", Nil)(key, data)
       }
@@ -92,7 +92,7 @@ object CustomFields {
       def unbind(key: String, value: LocalTime) = Map(key -> value.toString)
     }
 
-    of(jodaLocalTimeFormat)
+    of(localTimeFormat)
   }
 
   /** Similar to `text`, but will bind empty string to a `None` value. */

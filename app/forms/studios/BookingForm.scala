@@ -15,15 +15,30 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package models
+package forms.studios
 
-/** Lists the supported payment methods. */
-case class PaymentPolicy(
-  /** If defined, allows online payments to the provided payout method. */
-  onlinePayment:   Option[PayoutMethod#Id],
+import play.api.data.{ Form, Mapping }
+import play.api.data.Forms._
 
-  /** If true, accepts payment-less booking. */
-  hasOnsitePayment:   Boolean) {
+import forms.CustomFields
+import models.{ BookingTimes, PaymentMethod }
 
-  def hasOnlinePayment = onlinePayment.isDefined
+/** A form to place a booking request. */
+object BookingForm {
+
+  private val paymentMethod: Mapping[PaymentMethod.Value] =
+    CustomFields.enumeration(Seq(
+      PaymentMethod.Online  -> "online",
+      PaymentMethod.Onsite  -> "onsite"))
+
+  val form = Form(
+    mapping(
+      "booking-times"   -> BookingTimesForm.form.mapping,
+
+      "payment-method"  -> paymentMethod
+    )(Data.apply)(Data.unapply))
+
+  case class Data(
+    bookingTimes:     BookingTimes,
+    paymentMethod:    PaymentMethod.Value)
 }

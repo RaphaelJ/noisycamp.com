@@ -31,12 +31,6 @@
     bookingTimes: models.BookingTimes)(
     implicit req: RequestHeader, config: Configuration)
 
-@head = {
-    <link
-        rel="stylesheet"
-        href="@routes.Assets.versioned("stylesheets/studios/book.css")">
-}
-
 @leftPanel = {
     <div class="grid-y grid-padding-y">
         <div class="cell text-center">
@@ -86,70 +80,20 @@
 
     <hr>
 
-    <h3>Price breakdown</h3>
-
-    <booking-pricing-calculator
+    <booking-form
+        :studio-id='@studio.id'
         :opening-schedule='@tags.asJson(Json.toJson(studio.openingSchedule))'
         :pricing-policy='@tags.asJson(Json.toJson(pricingPolicy))'
-        :booking-times='@tags.asJson(Json.toJson(bookingTimes))'>
-    </booking-pricing-calculator>
-
-    <hr>
-
-    <fieldset>
-        <h3>Please choose your payment method</h3>
-
-        <div class="grid-y">
-            <div class="cell">
-                <input
-                    type="radio"
-                    name="payment-method"
-                    value="online"
-                    id="payment-method-online" checked>
-                <label for="payment-method-online">
-                    Credit/Debit card
-
-                    <span class="card-icons">
-                        <img
-                            alt="Visa"
-                            src="@routes.Assets.versioned("images/vendor/card-icons/visa.svg")">
-                        <img
-                            alt="MasterCard"
-                            src="@routes.Assets.versioned("images/vendor/card-icons/mastercard-1.svg")">
-                        <img
-                            alt="Amex"
-                            src="@routes.Assets.versioned("images/vendor/card-icons/Amex.svg")">
-                    </span>
-                </label>
-            </div>
-
-            <div class="cell">
-                <input
-                    type="radio"
-                    name="payment-method"
-                    value="on-site"
-                    id="payment-method-on-site">
-                <label for="payment-method-on-site">Onsite</label>
-                <p class="help-text">
-                    Payment will be requested by the studio's manager before or after you begin your
-                    session.
-                </p>
-            </div>
-        </div>
-    </fieldset>
-
-    <hr>
-
-    <div class="text-right">
-        <a class="button primary large small-only-expanded">
-            Proceed to checkout
-        </a>
-    </div>
+        :booking-times='@tags.asJson(Json.toJson(bookingTimes))'
+        :has-online-payment='@studio.paymentPolicy.hasOnlinePayment'
+        :has-onsite-payment='@studio.paymentPolicy.hasOnsitePayment'
+        csrf-token="@helper.CSRF.getToken.value">
+    </booking-form>
 }
 
 @layout(
     Seq("Book music studio in " + studio.name),
-    head=head, clientConfig=clientConfig, user=user) {
+    clientConfig=clientConfig, user=user) {
 
     <div class="grid-container">
         <div class="grid-x grid-padding-x grid-padding-y">

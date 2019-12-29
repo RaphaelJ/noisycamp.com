@@ -75,14 +75,14 @@
         <div class="cell small-12"><hr></div>
 
         <div class="cell small-12">
-            <booking-form
+            <booking-times-form
                 current-time="@Instant.now.toString"
                 :studio-id='@studio.id'
                 :opening-schedule='@tags.asJson(Json.toJson(studio.openingSchedule))'
                 :occupancies="[]"
                 :min-booking-duration="@studio.bookingPolicy.minBookingDuration.getSeconds()"
                 :pricing-policy='@tags.asJson(Json.toJson(pricingPolicy))'>
-            </booking-form>
+            </booking-times-form>
         </div>
 
         <div class="cell small-12 text-center">
