@@ -68,6 +68,8 @@ libraryDependencies ++= Seq(
 
   "com.sksamuel.scrimage" %% "scrimage-core" % "2.1.8",
 
+  "com.stripe" % "stripe-java" % "16.4.0",
+
   "com.typesafe.play" %% "play-slick" % "4.0.2",
 
   "org.postgresql" % "postgresql" % "42.2.8",
