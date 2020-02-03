@@ -43,8 +43,14 @@ GET     /i18n/currency/set/:currCode    controllers.i18n.Currency.set(currCode: 
 GET     /studios                        controllers.StudiosController.index
 GET     /studios/:id                    controllers.StudiosController.show(id: Long)
 
-GET     /studios/:id/book               controllers.studios.Booking.show(id: Long, date: String, time: String, duration: Int)
+# Booking
+
+GET     /studios/:id/book               controllers.studios.Booking.show(id: Long, date: String, time: String, duration: Int, error: Option[String] ?= None)
 POST    /studios/:id/book               controllers.studios.Booking.submit(id: Long)
+
+GET     /studios/:id/book/payment/:sessionId/success controllers.studios.Booking.paymentSuccess(id: Long, sessionId: String)
+
+GET     /webhooks/stripe/session-completed controllers.studios.Booking.stripeCompleted
 
 # Pictures
 

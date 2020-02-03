@@ -23,6 +23,8 @@
         :action="action" :method="method"
         class="grid-x">
 
+        <input type="hidden" name="csrfToken" :value="csrfToken">
+
         <!-- General information -->
 
         <div

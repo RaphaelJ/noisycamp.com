@@ -50,8 +50,7 @@ object CustomFields {
     Currency.currencies.toSeq.map { v => v -> v.code }, "Invalid currency code")
 
   /** Maps a hashable value of type `T` (such as `Enumeration.Value`) to as
-   * string.
-   */
+   * string. */
   def enumeration[T](mapper: Seq[(T, String)],
     errorMsg: String = "Invalid enumeration value"): Mapping[T] = {
 

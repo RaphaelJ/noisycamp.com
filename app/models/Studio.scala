@@ -51,7 +51,6 @@ case class Studio(
       ) },
       pricingPolicy.weekend.map { weekendPolicy => LocalWeekendPricingPolicy(
         currency(weekendPolicy.pricePerHour)
-      ) },
-    )
+      ) })
   }
 }

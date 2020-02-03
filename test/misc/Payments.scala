@@ -32,6 +32,8 @@ class PaymentsSpec extends PlaySpec {
       Payments.asStripeAmount(Currency.EUR(12.542)) should be ((1254, "EUR"))
 
       Payments.asStripeAmount(Currency.ISK(450)) should be ((450, "ISK"))
+
+      Payments.asStripeAmount(Currency.ISK(3072)) should be ((450, "ISK"))
     }
   }
 }

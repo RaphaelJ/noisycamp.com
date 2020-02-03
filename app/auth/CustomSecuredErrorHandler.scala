@@ -21,12 +21,11 @@ import scala.concurrent.Future
 
 import com.mohiva.play.silhouette.api.actions.SecuredErrorHandler
 import javax.inject._
-import play.api.mvc.{ControllerComponents, RequestHeader}
+import play.api.mvc.{ ControllerComponents, RequestHeader }
 import play.api.mvc.Results._
 
 class CustomSecuredErrorHandler @Inject() (
-    cc: ControllerComponents
-  )
+  cc: ControllerComponents)
   extends SecuredErrorHandler {
 
   /**

@@ -28,12 +28,13 @@
     studio: models.Studio,
     pricingPolicy: LocalPricingPolicy,
     pictures: Seq[models.Picture#Id],
-    bookingTimes: models.BookingTimes)(
+    bookingTimes: models.BookingTimes,
+    errorOpt: Option[String])(
     implicit req: RequestHeader, config: Configuration)
 
 @leftPanel = {
     <div class="grid-y grid-padding-y">
-        <div class="cell text-center">
+        <div class="cell text-center hide-for-small-only">
             <reactive-picture
                 alt="@{studio.name} picture"
                 picture-id="@pictures.head.base64"
@@ -59,6 +60,16 @@
 }
 
 @rightPanel = {
+    @for(error <- errorOpt) {
+        @error match {
+            case "payment-error" => {
+                <div class="cell callout alert">
+                    A error occured while processing your payment.
+                </div>
+            }
+        }
+    }
+
     <h3>Summary</h3>
 
     <div class="grid-y">

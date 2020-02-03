@@ -32,6 +32,8 @@ import play.api.libs.concurrent.CustomExecutionContext
 import play.api.libs.ws._
 import squants.market
 
+import misc.TaskExecutionContext
+
 /** A set of exchange rates with their associated timestamp. */
 case class ExchangeRates(rates: List[market.CurrencyExchangeRate],
   date: DateTime) {
@@ -53,7 +55,7 @@ case class ExchangeRates(rates: List[market.CurrencyExchangeRate],
 @Singleton
 class ExchangeRatesService @Inject() (
   actorSystem: ActorSystem,
-  implicit val executionContext: ExecutionContext,
+  implicit val executionContext: TaskExecutionContext,
   ws: WSClient) {
 
   val updateInterval: FiniteDuration = 15.minutes

@@ -21,6 +21,7 @@ import javax.inject._
 import scala.concurrent.{ ExecutionContext, Future }
 
 import akka.util.ByteString
+import com.sksamuel.scrimage.Format
 import org.joda.time.DateTime
 import play.api._
 import play.api.http.HttpEntity
@@ -42,7 +43,7 @@ class PictureController @Inject() (
   /** Receives a new picture and stores it in the database. */
   def upload = silhouette.SecuredAction(parse.multipartFormData).async {
     implicit request =>
-    
+
     request.body
       .file("picture")
       .map { file =>
@@ -97,11 +98,17 @@ class PictureController @Inject() (
       map {
         case Some(pic) => {
           val bs = ByteString(pic.content)
+          val contentType = pic.format match {
+            case Format.PNG => "image/png"
+            case Format.GIF => "image/gif"
+            case Format.JPEG => "image/jpeg"
+          }
+
           Result(
             header = ResponseHeader(200, Map(
               // Cacheable, expires after a year.
               "Cache-Control" -> "public, max-age=31536000")),
-            body = HttpEntity.Strict(bs, None))
+            body = HttpEntity.Strict(bs, Some(contentType)))
         }
         case None => NotFound("Picture not found.")
       }

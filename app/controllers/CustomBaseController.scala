@@ -33,6 +33,7 @@ import auth.{ DefaultEnv, UserService }
 import daos._
 import _root_.i18n.{ Country, Currency, ExchangeRatesService, GeoIpService,
   GeoIpLocation, TimeZoneService }
+import misc.{ PaymentService, TaskExecutionContext }
 import pictures.PictureCache
 
 /** The default DAOs provided to the controllers. */
@@ -42,6 +43,7 @@ class Daos @Inject () (
 
   val studio: StudioDAO,
   val studioPicture: StudioPictureDAO,
+  val studioBooking: StudioBookingDAO,
 
   val payoutMethod: PayoutMethodDAO,
 
@@ -56,7 +58,9 @@ case class ClientConfig(
 class CustomControllerCompoments @Inject() (
   val cc: ControllerComponents,
   val config: Configuration,
+
   val executionContext: ExecutionContext,
+  val taskExecutionContext: TaskExecutionContext,
 
   // Database and DAOs
   val dbConfigProvider: DatabaseConfigProvider,
@@ -68,6 +72,7 @@ class CustomControllerCompoments @Inject() (
   // Misc
   val exchangeRatesService: ExchangeRatesService,
   val geoIpService: GeoIpService,
+  val paymentService: PaymentService,
   val timeZoneService: TimeZoneService)
 
 /** Provides a base class for controllers and simplifies the injection process
@@ -81,6 +86,8 @@ abstract class CustomBaseController @Inject () (
 
   implicit val config = ccc.config
   implicit val executionContext = ccc.executionContext
+  /** Uses this execution context for blocking calls. */
+  val taskExecutionContext = ccc.taskExecutionContext
 
   val dbConfigProvider = ccc.dbConfigProvider
   val daos = ccc.daos
@@ -90,6 +97,7 @@ abstract class CustomBaseController @Inject () (
   val exchangeRatesService = ccc.exchangeRatesService
   val geoIpService = ccc.geoIpService
   val timeZoneService = ccc.timeZoneService
+  val paymentService = ccc.paymentService
 
   def getClientConfig[A](implicit request: Request[A])
     : Future[ClientConfig] = {

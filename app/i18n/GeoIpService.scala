@@ -37,8 +37,8 @@ case class GeoIpLocation(country: Country.Val)
 @Singleton
 class GeoIpService @Inject() (
   val config: Configuration,
-  val ws: WSClient)
-  (implicit executionContext: ExecutionContext) {
+  val ws: WSClient,
+  implicit val executionContext: ExecutionContext) {
 
   def get(ip: String): Future[Option[GeoIpLocation]] = {
     cachingF(ip)(ttl = None) {

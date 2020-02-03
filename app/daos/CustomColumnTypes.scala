@@ -17,73 +17,79 @@
 
 package daos
 
-import java.time.{ Duration, LocalTime, ZoneId }
+import scala.reflect.ClassTag
+import java.time.{ Duration, LocalDateTime, LocalTime, ZoneId }
 
 import com.sksamuel.scrimage.Format
 import play.api.db.slick.HasDatabaseConfigProvider
 import slick.jdbc.JdbcProfile
+import squants.market
 
-import i18n.Country
-import models.{ AccountType, PictureId, RecipientType }
+import i18n.{ Country, Currency }
+import models.{ AccountType, PictureId, RecipientType, StudioBookingStatus }
 
 trait CustomColumnTypes {
   this: HasDatabaseConfigProvider[JdbcProfile] =>
 
   import profile.api._
 
+  /** Maps a hashable value of type `T` (such as `Enumeration.Value`) to as
+   * string. */
+  def enumeration[T: ClassTag](mapper: Seq[(T, String)]) = {
+    val mapperMap = mapper.toMap
+    val reverseMapperMap = mapper.map { case (k, v) => (v, k) }.toMap
+
+    MappedColumnType.base[T, String](mapperMap, reverseMapperMap)
+  }
+
   /** Maps a country value to its ISO code. */
-  implicit val accountTypeValue =
-    MappedColumnType.base[AccountType.Value, String](
-      {
-        case AccountType.Checking => "checking"
-        case AccountType.Savings  => "savings"
-      },
-      {
-        case "checking" => AccountType.Checking
-        case "savings" => AccountType.Savings
-      })
+  implicit val accountTypeValue = enumeration[AccountType.Value](Seq(
+    AccountType.Checking -> "checking",
+    AccountType.Savings  -> "savings"))
 
   /** Maps a country value to its ISO code. */
   implicit val countryValType =
     MappedColumnType.base[Country.Val, String](_.isoCode, Country.byCode(_))
 
+  /** Maps a currency value to its ISO code. */
+  implicit val currencyType =
+    MappedColumnType.base[market.Currency, String](_.code, Currency.byCode(_))
+
   /** Stores a java.time.Duration as an amount of milliseconds. */
   implicit val durationType =
     MappedColumnType.base[Duration, Long](_.toMillis, Duration.ofMillis)
 
+  /** Alternative implementation of java.time.LocalDateTime that maps to a
+   * string. */
+  implicit val localDateTimeType =
+    MappedColumnType.base[LocalDateTime, String](
+      _.toString, LocalDateTime.parse)
+
   /** Alternative implementation of java.time.LocalTime that maps to a string
    *
    * See <https://github.com/tminglei/slick-pg/issues/381> */
-  implicit val localtimeType =
+  implicit val localTimeType =
     MappedColumnType.base[LocalTime, String](_.toString, LocalTime.parse)
 
   implicit val pictureIdType =
     MappedColumnType.base[PictureId, Array[Byte]](_.value, PictureId.apply _)
 
-  implicit val recipientTypeValue =
-    MappedColumnType.base[RecipientType.Value, String](
-      {
-        case RecipientType.Business => "business"
-        case RecipientType.Private  => "private"
-      },
-      {
-        case "business" => RecipientType.Business
-        case "private" => RecipientType.Private
-      })
+  implicit val recipientTypeValue = enumeration[RecipientType.Value](Seq(
+    RecipientType.Business -> "business",
+    RecipientType.Private  -> "private"))
 
   /** Stores Scrimage image format as text */
-  implicit val scrimageFormatType =
-    MappedColumnType.base[Format, String](
-      {
-        case Format.PNG => "png"
-        case Format.GIF => "gif"
-        case Format.JPEG => "jpeg"
-      },
-      {
-        case "png" => Format.PNG
-        case "gif" => Format.GIF
-        case "jpeg" => Format.JPEG
-      })
+  implicit val scrimageFormatType = enumeration[Format](Seq(
+    Format.PNG -> "png",
+    Format.GIF -> "gif",
+    Format.JPEG -> "jpeg"))
+
+  implicit val studioBookingStatusValueType =
+    enumeration[StudioBookingStatus.Value](Seq(
+      StudioBookingStatus.Processing -> "processing",
+      StudioBookingStatus.Succeeded -> "succeeded",
+      StudioBookingStatus.Failed -> "failed",
+      StudioBookingStatus.Cancelled -> "cancelled"))
 
   implicit val zoneIdType =
     MappedColumnType.base[ZoneId, String](_.getId, ZoneId.of)

@@ -3,7 +3,8 @@
 -- Types
 
 -- Maps java.time.Duration type.
-create domain duration as bigint;
+create domain duration as bigint
+    check (value >= 0);
 
 -- A amount of money.
 create domain amount as numeric
@@ -13,9 +14,13 @@ create domain amount as numeric
 create domain coordinate as numeric
     check (value >= -180 and value <= 180);
 
--- Maps a java.time.java_localtime as an ISO 8601 string.
+-- Maps a java.time.LocalTime as an ISO 8601 string.
 create domain java_localtime as varchar
     check (value similar to '\d{2}:\d{2}(:\d{2}(.\d+)?)?');
+
+-- Maps a java.time.LocalDateTime as an ISO 8601 string.
+create domain java_localdatetime as varchar
+    check (value similar to '\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(.\d+)?)?');
 
 -- Maps a java.time.ZoneId as a string.
 create domain java_zoneid as varchar;
@@ -203,13 +208,11 @@ create table "studio" (
 
     -- Booking policy
 
-    min_booking_duration    duration not null
-        check (min_booking_duration >= 0),
+    min_booking_duration    duration not null,
     automatic_approval      boolean not null,
 
     can_cancel              boolean not null,
-    cancellation_notice     duration
-        check (cancellation_notice >= 0),
+    cancellation_notice     duration,
 
     -- Payment policy
 
@@ -260,7 +263,59 @@ create table "studio_picture" (
     picture_id          bytea not null references "picture"(id)
 );
 
+-- Bookings
+
+create table "studio_booking" (
+    id                          serial primary key,
+    created_at                  timestamp not null,
+
+    studio_id                   integer not null references "studio"(id),
+    customer_id                 integer not null references "user"(id),
+
+    status                      varchar not null
+        check (status in ('processing', 'succeeded', 'failed', 'cancelled')),
+
+    -- Booking time and duration
+
+    begins_at                   java_localdatetime not null,
+
+    duration_total              duration not null,
+    duration_regular            duration not null,
+    duration_evening            duration not null,
+    duration_weekend            duration not null,
+
+    -- Booking's pricing at the time of booking
+
+    studio_currency_code        char(3) not null,
+    customer_currency_code      char(3) not null,
+
+    -- customer_total = studio_total * exchange_rate
+    studio_total                amount not null,
+    customer_total              amount not null,
+
+    -- Pricing policy at the time of booking, in studio's currency
+    regular_price_per_hour      amount not null,
+    evening_price_per_hour      amount,
+    weekend_price_per_hour      amount,
+
+    -- Payment
+
+    payment_method              varchar not null
+        check (payment_method in ('online', 'onsite')),
+
+    stripe_checkout_session_id  varchar unique,
+    stripe_payment_intent_id    varchar unique,
+
+    check (duration_total = (
+        duration_regular + duration_evening + duration_weekend
+    )),
+    check (stripe_checkout_session_id is not null = (payment_method = 'online')),
+    check (stripe_payment_intent_id is not null = (payment_method = 'online'))
+);
+
 # --- !Downs
+
+drop table "studio_booking";
 
 drop table "studio_picture";
 drop table "picture";
@@ -275,6 +330,7 @@ drop table "user";
 
 drop domain "java_zoneid";
 drop domain "java_localtime";
+drop domain "java_localdatetime";
 drop domain "coordinate";
 drop domain "amount";
 drop domain "duration";

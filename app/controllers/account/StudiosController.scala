@@ -70,7 +70,7 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
                 account = method.account)
             }
 
-          db.run({
+          val studio: Future[Studio] = db.run({
             for {
               payoutMethodId <- payoutMethod match {
                 case Some(method) => {
@@ -95,8 +95,10 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
 
               studio <- daos.studio.insert(studio)
               _ <- daos.studioPicture.setStudioPics(studio.id, data.pictures)
-            } yield Ok(studio.toString)
+            } yield studio
           }.transactionally)
+
+          studio.map(s => Ok(s.toString))
         })
     }
   }

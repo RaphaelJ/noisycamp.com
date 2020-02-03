@@ -17,10 +17,13 @@
 
 package models
 
-import java.time.{ LocalDate, LocalTime, Duration }
+import java.time.{ LocalDate, LocalDateTime, LocalTime, Duration }
 
 /** Time information related to a booking. */
 case class BookingTimes(
   date:               LocalDate,
   time:               LocalTime,
-  duration:           Duration)
+  duration:           Duration) {
+
+  def dateTime: LocalDateTime = LocalDateTime.of(date, time)
+}

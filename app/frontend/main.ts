@@ -24,6 +24,7 @@ import CurrencySelector from './components/widgets/CurrencySelector.vue';
 import LocationMap from './components/widgets/LocationMap.vue';
 import PictureCarousel from './components/widgets/PictureCarousel.vue';
 import ReactivePicture from './components/widgets/ReactivePicture.vue';
+import StripeCheckoutRedirect from './components/widgets/StripeCheckoutRedirect.vue';
 
 import BookingForm from './components/studios/book/BookingForm.vue';
 import BookingTimesForm from './components/studios/show/BookingTimesForm.vue';
@@ -38,6 +39,7 @@ var ncApp = new Vue({
     components: {
         Calendar,
         Arrow, CurrencySelector, LocationMap, PictureCarousel, ReactivePicture,
+        StripeCheckoutRedirect,
         BookingForm, BookingTimesForm, BookingPricingCalculator,
         StudioForm,
         StudiosIndex,
