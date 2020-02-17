@@ -85,7 +85,9 @@ import Vue, { PropOptions } from "vue";
 import * as currency from 'currency.js';
 import * as moment from 'moment';
 
-import { renderDuration, withTimeComponent } from '../../misc/DateUtils';
+import {
+    renderDuration, dateComponent, timeComponent, withTimeComponent
+} from '../../misc/DateUtils';
 import { asCurrency } from '../../misc/MoneyUtils';
 import MoneyAmount from '../widgets/MoneyAmount.vue'
 
@@ -108,25 +110,31 @@ export default Vue.extend({
         pricingBreakdown() {
             // Collects information about the booked day.
 
-            let bookingDate = moment(this.bookingTimes['date']);
-            let weekDay = bookingDate.isoWeekday();
-            let opensAt = this.openingSchedule[weekDay - 1]['opens-at'];
-            // The moment's instance the booking starts.
-            let bookingStartAt =
-                this.bookingTimes.time < opensAt
-                ? withTimeComponent(bookingDate, this.bookingTimes['time'])
-                : withTimeComponent(
-                    bookingDate.clone().add(1, 'days'),
-                    this.bookingTimes['time']
-                );
+            let beginsAt = moment(this.bookingTimes['begins-at']);
+
+            let beginsAtTime = timeComponent(beginsAt);
+
+            var bookingDate = beginsAt.clone().startOf('day');
+            var weekDay = bookingDate.isoWeekday();
+            var openingTimes = this.openingSchedule[weekDay - 1];
+
+            // The schedule information might come from the previous day's
+            // schedule if the booking starts during the night.
+
+            if (beginsAtTime < openingTimes['opens-at']) {
+                bookingDate = bookingDate.clone().subtract(1, 'day');
+                weekDay = bookingDate.isoWeekday();
+                openingTimes = this.openingSchedule[weekDay - 1];
+            }
+
+            let opensAt = openingTimes['opens-at'];
+            let closesAt = openingTimes['closes-at'];
 
             // Computes the durations for the 3 pricing policies.
 
             let durations = { };
 
-            let isWeekend =
-                bookingDate.isoWeekday() == 6
-                || bookingDate.isoWeekday() == 7;
+            let isWeekend = weekDay == 6 || weekDay == 7;
 
             if (isWeekend && this.pricingPolicy['weekend']) {
                 durations['regular'] = 0;
@@ -135,10 +143,11 @@ export default Vue.extend({
             } else {
                 durations['weekend'] = 0;
 
-                if (this.pricingPolicy['evening']) {
-                    let eveningPolicy = this.pricingPolicy['evening'];
+                let eveningPolicy = this.pricingPolicy['evening'];
+
+                if (eveningPolicy) {
                     let eveningBeginsAt =
-                        eveningPolicy['begins-at'] < opensAt
+                        opensAt <= eveningPolicy['begins-at']
                         ? withTimeComponent(
                             bookingDate, eveningPolicy['begins-at']
                         )
@@ -150,7 +159,7 @@ export default Vue.extend({
                     durations['regular'] = Math.max(
                         0,
                         Math.min(
-                            eveningBeginsAt.diff(bookingStartAt) / 1000,
+                            eveningBeginsAt.diff(beginsAt, 'seconds'),
                             this.bookingTimes['duration']
                         )
                     );

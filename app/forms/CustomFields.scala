@@ -17,7 +17,7 @@
 
 package forms
 
-import java.time.{ Duration, LocalDate, LocalTime }
+import java.time.{ Duration, LocalDate, LocalDateTime, LocalTime }
 
 import play.api.data.{ FormError, Mapping }
 import play.api.data.format.Formatter
@@ -79,6 +79,19 @@ object CustomFields {
     }
 
     of(localDateFormat)
+  }
+
+  /** Parses a `<input type="date">` as a LocalDate value. */
+  val localDateTime: Mapping[LocalDateTime] = {
+    val localDateTimeFormat = new Formatter[LocalDateTime] {
+      def bind(key: String, data: Map[String, String]) = {
+        parsing(LocalDateTime.parse, "Invalid date-time format", Nil)(key, data)
+      }
+
+      def unbind(key: String, value: LocalDateTime) = Map(key -> value.toString)
+    }
+
+    of(localDateTimeFormat)
   }
 
   /** Parses a `<input type="time">` as a LocalTime value. */

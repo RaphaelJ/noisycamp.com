@@ -86,8 +86,7 @@ object JsonWrites {
 
   implicit object BookingTimesWrites extends Writes[BookingTimes] {
     def writes(times: BookingTimes): JsValue = Json.obj(
-      "date" -> times.date.toString,
-      "time" -> times.time.toString,
+      "begins-at" -> times.beginsAt.toString,
       "duration" -> times.duration.getSeconds
     )
   }

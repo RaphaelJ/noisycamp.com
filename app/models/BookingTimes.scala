@@ -21,9 +21,5 @@ import java.time.{ LocalDate, LocalDateTime, LocalTime, Duration }
 
 /** Time information related to a booking. */
 case class BookingTimes(
-  date:               LocalDate,
-  time:               LocalTime,
-  duration:           Duration) {
-
-  def dateTime: LocalDateTime = LocalDateTime.of(date, time)
-}
+  beginsAt:           LocalDateTime,
+  duration:           Duration)

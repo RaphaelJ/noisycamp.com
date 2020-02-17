@@ -23,9 +23,8 @@
                 Date
                 <input
                     type="date"
-                    name="date"
-                    v-model="value.date"
-                    @change="updateValue()"
+                    v-model="date"
+                    @change="valueChanged()"
                     :min="mCurrentTime.format('YYYY-MM-DD')"
                     pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}"
                     placeholder="yyyy-mm-dd"
@@ -38,10 +37,9 @@
                 Starting at
 
                 <select
-                    name="time"
-                    v-model="value.time"
-                    :disabled="!value.date"
-                    @change="updateValue()"
+                    v-model="time"
+                    :disabled="!date"
+                    @change="valueChanged()"
                     required>
                     <option v-if="isClosed" value="" disabled>
                         Closed
@@ -58,15 +56,20 @@
             </label>
         </div>
 
+        <input
+            type="hidden"
+            name="beginsAt"
+            :value="beginsAtStr">
+
         <div class="cell medium-12 large-6">
             <label>
                 Duration
 
                 <select
                     name="duration"
-                    v-model="value.duration"
-                    :disabled="!value.date || !value.time"
-                    @change="updateValue()"
+                    v-model="duration"
+                    :disabled="!date || !time"
+                    @change="valueChanged()"
                     required>
                     <option
                         v-for="d in durations"
@@ -85,7 +88,9 @@ import Vue, { PropOptions } from "vue";
 
 import * as moment from 'moment';
 
-import { renderDuration, withTimeComponent } from '../../../misc/DateUtils';
+import {
+    dateComponent, renderDuration, timeComponent, withTimeComponent
+} from '../../../misc/DateUtils';
 
 export default Vue.extend({
     props: {
@@ -102,20 +107,31 @@ export default Vue.extend({
         // The minimum duration of a booking, in seconds.
         minBookingDuration: { type: Number, required: true },
 
-        // A `date`, `time`, `duration` object.
+        // A `begins-at`, `duration` object.
         value: {
             type: Object, required: false,
             default: function() {
                 return {
-                    date: null,
-                    time: null,
-                    duration: null
+                    'begins-at': null,
+                    'duration': null
                 }
             }
         }
     },
     data() {
+        var date = null;
+        var time = null;
+        var duration = this.value.duration;
+
+        if (this.value.beginsAt) {
+            date = dateComponent(moment(this.value.beginsAt));
+            time = timeComponent(moment(this.value.beginsAt));
+        }
+
         return {
+            date: null,
+            time: null,
+            duration: null,
         }
     },
     computed: {
@@ -128,15 +144,15 @@ export default Vue.extend({
         },
 
         mDate() {
-            if (this.value.date) {
-                return moment(this.value.date)
+            if (this.date) {
+                return moment(this.date);
             } else {
                 return null;
             }
         },
 
         dateSchedule() {
-            if (!this.value.date) {
+            if (!this.mDate) {
                 return null;
             } else {
                 let weekDay = this.mDate.isoWeekday();
@@ -144,22 +160,20 @@ export default Vue.extend({
             }
         },
 
-        // When date is set, return the datetime at which the studio opens.
+        // When date is set, return the MomentJS date-time at which the studio
+        // opens.
         dateOpensAt() {
-            let opensAtTime = this.dateSchedule['opens-at'];
-
-            let opensAt = withTimeComponent(this.mDate, opensAtTime);
-
-            // Rounds opensAt to the upcoming 15-minutes time.
-            let opensAtMin = opensAt.minutes();
-            if (opensAtMin % 15) {
-                opensAt.add(15 - (opensAtMin % 15), 'minutes');
+            if (!this.mDate) {
+                return null;
             }
 
-            return opensAt;
+            let opensAtTime = this.dateSchedule['opens-at'];
+
+            return withTimeComponent(this.mDate, opensAtTime);
         },
 
-        // When date is set, return the datetime at which the studio opens.
+        // When date is set, return the MomentJS date-time at which the studio
+        // closes.
         dateClosesAt() {
             let opensAtTime = this.dateSchedule['opens-at'];
             let closesAtTime = this.dateSchedule['closes-at'];
@@ -173,7 +187,7 @@ export default Vue.extend({
         },
 
         isClosed() {
-            return this.value.date && !this.dateSchedule['is-open'];
+            return this.dateSchedule && !this.dateSchedule['is-open'];
         },
 
         // List all the selected day's availaible starting times.
@@ -188,8 +202,19 @@ export default Vue.extend({
                     .clone()
                     .subtract(this.minBookingDuration, 'seconds');
 
-                let times = [];
                 var iTime = this.dateOpensAt.clone();
+
+                if (iTime.isBefore(this.mCurrentTime)) {
+                    iTime = this.mCurrentTime;
+                }
+
+                // Rounds the opening time to the next upcoming 15-minutes.
+                let minutes = iTime.minutes();
+                if (minutes % 15) {
+                    iTime.add(15 - (minutes % 15), 'minutes');
+                }
+
+                let times = [];
                 while (iTime.isSameOrBefore(lastSession)) {
                     times.push({
                         value: iTime.format('HH:mm'),
@@ -202,23 +227,38 @@ export default Vue.extend({
             }
         },
 
-        // List all selected day's and start time's availaible rental
-        // durations.
-        durations() {
-            if (!this.value.time) {
+        // Returns a MomentJS date-time for the selected date and times.
+        beginsAt() {
+            if (!this.date || !this.time) {
                 return null;
             }
 
-            let sessionBeginsAt = withTimeComponent(
-                this.mDate, this.value.time
-            );
+            let beginsAt = withTimeComponent(this.mDate, this.time);
 
-            if (sessionBeginsAt.isBefore(this.dateOpensAt)) {
+            if (beginsAt.isBefore(this.dateOpensAt)) {
                 // Session start during the next day's early morning.
-                sessionBeginsAt.add(1, 'days');
+                beginsAt.add(1, 'days');
             }
 
-            let maxDurationMillis = this.dateClosesAt.diff(sessionBeginsAt);
+            return beginsAt;
+        },
+
+        beginsAtStr() {
+            if (this.beginsAt) {
+                return this.beginsAt.format('YYYY-MM-DDTHH:mm');
+            } else {
+                return null;
+            }
+        },
+
+        // List all selected day's and start time's availaible rental
+        // durations.
+        durations() {
+            if (!this.beginsAt) {
+                return null;
+            }
+
+            let maxDurationMillis = this.dateClosesAt.diff(this.beginsAt);
 
             let durations = [];
             var iDuration = this.mMinBookingDuration.clone();
@@ -234,29 +274,38 @@ export default Vue.extend({
         }
     },
     methods: {
-        cleanupValue() {
-            if (this.mDate && this.mDate.isBefore(this.mCurrentTime)) {
-                this.value.date = null;
+        cleanupValues() {
+            if (this.mDate && this.mDate.isBefore(this.mCurrentTime, 'day')) {
+                this.date = null;
             }
 
             if (
                 !this.startingTimes
-                || !this.startingTimes.find(t => t.value == this.value.time)
+                || !this.startingTimes.find(t => t.value == this.time)
             ) {
-                this.value.time = null;
+                this.time = null;
             }
 
             if (
                 !this.durations
-                || !this.durations.find(d => d.value == this.value.duration)
+                || !this.durations.find(d => d.value == this.duration)
             ) {
-                this.value.duration = null;
+                this.duration = null;
             }
         },
 
-        updateValue() {
-            this.cleanupValue();
-            this.$emit('change', this.value)
+        valueChanged() {
+            this.cleanupValues();
+
+            var beginsAt = null;
+            if (this.beginsAt) {
+                beginsAt = this.beginsAt.format('YYYY-MM-DDTHH:mm:ss.SSS');
+            }
+
+            this.$emit('input', {
+                'begins-at': beginsAt,
+                'duration': this.duration,
+            });
         }
     },
 });

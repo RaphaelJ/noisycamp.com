@@ -44,6 +44,18 @@ export function renderDuration(duration, precision) {
     return components.join(' ');
 }
 
+// Returns the date component of a moment datetime object as a ISO 8601 time
+// string.
+export function dateComponent(datetime) {
+    return datetime.format('YYYY-MM-DD');
+}
+
+// Returns the time component of a moment datetime object as a ISO 8601 time
+// string.
+export function timeComponent(datetime) {
+    return datetime.format('HH:mm:ss.SSS');
+}
+
 // Returns a new Moment date with the time component changed.
 //
 // Does not modify the given Moment object.

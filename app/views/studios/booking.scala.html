@@ -80,7 +80,9 @@
 
         <div class="cell">
             <i class="fi-calendar"></i>&nbsp;
-            @tags.localDate(bookingTimes.date) at @bookingTimes.time
+            @defining(bookingTimes.beginsAt) { beginsAt =>
+                @tags.localDate(beginsAt.toLocalDate) at @beginsAt.toLocalTime
+            }
         </div>
 
         <div class="cell">

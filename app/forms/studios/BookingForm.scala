@@ -21,7 +21,7 @@ import play.api.data.{ Form, Mapping }
 import play.api.data.Forms._
 
 import forms.CustomFields
-import models.{ BookingTimes, PaymentMethod }
+import models.{ BookingTimes, PaymentMethod, Studio }
 
 /** A form to place a booking request. */
 object BookingForm {
@@ -31,9 +31,9 @@ object BookingForm {
       PaymentMethod.Online  -> "online",
       PaymentMethod.Onsite  -> "onsite"))
 
-  val form = Form(
+  def form(studio: Studio) = Form(
     mapping(
-      "booking-times"   -> BookingTimesForm.form.mapping,
+      "booking-times"   -> BookingTimesForm.form(studio).mapping,
 
       "payment-method"  -> paymentMethod
     )(Data.apply)(Data.unapply))

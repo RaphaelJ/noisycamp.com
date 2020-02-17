@@ -90,9 +90,8 @@ export default Vue.extend({
     data() {
         return {
             bookingTimes: {
-                date: null,
-                time: null,
-                duration: null,
+                'begins-at': null,
+                'duration': null,
             },
         }
     },
@@ -104,9 +103,8 @@ export default Vue.extend({
         },
 
         canComputePricing() {
-            return this.bookingTimes.date
-                && this.bookingTimes.time
-                && this.bookingTimes.duration;
+            return this.bookingTimes['begins-at']
+                && this.bookingTimes['duration'];
         },
     },
     components: { BookingPricingCalculator, BookingTimesInput }

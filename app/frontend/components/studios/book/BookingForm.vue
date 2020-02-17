@@ -28,14 +28,11 @@
             :value="csrfToken">
 
         <input type="hidden"
-            name="booking-times.date"
-            :value="bookingTimes.date">
-        <input type="hidden"
-            name="booking-times.time"
-            :value="bookingTimes.time">
+            name="booking-times.begins-at"
+            :value="bookingTimes['begins-at']">
         <input type="hidden"
             name="booking-times.duration"
-            :value="bookingTimes.duration">
+            :value="bookingTimes['duration']">
 
         <h3>Price breakdown</h3>
 

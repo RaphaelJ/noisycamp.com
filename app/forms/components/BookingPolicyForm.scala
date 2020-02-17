@@ -33,7 +33,11 @@ object BookingPolicyForm {
     type TupleType = (Duration, Boolean, Boolean, Option[Duration])
 
     tuple(
-      "min-booking-duration"    -> CustomFields.seconds,
+      "min-booking-duration"    -> CustomFields.seconds.
+        verifying(
+          "The duration must be positive.",
+          duration => duration.compareTo(Duration.ZERO) > 0
+        ),
       "automatic-approval"      -> boolean,
       "can-cancel"              -> boolean,
       "cancellation-notice"     -> optional(CustomFields.seconds)

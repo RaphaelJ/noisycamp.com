@@ -62,7 +62,7 @@ class PaymentService @Inject() (
 
     require(statement.length <= 22)
 
-    val (stripeAmount, stripeCurrency) = asStripeAmount(amount)
+    val (stripeAmount, stripeCurrency) = PaymentService.asStripeAmount(amount)
 
     val picUrls: java.util.List[String] = pics.
       take(8).
@@ -147,10 +147,13 @@ class PaymentService @Inject() (
 
     Future { intent.cancel(requestOptions) }
   }
+}
+
+object PaymentService {
 
   /** Constructs a map with two amount and currency codew string values that
    * represents the provided amount as a Stripe API value. */
-  private def asStripeAmount(value: Money): (Long, String) = {
+  def asStripeAmount(value: Money): (Long, String) = {
     val decimals = value.currency.formatDecimals
     val rounded = value.rounded(decimals, RoundingMode.DOWN)
     val amount = (rounded.amount * BigDecimal(10).pow(decimals)).toLong

@@ -23,17 +23,31 @@ import play.api.data.Form
 import play.api.data.Forms._
 
 import forms.CustomFields
-import models.BookingTimes
+import models.{ BookingTimes, Studio }
 
 /** A form to place a booking request. */
 object BookingTimesForm {
 
   type Data = BookingTimes
 
-  val form = Form(
+  def form(studio: Studio) = Form {
+
     mapping(
-      "date"            -> CustomFields.localDate,
-      "time"            -> CustomFields.localTime,
-      "duration"        -> CustomFields.seconds
-    )(BookingTimes.apply)(BookingTimes.unapply))
+      "begins-at"       -> CustomFields.localDateTime,
+      "duration"        -> CustomFields.seconds.
+        verifying(
+          "Less than the minimal rental duration set by the studio's manager.",
+          duration =>
+            duration.compareTo(studio.bookingPolicy.minBookingDuration) >= 0
+        ).
+        verifying(
+          "Can't exceed 24 hours.",
+          duration => duration.compareTo(Duration.ofDays(1)) <= 0
+        )
+    )(BookingTimes.apply)(BookingTimes.unapply).
+      verifying(
+        "The studio is not open during the selected booking period.",
+        booking => studio.openingSchedule.validateBooking(booking)
+      )
+  }
 }

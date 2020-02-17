@@ -18,7 +18,7 @@
 package controllers.studios
 
 import javax.inject._
-import java.time.{ Duration, LocalDate, LocalTime }
+import java.time.{ Duration, LocalDateTime }
 import java.time.format.DateTimeFormatter
 
 import scala.concurrent.Future
@@ -46,17 +46,16 @@ class Booking @Inject() (ccc: CustomControllerCompoments)
    *
    * @param error can take `payment-error` as a value.
    */
-  def show(id: Studio#Id, date: String, time: String, duration: Int,
+  def show(id: Studio#Id, beginsAt: String, duration: Int,
     error: Option[String])
     = silhouette.SecuredAction.async { implicit request =>
 
     withStudio(id, { case (clientConfig, studio, picIds, pricingPolicy) =>
       val params = Map(
-        "date"            -> date,
-        "time"            -> time,
+        "begins-at"       -> beginsAt,
         "duration"        -> duration.toString)
 
-      BookingTimesForm.form.bind(params).fold(
+      BookingTimesForm.form(studio).bind(params).fold(
         form => DBIO.successful(BadRequest("Invalid booking request.")),
         bookingTimes => {
           DBIO.successful(Ok(
@@ -74,7 +73,7 @@ class Booking @Inject() (ccc: CustomControllerCompoments)
     implicit request =>
 
     withStudio(id, { case (clientConfig, studio, picIds, pricingPolicy) =>
-      BookingForm.form.bindFromRequest.fold(
+      BookingForm.form(studio).bindFromRequest.fold(
         form => DBIO.successful(BadRequest("Invalid booking request.")),
         data => {
           val handler = data.paymentMethod match {
@@ -83,7 +82,7 @@ class Booking @Inject() (ccc: CustomControllerCompoments)
           }
 
           DBIO.from(handler(clientConfig, request.identity, studio, picIds,
-            pricingPolicy, data))
+            pricingPolicy, data.bookingTimes))
         }
       )
     })
@@ -96,8 +95,7 @@ class Booking @Inject() (ccc: CustomControllerCompoments)
     val onPaymentFailure = { booking: StudioBooking =>
       Redirect(routes.Booking.show(
         id = booking.studioId,
-        date = booking.beginsAt.toLocalDate.toString,
-        time = booking.beginsAt.toLocalTime.toString,
+        beginsAt = booking.beginsAt.toLocalDate.toString,
         duration = booking.durationTotal.getSeconds.toInt,
         error = Some("payment-error")))
     }
@@ -171,16 +169,31 @@ class Booking @Inject() (ccc: CustomControllerCompoments)
     }
   }
 
+  private def isBookingPossible(studio: Studio, bookingTimes: BookingTimes):
+    DBIO[Boolean] = {
+
+    DBIO.successful(false)
+    // val schedule =
+    //
+    // if (!studio.openingSchedule.isStudioOpen(bookingTimes)) {
+    //   DBIO.successful(false)
+    // } else {
+    //
+    // }
+    //
+    // daos.studioBooking.query.
+    //   filter()
+
+  }
+
   private def handleOnlinePayment(clientConfig: ClientConfig, user: User,
     studio: Studio, studioPics: Seq[Picture#Id],
-    customerPricingPolicy: LocalPricingPolicy, formData: BookingForm.Data)(
+    customerPricingPolicy: LocalPricingPolicy, bookingTimes: BookingTimes)(
     implicit request: RequestHeader) : Future[Result] = {
 
     val title: String = studio.name
 
-    val bookingTimes = formData.bookingTimes
-
-    val dateStr = bookingTimes.date.format(
+    val dateStr = bookingTimes.beginsAt.toLocalDate.format(
       DateTimeFormatter.ofPattern("EEE MMM d, yyyy"))
     val description = f"Book on $dateStr"
     val statement = f"NoisyCamp booking"
@@ -197,9 +210,11 @@ class Booking @Inject() (ccc: CustomControllerCompoments)
     val onSuccess = onSuccessEscaped.copy(
       url=onSuccessEscaped.url.replaceAll("%7B", "{").replaceAll("%7D", "}"))
 
+    val beginsAt = bookingTimes.beginsAt
     val onCancel = routes.Booking.show(
-      studio.id, bookingTimes.date.toString, bookingTimes.time.toString,
-      bookingTimes.duration.getSeconds.toInt)
+      id = studio.id,
+      beginsAt = beginsAt.toString,
+      duration = bookingTimes.duration.getSeconds.toInt)
 
     val stripeSession = paymentService.initiatePayment(
       user, customerAmount, title, description, statement, studioPics,
@@ -216,7 +231,7 @@ class Booking @Inject() (ccc: CustomControllerCompoments)
           studioId = studio.id,
           customerId = user.id,
           status = StudioBookingStatus.Processing,
-          beginsAt = bookingTimes.dateTime,
+          beginsAt = bookingTimes.beginsAt,
           durationTotal = bookingTimes.duration,
           durationRegular = bookingTimes.duration,
           durationEvening = Duration.ZERO,
@@ -242,9 +257,9 @@ class Booking @Inject() (ccc: CustomControllerCompoments)
 
   private def handleOnsitePayment(clientConfig: ClientConfig, user: User,
     studio: Studio, studioPics: Seq[Picture#Id],
-    pricingPolicy: LocalPricingPolicy, formData: BookingForm.Data)(
+    pricingPolicy: LocalPricingPolicy, bookingTimes: BookingTimes)(
     implicit request: RequestHeader) : Future[Result] = {
 
-    Future.successful(Ok(formData.toString))
+    Future.successful(Ok(bookingTimes.toString))
   }
 }

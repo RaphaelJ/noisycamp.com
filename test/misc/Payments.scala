@@ -21,19 +21,23 @@ import org.scalatest.Matchers._
 import org.scalatestplus.play._
 
 import i18n.Currency
-import misc.Payments
+import misc.PaymentService
 
-class PaymentsSpec extends PlaySpec {
+class PaymentServiceSpec extends PlaySpec {
 
-  "Payments.asStripeAmount" must {
+  "PaymentServiceSpec.asStripeAmount" must {
     "returns the currency amount in the smallest unit of the currency" in {
-      Payments.asStripeAmount(Currency.CHF(233.2)) should be ((23320, "CHF"))
+      PaymentService.asStripeAmount(Currency.CHF(233.2)) should be
+        ((23320, "CHF"))
 
-      Payments.asStripeAmount(Currency.EUR(12.542)) should be ((1254, "EUR"))
+      PaymentService.asStripeAmount(Currency.EUR(12.542)) should be (
+        (1254, "EUR"))
 
-      Payments.asStripeAmount(Currency.ISK(450)) should be ((450, "ISK"))
+      PaymentService.asStripeAmount(Currency.ISK(450)) should be
+       ((450, "ISK"))
 
-      Payments.asStripeAmount(Currency.ISK(3072)) should be ((450, "ISK"))
+      PaymentService.asStripeAmount(Currency.ISK(3072)) should be
+       ((450, "ISK"))
     }
   }
 }
