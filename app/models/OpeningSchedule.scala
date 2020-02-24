@@ -18,6 +18,7 @@
 package models
 
 import java.time.{ DayOfWeek, Duration, LocalDate, LocalDateTime, LocalTime }
+import java.time.temporal.ChronoUnit
 
 case class OpeningSchedule(
   monday:     Option[OpeningTimes],
@@ -29,8 +30,8 @@ case class OpeningSchedule(
   sunday:     Option[OpeningTimes]) {
 
   /** Returns the daily opening schedule for the given booking date. */
-  def openingTimes(date: LocalDate): Option[(LocalDateTime, LocalDateTime)] = {
-    val times = date.getDayOfWeek match {
+  def openingTimes(date: LocalDate): Option[OpeningTimes] = {
+    date.getDayOfWeek match {
       case DayOfWeek.MONDAY => monday
       case DayOfWeek.TUESDAY => tuesday
       case DayOfWeek.WEDNESDAY => wednesday
@@ -39,8 +40,6 @@ case class OpeningSchedule(
       case DayOfWeek.SATURDAY => saturday
       case DayOfWeek.SUNDAY => sunday
     }
-
-    times.map { _.atDate(date) }
   }
 
   /** Validates the booking to the opening schedule.
@@ -49,27 +48,51 @@ case class OpeningSchedule(
    * booking period. */
   def validateBooking(booking: BookingTimes): Boolean = {
 
-    val beginsAt = booking.beginsAt
+    require(booking.duration.compareTo(Duration.ofDays(1)) <= 0)
+
+    val beginsAt = booking.beginsAt.toLocalTime
     val endsAt = beginsAt.plus(booking.duration)
 
-    val date = beginsAt.toLocalDate
+    val date = booking.beginsAt.toLocalDate
 
-    def matchOpeningTimes(opensAt: LocalDateTime, closesAt: LocalDateTime) = {
-      // opensAt <= beginsAt && endsAt <= closesAt
-      !beginsAt.isBefore(opensAt) && !endsAt.isBefore(endsAt)
-    }
+    val isOvernightBooking = // True if ends after 24:00 or later
+      Duration.between(
+        booking.beginsAt,
+        booking.beginsAt.truncatedTo(ChronoUnit.DAYS).plusDays(1)
+      ).compareTo(booking.duration) <= 0
 
-    openingTimes(date) match {
-      case Some((opensAt, closesAt)) if matchOpeningTimes(opensAt, closesAt) =>
-        true
-      case _ => {
-        // Is yesterday an overnight ?
-        val yesterday = date.minusDays(1)
+    if (isOvernightBooking) {
+      // If the booking spans on two days, the booking should matches the
+      // opening times of the current day, and the current day's schedule should
+      // allow overnights.
 
-        openingTimes(yesterday) match {
-          case Some((opensAt, closesAt)) if matchOpeningTimes(opensAt, closesAt)
-            => true
-          case _ => false
+      openingTimes(date) match {
+        case Some(times) if times.hasOvernight => {
+          // opensAt <= beginsAt && endsAt <= closesAt
+          !beginsAt.isBefore(times.opensAt) && !times.closesAt.isBefore(endsAt)
+        }
+        case _ => false
+      }
+    } else {
+      // If the booking happens on a single day, it can either be the current
+      // day, or an overnight from the day before.
+
+      openingTimes(date) match {
+                         // opensAt <= beginsAt
+        case Some(times) if !beginsAt.isBefore(times.opensAt) => {
+          // endsAt <= closesAt || hasOvernight
+          !times.closesAt.isBefore(endsAt) || times.hasOvernight
+        }
+        case _ => {
+          // Does not match the current day's schedule, tries with the day
+          // before if it allows overnight.
+          openingTimes(date.minusDays(1)) match {
+            case Some(times) if times.hasOvernight => {
+              // endsAt <= closesAt
+              !times.closesAt.isBefore(endsAt)
+            }
+            case _ => false
+          }
         }
       }
     }
@@ -81,7 +104,7 @@ case class OpeningTimes(
   closesAt: LocalTime) {
 
   /** Returns `true` if the studio closes on the next day's early morning. */
-  def hasOvernight = closesAt.isBefore(opensAt)
+  def hasOvernight = !opensAt.isBefore(closesAt) // closesAt <= opensAt
 
   /** Returns the opening and closing date-times as if the studio was opening
    * on the provided day. */
@@ -97,32 +120,5 @@ case class OpeningTimes(
     assert(opensAtDt.isBefore(closesAtDt) || opensAtDt.isEqual(closesAtDt))
 
     (opensAtDt, closesAtDt)
-  }
-
-  /** Returns `true` if the booked period matches opening times for that day. */
-  def validateBooking(beginsAt: LocalTime, duration: Duration): Boolean = {
-    // Can't last more than 24h.
-    require(duration.compareTo(Duration.ofDays(1)) <= 0)
-
-    lazy val endsAt = beginsAt.plus(duration)
-
-    if (hasOvernight) {
-      if (beginsAt.isBefore(opensAt)) {
-        // Booking starts in the early morning.
-
-        // beginsAt <= endsAt && endsAt <= closesAt
-        !endsAt.isBefore(beginsAt) && !closesAt.isBefore(endsAt)
-      } else {
-        // Booking starts during the day but might stop in the early morning
-
-        // endsAt >= opensAt || endsAt <= closesAt
-        !endsAt.isBefore(opensAt) || !closesAt.isBefore(endsAt)
-      }
-    } else {
-      // Booking starts during the day and must stop on the same day.
-
-      // opensAt <= beginsAt && endsAt <= closesAt
-      !beginsAt.isBefore(opensAt) && !closesAt.isBefore(endsAt)
-    }
   }
 }
