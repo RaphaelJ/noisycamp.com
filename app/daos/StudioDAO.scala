@@ -23,6 +23,7 @@ import javax.inject.Inject
 
 import play.api.db.slick.{ DatabaseConfigProvider, HasDatabaseConfigProvider }
 import slick.jdbc.JdbcProfile
+import squants.market.Currency
 
 import i18n.Country
 import models.{ Address, BookingPolicy, CancellationPolicy,
@@ -100,8 +101,6 @@ class StudioDAO @Inject()
     def sundayClosesAt      =
       column[Option[LocalTime]]("sunday_closes_at")(localTimeType.optionType)
 
-    def currencyCode        = column[String]("currency_code")
-
     def pricePerHour        = column[BigDecimal]("price_per_hour")
 
     def hasEveningPricing   = column[Boolean]("has_evening_pricing")
@@ -144,7 +143,7 @@ class StudioDAO @Inject()
       Boolean, Option[LocalTime], Option[LocalTime])
 
     private type PricingPolicyTuple = (
-      String, BigDecimal, Boolean, Option[LocalTime], Option[BigDecimal],
+      BigDecimal, Boolean, Option[LocalTime], Option[BigDecimal],
       Boolean, Option[BigDecimal])
 
     private type BookingPolicyTuple = (
@@ -165,8 +164,8 @@ class StudioDAO @Inject()
         (fridayIsOpen, fridayOpensAt, fridayClosesAt),
         (saturdayIsOpen, saturdayOpensAt, saturdayClosesAt),
         (sundayIsOpen, sundayOpensAt, sundayClosesAt)),
-      (currencyCode, pricePerHour, hasEveningPricing, eveningBeginsAt,
-        eveningPricePerHour, hasWeekendPricing, weekendPricePerHour),
+      (pricePerHour, hasEveningPricing, eveningBeginsAt, eveningPricePerHour,
+        hasWeekendPricing, weekendPricePerHour),
       (minBookingDuration, automaticApproval, canCancel, cancellationNotice),
       (hasOnlinePayment, payoutMethodId, hasOnsitePayment)).shaped
 
@@ -174,7 +173,8 @@ class StudioDAO @Inject()
       Studio(studioTuple._1, studioTuple._2, studioTuple._3, studioTuple._4,
         studioTuple._5,
         toLocation(studioTuple._6), studioTuple._7,
-        toOpeningSchedule(studioTuple._8), toPricingPolicy(studioTuple._9),
+        toOpeningSchedule(studioTuple._8),
+        toPricingPolicy(studioTuple._9),
         toBookingPolicy(studioTuple._10), toPaymentPolicy(studioTuple._11))
     }
 
@@ -182,8 +182,7 @@ class StudioDAO @Inject()
       Some((studio.id, studio.createdAt, studio.ownerId, studio.name,
         studio.description, fromLocation(studio.location),
         studio.timezone, fromOpeningSchedule(studio.openingSchedule),
-        fromPricingPolicy(
-          studio.location.address.country, studio.pricingPolicy),
+        fromPricingPolicy(studio.pricingPolicy),
         fromBookingPolicy(studio.bookingPolicy),
         fromPaymentPolicy(studio.paymentPolicy)))
     }
@@ -232,25 +231,23 @@ class StudioDAO @Inject()
 
     private def toPricingPolicy(policyTuple: PricingPolicyTuple) = {
       val evening =
-        if (policyTuple._3) {
-          Some(EveningPricingPolicy(policyTuple._4.get, policyTuple._5.get))
+        if (policyTuple._2) {
+          Some(EveningPricingPolicy(policyTuple._3.get, policyTuple._4.get))
         } else {
           None
         }
 
-      val weekend = policyTuple._7.map(WeekendPricingPolicy)
+      val weekend = policyTuple._6.map(WeekendPricingPolicy)
 
-      PricingPolicy(policyTuple._2, evening, weekend)
+      PricingPolicy(policyTuple._1, evening, weekend)
     }
 
-    private def fromPricingPolicy(country: Country.Val, policy: PricingPolicy) =
-    {
-
+    private def fromPricingPolicy(policy: PricingPolicy) = {
       val evening = policy.evening
       val weekend = policy.weekend
 
       (
-        country.isoCode, policy.pricePerHour, evening.isDefined,
+        policy.pricePerHour, evening.isDefined,
         evening.map(_.beginsAt), evening.map(_.pricePerHour),
         weekend.isDefined, weekend.map(_.pricePerHour))
     }

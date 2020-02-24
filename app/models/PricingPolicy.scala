@@ -26,7 +26,8 @@ import i18n.ExchangeRates
 case class PricingPolicy(
   pricePerHour:         BigDecimal,
   evening:              Option[EveningPricingPolicy],
-  weekend:              Option[WeekendPricingPolicy])
+  weekend:              Option[WeekendPricingPolicy]) {
+}
 
 case class EveningPricingPolicy(
   beginsAt:             LocalTime,
@@ -35,34 +36,15 @@ case class EveningPricingPolicy(
 case class WeekendPricingPolicy(
   pricePerHour:         BigDecimal)
 
-/** Same as `PricingPolicy` but with a local currency. */
+/** Same as `PricingPolicy` but with `Money` objects. */
 case class LocalPricingPolicy(
   pricePerHour:         Money,
   evening:              Option[LocalEveningPricingPolicy],
-  weekend:              Option[LocalWeekendPricingPolicy]) {
-
-  /** Converts the prices to the given currency. */
-  def in(curr: Currency)(implicit er: ExchangeRates) = {
-    copy(
-      pricePerHour = er.exchange(pricePerHour, curr),
-      evening = evening.map(_.in(curr)(er)),
-      weekend = weekend.map(_.in(curr)(er)))
-  }
-}
+  weekend:              Option[LocalWeekendPricingPolicy])
 
 case class LocalEveningPricingPolicy(
   beginsAt:             LocalTime,
-  pricePerHour:         Money) {
-
-  def in(curr: Currency)(implicit er: ExchangeRates) = {
-    copy(pricePerHour = er.exchange(pricePerHour, curr))
-  }
-}
+  pricePerHour:         Money)
 
 case class LocalWeekendPricingPolicy(
-  pricePerHour:         Money) {
-
-  def in(curr: Currency)(implicit er: ExchangeRates) = {
-    copy(pricePerHour = er.exchange(pricePerHour, curr))
-  }
-}
+  pricePerHour:         Money)

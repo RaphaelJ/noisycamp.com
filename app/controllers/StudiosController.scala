@@ -46,15 +46,11 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
       dbStudio <- db.run { daos.studioPicture.getStudioWithPictures(id) }
     } yield dbStudio match {
       case (Some(studio), picIds) => {
-        val pricingPolicy = studio.
-          localPricingPolicy.
-          in(clientConfig.currency)(exchangeRatesService.exchangeRates)
-
         Ok(
           views.html.studios.show(
             clientConfig = clientConfig,
             user = request.identity,
-            studio, pricingPolicy, picIds))
+            studio, picIds))
       }
       case (None, _) => NotFound("Studio not found.")
     }

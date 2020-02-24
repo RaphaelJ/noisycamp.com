@@ -56,13 +56,9 @@ class StudioBookingDAO @Inject()
     def durationEvening         = column[Duration]("duration_evening")
     def durationWeekend         = column[Duration]("duration_weekend")
 
-    def studioCurrency          =
-      column[market.Currency]("studio_currency_code")
-    def customerCurrency        =
-      column[market.Currency]("customer_currency_code")
+    def currency                = column[market.Currency]("currency_code")
 
-    def studioTotal             = column[BigDecimal]("studio_total")
-    def customerTotal           = column[BigDecimal]("customer_total")
+    def total                   = column[BigDecimal]("total")
 
     def regularPricePerHour     = column[BigDecimal]("regular_price_per_hour")
     def eveningPricePerHour     =
@@ -82,7 +78,7 @@ class StudioBookingDAO @Inject()
       Studio#Id, User#Id,
       StudioBookingStatus.Value, LocalDateTime,
       Duration, Duration, Duration, Duration,
-      market.Currency, market.Currency, BigDecimal, BigDecimal,
+      market.Currency, BigDecimal,
       BigDecimal, Option[BigDecimal], Option[BigDecimal],
       StudioBookingPaymentTuple)
 
@@ -96,9 +92,8 @@ class StudioBookingDAO @Inject()
         bookingTuple._5, bookingTuple._6,
         bookingTuple._7, bookingTuple._8, bookingTuple._9, bookingTuple._10,
         bookingTuple._11, bookingTuple._12,
-        bookingTuple._13, bookingTuple._14,
-        bookingTuple._15, bookingTuple._16, bookingTuple._17,
-        toStudioBookingPayment(bookingTuple._18))
+        bookingTuple._13, bookingTuple._14, bookingTuple._15,
+        toStudioBookingPayment(bookingTuple._16))
     }
 
     private def fromStudioBooking(booking: StudioBooking) = {
@@ -108,8 +103,7 @@ class StudioBookingDAO @Inject()
         booking.status, booking.beginsAt,
         booking.durationTotal, booking.durationRegular, booking.durationEvening,
         booking.durationWeekend,
-        booking.studioCurrency, booking.customerCurrency,
-        booking.studioTotal, booking.customerTotal,
+        booking.currency, booking.total,
         booking.regularPricePerHour, booking.eveningPricePerHour,
         booking.weekendPricePerHour,
         fromStudioBookingPayment(booking.payment)))
@@ -140,8 +134,7 @@ class StudioBookingDAO @Inject()
       studioId, customerId,
       status, beginsAt,
       durationTotal, durationRegular, durationEvening, durationWeekend,
-      studioCurrency, customerCurrency, studioTotal,
-      customerTotal,
+      currency, total,
       regularPricePerHour, eveningPricePerHour, weekendPricePerHour,
       (paymentMethod, stripeCheckoutSessionId, stripePaymentIntentId)
     ) <> (toStudioBooking, fromStudioBooking)

@@ -29,7 +29,6 @@
     clientConfig: ClientConfig,
     user: Option[models.User],
     studio: models.Studio,
-    pricingPolicy: LocalPricingPolicy,
     pictures: Seq[models.Picture#Id])(
     implicit req: RequestHeader, config: Configuration)
 
@@ -44,57 +43,59 @@
 }
 
 @bookingPanel = {
-    <div class="grid-x grid-padding-x">
-        <div class="cell small-12 text-center">
-            <h2>
-                @tags.moneyAmount(pricingPolicy.pricePerHour)
-                <small>per hour</small>
-            </h2>
+    @defining(studio.localPricingPolicy) { pricingPolicy =>
+        <div class="grid-x grid-padding-x">
+            <div class="cell small-12 text-center">
+                <h2>
+                    @tags.moneyAmount(pricingPolicy.pricePerHour)
+                    <small>per hour</small>
+                </h2>
+            </div>
+
+            @for(eveningPolicy <- pricingPolicy.evening) {
+                <div class="cell small-6 text-left specific-pricing">
+                    After @eveningPolicy.beginsAt
+                </div>
+                <div class="cell small-6 text-right specific-pricing">
+                    @tags.moneyAmount(eveningPolicy.pricePerHour)
+                    <small>per hour</small>
+                </div>
+            }
+
+            @for(weekendPolicy <- pricingPolicy.weekend) {
+                <div class="cell small-6 text-left specific-pricing">
+                    Weekend
+                </div>
+                <div class="cell small-6 text-right specific-pricing">
+                    @tags.moneyAmount(weekendPolicy.pricePerHour)
+                    <small>per hour</small>
+                </div>
+            }
+
+            <div class="cell small-12"><hr></div>
+
+            <div class="cell small-12">
+                <booking-times-form
+                    current-time="@Instant.now.toString"
+                    :studio-id='@studio.id'
+                    :opening-schedule='@tags.asJson(Json.toJson(studio.openingSchedule))'
+                    :occupancies="[]"
+                    :min-booking-duration="@studio.bookingPolicy.minBookingDuration.getSeconds()"
+                    :pricing-policy='@tags.asJson(Json.toJson(pricingPolicy))'>
+                </booking-times-form>
+            </div>
+
+            <div class="cell small-12 text-center">
+                <a
+                    href="#availability"
+                    onclick="$('html, body').animate({
+                        scrollTop: $('#availability').offset().top
+                    }, 500); return false">
+                    Show availabilities
+                </a>
+            </div>
         </div>
-
-        @for(eveningPolicy <- pricingPolicy.evening) {
-            <div class="cell small-6 text-left specific-pricing">
-                After @eveningPolicy.beginsAt
-            </div>
-            <div class="cell small-6 text-right specific-pricing">
-                @tags.moneyAmount(eveningPolicy.pricePerHour)
-                <small>per hour</small>
-            </div>
-        }
-
-        @for(weekendPolicy <- pricingPolicy.weekend) {
-            <div class="cell small-6 text-left specific-pricing">
-                Weekend
-            </div>
-            <div class="cell small-6 text-right specific-pricing">
-                @tags.moneyAmount(weekendPolicy.pricePerHour)
-                <small>per hour</small>
-            </div>
-        }
-
-        <div class="cell small-12"><hr></div>
-
-        <div class="cell small-12">
-            <booking-times-form
-                current-time="@Instant.now.toString"
-                :studio-id='@studio.id'
-                :opening-schedule='@tags.asJson(Json.toJson(studio.openingSchedule))'
-                :occupancies="[]"
-                :min-booking-duration="@studio.bookingPolicy.minBookingDuration.getSeconds()"
-                :pricing-policy='@tags.asJson(Json.toJson(pricingPolicy))'>
-            </booking-times-form>
-        </div>
-
-        <div class="cell small-12 text-center">
-            <a
-                href="#availability"
-                onclick="$('html, body').animate({
-                    scrollTop: $('#availability').offset().top
-                }, 500); return false">
-                Show availabilities
-            </a>
-        </div>
-    </div>
+    }
 }
 
 @layout(

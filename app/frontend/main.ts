@@ -38,7 +38,7 @@ var ncApp = new Vue({
     el: "#nc-app",
     components: {
         Calendar,
-        Arrow, CurrencySelector, LocationMap, PictureCarousel, ReactivePicture,
+        Arrow, LocationMap, PictureCarousel, ReactivePicture,
         StripeCheckoutRedirect,
         BookingForm, BookingTimesForm, BookingPricingCalculator,
         StudioForm,

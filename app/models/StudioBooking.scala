@@ -54,11 +54,9 @@ case class StudioBooking(
   durationEvening:      Duration,
   durationWeekend:      Duration,
 
-  studioCurrency:       market.Currency,
-  customerCurrency:     market.Currency,
+  currency:             market.Currency,
 
-  studioTotal:          BigDecimal,
-  customerTotal:        BigDecimal,
+  total:                BigDecimal,
 
   regularPricePerHour:  BigDecimal,
   eveningPricePerHour:  Option[BigDecimal],

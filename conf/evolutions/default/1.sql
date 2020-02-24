@@ -195,8 +195,6 @@ create table "studio" (
 
     -- Pricing policy
 
-    currency_code           char(3) not null,
-
     price_per_hour          amount not null,
 
     has_evening_pricing     boolean not null,
@@ -273,7 +271,7 @@ create table "studio_booking" (
     customer_id                 integer not null references "user"(id),
 
     status                      varchar not null
-        check (status in ('processing', 'succeeded', 'failed', 'cancelled')),
+        check (status in ('processing', 'pending-validation', 'succeeded', 'failed', 'cancelled')),
 
     -- Booking time and duration
 
@@ -286,14 +284,10 @@ create table "studio_booking" (
 
     -- Booking's pricing at the time of booking
 
-    studio_currency_code        char(3) not null,
-    customer_currency_code      char(3) not null,
+    currency_code               char(3) not null,
+    total                       amount not null,
 
-    -- customer_total = studio_total * exchange_rate
-    studio_total                amount not null,
-    customer_total              amount not null,
-
-    -- Pricing policy at the time of booking, in studio's currency
+    -- Pricing policy at the time of booking
     regular_price_per_hour      amount not null,
     evening_price_per_hour      amount,
     weekend_price_per_hour      amount,

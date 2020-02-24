@@ -26,7 +26,6 @@
     clientConfig: ClientConfig,
     user: Option[models.User],
     studio: models.Studio,
-    pricingPolicy: LocalPricingPolicy,
     pictures: Seq[models.Picture#Id],
     bookingTimes: models.BookingTimes,
     errorOpt: Option[String])(
@@ -93,15 +92,17 @@
 
     <hr>
 
-    <booking-form
-        :studio-id='@studio.id'
-        :opening-schedule='@tags.asJson(Json.toJson(studio.openingSchedule))'
-        :pricing-policy='@tags.asJson(Json.toJson(pricingPolicy))'
-        :booking-times='@tags.asJson(Json.toJson(bookingTimes))'
-        :has-online-payment='@studio.paymentPolicy.hasOnlinePayment'
-        :has-onsite-payment='@studio.paymentPolicy.hasOnsitePayment'
-        csrf-token="@helper.CSRF.getToken.value">
-    </booking-form>
+    @defining(studio.localPricingPolicy) { pricingPolicy =>
+        <booking-form
+            :studio-id='@studio.id'
+            :opening-schedule='@tags.asJson(Json.toJson(studio.openingSchedule))'
+            :pricing-policy='@tags.asJson(Json.toJson(pricingPolicy))'
+            :booking-times='@tags.asJson(Json.toJson(bookingTimes))'
+            :has-online-payment='@studio.paymentPolicy.hasOnlinePayment'
+            :has-onsite-payment='@studio.paymentPolicy.hasOnsitePayment'
+            csrf-token="@helper.CSRF.getToken.value">
+        </booking-form>
+    }
 }
 
 @layout(

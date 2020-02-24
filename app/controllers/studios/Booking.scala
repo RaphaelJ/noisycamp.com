@@ -50,7 +50,7 @@ class Booking @Inject() (ccc: CustomControllerCompoments)
     error: Option[String])
     = silhouette.SecuredAction.async { implicit request =>
 
-    withStudio(id, { case (clientConfig, studio, picIds, pricingPolicy) =>
+    withStudio(id, { case (clientConfig, studio, picIds) =>
       val params = Map(
         "begins-at"       -> beginsAt,
         "duration"        -> duration.toString)
@@ -62,7 +62,7 @@ class Booking @Inject() (ccc: CustomControllerCompoments)
             views.html.studios.booking(
               clientConfig = clientConfig,
               user = Some(request.identity),
-              studio, pricingPolicy, picIds, bookingTimes, error)))
+              studio, picIds, bookingTimes, error)))
         }
       )
     })
@@ -72,7 +72,7 @@ class Booking @Inject() (ccc: CustomControllerCompoments)
     = silhouette.SecuredAction.async {
     implicit request =>
 
-    withStudio(id, { case (clientConfig, studio, picIds, pricingPolicy) =>
+    withStudio(id, { case (clientConfig, studio, picIds) =>
       BookingForm.form(studio).bindFromRequest.fold(
         form => DBIO.successful(BadRequest("Invalid booking request.")),
         data => {
@@ -82,7 +82,7 @@ class Booking @Inject() (ccc: CustomControllerCompoments)
           }
 
           DBIO.from(handler(clientConfig, request.identity, studio, picIds,
-            pricingPolicy, data.bookingTimes))
+            data.bookingTimes))
         }
       )
     })
@@ -145,9 +145,8 @@ class Booking @Inject() (ccc: CustomControllerCompoments)
 
   /** Executes the function within the DBIO monad, or returns a 404 response. */
   private def withStudio[T](id: Studio#Id,
-    f: (
-      (ClientConfig, Studio, Seq[Picture#Id], LocalPricingPolicy)
-      => DBIOAction[Result, NoStream, Effect.All]))
+    f: ((ClientConfig, Studio, Seq[Picture#Id]) =>
+      DBIOAction[Result, NoStream, Effect.All]))
     (implicit request: Request[T]):
     Future[Result] = {
 
@@ -156,13 +155,7 @@ class Booking @Inject() (ccc: CustomControllerCompoments)
         val dbStudio = daos.studioPicture.getStudioWithPictures(id)
 
         dbStudio.flatMap {
-          case (Some(studio), picIds) => {
-            val pricingPolicy = studio.
-              localPricingPolicy.
-              in(clientConfig.currency)(exchangeRatesService.exchangeRates)
-
-            f(clientConfig, studio, picIds, pricingPolicy)
-          }
+          case (Some(studio), picIds) => f(clientConfig, studio, picIds)
           case (None, _) => DBIO.successful(NotFound("Studio not found."))
         }: DBIOAction[Result, NoStream, Effect.All]
       }
@@ -187,8 +180,7 @@ class Booking @Inject() (ccc: CustomControllerCompoments)
   }
 
   private def handleOnlinePayment(clientConfig: ClientConfig, user: User,
-    studio: Studio, studioPics: Seq[Picture#Id],
-    customerPricingPolicy: LocalPricingPolicy, bookingTimes: BookingTimes)(
+    studio: Studio, studioPics: Seq[Picture#Id], bookingTimes: BookingTimes)(
     implicit request: RequestHeader) : Future[Result] = {
 
     val title: String = studio.name
@@ -198,11 +190,10 @@ class Booking @Inject() (ccc: CustomControllerCompoments)
     val description = f"Book on $dateStr"
     val statement = f"NoisyCamp booking"
 
-    val studioPricingPolicy = studio.localPricingPolicy
+    val pricingPolicy = studio.localPricingPolicy
 
     // TODO: compute according to booking times and cu
-    val studioAmount = studioPricingPolicy.pricePerHour
-    val customerAmount = customerPricingPolicy.pricePerHour
+    val total = pricingPolicy.pricePerHour
 
     val onSuccessEscaped = routes.Booking.paymentSuccess(
       studio.id, "{CHECKOUT_SESSION_ID}")
@@ -217,7 +208,7 @@ class Booking @Inject() (ccc: CustomControllerCompoments)
       duration = bookingTimes.duration.getSeconds.toInt)
 
     val stripeSession = paymentService.initiatePayment(
-      user, customerAmount, title, description, statement, studioPics,
+      user, total, title, description, statement, studioPics,
       PaymentCaptureMethod.Manual, onSuccess, onCancel)
 
     stripeSession.flatMap { sess =>
@@ -236,15 +227,13 @@ class Booking @Inject() (ccc: CustomControllerCompoments)
           durationRegular = bookingTimes.duration,
           durationEvening = Duration.ZERO,
           durationWeekend = Duration.ZERO,
-          studioCurrency = studioAmount.currency,
-          customerCurrency = customerAmount.currency,
-          studioTotal = studioAmount.amount,
-          customerTotal = customerAmount.amount,
-          regularPricePerHour = studioPricingPolicy.pricePerHour.amount,
+          currency = total.currency,
+          total = total.amount,
+          regularPricePerHour = pricingPolicy.pricePerHour.amount,
           eveningPricePerHour =
-            studioPricingPolicy.evening.map(_.pricePerHour.amount),
+            pricingPolicy.evening.map(_.pricePerHour.amount),
           weekendPricePerHour =
-            studioPricingPolicy.weekend.map(_.pricePerHour.amount),
+            pricingPolicy.weekend.map(_.pricePerHour.amount),
           payment = payment))
       }.transactionally)
 
@@ -256,8 +245,7 @@ class Booking @Inject() (ccc: CustomControllerCompoments)
   }
 
   private def handleOnsitePayment(clientConfig: ClientConfig, user: User,
-    studio: Studio, studioPics: Seq[Picture#Id],
-    pricingPolicy: LocalPricingPolicy, bookingTimes: BookingTimes)(
+    studio: Studio, studioPics: Seq[Picture#Id], bookingTimes: BookingTimes)(
     implicit request: RequestHeader) : Future[Result] = {
 
     Future.successful(Ok(bookingTimes.toString))
