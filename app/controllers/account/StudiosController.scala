@@ -26,7 +26,7 @@ import play.api._
 import play.api.mvc._
 
 import forms.account.StudioForm
-import models.{ PaymentPolicy, PayoutMethod, Studio }
+import models.{ PaymentPolicy, Studio }
 import _root_.controllers.{ CustomBaseController, CustomControllerCompoments }
 
 @Singleton
@@ -59,30 +59,9 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
             query(data.location.lat, data.location.long).
             getOrElse(ZoneId.of("UTC"))
 
-          val payoutMethod = data.paymentPolicy.onlinePayment.map {
-            method =>
-              PayoutMethod(
-                ownerId = request.identity.id,
-
-                country = method.country,
-                recipientType = method.recipientType,
-                recipientName = method.recipientName,
-                account = method.account)
-            }
-
           val studio: Future[Studio] = db.run({
             for {
-              payoutMethodId <- payoutMethod match {
-                case Some(method) => {
-                  daos.payoutMethod.insert(method).map(_.id).map(Some(_))
-                }
-                case None => DBIO.successful(None)
-              }
-
-              paymentPolicy = PaymentPolicy(
-                payoutMethodId, data.paymentPolicy.hasOnsitePayment)
-
-              studio = Studio(
+              studio <- daos.studio.insert(Studio(
                 ownerId = request.identity.id,
                 name = data.name,
                 description = data.description,
@@ -91,9 +70,7 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
                 openingSchedule = data.openingSchedule,
                 pricingPolicy = data.pricingPolicy,
                 bookingPolicy = data.bookingPolicy,
-                paymentPolicy = paymentPolicy)
-
-              studio <- daos.studio.insert(studio)
+                paymentPolicy = data.paymentPolicy))
               _ <- daos.studioPicture.setStudioPics(studio.id, data.pictures)
             } yield studio
           }.transactionally)

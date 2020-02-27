@@ -19,11 +19,8 @@ package models
 
 /** Lists the supported payment methods. */
 case class PaymentPolicy(
-  /** If defined, allows online payments to the provided payout method. */
-  onlinePayment:   Option[PayoutMethod#Id],
+  /** If true, accepts online payments during booking. */
+  hasOnlinePayment:   Boolean,
 
   /** If true, accepts payment-less booking. */
-  hasOnsitePayment:   Boolean) {
-
-  def hasOnlinePayment = onlinePayment.isDefined
-}
+  hasOnsitePayment:   Boolean)

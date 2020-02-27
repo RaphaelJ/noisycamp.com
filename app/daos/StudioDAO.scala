@@ -28,7 +28,7 @@ import squants.market.Currency
 import i18n.Country
 import models.{ Address, BookingPolicy, CancellationPolicy,
   EveningPricingPolicy, Location, OpeningSchedule, OpeningTimes, PaymentPolicy,
-  PayoutMethod, PricingPolicy, Studio, User, WeekendPricingPolicy }
+  PricingPolicy, Studio, User, WeekendPricingPolicy }
 
 class StudioDAO @Inject()
   (protected val dbConfigProvider: DatabaseConfigProvider)
@@ -120,8 +120,6 @@ class StudioDAO @Inject()
     def cancellationNotice  = column[Option[Duration]]("cancellation_notice")
 
     def hasOnlinePayment    = column[Boolean]("has_online_payment")
-    def payoutMethodId      =
-      column[Option[PayoutMethod#Id]]("payout_method_id")
     def hasOnsitePayment    = column[Boolean]("has_onsite_payment")
 
     private type StudioTuple = (
@@ -149,8 +147,7 @@ class StudioDAO @Inject()
     private type BookingPolicyTuple = (
       Duration, Boolean, Boolean, Option[Duration])
 
-    private type PaymentPolicyTuple = (Boolean, Option[PayoutMethod#Id],
-      Boolean)
+    private type PaymentPolicyTuple = (Boolean, Boolean)
 
     private val studioShaped = (
       id, createdAt, ownerId, name, description, (
@@ -167,7 +164,7 @@ class StudioDAO @Inject()
       (pricePerHour, hasEveningPricing, eveningBeginsAt, eveningPricePerHour,
         hasWeekendPricing, weekendPricePerHour),
       (minBookingDuration, automaticApproval, canCancel, cancellationNotice),
-      (hasOnlinePayment, payoutMethodId, hasOnsitePayment)).shaped
+      (hasOnlinePayment, hasOnsitePayment)).shaped
 
     private def toStudio(studioTuple: StudioTuple): Studio = {
       Studio(studioTuple._1, studioTuple._2, studioTuple._3, studioTuple._4,
@@ -264,11 +261,11 @@ class StudioDAO @Inject()
     }
 
     private def toPaymentPolicy(policyTuple: PaymentPolicyTuple) = {
-      PaymentPolicy(policyTuple._2, policyTuple._3)
+      PaymentPolicy(policyTuple._1, policyTuple._2)
     }
 
     private def fromPaymentPolicy(policy: PaymentPolicy) = {
-      (policy.hasOnlinePayment, policy.onlinePayment, policy.hasOnsitePayment)
+      (policy.hasOnlinePayment, policy.hasOnsitePayment)
     }
 
     def * = studioShaped <> (toStudio, fromStudio)

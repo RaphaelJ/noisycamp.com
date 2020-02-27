@@ -20,34 +20,16 @@ package forms.components
 import play.api.data.Form
 import play.api.data.Forms._
 
-import models.{ PaymentPolicy, PayoutMethod }
+import models.PaymentPolicy
 
 object PaymentPolicyForm {
-  case class Data(
-    onlinePayment: Option[PayoutMethodForm.Data],
-    hasOnsitePayment: Boolean)
 
-  val form = Form {
-    type TupleType = (Boolean, Option[PayoutMethodForm.Data], Boolean)
+  type Data = PaymentPolicy
 
-    tuple(
+  val form = Form(
+    mapping(
       "has-online-payment"  -> boolean,
-      "payout-method"       -> optional(PayoutMethodForm.form.mapping),
       "has-onsite-payment"  -> boolean
-    ).
-      verifying("Payout method required.", {
-        case (hasOnlinePayment, payoutMethod, _) =>
-          !hasOnlinePayment || payoutMethod.isDefined
-      }: (TupleType) => Boolean).
-      transform(
-        {
-          case (_, payoutMethod, hasOnsitePayment) =>
-            Data(payoutMethod, hasOnsitePayment)
-        },
-        {
-          case policy => (policy.onlinePayment.isDefined, policy.onlinePayment,
-            policy.hasOnsitePayment)
-        }: Data => TupleType
-      )
-  }
+    )(PaymentPolicy.apply)(PaymentPolicy.unapply)
+  )
 }

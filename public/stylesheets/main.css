@@ -80,7 +80,7 @@ main {
     min-height: calc(100vh - 54px - 61px);
 }
 
-/* Buttons and forms */
+/* Buttons */
 
 .button {
     border-radius: 2px;
@@ -113,6 +113,8 @@ main {
     font-size: 1.10rem;
     border-radius: 4px;
 }
+
+/* Input and forms */
 
 .help-text {
     color: #666;
@@ -200,7 +202,6 @@ form label .error {
 }
 
 .top-bar {
-
 }
 
 .top-bar.no-full-screen {

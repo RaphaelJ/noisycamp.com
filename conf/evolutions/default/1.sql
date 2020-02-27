@@ -55,89 +55,6 @@ create table "user_password_info" (
     salt                    varchar
 );
 
--- Payout method
-
-create table "payout_method" (
-    id                      serial primary key,
-    created_at              timestamp not null,
-
-    owner_id                integer not null references "user"(id),
-
-    country_code            char(2) not null,
-
-    -- Full address as required for ABA and Australian accounts.
-    address1                varchar,
-    address2                varchar,
-    zipcode                 varchar,
-    city                    varchar,
-    state_code              char(2),
-
-    recipient_type          varchar not null
-        check (recipient_type in ('business', 'private')),
-    recipient_name          varchar not null,
-
-    account_type            varchar not null
-        check (account_type in (
-            'iban', 'aba', 'canadian', 'australian', 'new-zealand')),
-
-    -- IBAN
-    iban_bic                varchar,
-    iban_iban               varchar, -- IBAN account number
-
-    -- ABA account
-    aba_routing_number      varchar,
-    aba_account_number      varchar,
-    aba_account_type        varchar
-        check (aba_account_type in ('checking', 'savings')),
-
-    -- Canadian account
-    canadian_institution_number varchar,
-    canadian_transit_number     varchar,
-    canadian_account_number     varchar,
-    canadian_account_type       varchar
-        check (canadian_account_type in ('checking', 'savings')),
-
-    -- Australian account
-    australian_bsb_code         varchar,
-    australian_business_number  varchar,
-    australian_account_number   varchar,
-
-    -- New Zealand account
-    new_zealand_account_number  varchar,
-
-    -- Constraints
-
-    check (account_type != 'iban' or (
-        iban_iban is not null)),
-
-    check (account_type != 'aba' or (
-        aba_routing_number is not null and
-        aba_account_number is not null and
-        aba_account_type is not null and
-        address1 is not null and
-        zipcode is not null and
-        city is not null and
-        state_code is not null)),
-
-    check (account_type != 'canadian' or (
-        canadian_institution_number is not null and
-        canadian_transit_number is not null and
-        canadian_account_number is not null and
-        canadian_account_type is not null)),
-
-    check (account_type != 'australian' or (
-        australian_bsb_code is not null and
-        australian_business_number is not null and
-        australian_account_number is not null and
-        address1 is not null and
-        zipcode is not null and
-        city is not null and
-        state_code is not null)),
-
-    check (account_type != 'new-zealand' or (
-        new_zealand_account_number is not null))
-);
-
 -- Studios
 
 create table "studio" (
@@ -215,7 +132,6 @@ create table "studio" (
     -- Payment policy
 
     has_online_payment      boolean not null,
-    payout_method_id        integer references "payout_method"(id),
     has_onsite_payment      boolean not null,
 
     -- Constraints
@@ -240,9 +156,7 @@ create table "studio" (
 
     check (weekend_price_per_hour is not null = has_weekend_pricing),
 
-    check (cancellation_notice is not null = can_cancel),
-
-    check (payout_method_id is not null = has_online_payment)
+    check (cancellation_notice is not null = can_cancel)
 );
 
 -- Pictures and uploads
@@ -315,8 +229,6 @@ drop table "studio_picture";
 drop table "picture";
 
 drop table "studio";
-
-drop table "payout_method";
 
 drop table "user_password_info";
 drop table "user_login_info";

@@ -46,28 +46,16 @@
             </p>
         </div>
 
-        <slide-down-transition :max-height="215">
-            <div
-                class="cell small-12 medium-offset-1 medium-11"
+        <slide-down-transition :max-height="85">
+            <p
+                class="cell small-12 callout secondary"
                 v-if="hasOnlinePayment">
 
-                <p class="callout secondary">
-                    Please complete your bank account details.<br>
-                    Revenue collected from online payments will be automatically
-                    added to your balance and transferred to your bank account
-                    twice per month.<br>
-                    <a href="#">Learn more about online payments</a>.
-                </p>
-
-                <div class="grid-x grid-margin-x">
-                    <div class="cell large-8">
-                        <payout-method-input
-                            :name="fieldName('payout-method')"
-                            :errors="errors">
-                        </payout-method-input>
-                    </div>
-                </div>
-            </div>
+                Online payments will require you to provide us a valid bank account and to verify
+                your identity.
+                <br>
+                <a href="#" target="_blank">Learn more about online payments</a>.
+            </p>
         </slide-down-transition>
 
         <div class="cell">
@@ -109,8 +97,6 @@ import Vue from "vue";
 import VueInput from '../../widgets/VueInput';
 import SlideDownTransition from '../../../transitions/SlideDownTransition.vue';
 
-import PayoutMethodInput from './PayoutMethodInput.vue';
-
 export default Vue.extend({
     mixins: [VueInput],
     props: {
@@ -122,7 +108,7 @@ export default Vue.extend({
             hasOnsitePayment: false,
         }
     },
-    components: { PayoutMethodInput, SlideDownTransition },
+    components: { SlideDownTransition },
 });
 </script>
 

@@ -26,7 +26,7 @@ import slick.jdbc.JdbcProfile
 import squants.market
 
 import i18n.{ Country, Currency }
-import models.{ AccountType, PictureId, RecipientType, StudioBookingStatus }
+import models.{ PictureId, StudioBookingStatus }
 
 trait CustomColumnTypes {
   this: HasDatabaseConfigProvider[JdbcProfile] =>
@@ -41,11 +41,6 @@ trait CustomColumnTypes {
 
     MappedColumnType.base[T, String](mapperMap, reverseMapperMap)
   }
-
-  /** Maps a country value to its ISO code. */
-  implicit val accountTypeValue = enumeration[AccountType.Value](Seq(
-    AccountType.Checking -> "checking",
-    AccountType.Savings  -> "savings"))
 
   /** Maps a country value to its ISO code. */
   implicit val countryValType =
@@ -73,10 +68,6 @@ trait CustomColumnTypes {
 
   implicit val pictureIdType =
     MappedColumnType.base[PictureId, Array[Byte]](_.value, PictureId.apply _)
-
-  implicit val recipientTypeValue = enumeration[RecipientType.Value](Seq(
-    RecipientType.Business -> "business",
-    RecipientType.Private  -> "private"))
 
   /** Stores Scrimage image format as text */
   implicit val scrimageFormatType = enumeration[Format](Seq(
