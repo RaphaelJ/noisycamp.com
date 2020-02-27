@@ -67,11 +67,7 @@ class SocialAuthController @Inject() (
             authenticator <- authService.create(profile.loginInfo)
             value <- authService.init(authenticator)
             result <- authService.embed(value, Redirect(target))
-          } yield {
-            println("Authenticated!")
-            println(profile)
-            result
-          }
+          } yield result
         }
       case _ => Future.failed(new ProviderException(
         s"Cannot authenticate with unexpected social provider $provider"))

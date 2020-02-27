@@ -21,7 +21,6 @@
 @import i18n.Currency
 
 @import _root_.auth.DefaultEnv
-@import _root_.controllers.ClientConfig
 @import _root_.frontend.JsConfig
 
 @** Main layout for the NoisyCamp website.
@@ -30,7 +29,7 @@
  *@
 @(
     title: Seq[String], head: Html = Html(""), javascript: Html = Html(""),
-    clientConfig: ClientConfig, user: Option[models.User],
+    user: Option[models.User],
     fullScreen: Boolean = false)(content: Html)(
     implicit req: RequestHeader, config: Configuration)
 
@@ -152,8 +151,6 @@
         </script>
 
         @helper.javascriptRouter("NC_ROUTES")(
-            i18n.routes.javascript.Currency.set,
-
             _root_.controllers.studios.routes.javascript.Booking.show,
             _root_.controllers.studios.routes.javascript.Booking.submit,
 

@@ -21,12 +21,10 @@
 @import play.api.libs.json.Json
 @import play.api.mvc.RequestHeader
 
-@import _root_.controllers.ClientConfig
 @import models.Picture
 @import misc.JsonWrites._
 
 @(
-    clientConfig: ClientConfig,
     user: Option[models.User],
     studio: models.Studio,
     pictures: Seq[models.Picture#Id])(
@@ -100,7 +98,7 @@
 
 @layout(
     Seq(studio.name, "Music studio to rent in " + studio.location.address.city),
-    head=head, clientConfig=clientConfig, user=user) {
+    head=head, user=user) {
 
     <div class="grid-container">
         <div class="grid-x grid-padding-x grid-padding-y">

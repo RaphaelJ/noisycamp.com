@@ -46,7 +46,7 @@ class Booking @Inject() (ccc: CustomControllerCompoments)
   def show(id: Studio#Id, beginsAt: String, duration: Int)
     = silhouette.SecuredAction.async { implicit request =>
 
-    withStudio(id, { case (clientConfig, studio, picIds) =>
+    withStudio(id, { case (studio, picIds) =>
       val params = Map(
         "begins-at"       -> beginsAt,
         "duration"        -> duration.toString)
@@ -57,7 +57,6 @@ class Booking @Inject() (ccc: CustomControllerCompoments)
         )
 
       DBIO.successful(Ok(views.html.studios.booking(
-        clientConfig = clientConfig,
         user = Some(request.identity),
         studio, picIds, summary)))
     })
@@ -67,7 +66,7 @@ class Booking @Inject() (ccc: CustomControllerCompoments)
     = silhouette.SecuredAction.async {
     implicit request =>
 
-    withStudio(id, { case (clientConfig, studio, picIds) =>
+    withStudio(id, { case (studio, picIds) =>
       BookingForm.form(studio).bindFromRequest.fold(
         form => DBIO.successful(BadRequest("Invalid booking request.")),
         data => {
@@ -76,7 +75,7 @@ class Booking @Inject() (ccc: CustomControllerCompoments)
             case PaymentMethod.Onsite => handleOnsitePayment _
           }
 
-          DBIO.from(handler(clientConfig, request.identity, studio, picIds,
+          DBIO.from(handler(request.identity, studio, picIds,
             data.bookingTimes))
         }
       )
@@ -136,20 +135,17 @@ class Booking @Inject() (ccc: CustomControllerCompoments)
 
   /** Executes the function within the DBIO monad, or returns a 404 response. */
   private def withStudio[T](id: Studio#Id,
-    f: ((ClientConfig, Studio, Seq[Picture#Id]) =>
-      DBIOAction[Result, NoStream, Effect.All]))
+    f: ((Studio, Seq[Picture#Id]) => DBIOAction[Result, NoStream, Effect.All]))
     (implicit request: Request[T]):
     Future[Result] = {
 
-    getClientConfig.flatMap { clientConfig =>
-      db.run {
-        val dbStudio = daos.studioPicture.getStudioWithPictures(id)
+    db.run {
+      val dbStudio = daos.studioPicture.getStudioWithPictures(id)
 
-        dbStudio.flatMap {
-          case (Some(studio), picIds) => f(clientConfig, studio, picIds)
-          case (None, _) => DBIO.successful(NotFound("Studio not found."))
-        }: DBIOAction[Result, NoStream, Effect.All]
-      }
+      dbStudio.flatMap {
+        case (Some(studio), picIds) => f(studio, picIds)
+        case (None, _) => DBIO.successful(NotFound("Studio not found."))
+      }: DBIOAction[Result, NoStream, Effect.All]
     }
   }
 
@@ -170,8 +166,8 @@ class Booking @Inject() (ccc: CustomControllerCompoments)
 
   }
 
-  private def handleOnlinePayment(clientConfig: ClientConfig, user: User,
-    studio: Studio, studioPics: Seq[Picture#Id], bookingTimes: BookingTimes)(
+  private def handleOnlinePayment(user: User, studio: Studio,
+    studioPics: Seq[Picture#Id], bookingTimes: BookingTimes)(
     implicit request: RequestHeader) : Future[Result] = {
 
     val title: String = studio.name
@@ -229,14 +225,13 @@ class Booking @Inject() (ccc: CustomControllerCompoments)
       }.transactionally)
 
       booking.map { _ =>
-        Ok(views.html.studios.bookingCheckout(
-          clientConfig = clientConfig, user = Some(user), sess))
+        Ok(views.html.studios.bookingCheckout(user = Some(user), sess))
       }
     }
   }
 
-  private def handleOnsitePayment(clientConfig: ClientConfig, user: User,
-    studio: Studio, studioPics: Seq[Picture#Id], bookingTimes: BookingTimes)(
+  private def handleOnsitePayment(user: User, studio: Studio,
+    studioPics: Seq[Picture#Id], bookingTimes: BookingTimes)(
     implicit request: RequestHeader) : Future[Result] = {
 
     Future.successful(Ok(bookingTimes.toString))

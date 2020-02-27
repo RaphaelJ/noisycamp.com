@@ -17,14 +17,9 @@
 
 @import play.api.Configuration
 
-@import _root_.controllers.ClientConfig
+@(user: models.User)(implicit req: RequestHeader, config: Configuration)
 
-@(clientConfig: ClientConfig, user: models.User)(
-    implicit req: RequestHeader, config: Configuration)
-
-@layout(
-    Seq("Account", user.fullName.getOrElse(user.email)),
-    clientConfig=clientConfig, user=Some(user)) {
+@layout(Seq("Account", user.fullName.getOrElse(user.email)), user=Some(user)) {
 
     <div class="grid-container">
         <div class="grid-x grid-padding-x grid-padding-y">

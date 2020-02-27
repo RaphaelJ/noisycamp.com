@@ -32,23 +32,19 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
 
   import profile.api._
 
-  def index = silhouette.UserAwareAction.async { implicit request =>
-    getClientConfig.map { clientConfig =>
-      Ok(views.html.studios.index(clientConfig, user=request.identity))
-    }
+  def index = silhouette.UserAwareAction { implicit request =>
+    Ok(views.html.studios.index(user=request.identity))
   }
 
   def show(id: Studio#Id) = silhouette.UserAwareAction.async {
     implicit request =>
 
-    for {
-      clientConfig <- getClientConfig
-      dbStudio <- db.run { daos.studioPicture.getStudioWithPictures(id) }
-    } yield dbStudio match {
+    db.run {
+      daos.studioPicture.getStudioWithPictures(id)
+    }.map {
       case (Some(studio), picIds) => {
         Ok(
           views.html.studios.show(
-            clientConfig = clientConfig,
             user = request.identity,
             studio, picIds))
       }

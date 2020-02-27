@@ -41,42 +41,37 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
   }
 
   /** Shows a form to list a new studio. */
-  def create = silhouette.SecuredAction.async { implicit request =>
-    getClientConfig.map { clientConfig =>
-      Ok(views.html.account.studioCreate(
-        clientConfig, request.identity, StudioForm.form))
-    }
+  def create = silhouette.SecuredAction { implicit request =>
+    Ok(views.html.account.studioCreate(request.identity, StudioForm.form))
   }
 
   def createSubmit = silhouette.SecuredAction.async { implicit request =>
-    getClientConfig.flatMap { clientConfig =>
 
-      StudioForm.form.bindFromRequest.fold(
-        form => Future.successful(BadRequest(views.html.account.studioCreate(
-          clientConfig, request.identity, form))),
-        data => {
-          val timezone: ZoneId = timeZoneService.
-            query(data.location.lat, data.location.long).
-            getOrElse(ZoneId.of("UTC"))
+    StudioForm.form.bindFromRequest.fold(
+      form => Future.successful(BadRequest(views.html.account.studioCreate(
+        request.identity, form))),
+      data => {
+        val timezone: ZoneId = timeZoneService.
+          query(data.location.lat, data.location.long).
+          getOrElse(ZoneId.of("UTC"))
 
-          val studio: Future[Studio] = db.run({
-            for {
-              studio <- daos.studio.insert(Studio(
-                ownerId = request.identity.id,
-                name = data.name,
-                description = data.description,
-                location = data.location,
-                timezone = timezone,
-                openingSchedule = data.openingSchedule,
-                pricingPolicy = data.pricingPolicy,
-                bookingPolicy = data.bookingPolicy,
-                paymentPolicy = data.paymentPolicy))
-              _ <- daos.studioPicture.setStudioPics(studio.id, data.pictures)
-            } yield studio
-          }.transactionally)
+        val studio: Future[Studio] = db.run({
+          for {
+            studio <- daos.studio.insert(Studio(
+              ownerId = request.identity.id,
+              name = data.name,
+              description = data.description,
+              location = data.location,
+              timezone = timezone,
+              openingSchedule = data.openingSchedule,
+              pricingPolicy = data.pricingPolicy,
+              bookingPolicy = data.bookingPolicy,
+              paymentPolicy = data.paymentPolicy))
+            _ <- daos.studioPicture.setStudioPics(studio.id, data.pictures)
+          } yield studio
+        }.transactionally)
 
-          studio.map(s => Ok(s.toString))
-        })
-    }
+        studio.map(s => Ok(s.toString))
+      })
   }
 }

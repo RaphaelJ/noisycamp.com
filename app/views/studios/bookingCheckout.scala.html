@@ -19,11 +19,9 @@
 @import play.api.Configuration
 @import play.api.mvc.RequestHeader
 
-@import _root_.controllers.ClientConfig
-
 @** Redirects the user to the given Stripe checkout session. *@
 @(
-    clientConfig: ClientConfig, user: Option[models.User],
+    user: Option[models.User],
     stripeSession: Session)(
     implicit req: RequestHeader, config: Configuration)
 
@@ -31,9 +29,7 @@
     <script src="https://js.stripe.com/v3/"></script>
 }
 
-@layout(
-    Seq("Redirecting to payment provider"),
-    clientConfig=clientConfig, user=user, javascript=javascript) {
+@layout(Seq("Redirecting to payment provider"), user=user, javascript=javascript) {
 
     <div class="grid-container">
         <div class="grid-x grid-padding-x grid-padding-y">

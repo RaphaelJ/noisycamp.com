@@ -27,9 +27,7 @@ import _root_.controllers.{ CustomBaseController, CustomControllerCompoments }
 class IndexController @Inject() (ccc: CustomControllerCompoments)
   extends CustomBaseController(ccc) {
 
-  def index = silhouette.SecuredAction.async { implicit request =>
-    getClientConfig.map { clientConfig =>
-      Ok(views.html.account.index(clientConfig, user=request.identity))
-    }
+  def index = silhouette.SecuredAction { implicit request =>
+    Ok(views.html.account.index(user=request.identity))
   }
 }

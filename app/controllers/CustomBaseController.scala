@@ -96,22 +96,4 @@ abstract class CustomBaseController @Inject () (
   val geoIpService = ccc.geoIpService
   val timeZoneService = ccc.timeZoneService
   val paymentService = ccc.paymentService
-
-  def getClientConfig[A](implicit request: Request[A])
-    : Future[ClientConfig] = {
-
-    for {
-      location <- geoIpService.get(request.remoteAddress)
-
-      currency = request.
-        session.
-        get("config.currency").
-        flatMap(Currency.byCode.get _).
-        orElse {
-          // No session value, use IP location
-          location.map(_.country.currency)
-        }.
-        getOrElse(Currency.USD) // Default to USD
-    } yield ClientConfig(location, currency)
-  }
 }
