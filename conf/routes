@@ -45,7 +45,7 @@ GET     /studios/:id                    controllers.StudiosController.show(id: L
 
 # Booking
 
-GET     /studios/:id/book               controllers.studios.Booking.show(id: Long, beginsAt: String, duration: Int, error: Option[String] ?= None)
+GET     /studios/:id/book               controllers.studios.Booking.show(id: Long, beginsAt: String, duration: Int)
 POST    /studios/:id/book               controllers.studios.Booking.submit(id: Long)
 
 GET     /studios/:id/book/payment/:sessionId/success controllers.studios.Booking.paymentSuccess(id: Long, sessionId: String)

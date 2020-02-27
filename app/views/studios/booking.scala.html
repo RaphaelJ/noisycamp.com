@@ -16,8 +16,10 @@
  *@
 
 @import play.api.Configuration
+@import play.api.data.FormError
 @import play.api.libs.json.Json
 @import play.api.mvc.RequestHeader
+
 
 @import _root_.controllers.ClientConfig
 @import misc.JsonWrites._
@@ -27,8 +29,7 @@
     user: Option[models.User],
     studio: models.Studio,
     pictures: Seq[models.Picture#Id],
-    bookingTimes: models.BookingTimes,
-    errorOpt: Option[String])(
+    summary: Either[Seq[FormError], models.BookingTimes])(
     implicit req: RequestHeader, config: Configuration)
 
 @leftPanel = {
@@ -59,49 +60,55 @@
 }
 
 @rightPanel = {
-    @for(error <- errorOpt) {
-        @error match {
-            case "payment-error" => {
-                <div class="cell callout alert">
-                    A error occured while processing your payment.
+    @summary match {
+        case Left(_) => {
+            <div class="cell callout alert">
+                <p>The studio can not be reserved during the selected times.</p>
+
+                <p>
+                    <a href="@routes.StudiosController.show(studio.id)">
+                        Click here
+                    </a>
+                    to get back to the studio page.
+                </p>
+            </div>
+        }
+        case Right(bookingTimes) => {
+            <h3>Summary</h3>
+
+            <div class="grid-y">
+                <div class="cell">
+                    <i class="fi-marker"></i>&nbsp;
+                    @studio.location.address.city, @studio.location.address.country.name
                 </div>
+
+                <div class="cell">
+                    <i class="fi-calendar"></i>&nbsp;
+                    @defining(bookingTimes.beginsAt) { beginsAt =>
+                        @tags.localDate(beginsAt.toLocalDate) at @beginsAt.toLocalTime
+                    }
+                </div>
+
+                <div class="cell">
+                    <i class="fi-clock"></i>&nbsp;
+                    @tags.duration(bookingTimes.duration)
+                </div>
+            </div>
+
+            <hr>
+
+            @defining(studio.localPricingPolicy) { pricingPolicy =>
+                <booking-form
+                    :studio-id='@studio.id'
+                    :opening-schedule='@tags.asJson(Json.toJson(studio.openingSchedule))'
+                    :pricing-policy='@tags.asJson(Json.toJson(pricingPolicy))'
+                    :booking-times='@tags.asJson(Json.toJson(bookingTimes))'
+                    :has-online-payment='@studio.paymentPolicy.hasOnlinePayment'
+                    :has-onsite-payment='@studio.paymentPolicy.hasOnsitePayment'
+                    csrf-token="@helper.CSRF.getToken.value">
+                </booking-form>
             }
         }
-    }
-
-    <h3>Summary</h3>
-
-    <div class="grid-y">
-        <div class="cell">
-            <i class="fi-marker"></i>&nbsp;
-            @studio.location.address.city, @studio.location.address.country.name
-        </div>
-
-        <div class="cell">
-            <i class="fi-calendar"></i>&nbsp;
-            @defining(bookingTimes.beginsAt) { beginsAt =>
-                @tags.localDate(beginsAt.toLocalDate) at @beginsAt.toLocalTime
-            }
-        </div>
-
-        <div class="cell">
-            <i class="fi-clock"></i>&nbsp;
-            @tags.duration(bookingTimes.duration)
-        </div>
-    </div>
-
-    <hr>
-
-    @defining(studio.localPricingPolicy) { pricingPolicy =>
-        <booking-form
-            :studio-id='@studio.id'
-            :opening-schedule='@tags.asJson(Json.toJson(studio.openingSchedule))'
-            :pricing-policy='@tags.asJson(Json.toJson(pricingPolicy))'
-            :booking-times='@tags.asJson(Json.toJson(bookingTimes))'
-            :has-online-payment='@studio.paymentPolicy.hasOnlinePayment'
-            :has-onsite-payment='@studio.paymentPolicy.hasOnsitePayment'
-            csrf-token="@helper.CSRF.getToken.value">
-        </booking-form>
     }
 }
 

@@ -42,12 +42,8 @@ class Booking @Inject() (ccc: CustomControllerCompoments)
 
   import profile.api._
 
-  /** Shows a booking review page.
-   *
-   * @param error can take `payment-error` as a value.
-   */
-  def show(id: Studio#Id, beginsAt: String, duration: Int,
-    error: Option[String])
+  /** Shows a booking review page. */
+  def show(id: Studio#Id, beginsAt: String, duration: Int)
     = silhouette.SecuredAction.async { implicit request =>
 
     withStudio(id, { case (clientConfig, studio, picIds) =>
@@ -55,16 +51,15 @@ class Booking @Inject() (ccc: CustomControllerCompoments)
         "begins-at"       -> beginsAt,
         "duration"        -> duration.toString)
 
-      BookingTimesForm.form(studio).bind(params).fold(
-        form => DBIO.successful(BadRequest("Invalid booking request.")),
-        bookingTimes => {
-          DBIO.successful(Ok(
-            views.html.studios.booking(
-              clientConfig = clientConfig,
-              user = Some(request.identity),
-              studio, picIds, bookingTimes, error)))
-        }
-      )
+      val summary = BookingTimesForm.form(studio).bind(params).fold(
+          form => Left(form.errors),
+          bookingTimes => Right(bookingTimes)
+        )
+
+      DBIO.successful(Ok(views.html.studios.booking(
+        clientConfig = clientConfig,
+        user = Some(request.identity),
+        studio, picIds, summary)))
     })
   }
 
@@ -93,11 +88,7 @@ class Booking @Inject() (ccc: CustomControllerCompoments)
 
     lazy val onPaymentSuccess = Ok("Payment successful")
     val onPaymentFailure = { booking: StudioBooking =>
-      Redirect(routes.Booking.show(
-        id = booking.studioId,
-        beginsAt = booking.beginsAt.toLocalDate.toString,
-        duration = booking.durationTotal.getSeconds.toInt,
-        error = Some("payment-error")))
+        Forbidden("Payment failed.")
     }
     lazy val onBookingNotFound = NotFound("Booking not found.")
 
