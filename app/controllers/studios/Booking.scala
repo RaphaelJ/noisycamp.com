@@ -27,13 +27,13 @@ import scala.util.{ Success, Failure }
 import play.api._
 import play.api.mvc._
 
-import _root_.controllers.{ ClientConfig, CustomBaseController,
-  CustomControllerCompoments }
+import _root_.controllers.{ CustomBaseController, CustomControllerCompoments }
 import daos.CustomColumnTypes
 import forms.studios.{ BookingForm, BookingTimesForm }
 import misc.PaymentCaptureMethod
-import models.{ BookingTimes, LocalPricingPolicy, PaymentMethod, Picture,
-  Studio, StudioBooking, StudioBookingPaymentOnline, StudioBookingStatus, User }
+import models.{ BookingTimes, Identity, LocalPricingPolicy, PaymentMethod,
+  Picture, Studio, StudioBooking, StudioBookingPaymentOnline,
+  StudioBookingStatus }
 
 @Singleton
 class Booking @Inject() (ccc: CustomControllerCompoments)
@@ -57,7 +57,7 @@ class Booking @Inject() (ccc: CustomControllerCompoments)
         )
 
       DBIO.successful(Ok(views.html.studios.booking(
-        user = Some(request.identity),
+        identity = Some(request.identity),
         studio, picIds, summary)))
     })
   }
@@ -166,9 +166,11 @@ class Booking @Inject() (ccc: CustomControllerCompoments)
 
   }
 
-  private def handleOnlinePayment(user: User, studio: Studio,
+  private def handleOnlinePayment(identity: Identity, studio: Studio,
     studioPics: Seq[Picture#Id], bookingTimes: BookingTimes)(
     implicit request: RequestHeader) : Future[Result] = {
+
+    val user = identity.user
 
     val title: String = studio.name
 
@@ -225,12 +227,12 @@ class Booking @Inject() (ccc: CustomControllerCompoments)
       }.transactionally)
 
       booking.map { _ =>
-        Ok(views.html.studios.bookingCheckout(user = Some(user), sess))
+        Ok(views.html.studios.bookingCheckout(identity = Some(identity), sess))
       }
     }
   }
 
-  private def handleOnsitePayment(user: User, studio: Studio,
+  private def handleOnsitePayment(identity: Identity, studio: Studio,
     studioPics: Seq[Picture#Id], bookingTimes: BookingTimes)(
     implicit request: RequestHeader) : Future[Result] = {
 

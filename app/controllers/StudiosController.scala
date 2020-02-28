@@ -33,7 +33,7 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
   import profile.api._
 
   def index = silhouette.UserAwareAction { implicit request =>
-    Ok(views.html.studios.index(user=request.identity))
+    Ok(views.html.studios.index(identity=request.identity))
   }
 
   def show(id: Studio#Id) = silhouette.UserAwareAction.async {
@@ -43,10 +43,9 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
       daos.studioPicture.getStudioWithPictures(id)
     }.map {
       case (Some(studio), picIds) => {
-        Ok(
-          views.html.studios.show(
-            user = request.identity,
-            studio, picIds))
+        Ok(views.html.studios.show(
+          identity = request.identity,
+          studio, picIds))
       }
       case (None, _) => NotFound("Studio not found.")
     }

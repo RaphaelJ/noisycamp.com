@@ -15,14 +15,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package auth
+package daos
 
-import com.mohiva.play.silhouette.api.Env
-import com.mohiva.play.silhouette.impl.authenticators.CookieAuthenticator
+import javax.inject._
 
-import models.Identity
+/** The default DAOs provided to the controllers. */
+class DAOs @Inject () (
+  val user: UserDAO,
+  val userLoginInfo: UserLoginInfoDAO,
 
-trait DefaultEnv extends Env {
-  type I = Identity
-  type A = CookieAuthenticator
-}
+  val studio: StudioDAO,
+  val studioPicture: StudioPictureDAO,
+  val studioBooking: StudioBookingDAO,
+
+  val picture: PictureDAO)

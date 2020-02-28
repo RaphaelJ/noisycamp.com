@@ -51,7 +51,7 @@ class SocialAuthController @Inject() (
             // Retrieve the profile from the provided and creates/update the
             // local user account.
             profile <- p.retrieveProfile(authInfo)
-            user <- userService.save(profile)
+            _ <- userService.save(profile)
 
             // If there is a `?target=` URL parameter, redirect to that
             // location.

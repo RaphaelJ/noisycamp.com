@@ -23,7 +23,7 @@
 @import misc.JsonWrites._
 
 @(
-    user: Option[models.User],
+    identity: Option[models.Identity],
     studio: models.Studio,
     pictures: Seq[models.Picture#Id],
     summary: Either[Seq[FormError], models.BookingTimes])(
@@ -109,7 +109,7 @@
     }
 }
 
-@layout(Seq("Book music studio in " + studio.name), user=user) {
+@layout(Seq("Book music studio in " + studio.name), identity=identity) {
 
     <div class="grid-container">
         <div class="grid-x grid-padding-x grid-padding-y">

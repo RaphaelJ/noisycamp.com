@@ -19,8 +19,6 @@ package models
 
 import java.time.Instant
 
-import com.mohiva.play.silhouette.api.Identity
-
 /** Stores the information about an user. */
 case class User(
   id: User#Id = 0L,
@@ -28,7 +26,7 @@ case class User(
   firstName: Option[String],
   lastName: Option[String],
   email: String,
-  avatarId: Option[Long]) extends Identity {
+  avatarId: Option[Long]) {
 
   type Id = Long
 

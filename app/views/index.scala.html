@@ -17,7 +17,7 @@
 
 @import play.api.Configuration
 
-@(user: Option[models.User])(implicit req: RequestHeader, config: Configuration)
+@(identity: Option[models.Identity])(implicit req: RequestHeader, config: Configuration)
 
 @head = {
     <link
@@ -27,7 +27,7 @@
 
 @layout(
     Seq("Music and rehearsal studio rentals"), head=head,
-    user=user, fullScreen=true) {
+    identity=identity, fullScreen=true) {
 
     <div class="hero full-screen home-hero">
         <div class="top-content-section">

@@ -21,7 +21,7 @@
 
 @** Redirects the user to the given Stripe checkout session. *@
 @(
-    user: Option[models.User],
+    identity: Option[models.Identity],
     stripeSession: Session)(
     implicit req: RequestHeader, config: Configuration)
 
@@ -29,7 +29,7 @@
     <script src="https://js.stripe.com/v3/"></script>
 }
 
-@layout(Seq("Redirecting to payment provider"), user=user, javascript=javascript) {
+@layout(Seq("Redirecting to payment provider"), identity=identity, javascript=javascript) {
 
     <div class="grid-container">
         <div class="grid-x grid-padding-x grid-padding-y">

@@ -30,28 +30,11 @@ import slick.jdbc.JdbcProfile
 import squants.market
 
 import auth.{ DefaultEnv, UserService }
-import daos._
+import daos.DAOs
 import _root_.i18n.{ Country, Currency, ExchangeRatesService, GeoIpService,
   GeoIpLocation, TimeZoneService }
 import misc.{ PaymentService, TaskExecutionContext }
 import pictures.PictureCache
-
-/** The default DAOs provided to the controllers. */
-class Daos @Inject () (
-  val user: UserDAO,
-  val userLoginInfo: UserLoginInfoDAO,
-
-  val studio: StudioDAO,
-  val studioPicture: StudioPictureDAO,
-  val studioBooking: StudioBookingDAO,
-
-  val picture: PictureDAO)
-
-/** Client configuration variables, based on session, location and HTTP
- * headers. */
-case class ClientConfig(
-  location: Option[GeoIpLocation],
-  currency: market.Currency)
 
 class CustomControllerCompoments @Inject() (
   val cc: ControllerComponents,
@@ -62,7 +45,7 @@ class CustomControllerCompoments @Inject() (
 
   // Database and DAOs
   val dbConfigProvider: DatabaseConfigProvider,
-  val daos: Daos,
+  val daos: DAOs,
 
   // Auth
   val silhouette: Silhouette[DefaultEnv],

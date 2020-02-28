@@ -26,29 +26,46 @@ import javax.inject._
 import play.api.db.slick.{ DatabaseConfigProvider, HasDatabaseConfigProvider }
 import slick.jdbc.JdbcProfile
 
-import daos.{ UserDAO, UserLoginInfoDAO }
-import models.{ User, UserLoginInfo }
+import daos.DAOs
+import models.{ Identity, User, UserLoginInfo }
 
 class UserService @Inject() (
     protected val dbConfigProvider: DatabaseConfigProvider,
-    val userDAO: UserDAO,
-    val userLoginInfoDAO: UserLoginInfoDAO)
+    val daos: DAOs)
   (implicit executionContext: ExecutionContext)
-  extends IdentityService[User]
+  extends IdentityService[Identity]
   with HasDatabaseConfigProvider[JdbcProfile]
   {
 
   import profile.api._
 
   protected def userQuery(loginInfo: LoginInfo) = {
-    for {
-      userLoginInfo <- userLoginInfoDAO.get(loginInfo)
-      user <- userDAO.query.filter(_.id === userLoginInfo.userID)
-    } yield user
+    daos.userLoginInfo.
+      get(loginInfo).
+      flatMap { userLoginInfo =>
+        daos.user.query.
+          filter(_.id === userLoginInfo.userID)
+      }
   }
 
-  def retrieve(loginInfo: LoginInfo): Future[Option[User]] = {
-    db.run { userQuery(loginInfo).result.headOption }
+  def retrieve(loginInfo: LoginInfo): Future[Option[Identity]] = {
+    db.run({
+      userQuery(loginInfo).
+        result.headOption.
+        flatMap {
+          case Some(user) => {
+            daos.studio.query.
+              filter(_.ownerId === user.id).
+              exists.result.
+              map { hasAStudio =>
+                Some(Identity(
+                  user,
+                  isAHost = hasAStudio))
+              }
+          }
+          case None => DBIO.successful(None)
+        }
+    }.transactionally)
   }
 
   /**
@@ -68,12 +85,12 @@ class UserService @Inject() (
             case None => {
               // User does not exists.
               for {
-                user <- userDAO.insert += User(
+                user <- daos.user.insert += User(
                   firstName = profile.firstName,
                   lastName = profile.lastName,
                   email = profile.email.get,
                   avatarId = None)
-                _ <- userLoginInfoDAO.insert += UserLoginInfo(
+                _ <- daos.userLoginInfo.insert += UserLoginInfo(
                   userId = user.id,
                   loginProviderId = profile.loginInfo.providerID,
                   loginProviderKey = profile.loginInfo.providerKey)

@@ -15,14 +15,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package auth
+package models
 
-import com.mohiva.play.silhouette.api.Env
-import com.mohiva.play.silhouette.impl.authenticators.CookieAuthenticator
+import com.mohiva.play.silhouette.api
 
-import models.Identity
+/** Contains miscellaneous user related information as obtained from the
+ * database during authentication. */
+case class Identity(
+  val user: User,
 
-trait DefaultEnv extends Env {
-  type I = Identity
-  type A = CookieAuthenticator
-}
+  /** True if the person hosts at least one studio. */
+  val isAHost: Boolean) extends api.Identity

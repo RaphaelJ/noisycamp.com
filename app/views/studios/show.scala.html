@@ -25,7 +25,7 @@
 @import misc.JsonWrites._
 
 @(
-    user: Option[models.User],
+    identity: Option[models.Identity],
     studio: models.Studio,
     pictures: Seq[models.Picture#Id])(
     implicit req: RequestHeader, config: Configuration)
@@ -98,7 +98,7 @@
 
 @layout(
     Seq(studio.name, "Music studio to rent in " + studio.location.address.city),
-    head=head, user=user) {
+    head=head, identity=identity) {
 
     <div class="grid-container">
         <div class="grid-x grid-padding-x grid-padding-y">

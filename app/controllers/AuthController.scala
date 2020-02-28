@@ -63,7 +63,7 @@ class AuthController @Inject() (
         credentialsProvider.authenticate(credentials).
           flatMap { loginInfo =>
             userService.retrieve(loginInfo).flatMap {
-              case Some(user) => {
+              case Some(_) => {
                 for {
                   authenticator <-
                     silhouette.env.authenticatorService.create(loginInfo)
@@ -109,7 +109,7 @@ class AuthController @Inject() (
         val loginInfo = LoginInfo(CredentialsProvider.ID, data.email)
 
         userService.retrieve(loginInfo).flatMap {
-          case Some(user) => {
+          case Some(_) => {
             // User already exists with this email, notifies the user.
             val form = SignUpForm.form.bindFromRequest.
               withError(
@@ -121,7 +121,7 @@ class AuthController @Inject() (
 
           case None => {
             for {
-              user <- userService.save(CommonSocialProfile(
+              _ <- userService.save(CommonSocialProfile(
                 loginInfo = loginInfo,
                 firstName = Some(data.firstName),
                 lastName = Some(data.lastName),

@@ -58,7 +58,7 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
         val studio: Future[Studio] = db.run({
           for {
             studio <- daos.studio.insert(Studio(
-              ownerId = request.identity.id,
+              ownerId = request.identity.user.id,
               name = data.name,
               description = data.description,
               location = data.location,

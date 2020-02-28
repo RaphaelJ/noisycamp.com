@@ -17,10 +17,8 @@
 
 @import play.api.Configuration
 
-@import _root_.controllers.ClientConfig
-
 @(
-    user: Option[models.User])(
+    identity: Option[models.Identity])(
     implicit req: play.api.mvc.RequestHeader, config: Configuration)
 
 @head = {
@@ -29,7 +27,7 @@
         href="@routes.Assets.versioned("stylesheets/studios/index.css")">
 }
 
-@layout(Seq("Find a music studio"), head=head, user=user) {
+@layout(Seq("Find a music studio"), head=head, identity=identity) {
 
     <studios-index></studios-index>
 }

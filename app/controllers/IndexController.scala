@@ -27,6 +27,6 @@ class IndexController @Inject() (ccc: CustomControllerCompoments)
   extends CustomBaseController(ccc) {
 
   def index = silhouette.UserAwareAction { implicit request =>
-    Ok(views.html.index(user=request.identity))
+    Ok(views.html.index(identity=request.identity))
   }
 }

@@ -28,6 +28,6 @@ class IndexController @Inject() (ccc: CustomControllerCompoments)
   extends CustomBaseController(ccc) {
 
   def index = silhouette.SecuredAction { implicit request =>
-    Ok(views.html.account.index(user=request.identity))
+    Ok(views.html.account.index(identity=request.identity))
   }
 }

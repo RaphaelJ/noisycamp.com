@@ -18,10 +18,10 @@
 @import play.api.Configuration
 @import play.api.libs.json.Json
 
-@import i18n.Currency
-
 @import _root_.auth.DefaultEnv
 @import _root_.frontend.JsConfig
+@import i18n.Currency
+@import models.Identity
 
 @** Main layout for the NoisyCamp website.
  *
@@ -29,7 +29,7 @@
  *@
 @(
     title: Seq[String], head: Html = Html(""), javascript: Html = Html(""),
-    user: Option[models.User],
+    identity: Option[Identity],
     fullScreen: Boolean = false)(content: Html)(
     implicit req: RequestHeader, config: Configuration)
 
@@ -88,10 +88,10 @@
                                     class="button primary">Host a studio</a>
                             </li>
 
-                            @if(user.isDefined) {
+                            @if(identity.isDefined) {
                                 <li>
                                     <a href="@controllers.account.routes.IndexController.index()">
-                                        @user.get.displayName
+                                        @identity.get.user.displayName
                                     </a>
                                 </li>
                             } else {
