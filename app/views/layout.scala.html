@@ -33,6 +33,57 @@
     fullScreen: Boolean = false)(content: Html)(
     implicit req: RequestHeader, config: Configuration)
 
+@topBar = {
+    <div class="top-bar-container">
+        <div class="top-bar @if(!fullScreen){ no-full-screen }">
+            <div class="top-bar-left">
+                <ul class="menu">
+                    <li class="logo">
+                        <a href="@routes.IndexController.index()">
+                            <img src="@routes.Assets.versioned("images/logo.svg")">
+                            NoisyCamp
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="top-bar-right">
+                <ul class="menu">
+                    @if(identity.isDefined && identity.get.isAHost) {
+                        <li>
+                            <a
+                                href="@controllers.account.routes.StudiosController.create()">
+                                Manage my studios</a>
+                        </li>
+                    } else {
+                        <li>
+                            <a
+                                href="@controllers.account.routes.StudiosController.create()"
+                                class="button primary">Host a studio</a>
+                        </li>
+                    }
+
+                    @if(identity.isDefined) {
+                        <li>
+                            <a href="@controllers.account.routes.IndexController.index()">
+                                <i class="fi-torso"></i>&nbsp;
+                                @identity.get.user.displayName
+                            </a>
+                        </li>
+                    } else {
+                        <li>
+                            <a href="@routes.AuthController.signIn">Sign in</a>
+                        </li>
+                        <li>
+                            <a href="@routes.AuthController.signUp">Sign up</a>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+}
+
 <!doctype html>
 <html lang="en" dir="ltr">
     <head>
@@ -67,45 +118,7 @@
 
     <body>
         <div id="nc-app">
-            <div class="top-bar-container">
-                <div class="top-bar @if(!fullScreen){ no-full-screen }">
-                    <div class="top-bar-left">
-                        <ul class="menu">
-                            <li class="logo">
-                                <a href="@routes.IndexController.index()">
-                                    <img src="@routes.Assets.versioned("images/logo.svg")">
-                                    NoisyCamp
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div class="top-bar-right">
-                        <ul class="menu">
-                            <li>
-                                <a
-                                    href="@controllers.account.routes.StudiosController.create()"
-                                    class="button primary">Host a studio</a>
-                            </li>
-
-                            @if(identity.isDefined) {
-                                <li>
-                                    <a href="@controllers.account.routes.IndexController.index()">
-                                        @identity.get.user.displayName
-                                    </a>
-                                </li>
-                            } else {
-                                <li>
-                                    <a href="@routes.AuthController.signIn">Sign in</a>
-                                </li>
-                                <li>
-                                    <a href="@routes.AuthController.signUp">Sign up</a>
-                                </li>
-                            }
-                        </ul>
-                    </div>
-                </div>
-            </div>
+            @topBar
 
             <main>
                 @content
