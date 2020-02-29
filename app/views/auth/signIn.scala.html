@@ -21,7 +21,8 @@
 @import forms.auth.SignInForm.Data
 
 @(
-    signInForm: Form[Data], socialProviders: SocialProviderRegistry)(
+    signInForm: Form[Data], socialProviders: SocialProviderRegistry,
+    redirectTo: Option[String])(
     implicit request: RequestHeader, messagesProvider: MessagesProvider,
     config: Configuration)
 
@@ -36,7 +37,6 @@
 }
 
 @layout(Seq("Sign in"), head=head, identity=None, fullScreen=true) {
-
     <div class="hero full-screen-with-bars sign-in-hero">
         <div class="top-content-section"></div>
 
@@ -45,7 +45,7 @@
                 <h2>Sign in</h2>
 
                 @helper.form(
-                    action = controllers.routes.AuthController.signInSubmit) {
+                    action = controllers.routes.AuthController.signInSubmit(redirectTo)) {
 
                     @helper.CSRF.formField
 
@@ -64,17 +64,7 @@
 
                 <hr>
 
-                <div class="grid-x grid-margin-x">
-                    @for(p <- socialProviders.providers) {
-                        <div class="cell auto">
-                            <a
-                                href="@controllers.routes.SocialAuthController.authenticate(p.id)"
-                                class="button primary large expanded provider @p.id">
-                                Sign in with @p.id.capitalize
-                            </a>
-                        </div>
-                    }
-                </div>
+                @tags.socialSignInButtons(socialProviders, redirectTo)
             </div>
         </div>
 

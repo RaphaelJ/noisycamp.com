@@ -21,7 +21,8 @@
 @import forms.auth.SignUpForm.Data
 
 @(
-    signUpForm: Form[Data], socialProviders: SocialProviderRegistry)(
+    signUpForm: Form[Data], socialProviders: SocialProviderRegistry,
+    redirectTo: Option[String])(
     implicit request: RequestHeader, messagesProvider: MessagesProvider,
     config: Configuration)
 
@@ -45,7 +46,7 @@
                 <h2>Sign up</h2>
 
                 @helper.form(
-                    action = controllers.routes.AuthController.signUpSubmit) {
+                    action = controllers.routes.AuthController.signUpSubmit(redirectTo)) {
 
                     @helper.CSRF.formField
 
@@ -68,17 +69,7 @@
 
                 <hr>
 
-                <div class="grid-x grid-margin-x">
-                    @for(p <- socialProviders.providers) {
-                        <div class="cell auto">
-                            <a
-                                href="@controllers.routes.SocialAuthController.authenticate(p.id)"
-                                class="button primary large expanded provider @p.id">
-                                Sign in with @p.id.capitalize
-                            </a>
-                        </div>
-                    }
-                </div>
+                @tags.socialSignInButtons(socialProviders, redirectTo)
             </div>
         </div>
 

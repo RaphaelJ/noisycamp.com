@@ -72,10 +72,12 @@
                         </li>
                     } else {
                         <li>
-                            <a href="@routes.AuthController.signIn">Sign in</a>
+                            <a href="@routes.AuthController.signIn(Some(req.uri))">
+                                Sign in</a>
                         </li>
                         <li>
-                            <a href="@routes.AuthController.signUp">Sign up</a>
+                            <a href="@routes.AuthController.signUp(Some(req.uri))">
+                                Sign up</a>
                         </li>
                     }
                 </ul>

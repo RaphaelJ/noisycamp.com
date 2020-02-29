@@ -31,20 +31,29 @@ class CustomSecuredErrorHandler @Inject() (
   /**
    * Called when a user is not authenticated.
    *
+   * Redirects to the sign-in page.
+   *
    * As defined by RFC 2616, the status code of the response should be 401
    * Unauthorized.
    */
   override def onNotAuthenticated(implicit request: RequestHeader) = {
-    Future.successful(Redirect(controllers.routes.IndexController.index()))
+    redirectToSignIn
   }
 
   /**
    * Called when a user is authenticated but not authorized.
    *
+   * Redirects to the sign-in page.
+   *
    * As defined by RFC 2616, the status code of the response should be 403
    * Forbidden.
    */
   override def onNotAuthorized(implicit request: RequestHeader) = {
-    Future.successful(Redirect(controllers.routes.IndexController.index()))
+    redirectToSignIn
+  }
+
+  private def redirectToSignIn(implicit request: RequestHeader) = {
+    Future.successful(Redirect(
+      controllers.routes.AuthController.signIn(Some(request.uri))))
   }
 }
