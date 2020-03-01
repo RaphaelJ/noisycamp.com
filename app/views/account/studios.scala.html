@@ -1,0 +1,94 @@
+@* Noisycamp is a platform for booking music studios.
+ * Copyright (C) 2019  Raphael Javaux <raphaeljavaux@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *@
+
+@import play.api.Configuration
+
+@(
+    identity: models.Identity,
+    studios: Seq[(Studio, Option[models.Picture#Id])])(
+    implicit req: RequestHeader, config: Configuration)
+
+@studioBlock(studio: Studio, picIdOpt: Option[models.Picture#Id]) = {
+    <div class="grid-x grid-padding-x grid-padding-y">
+        <div class="cell small-8 medium-9">
+            <h4>
+                <a
+                    href="@controllers.routes.StudiosController.show(studio.id)"
+                    target="_blank">
+                    @studio.name
+                </a>
+
+                <br class="show-for-small-only">
+
+                <small>Published</small>
+            </h4>
+
+            <ul class="vertical menu small">
+                <li><a href="#">Manage bookings</a></li>
+                <li><a href="#">Calendar</a></li>
+                <li><a href="#">Settings</a></li>
+            </ul>
+        </div>
+
+        <div class="cell small-4 medium-3">
+            @for(picId <- picIdOpt) {
+                <a
+                    href="@controllers.routes.StudiosController.show(studio.id)"
+                    target="_blank">
+                    <reactive-picture
+                        alt="@{studio.name} picture"
+                        picture-id="@picId.base64"
+                        :width="300"
+                        :height="200"
+                        class="border-radius">
+                    </reactive-picture>
+                </a>
+            }
+        </div>
+    </div>
+}
+
+@accountLayout(
+    Seq("Manage my studios", identity.user.fullName.getOrElse(identity.user.email)),
+    identity=identity) {
+
+    <div class="panel-section">
+        @if(studios.isEmpty) {
+            <div class="text-center">
+                No studio associated with this account.
+                Do you want to
+                <a href="@controllers.account.routes.StudiosController.create">
+                    host a studio</a>?
+            </div>
+        } else {
+            <div class="grid-y">
+                @for((studio, picId) <- studios) {
+                    <div class="cell">
+                        @studioBlock(studio, picId)
+                        <hr>
+                    </div>
+                }
+
+                <div class="cell text-center">
+                    <a
+                        href="@controllers.account.routes.StudiosController.create"
+                        class="button primary">Host a new studio</a>
+                </div>
+            </div>
+        }
+    </div>
+}

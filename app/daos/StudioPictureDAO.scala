@@ -65,6 +65,13 @@ class StudioPictureDAO @Inject() (
     )
   }
 
+  def withStudioPictureIds(id: Studio#Id) = {
+    query.
+      filter(_.studioId === id).
+      sortBy(_.id).
+      map(_.pictureId)
+  }
+
   def getStudioWithPictures(id: Studio#Id)
     : DBIO[(Option[Studio], Seq[Picture#Id])] = {
 
@@ -73,11 +80,7 @@ class StudioPictureDAO @Inject() (
           filter(_.id === id).
           result.headOption
 
-        picIds <- query.
-          filter(_.studioId === id).
-          sortBy(_.id).
-          map(_.pictureId).
-          result
+        picIds <- withStudioPictureIds(id).result
       } yield (studio, picIds)
   }
 }

@@ -36,6 +36,13 @@ h1 small, h2 small, h3 small, h4 small, h5 small, h6 small {
     color: #aeadad;
 }
 
+/* Overrides link color in headers. */
+
+h1 a, h2 a, h3 a, h4 a, h5 a, h6 a,
+h1 a:hover, h2 a:hover, h3 a:hover, h4 a:hover, h5 a:hover, h6 a:hover {
+    color: #0a0a0a;
+}
+
 /* Overrides Foundation title sizes on large screens. */
 
 @media print,screen and (min-width: 40em) {
@@ -266,6 +273,14 @@ form label .error {
     }
 }
 
+/* Menus and lists */
+
+/* Reduces the padding when using .menu with .small  */
+.menu.small a {
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+}
+
 /* Avatars */
 
 .avatar svg, .avatar img {
@@ -280,6 +295,12 @@ form label .error {
     fill: #757373;
     dominant-baseline: central;
     text-anchor:middle;
+}
+
+/* Helper classes */
+
+.border-radius {
+    border-radius: 3px;
 }
 
 /* Content */

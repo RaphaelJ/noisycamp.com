@@ -35,9 +35,28 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
 
   import profile.api._
 
-  /** Lists all studios from a single user. */
-  def index = silhouette.SecuredAction { implicit request =>
-    Ok("")
+  /** Lists all studios from a single host. */
+  def index = silhouette.SecuredAction.async { implicit request =>
+
+    val user = request.identity.user
+
+    db.run { for {
+      studios <- daos.studio.query.
+        filter(_.ownerId === user.id).
+        result
+
+      picIds <- DBIO.sequence(
+          studios.map { studio =>
+            daos.studioPicture.
+              withStudioPictureIds(studio.id).
+              take(1).result.
+              headOption
+          }
+        )
+      } yield studios zip picIds
+    }.map { studios =>
+      Ok(views.html.account.studios(request.identity, studios))
+    }
   }
 
   /** Shows a form to list a new studio. */

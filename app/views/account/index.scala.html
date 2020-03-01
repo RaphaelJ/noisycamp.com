@@ -19,54 +19,33 @@
 
 @(identity: models.Identity)(implicit req: RequestHeader, config: Configuration)
 
-@layout(
-    Seq("Account", identity.user.fullName.getOrElse(identity.user.email)),
-    identity=Some(identity)) {
+@accountLayout(
+    Seq("My account", identity.user.fullName.getOrElse(identity.user.email)),
+    identity=identity) {
 
-    <div class="grid-container">
-        <div class="grid-x grid-padding-x grid-padding-y">
-            <div class="cell medium-3">
-                <div class="panel-section">
-                    <div class="text-center">@tags.avatar(identity.user, size = 64)</div>
+    <div class="grid-y grid-padding-y">
+        <div class="cell">
+            <div class="panel-section">
+                <h4>My upcoming bookings</h4>
 
-                    <h5 class="text-center">@identity.user.displayName</h5>
-                    @if(identity.user.fullName.isDefined) {
-                        <h6 class="text-center"><small>@identity.user.email</small></h6>
-                    }
-
-                    <div class="text-right">
-                        <a href="#">Edit your profile</a>
-                    </div>
+                <div class="text-center">
+                    You don't have any upcoming booking.
+                    Are you
+                    <a href="@routes.StudiosController.index">
+                        looking for a studio</a>?
                 </div>
             </div>
+        </div>
 
-            <div class="cell medium-9">
-                <div class="grid-x grid-padding-y">
-                    <div class="cell large-12">
-                        <div class="panel-section">
-                            <h4>My upcoming bookings</h4>
+        <div class="cell">
+            <div class="panel-section">
+                <h4>My top listed places</h4>
 
-                            <div class="text-center">
-                                You don't have any upcoming booking.
-                                Are you
-                                <a href="@routes.StudiosController.index">
-                                    looking for a studio</a>?
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="cell large-12">
-                        <div class="panel-section">
-                            <h4>My top listed places</h4>
-
-                            <div class="text-center">
-                                No studio associated with this account.
-                                Do you want to
-                                <a href="@routes.IndexController.index">
-                                    host a studio</a>?
-                            </div>
-                        </div>
-                    </div>
+                <div class="text-center">
+                    No studio associated with this account.
+                    Do you want to
+                    <a href="@routes.IndexController.index">
+                        host a studio</a>?
                 </div>
             </div>
         </div>

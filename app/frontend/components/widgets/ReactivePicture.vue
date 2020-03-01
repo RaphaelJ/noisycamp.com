@@ -26,7 +26,8 @@
             pictureUrl(1.5) + ' 1.5x, ' +
             pictureUrl(2) + ' 2x, ' +
             pictureUrl(2.5) + ' 2.5x'"
-        :src="pictureUrl(1)">
+        :src="pictureUrl(1)"
+        :class="classes">
 </template>
 
 <script lang="ts">
@@ -38,6 +39,7 @@ export default Vue.extend({
     props: {
         pictureId: { type: String, required: true },
         alt: { type: String, required: true },
+        classes: <PropOptions<String[]>>{ type: Array, default: [] },
 
         width: { type: Number, required: true },
         height: { type: Number, required: true },

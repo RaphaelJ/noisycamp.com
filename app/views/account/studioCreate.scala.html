@@ -31,38 +31,24 @@
         href="https://api.mapbox.com/mapbox-gl-js/v0.52.0/mapbox-gl.css">
 }
 
-@layout(Seq("Host a new studio"), head=head, identity=Some(identity)) {
+@accountLayout(Seq("Host a new studio"), head=head, identity=identity) {
+    <div class="panel-section">
+        <p>
+            We just need a little bit of information about the place
+            you want to list on NoisyCamp. This should only take a few minutes.
+        </p>
 
-    <div class="grid-container">
-        <div class="grid-x grid-padding-x grid-padding-y">
-            <div class="cell hide-for-small-only medium-3">
-                <div class="panel-section">
-                </div>
-            </div>
+        <p>Data: @utils.forms.dataAsJson(studioForm)</p>
 
-            <div class="cell small-12 medium-9">
-                <div class="panel-section">
-                    <h1>Host a new studio</h1>
+        <p>Errors: @studioForm.errorsAsJson</p>
 
-                    <p>
-                        We just need a little bit of information about the place
-                        you want to list on NoisyCamp. This should only take a few minutes.
-                    </p>
+        <hr>
 
-                    <p>Data: @utils.forms.dataAsJson(studioForm)</p>
-
-                    <p>Errors: @studioForm.errorsAsJson</p>
-
-                    <hr>
-
-                    <studio-form
-                        action="@controllers.account.routes.StudiosController.createSubmit"
-                        method="post"
-                        csrf-token="@helper.CSRF.getToken.value"
-                        :errors="@studioForm.errorsAsJson">
-                    </studio-form>
-                </div>
-            </div>
-        </div>
+        <studio-form
+            action="@controllers.account.routes.StudiosController.createSubmit"
+            method="post"
+            csrf-token="@helper.CSRF.getToken.value"
+            :errors="@studioForm.errorsAsJson">
+        </studio-form>
     </div>
 }

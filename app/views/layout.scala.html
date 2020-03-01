@@ -52,13 +52,13 @@
                     @if(identity.isDefined && identity.get.isAHost) {
                         <li>
                             <a
-                                href="@controllers.account.routes.StudiosController.create()">
+                                href="@controllers.account.routes.StudiosController.index">
                                 Manage my studios</a>
                         </li>
                     } else {
                         <li>
                             <a
-                                href="@controllers.account.routes.StudiosController.create()"
+                                href="@controllers.account.routes.StudiosController.create"
                                 class="button primary">Host a studio</a>
                         </li>
                     }
