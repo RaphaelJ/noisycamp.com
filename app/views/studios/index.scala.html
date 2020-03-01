@@ -20,14 +20,15 @@
 @(
     identity: Option[models.Identity])(
     implicit req: play.api.mvc.RequestHeader, config: Configuration)
-
+    
 @head = {
     <link
         rel="stylesheet"
-        href="@routes.Assets.versioned("stylesheets/studios/index.css")">
+        href="https://api.mapbox.com/mapbox-gl-js/v1.8.1/mapbox-gl.css">
 }
 
-@layout(Seq("Find a music studio"), head=head, identity=identity) {
-
-    <studios-index></studios-index>
+@layout(Seq("Find a music studio"), head=head, identity=identity, fullScreen=true) {
+    <div class="grid-container-fluid">
+        <studios-index></studios-index>
+    </div>
 }

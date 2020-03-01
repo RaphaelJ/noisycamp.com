@@ -31,7 +31,7 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import Vue, { PropOptions } from "vue";
 
 declare var NC_ROUTES: any;
 

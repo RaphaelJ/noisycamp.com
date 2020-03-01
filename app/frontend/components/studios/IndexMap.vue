@@ -108,10 +108,6 @@ export default Vue.extend({
 </script>
 
 <style>
-.studios-map {
-    height: 100%;
-}
-
 /* Creates a pseudo element with a box-shadow that recovers the entire map. */
 .studios-map::before {
     content: "";

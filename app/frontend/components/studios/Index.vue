@@ -18,7 +18,7 @@
 
 <template>
     <div class="grid-x index">
-        <div class="cell medium-12 large-7">
+        <div class="cell medium-12 large-5">
             <div class="grid-y grid-padding-x results">
                 <div class="cell shrink section">
                     <studios-index-filters v-model="filters">
@@ -35,7 +35,7 @@
             </div>
         </div>
 
-        <div class="cell large-5 show-for-large">
+        <div class="cell large-7 show-for-large map">
             <studios-index-map
                 ref="map"
                 :studios="studios"
@@ -154,12 +154,8 @@ export default Vue.extend({
 </script>
 
 <style>
-.index {
-    height: calc(100vh - 56px);
-}
-
-.index .results {
-    height: 100%;
+.index .results, .index .map {
+    height: calc(100vh - var(--top-bar-height));
 }
 
 .index .listing {

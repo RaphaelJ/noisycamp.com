@@ -15,6 +15,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+/* Variables */
+
+:root {
+    --top-bar-height: calc(1.6rem + 2 * 0.7rem + 8px);
+}
+
 /* General */
 
 body {
@@ -84,7 +90,7 @@ hr {
 }
 
 main {
-    min-height: calc(100vh - 54px - 61px);
+    min-height: calc(100vh - var(--top-bar-height) - 61px);
 }
 
 /* Buttons */
@@ -294,7 +300,7 @@ form label .error {
 .avatar svg text {
     fill: #757373;
     dominant-baseline: central;
-    text-anchor:middle;
+    text-anchor: middle;
 }
 
 /* Helper classes */
@@ -352,19 +358,6 @@ form label .error {
 /* Full-width hero picture */
 
 .hero {
-    display: -webkit-flex;
-    display: -ms-flexbox;
-    display: flex;
-    -webkit-flex-direction: column;
-      -ms-flex-direction: column;
-          flex-direction: column;
-    -webkit-align-items: center;
-      -ms-flex-align: center;
-          align-items: center;
-    -webkit-justify-content: space-between;
-      -ms-flex-pack: justify;
-          justify-content: space-between;
-
     background: transparent center center no-repeat;
     background-size: cover;
 
@@ -372,11 +365,7 @@ form label .error {
 }
 
 .hero.full-screen {
-    height: calc(100vh - 53px);
-}
-
-.hero.full-screen-with-bars {
-    height: calc(100vh - 53px - 63px);
+    height: calc(100vh - var(--top-bar-height));
 }
 
 .hero .top-content-section {
