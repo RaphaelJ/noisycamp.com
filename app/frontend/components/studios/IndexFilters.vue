@@ -28,14 +28,15 @@
 
         <div class="medium-6 cell">
             <label>
-                Dates
-                <input type="text">
-            </label>
+                Available on
 
-            <p class="help-text">
-                Will only list studios that are available on at
-                least one of these days
-            </p>
+                <input
+                    type="date"
+                    v-model="date"
+                    :min="currentDate"
+                    pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}"
+                    placeholder="Any date">
+            </label>
         </div>
     </div>
 </template>
@@ -43,6 +44,8 @@
 <script lang="ts">
 import * as _ from "lodash";
 import Vue from "vue";
+
+import * as moment from 'moment';
 
 import LocationInput from '../widgets/LocationInput.vue'
 
@@ -65,7 +68,13 @@ export default Vue.extend({
     data() {
         return {
             location: this.value.location,
+            date: this.value.date,
         }
+    },
+    computed: {
+        currentDate() {
+            return moment().format('YYYY-MM-DD');
+        },
     },
     watch: {
         location(place) {
