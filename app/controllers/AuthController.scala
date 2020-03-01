@@ -55,7 +55,7 @@ class AuthController @Inject() (
     implicit request =>
 
     request.identity match {
-      case Some(_) => redirectToResponse(redirectTo)
+      case Some(_) => redirectToResult(redirectTo)
       case None => Ok(views.html.auth.signIn(
         SignInForm.form, socialProviderRegistry, redirectTo))
     }
@@ -65,7 +65,7 @@ class AuthController @Inject() (
     silhouette.UserAwareAction.async { implicit request =>
 
     request.identity match {
-      case Some(_) => Future.successful(redirectToResponse(redirectTo))
+      case Some(_) => Future.successful(redirectToResult(redirectTo))
       case None => {
         SignInForm.form.bindFromRequest.fold(
           form => Future.successful(
@@ -76,15 +76,7 @@ class AuthController @Inject() (
             credentialsProvider.authenticate(credentials).
               flatMap { loginInfo =>
                 userService.retrieve(loginInfo).flatMap {
-                  case Some(_) => {
-                    for {
-                      authenticator <-
-                        silhouette.env.authenticatorService.create(loginInfo)
-                      v <- silhouette.env.authenticatorService.init(authenticator)
-                      resp <- silhouette.env.authenticatorService.embed(
-                        v, redirectToResponse(redirectTo))
-                    } yield resp
-                  }
+                  case Some(_) => authenticate(loginInfo, redirectTo)
                   case None => Future.failed(
                     new IdentityNotFoundException(
                       "Can not authenticate user with a password."))
@@ -114,7 +106,7 @@ class AuthController @Inject() (
     implicit request =>
 
     request.identity match {
-      case Some(_) => redirectToResponse(redirectTo)
+      case Some(_) => redirectToResult(redirectTo)
       case None => Ok(views.html.auth.signUp(
         SignUpForm.form, socialProviderRegistry, redirectTo))
     }
@@ -124,7 +116,7 @@ class AuthController @Inject() (
     silhouette.UserAwareAction.async { implicit request =>
 
     request.identity match {
-      case Some(_) => Future.successful(redirectToResponse(redirectTo))
+      case Some(_) => Future.successful(redirectToResult(redirectTo))
       case None =>  {
         SignUpForm.form.bindFromRequest.fold(
           form => Future.successful(
@@ -138,7 +130,8 @@ class AuthController @Inject() (
                 // User already exists with this email, notifies the user.
                 val form = SignUpForm.form.bindFromRequest.
                   withError(
-                    "email", "An account already exists with this email address.")
+                    "email",
+                    "An account already exists with this email address.")
 
                 Future.successful(
                   BadRequest(views.html.auth.signUp(
@@ -153,8 +146,12 @@ class AuthController @Inject() (
                     lastName = Some(data.lastName),
                     email = Some(data.email)))
                   authInfo <- authInfoRepository.add(
-                    loginInfo, passwordHasherRegistry.current.hash(data.password))
-                } yield redirectToResponse(redirectTo).
+                    loginInfo,
+                    passwordHasherRegistry.current.hash(data.password))
+
+                  // Immediatly authenticates the user.
+                  result <- authenticate(loginInfo, redirectTo)
+                } yield result.
                   flashing("top-message" -> "Account successfully created.")
               }
             }
@@ -199,12 +196,9 @@ class AuthController @Inject() (
 
             // Saves the authentication token in the DB, sets the cookie and
             // redirects the user.
-            authInfo <- authInfoRepository.save(profile.loginInfo, authInfo)
-            authService = silhouette.env.authenticatorService
-            authenticator <- authService.create(profile.loginInfo)
-            value <- authService.init(authenticator)
-            result <- authService.embed(value,
-              redirectToResponse(userState.state.get("redirect-to")))
+            _ <- authInfoRepository.save(profile.loginInfo, authInfo)
+            result <- authenticate(profile.loginInfo,
+              userState.state.get("redirect-to"))
           } yield result
         }
       }
@@ -213,7 +207,25 @@ class AuthController @Inject() (
     }
   }
 
-  private def redirectToResponse(redirectTo: Option[String]): Result = {
+  /** Authenticates the user by redirecting with an authentication cookie.
+   *
+   * If no redirect url provided, redirect to the main page. */
+  private def authenticate(loginInfo: LoginInfo, redirectTo: Option[String])(
+    implicit request: RequestHeader): Future[Result] = {
+
+    val authService = silhouette.env.authenticatorService
+
+    authService.
+      create(loginInfo).
+      flatMap { authenticator =>
+        authService.init(authenticator)
+      }.
+      flatMap { token =>
+        authService.embed(token, redirectToResult(redirectTo))
+      }
+  }
+
+  private def redirectToResult(redirectTo: Option[String]): Result = {
     val call = redirectTo match {
       case Some(url) => Call("GET", url)
       case None => routes.IndexController.index
