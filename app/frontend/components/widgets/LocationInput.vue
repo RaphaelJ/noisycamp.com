@@ -71,8 +71,14 @@ export default Vue.extend({
         value: { type: Object, required: false },
     },
     data() {
+        var location = '';
+
+        if (this.value) {
+            location = this.value['place_name'];
+        }
+
         return {
-            location: '',
+            location: location,
 
             currentLocation: null,
             currentLocationError: false,

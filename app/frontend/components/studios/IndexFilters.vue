@@ -60,34 +60,39 @@ export default Vue.extend({
         //     location: {
         //         place_name: 'Amsterdam, Noord-Holland, Netherlands',
         //     },
-        //     dates: [new Date()],
-        //     instruments: ['drum-kit', 'electric-guitar']
+        //     date: [new Date()]
         // }
         value: { type: Object, required: false },
     },
     data() {
         return {
             location: this.value.location,
-            date: this.value.date,
-        }
+            date: this.value.date
+        };
     },
     computed: {
         currentDate() {
             return moment().format('YYYY-MM-DD');
         },
     },
-    watch: {
-        location(place) {
+    methods: {
+        emitValueChanged() {
             this.$emit('input', {
-                location: place,
-                dates: [],
-                instruments: [],
+                location: this.location,
+                date: this.date,
             });
         }
+    },
+    watch: {
+        location(value) { this.emitValueChanged() },
+        date(value) { this.emitValueChanged() },
     },
     components: { LocationInput }
 });
 </script>
 
 <style>
+label {
+    margin-top: 0.6rem;
+}
 </style>

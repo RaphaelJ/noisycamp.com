@@ -59,6 +59,45 @@ export default Vue.extend({
     props: {
     },
     data() {
+        var filters = {};
+
+        // Extracts filter values based on the URL hash parameters.
+        //
+        // i.e. /studios#location.place_name=London
+
+        // Extracts the hash query parameters as a JS Object.
+        let params = {};
+        window.location.hash.
+            substring(1).
+            split('&').
+            forEach(str => {
+                let keyValue = str.split('=');
+
+                if (keyValue.length == 2) {
+                    params[keyValue[0]] = decodeURIComponent(keyValue[1]);
+                }
+            });
+
+        // Updates the filter object
+        if (
+            params['location.place_name']
+            && (params['location.bbox'] || params['location.center'])
+        ) {
+            filters['location'] = { 'place_name': params['location.place_name'] };
+
+            if (params['location.bbox']) {
+                filters['location']['bbox'] = params['location.bbox'].split(',');
+            }
+
+            if (params['location.center']) {
+                filters['location']['center'] = params['location.center'].split(',');
+            }
+        }
+
+        if (params['date']) {
+            filters['date'] = params['date'];
+        }
+
         return {
             studios: [
                 {
@@ -126,7 +165,13 @@ export default Vue.extend({
                     ]
                 },
             ],
-            filters: {}
+            filters: filters
+        }
+    },
+    mounted() {
+        // If we parsed some location value from the URL parameter, immediatly moves the map.
+        if (this.filters['location']) {
+            this.$refs.map.setLocation(this.filters['location']);
         }
     },
     methods: {
@@ -145,7 +190,34 @@ export default Vue.extend({
     watch: {
         filters(val) {
             if (val.location) {
-                this.$refs.map.setLocation(val.location);
+                this.$refs.map.setLocation(val['location']);
+            }
+
+            // Updates the URL parameters
+
+            let hashValues = [];
+
+            if (val['location']) {
+                if (val['location']['place_name']) {
+                    let encodedName = encodeURIComponent(val['location']['place_name']);
+                    hashValues.push('location.place_name=' + encodedName);
+                }
+
+                if (val['location']['bbox']) {
+                    hashValues.push('location.bbox=' + val['location']['bbox'].join(','));
+                }
+
+                if (val['location']['center']) {
+                    hashValues.push('location.center=' + val['location']['center'].join(','));
+                }
+            }
+
+            if (val['date']) {
+                hashValues.push('date=' + val['date']);
+            }
+
+            if (hashValues.length > 0) {
+                window.location.hash = '#' + hashValues.join('&');
             }
         },
     },

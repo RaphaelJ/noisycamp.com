@@ -314,8 +314,6 @@ form label .error {
 /* A content section that is slightly highlighted. */
 .section {
     background-color: rgba(0, 0, 0, 0.05);
-    border-top: 1px solid rgba(0, 0, 0, 0.05);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 /* A section of content that appears in a box  */
