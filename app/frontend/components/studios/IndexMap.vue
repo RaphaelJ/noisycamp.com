@@ -67,7 +67,7 @@ export default Vue.extend({
 
             // add marker to map
             new mapboxgl.Marker(elem[0])
-                .setLngLat(studio.location)
+                .setLngLat(studio.location.coordinates)
                 .addTo(this.map);
         });
 

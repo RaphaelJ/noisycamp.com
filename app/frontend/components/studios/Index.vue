@@ -101,68 +101,138 @@ export default Vue.extend({
         return {
             studios: [
                 {
+                    id: 1,
                     price: 1850,
-                    location: [5.231320530534101, 51.36752192207486],
                     name: 'Awesome place',
                     instant_booking: true,
+                    picturesIds: ['/CAYHquX7XFsFReEPH0gYa7QxbIQN/I/u4XEqgwvdpQ='],
                     pictures: [
                         'https://static.quickstudio.com/media/W1siZiIsInN0dWRpb3MvMjAxNy8xMS8zMC8yNzg4ZDg2ZjI0LmpwZyJdLFsicCIsInRodW1iIiwiNjAwMDAwQCJdXQ',
-                    ]
+                    ],
+                    location: {
+                        coordinates: [5.231320530534101, 51.36752192207486],
+                        address: {
+                            city: 'Liège',
+                            country: {
+                                name: 'Belgium'
+                            }
+                        }
+                    }
                 },
                 {
+                    id: 1,
                     price: 1400,
-                    location: [4.81032652885753, 52.37886749365077],
                     name: 'My Studio',
                     instant_booking: false,
+                    picturesIds: ['/CAYHquX7XFsFReEPH0gYa7QxbIQN/I/u4XEqgwvdpQ='],
                     pictures: [
                         'https://images.pexels.com/photos/96380/pexels-photo-96380.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500',
-                    ]
+                    ],
+                    location: {
+                        coordinates: [4.81032652885753, 52.37886749365077],
+                        address: {
+                            city: 'Liège',
+                            country: {
+                                name: 'Belgium'
+                            }
+                        }
+                    }
                 },
                 {
+                    id: 1,
                     price: 2400,
-                    location: [4.948984376124656, 52.36697405119352],
                     name: 'My other studio',
                     instant_booking: true,
+                    picturesIds: ['/CAYHquX7XFsFReEPH0gYa7QxbIQN/I/u4XEqgwvdpQ='],
                     pictures: [
                         'https://images.pexels.com/photos/1327426/pexels-photo-1327426.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
-                    ]
+                    ],
+                    location: {
+                        coordinates: [4.948984376124656, 52.36697405119352],
+                        address: {
+                            city: 'Liège',
+                            country: {
+                                name: 'Belgium'
+                            }
+                        }
+                    }
                 },
                 {
+                    id: 1,
                     price: 1239,
-                    location: [4.8922607113389915, 52.37746843135494],
                     name: 'Super studio',
                     instant_booking: false,
+                    picturesIds: ['/CAYHquX7XFsFReEPH0gYa7QxbIQN/I/u4XEqgwvdpQ='],
                     pictures: [
                         'https://images.pexels.com/photos/995301/pexels-photo-995301.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500',
                         'https://images.pexels.com/photos/265672/pexels-photo-265672.png?auto=compress&cs=tinysrgb&dpr=2&w=500',
-                    ]
+                    ],
+                    location: {
+                        coordinates: [4.8922607113389915, 52.37746843135494],
+                        address: {
+                            city: 'Liège',
+                            country: {
+                                name: 'Belgium'
+                            }
+                        }
+                    }
                 },
                 {
+                    id: 1,
                     price: 2300,
-                    location: [4.861320530534101, 52.37152192207486],
                     name: 'Awesome place',
                     instant_booking: true,
+                    picturesIds: ['/CAYHquX7XFsFReEPH0gYa7QxbIQN/I/u4XEqgwvdpQ='],
                     pictures: [
                         'https://images.pexels.com/photos/744318/pexels-photo-744318.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500',
-                    ]
+                    ],
+                    location: {
+                        coordinates: [4.861320530534101, 52.37152192207486],
+                        address: {
+                            city: 'Liège',
+                            country: {
+                                name: 'Belgium'
+                            }
+                        }
+                    }
                 },
                 {
+                    id: 1,
                     price: 2300,
-                    location: [4.831320530534101, 52.36752192207486],
                     name: 'Awesome place',
                     instant_booking: true,
+                    picturesIds: ['/CAYHquX7XFsFReEPH0gYa7QxbIQN/I/u4XEqgwvdpQ='],
                     pictures: [
                         'https://images.pexels.com/photos/1327430/pexels-photo-1327430.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
-                    ]
+                    ],
+                    location: {
+                        coordinates: [4.831320530534101, 52.36752192207486],
+                        address: {
+                            city: 'Liège',
+                            country: {
+                                name: 'Belgium'
+                            }
+                        }
+                    }
                 },
                 {
+                    id: 1,
                     price: 2175,
-                    location: [5.576180, 50.596520],
                     name: 'Casa de la Mama',
                     instant_booking: true,
+                    picturesIds: ['/CAYHquX7XFsFReEPH0gYa7QxbIQN/I/u4XEqgwvdpQ='],
                     pictures: [
                         'https://www.jetstudio.com/wp-content/uploads/layerslider/Jet-Studio-Home/jet-Studio-index-1.jpg',
-                    ]
+                    ],
+                    location: {
+                        coordinates: [5.576180, 50.596520],
+                        address: {
+                            city: 'Liège',
+                            country: {
+                                name: 'Belgium'
+                            }
+                        }
+                    }
                 },
             ],
             filters: filters
@@ -231,9 +301,6 @@ export default Vue.extend({
 }
 
 .index .listing {
-    padding-top: 1rem;
-    padding-bottom: 1rem;
-
     overflow-y: scroll;
 }
 </style>

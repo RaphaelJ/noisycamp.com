@@ -18,12 +18,48 @@
 
 <template>
     <div>
-        <p class="text-right">
-            <small>{{ studios.length }} studio(s) matching</small>
-        </p>
+        <ul class="grid-x grid-padding-x grid-padding-y studios">
+            <li v-for="(studio, index) in studios"
+                :ref="'studio-' + index"
+                class="cell small-12 studio"
+                :class="{
+                    'highlighted': highlightedStudio == index,
+                }"
+                @mouseover="$emit('studio-hover', index)"
+                @mouseout="$emit('studio-hover', null)">
 
-        <ul class="grid-x grid-margin-x grid-margin-y studios">
-            <li
+                <a
+                    :href="studioURL(studio)"
+                    target="_blank"
+                    class="grid-x grid-padding-x">
+
+                    <div class="cell small-4 pictures">
+                        <picture-carousel
+                            :alt="studio.name + ' picture'"
+                            :picture-ids="studio.picturesIds"
+                            :width="400"
+                            :height="225"
+                            classes="border-radius">
+                        </picture-carousel>
+                    </div>
+
+                    <div class="cell small-8">
+                        <h5>
+                            {{ studio.name }}
+                        </h5>
+
+                        <h6>
+                            <small>
+                                <i class="fi-marker"></i>&nbsp;
+                                {{ studio.location.address.city }},
+                                {{ studio.location.address.country.name }}
+                            </small>
+                        </h6>
+                    </div>
+                </a>
+            </li>
+
+            <!-- <li
                 v-for="(studio, index) in studios"
                 :ref="'studio-' + index"
                 class="cell small-12 medium-6 studio"
@@ -35,9 +71,6 @@
                 @mouseover="$emit('studio-hover', index)"
                 @mouseout="$emit('studio-hover', null)">
                 <ul class="pictures">
-                    <!-- <li v-for="picture in studio.pictures">
-                        <img :src="picture" :alt="studio.name">
-                    </li> -->
                     <li>
                         <img
                             :src="studio.pictures[0]"
@@ -59,13 +92,17 @@
                         per hour
                     </span>
                 </div>
-            </li>
+            </li> -->
         </ul>
     </div>
 </template>
 
 <script lang="ts">
 import Vue, { PropOptions } from "vue";
+
+import PictureCarousel from '../widgets/PictureCarousel.vue';
+
+declare var NC_ROUTES: any;
 
 export default Vue.extend({
     props: {
@@ -78,6 +115,10 @@ export default Vue.extend({
         }
     },
     methods: {
+        studioURL(studio) {
+            return NC_ROUTES.controllers.StudiosController.show(studio.id).url;
+        },
+
         renderCurrency(value) {
             return new Intl.NumberFormat(
                 navigator.language, { style: 'currency', currency: 'EUR' }
@@ -96,48 +137,27 @@ export default Vue.extend({
             $(this.$el).parent().scrollTop(elem[0].offsetTop);
         }
     },
-    components: { },
+    components: { PictureCarousel },
 });
 </script>
 
 <style>
-ul.studios, ul.studios li.studio ul.pictures {
+ul.studios {
     list-style-type: none;
 }
 
 ul.studios li.studio {
-    position: relative;
-    padding: 0;
-    height: 75vh;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
-ul.studios li.studio,
-ul.studios li.studio ul.pictures,
-ul.studios li.studio ul.pictures img {
-    border-radius: 3px;
+ul.studios li.studio:hover,
+ul.studios li.studio.highlighted {
+    background-color: rgba(255, 255, 255, 0.4);
 }
 
-ul.studios li.studio ul.pictures {
-    margin: 0;
-
-    overflow: hidden;
-}
-
-ul.studios li.studio ul.pictures,
-ul.studios li.studio ul.pictures li,
-ul.studios li.studio ul.pictures li img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-ul.studios li.studio ul.pictures li img {
-    display: block;
-}
-
-ul.studios li.studio:hover ul.pictures li img,
-ul.studios li.studio.highlighted ul.pictures li img {
-    transform: scale(1.015);
+ul.studios li.studio:hover .pictures img,
+ul.studios li.studio.highlighted .pictures img {
+    transform: scale(1.01);
 }
 
 ul.studios li.studio .instant-booking {

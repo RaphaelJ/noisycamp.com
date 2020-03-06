@@ -34,7 +34,8 @@
                     :picture-id="picId"
                     :alt="alt"
                     :width="width"
-                    :height="height">
+                    :height="height"
+                    :classes="classes">
                 </reactive-picture>
             </transition>
         </div>
@@ -69,6 +70,7 @@ export default Vue.extend({
     props: {
         pictureIds: <PropOptions<Object[]>>{ type: Array, required: true },
         alt: { type: String, required: true },
+        classes: <PropOptions<String[]>>{ type: Array, default: [] },
 
         width: { type: Number, required: true },
         height: { type: Number, required: true },
@@ -82,6 +84,7 @@ export default Vue.extend({
         hasNext() {
             return (this.selected + 1) < this.pictureIds.length
         },
+
         hasPrevious() {
             return this.selected > 0;
         },
