@@ -20,9 +20,11 @@ package controllers
 import javax.inject._
 
 import play.api._
+import play.api.libs.json.Json
 import play.api.mvc._
 
 import daos.CustomColumnTypes
+import forms.studios.SearchForm
 import models.Studio
 
 @Singleton
@@ -34,6 +36,16 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
 
   def index = silhouette.UserAwareAction { implicit request =>
     Ok(views.html.studios.index(identity=request.identity))
+  }
+
+  def search = silhouette.UserAwareAction { implicit request =>
+    SearchForm.form.bindFromRequest.fold(
+      form => BadRequest("Invalid search parameters."),
+      data => {
+        println(data)
+        Ok(Json.obj("results" -> Json.arr()))
+      }
+    )
   }
 
   def show(id: Studio#Id) = silhouette.UserAwareAction.async {

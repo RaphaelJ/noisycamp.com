@@ -39,8 +39,8 @@
 
             </div>
 
-            <input type="hidden" :name="fieldName('long')" :value="coordinates.long">
-            <input type="hidden" :name="fieldName('lat')" :value="coordinates.lat">
+            <input type="hidden" :name="fieldName('coordinates.long')" :value="coordinates.long">
+            <input type="hidden" :name="fieldName('coordinates.lat')" :value="coordinates.lat">
         </div>
     </div>
 </template>

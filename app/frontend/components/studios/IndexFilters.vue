@@ -18,7 +18,7 @@
 
 <template>
     <div class="grid-x grid-padding-x">
-        <div class="cell medium-6">
+        <div class="cell small-12 medium-6">
             <label>
                 Location
                 <location-input v-model="location">
@@ -26,7 +26,7 @@
             </label>
         </div>
 
-        <div class="medium-6 cell">
+        <div class="cell small-12 medium-6 hide-for-small-only">
             <label>
                 Available on
 

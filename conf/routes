@@ -37,6 +37,8 @@ POST    /account/studios/create         controllers.account.StudiosController.cr
 # Studios
 
 GET     /studios                        controllers.StudiosController.index
+GET     /studios/search                 controllers.StudiosController.search
+
 GET     /studios/:id                    controllers.StudiosController.show(id: Long)
 
 # Booking

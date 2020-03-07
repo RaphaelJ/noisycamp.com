@@ -27,7 +27,7 @@ import play.api.data.validation.Constraints._
 import squants.market
 
 import i18n.{ Country, Currency }
-import models.{ Picture, PictureId }
+import models.{ BBox, Coordinates, Picture, PictureId }
 
 object CustomFields {
 
@@ -36,6 +36,39 @@ object CustomFields {
     bigDecimal.
       verifying(min(BigDecimal(0.0)))
   }
+
+  /** Serializes a bounding box as a `north,south,west,east` string. */
+  val bbox: Mapping[BBox] = of(new Formatter[BBox] {
+    def bind(key: String, data: Map[String, String]) = {
+      def parse(value: String) = {
+        val coords = value.split(',').map(BigDecimal(_))
+        BBox(coords(0), coords(1), coords(2), coords(3))
+      }
+
+      parsing(parse, "Invalid bounding box format", Nil)(key, data)
+    }
+
+    def unbind(key: String, value: BBox) = {
+      val BBox(north, south, west, east) = value
+      Map(key -> f"${north},${south},${west},${north},${south}")
+    }
+  })
+
+  /** Serializes coordinates as a `longitude,latitude` string. */
+  val coordinates: Mapping[Coordinates] = of(new Formatter[Coordinates] {
+    def bind(key: String, data: Map[String, String]) = {
+      def parse(value: String) = {
+        val coords = value.split(',').map(BigDecimal(_))
+        Coordinates(coords(0), coords(1))
+      }
+      
+      parsing(parse, "Invalid coordinates", Nil)(key, data)
+    }
+
+    def unbind(key: String, value: Coordinates) = {
+      Map(key -> f"${value.long},${value.lat}")
+    }
+  })
 
   /** Accepts any valid country value (ISO code) from the `Country`
     * enumeration. */

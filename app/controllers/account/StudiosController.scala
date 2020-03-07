@@ -71,7 +71,7 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
         request.identity, form))),
       data => {
         val timezone: ZoneId = timeZoneService.
-          query(data.location.lat, data.location.long).
+          query(data.location.coordinates.lat, data.location.coordinates.long).
           getOrElse(ZoneId.of("UTC"))
 
         val studio: Future[Studio] = db.run({

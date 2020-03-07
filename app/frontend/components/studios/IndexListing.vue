@@ -18,7 +18,7 @@
 
 <template>
     <div>
-        <ul class="grid-x grid-padding-x grid-padding-y studios">
+        <ul class="grid-x grid-margin-x grid-padding-y studios">
             <li v-for="(studio, index) in studios"
                 :ref="'studio-' + index"
                 class="cell small-12 studio"
@@ -48,13 +48,19 @@
                             {{ studio.name }}
                         </h5>
 
-                        <h6>
-                            <small>
+                        <p class="details">
+                            <span class="location">
                                 <i class="fi-marker"></i>&nbsp;
                                 {{ studio.location.address.city }},
                                 {{ studio.location.address.country.name }}
-                            </small>
-                        </h6>
+                            </span>
+
+                            <span class="schedule">
+                                <i class="fi-clock"></i>&nbsp;
+                                Mon - Tue - <strong>Wed</strong> - Thu - <strong>Fri</strong>
+                                - Sat - Sun
+                            </span>
+                        </p>
                     </div>
                 </a>
             </li>
@@ -155,9 +161,21 @@ ul.studios li.studio.highlighted {
     background-color: rgba(255, 255, 255, 0.4);
 }
 
-ul.studios li.studio:hover .pictures img,
-ul.studios li.studio.highlighted .pictures img {
-    transform: scale(1.01);
+/* Enlarges studio on over/activate */
+ul.studios li.studio:hover,
+ul.studios li.studio.highlighted {
+    transform: scale(1.015);
+    overflow: hidden; /* makes the block not overflow when enlarged */
+}
+
+ul.studios li.studio .details {
+    color: #777;
+    font-size: 0.87em;
+}
+
+ul.studios li.studio .details span.location,
+ul.studios li.studio .details span.schedule {
+    display: block;
 }
 
 ul.studios li.studio .instant-booking {
@@ -174,7 +192,7 @@ ul.studios li.studio .instant-booking {
     cursor: help;
 }
 
-ul.studios li.studio .details {
+/* ul.studios li.studio .details {
     position: absolute;
     top: calc(100% - 45px);
     left: 0;
@@ -196,7 +214,7 @@ ul.studios li.studio .details {
 
 ul.studios li.studio .details .name {
     float: left;
-}
+} */
 
 ul.studios li.studio .details .price {
     float: right;

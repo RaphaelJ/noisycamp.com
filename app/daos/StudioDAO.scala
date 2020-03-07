@@ -26,7 +26,7 @@ import slick.jdbc.JdbcProfile
 import squants.market.Currency
 
 import i18n.Country
-import models.{ Address, BookingPolicy, CancellationPolicy,
+import models.{ Address, BookingPolicy, CancellationPolicy, Coordinates,
   EveningPricingPolicy, Location, OpeningSchedule, OpeningTimes, PaymentPolicy,
   PricingPolicy, Studio, User, WeekendPricingPolicy }
 
@@ -130,7 +130,9 @@ class StudioDAO @Inject()
     private type AddressTuple = (
       String, Option[String], String, String, Option[String], Country.Val)
 
-    private type LocationTuple = (AddressTuple, BigDecimal, BigDecimal)
+    private type CoordinatesTuple = (BigDecimal, BigDecimal)
+
+    private type LocationTuple = (AddressTuple, CoordinatesTuple)
 
     private type OpeningScheduleTuple = (
       OpeningTimesTuple, OpeningTimesTuple, OpeningTimesTuple,
@@ -152,7 +154,7 @@ class StudioDAO @Inject()
     private val studioShaped = (
       id, createdAt, ownerId, name, description, (
         (address1, address2, zipcode, city, stateCode, country),
-        long, lat),
+        (long, lat)),
       timezone, (
         (mondayIsOpen, mondayOpensAt, mondayClosesAt),
         (tuesdayIsOpen, tuesdayOpensAt, tuesdayClosesAt),
@@ -186,11 +188,12 @@ class StudioDAO @Inject()
 
     private def toLocation(locationTuple: LocationTuple): Location = {
       Location(Address.tupled(locationTuple._1),
-        locationTuple._2, locationTuple._3)
+        Coordinates.tupled(locationTuple._2))
     }
 
     private def fromLocation(location: Location): LocationTuple = {
-      (Address.unapply(location.address).get, location.long, location.lat)
+      (Address.unapply(location.address).get,
+        Coordinates.unapply(location.coordinates).get)
     }
 
     private def toOpeningSchedule(scheduleTuple: OpeningScheduleTuple)

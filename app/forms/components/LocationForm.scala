@@ -24,15 +24,10 @@ import models.Location
 
 object LocationForm {
 
-  val coordinate = bigDecimal.
-    verifying("Invalid coordinate", { value => value >= -180 && value <= 180 })
-
   val form = Form(
     mapping(
       "address" -> AddressForm.form.mapping,
-
-      "long"  -> coordinate,
-      "lat"   -> coordinate
+      "coordinates"   -> CoordinatesForm.form.mapping
     )(Location.apply)(Location.unapply)
   )
 }

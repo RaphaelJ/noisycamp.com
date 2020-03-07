@@ -19,8 +19,5 @@ package models
 
 /** Contains the address and geographical location of a place. */
 case class Location(
-  address:    Address,
-
-  // Coordinate values in [-90..90].
-  long:       BigDecimal,
-  lat:        BigDecimal)
+  address:      Address,
+  coordinates:  Coordinates)
