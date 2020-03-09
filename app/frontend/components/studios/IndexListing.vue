@@ -18,7 +18,21 @@
 
 <template>
     <div>
-        <ul class="grid-x grid-margin-x grid-padding-y studios">
+        <div
+            v-if="searchIsProcessing"
+            class="message">
+            Searching ...
+        </div>
+
+        <div
+            v-if="!searchIsProcessing && studios.length == 0"
+            class="message">
+            No match found.
+        </div>
+
+        <ul
+            v-if="!searchIsProcessing && studios.length > 0"
+            class="grid-x grid-margin-x grid-padding-y studios">
             <li v-for="(studio, index) in studios"
                 :ref="'studio-' + index"
                 class="cell small-12 studio"
@@ -34,13 +48,13 @@
                     class="grid-x grid-padding-x">
 
                     <div class="cell small-4 pictures">
-                        <picture-carousel
+                        <reactive-picture
                             :alt="studio.name + ' picture'"
-                            :picture-ids="studio.picturesIds"
+                            :picture-id="studio.picture"
                             :width="400"
                             :height="225"
                             classes="border-radius">
-                        </picture-carousel>
+                        </reactive-picture>
                     </div>
 
                     <div class="cell small-8">
@@ -51,8 +65,7 @@
                         <p class="details">
                             <span class="location">
                                 <i class="fi-marker"></i>&nbsp;
-                                {{ studio.location.address.city }},
-                                {{ studio.location.address.country.name }}
+                                {{ studioLocation(studio) }}
                             </span>
 
                             <span class="schedule">
@@ -106,13 +119,15 @@
 <script lang="ts">
 import Vue, { PropOptions } from "vue";
 
-import PictureCarousel from '../widgets/PictureCarousel.vue';
+import ReactivePicture from '../widgets/ReactivePicture.vue';
 
+declare var NC_CONFIG: any;
 declare var NC_ROUTES: any;
 
 export default Vue.extend({
     props: {
         studios: <PropOptions<Object[]>>{ type: Array, required: true },
+        searchIsProcessing: { type: Boolean, required: false, default: false }
     },
     data() {
         return {
@@ -123,6 +138,12 @@ export default Vue.extend({
     methods: {
         studioURL(studio) {
             return NC_ROUTES.controllers.StudiosController.show(studio.id).url;
+        },
+
+        studioLocation(studio) {
+            let city = studio.location.address.city;
+            let country = NC_CONFIG.countries[studio.location.address['country-code']].name;
+            return `${city}, ${country}`
         },
 
         renderCurrency(value) {
@@ -143,11 +164,17 @@ export default Vue.extend({
             $(this.$el).parent().scrollTop(elem[0].offsetTop);
         }
     },
-    components: { PictureCarousel },
+    components: { ReactivePicture },
 });
 </script>
 
 <style>
+.message {
+    margin-top: 1.5rem;
+
+    text-align: center;
+}
+
 ul.studios {
     list-style-type: none;
 }
@@ -178,6 +205,7 @@ ul.studios li.studio .details span.schedule {
     display: block;
 }
 
+/*
 ul.studios li.studio .instant-booking {
     position: absolute;
     top: 0;
@@ -192,7 +220,7 @@ ul.studios li.studio .instant-booking {
     cursor: help;
 }
 
-/* ul.studios li.studio .details {
+ul.studios li.studio .details {
     position: absolute;
     top: calc(100% - 45px);
     left: 0;
@@ -214,9 +242,9 @@ ul.studios li.studio .instant-booking {
 
 ul.studios li.studio .details .name {
     float: left;
-} */
+}
 
 ul.studios li.studio .details .price {
     float: right;
-}
+} */
 </style>

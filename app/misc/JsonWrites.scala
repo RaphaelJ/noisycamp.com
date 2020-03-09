@@ -17,15 +17,52 @@
 
 package misc
 
-import play.api.libs.json.{ JsNull, Json, JsString, JsValue, Writes }
+import play.api.libs.json.{ JsNull, JsObject, Json, JsString, JsValue, Writes }
 import squants.market.Money
 
 import models.{
-  BookingTimes, LocalPricingPolicy, LocalEveningPricingPolicy,
-  LocalWeekendPricingPolicy, OpeningSchedule, OpeningTimes, PictureId }
+  Address, BookingPolicy, BookingTimes, CancellationPolicy, Coordinates,
+  LocalPricingPolicy, LocalEveningPricingPolicy, LocalWeekendPricingPolicy,
+  Location, OpeningSchedule, OpeningTimes, PaymentPolicy, PictureId, Studio,
+  StudioWithPicture }
 
 /** Provides JSON Writes implementation for model objects. */
 object JsonWrites {
+
+  implicit object AddressWrites extends Writes[Address] {
+    def writes(address: Address): JsValue = Json.obj(
+      "address1"      -> address.address1,
+      "address2"      -> address.address2,
+      "zipcode"       -> address.zipcode,
+      "city"          -> address.city,
+      "state-code"    -> address.stateCode,
+      "country-code"  -> address.country.isoCode)
+  }
+
+  implicit object CancellationPolicyWrites extends Writes[CancellationPolicy] {
+    def writes(policy: CancellationPolicy): JsValue = Json.obj(
+      "notice"  -> policy.notice.getSeconds)
+  }
+
+  implicit object BookingPolicyWrites extends Writes[BookingPolicy] {
+    def writes(policy: BookingPolicy): JsValue = Json.obj(
+      "min-booking-duration"  -> policy.minBookingDuration.getSeconds,
+      "automatic-approval"    -> policy.automaticApproval,
+      "cancellation-policy"   -> policy.cancellationPolicy)
+  }
+
+  implicit object BookingTimesWrites extends Writes[BookingTimes] {
+    def writes(times: BookingTimes): JsValue = Json.obj(
+      "begins-at" -> times.beginsAt.toString,
+      "duration" -> times.duration.getSeconds
+    )
+  }
+
+  implicit object CoordinatesWrites extends Writes[Coordinates] {
+    def writes(coords: Coordinates): JsValue = Json.obj(
+      "long"  -> coords.long,
+      "lat"   -> coords.lat)
+  }
 
   implicit object MoneyWrites extends Writes[Money] {
     def writes(amount: Money): JsValue = Json.obj(
@@ -59,6 +96,12 @@ object JsonWrites {
     )
   }
 
+  implicit object LocationWrites extends Writes[Location] {
+    def writes(location: Location): JsValue = Json.obj(
+      "address"     -> location.address,
+      "coordinates" -> location.coordinates)
+  }
+
   implicit object OpeningScheduleWrites extends Writes[OpeningSchedule] {
 
     def writes(schedule: OpeningSchedule): JsValue = {
@@ -84,14 +127,38 @@ object JsonWrites {
     }
   }
 
-  implicit object BookingTimesWrites extends Writes[BookingTimes] {
-    def writes(times: BookingTimes): JsValue = Json.obj(
-      "begins-at" -> times.beginsAt.toString,
-      "duration" -> times.duration.getSeconds
-    )
+  implicit object PaymentPolicyWrites extends Writes[PaymentPolicy] {
+    def writes(policy: PaymentPolicy): JsValue = Json.obj(
+      "has-online-payment"  -> policy.hasOnlinePayment,
+      "has-onsite-payment"  -> policy.hasOnsitePayment)
   }
 
   implicit object PictureIdWrites extends Writes[PictureId] {
     def writes(id: PictureId): JsValue = JsString(id.base64)
+  }
+
+  implicit object StudioWrites extends Writes[Studio] {
+    def writes(studio: Studio): JsValue = Json.obj(
+      "id"                -> studio.id,
+      "name"              -> studio.name,
+      "description"       -> studio.description.take(255),
+
+      "location"          -> studio.location,
+      "timezone"          -> studio.timezone.toString,
+      "opening-schedule"  -> studio.openingSchedule,
+      "pricing-policy"    -> studio.localPricingPolicy,
+      "booking-policy"    -> studio.bookingPolicy,
+      "payment-policy"    -> studio.paymentPolicy)
+  }
+
+  implicit object StudioWithPictureWrites
+    extends Writes[StudioWithPicture] {
+
+    def writes(value: StudioWithPicture): JsValue = {
+      val studioObj = Json.toJson(value.studio).asInstanceOf[JsObject]
+      val studioPic = Json.toJson(value.picture)
+
+      studioObj + ("picture" -> studioPic)
+    }
   }
 }

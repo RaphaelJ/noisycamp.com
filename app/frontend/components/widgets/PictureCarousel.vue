@@ -70,7 +70,7 @@ export default Vue.extend({
     props: {
         pictureIds: <PropOptions<Object[]>>{ type: Array, required: true },
         alt: { type: String, required: true },
-        classes: <PropOptions<String[]>>{ type: Array, default: [] },
+        classes: { default: [] },
 
         width: { type: Number, required: true },
         height: { type: Number, required: true },

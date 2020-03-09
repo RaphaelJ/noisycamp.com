@@ -40,7 +40,7 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
 
     val user = request.identity.user
 
-    db.run { for {
+    db.run({ for {
       studios <- daos.studio.query.
         filter(_.ownerId === user.id).
         result
@@ -51,10 +51,9 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
               withStudioPictureIds(studio.id).
               take(1).result.
               headOption
-          }
-        )
+          })
       } yield studios zip picIds
-    }.map { studios =>
+    }.transactionally).map { studios =>
       Ok(views.html.account.studios(request.identity, studios))
     }
   }

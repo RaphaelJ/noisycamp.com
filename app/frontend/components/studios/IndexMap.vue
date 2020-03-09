@@ -32,6 +32,10 @@ export default Vue.extend({
     },
     data() {
         return {
+            studiosElems: [],
+            studiosMarkers: [],
+
+            highlightedStudio: null,
         }
     },
     mounted() {
@@ -46,32 +50,7 @@ export default Vue.extend({
 
         this.map.addControl(new mapboxgl.NavigationControl());
 
-        this.studiosElems = [];
-        this.studios.forEach((studio, index) => {
-            let priceStr =
-                new Intl.NumberFormat(
-                    navigator.language, {
-                        style: 'currency', currency: 'EUR'
-                    })
-                .format(studio.price / 100)
-
-            // Creates a DOM element for the marker
-            let elem = $('<div></div>')
-                .addClass('studio-marker')
-                .text(priceStr)
-                .mouseover(() => this.$emit('studio-hover', index))
-                .mouseout(() => this.$emit('studio-hover', null))
-                .click(() => this.$emit('studio-clicked', index));
-
-            this.studiosElems.push(elem);
-
-            // add marker to map
-            new mapboxgl.Marker(elem[0])
-                .setLngLat(studio.location.coordinates)
-                .addTo(this.map);
-        });
-
-        this.highlightedStudio = null;
+        this.updateStudioMarkers();
     },
     methods: {
         // Centers the map on provided location.
@@ -89,6 +68,51 @@ export default Vue.extend({
             }
         },
 
+        // Updates the markers based on the value of `studios`.
+        updateStudioMarkers() {
+            // Removes old markers from the maps
+
+            for (let marker of this.studiosMarkers) {
+                marker.remove();
+            }
+
+            for (let elem of this.studiosElems) {
+                elem.remove();
+            }
+
+            this.studiosElems = [];
+            this.studiosMarkers = [];
+
+            // Adds the new markers
+
+            this.studios.forEach((studio, index) => {
+                let priceStr = "12€"
+                    // new Intl.NumberFormat(
+                    //     navigator.language, {
+                    //         style: 'currency', currency: 'EUR'
+                    //     })
+                    // .format(studio.price / 100)
+
+                // Creates a DOM element for the marker
+                let elem = $('<div></div>')
+                    .addClass('studio-marker')
+                    .text(priceStr)
+                    .mouseover(() => this.$emit('studio-hover', index))
+                    .mouseout(() => this.$emit('studio-hover', null))
+                    .click(() => this.$emit('studio-clicked', index));
+
+                this.studiosElems.push(elem);
+
+                // Add marker to map
+                let coordinates = studio.location.coordinates;
+                let marker = new mapboxgl.Marker(elem[0]);
+                marker.setLngLat([coordinates.long, coordinates.lat])
+                    .addTo(this.map);
+
+                // this.studiosMarkers.push(marker);
+            });
+        },
+
         // Makes the given studio more visible. Reset studio highlighting if
         // studioIdx is `null`.
         setStudioHighlight(studioIdx) {
@@ -104,6 +128,11 @@ export default Vue.extend({
             }
         }
     },
+    watch: {
+        studios() {
+            this.updateStudioMarkers();
+        },
+    }
 });
 </script>
 

@@ -28,14 +28,14 @@
 
         <div class="cell small-12 medium-6 hide-for-small-only">
             <label>
-                Available on
+                Open on
 
                 <input
                     type="date"
-                    v-model="date"
+                    v-model="availableOn"
                     :min="currentDate"
                     pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}"
-                    placeholder="Any date">
+                    placeholder="YYYY-MM-DD">
             </label>
         </div>
     </div>
@@ -60,14 +60,14 @@ export default Vue.extend({
         //     location: {
         //         place_name: 'Amsterdam, Noord-Holland, Netherlands',
         //     },
-        //     date: [new Date()]
+        //     availableOn: '2020-03-06'
         // }
         value: { type: Object, required: false },
     },
     data() {
         return {
             location: this.value.location,
-            date: this.value.date
+            availableOn: this.value.availableOn,
         };
     },
     computed: {
@@ -79,13 +79,13 @@ export default Vue.extend({
         emitValueChanged() {
             this.$emit('input', {
                 location: this.location,
-                date: this.date,
+                availableOn: this.availableOn,
             });
         }
     },
     watch: {
-        location(value) { this.emitValueChanged() },
-        date(value) { this.emitValueChanged() },
+        location() { this.emitValueChanged() },
+        availableOn() { this.emitValueChanged() },
     },
     components: { LocationInput }
 });

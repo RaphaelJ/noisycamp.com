@@ -228,7 +228,10 @@ export default Vue.extend({
 
             if (oldVal != newVal) {
                 this.matches = [];
-                this.autocomplete();
+
+                if (newVal.length > 0) {
+                    this.autocomplete();
+                }
             }
         }
     },

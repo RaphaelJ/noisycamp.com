@@ -29,6 +29,7 @@
                     <studios-index-listing
                         ref="listing"
                         :studios="studios"
+                        :search-is-processing="searchIsProcessing"
                         @studio-hover="onListingStudioHover">
                     </studios-index-listing>
                 </div>
@@ -47,8 +48,10 @@
 </template>
 
 <script lang="ts">
-import * as _ from "lodash";
+import axios from 'axios';
 import Vue from "vue";
+
+declare var NC_ROUTES: any;
 
 import LocationInput from '../widgets/LocationInput.vue'
 import StudiosIndexFilters from './IndexFilters.vue';
@@ -94,147 +97,13 @@ export default Vue.extend({
             }
         }
 
-        if (params['date']) {
-            filters['date'] = params['date'];
+        if (params['available-on']) {
+            filters['available-on'] = params['available-on'];
         }
 
         return {
-            studios: [
-                {
-                    id: 1,
-                    price: 1850,
-                    name: 'Awesome place',
-                    instant_booking: true,
-                    picturesIds: ['/CAYHquX7XFsFReEPH0gYa7QxbIQN/I/u4XEqgwvdpQ='],
-                    pictures: [
-                        'https://static.quickstudio.com/media/W1siZiIsInN0dWRpb3MvMjAxNy8xMS8zMC8yNzg4ZDg2ZjI0LmpwZyJdLFsicCIsInRodW1iIiwiNjAwMDAwQCJdXQ',
-                    ],
-                    location: {
-                        coordinates: [5.231320530534101, 51.36752192207486],
-                        address: {
-                            city: 'Liège',
-                            country: {
-                                name: 'Belgium'
-                            }
-                        }
-                    }
-                },
-                {
-                    id: 1,
-                    price: 1400,
-                    name: 'My Studio',
-                    instant_booking: false,
-                    picturesIds: ['/CAYHquX7XFsFReEPH0gYa7QxbIQN/I/u4XEqgwvdpQ='],
-                    pictures: [
-                        'https://images.pexels.com/photos/96380/pexels-photo-96380.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500',
-                    ],
-                    location: {
-                        coordinates: [4.81032652885753, 52.37886749365077],
-                        address: {
-                            city: 'Liège',
-                            country: {
-                                name: 'Belgium'
-                            }
-                        }
-                    }
-                },
-                {
-                    id: 1,
-                    price: 2400,
-                    name: 'My other studio',
-                    instant_booking: true,
-                    picturesIds: ['/CAYHquX7XFsFReEPH0gYa7QxbIQN/I/u4XEqgwvdpQ='],
-                    pictures: [
-                        'https://images.pexels.com/photos/1327426/pexels-photo-1327426.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
-                    ],
-                    location: {
-                        coordinates: [4.948984376124656, 52.36697405119352],
-                        address: {
-                            city: 'Liège',
-                            country: {
-                                name: 'Belgium'
-                            }
-                        }
-                    }
-                },
-                {
-                    id: 1,
-                    price: 1239,
-                    name: 'Super studio',
-                    instant_booking: false,
-                    picturesIds: ['/CAYHquX7XFsFReEPH0gYa7QxbIQN/I/u4XEqgwvdpQ='],
-                    pictures: [
-                        'https://images.pexels.com/photos/995301/pexels-photo-995301.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500',
-                        'https://images.pexels.com/photos/265672/pexels-photo-265672.png?auto=compress&cs=tinysrgb&dpr=2&w=500',
-                    ],
-                    location: {
-                        coordinates: [4.8922607113389915, 52.37746843135494],
-                        address: {
-                            city: 'Liège',
-                            country: {
-                                name: 'Belgium'
-                            }
-                        }
-                    }
-                },
-                {
-                    id: 1,
-                    price: 2300,
-                    name: 'Awesome place',
-                    instant_booking: true,
-                    picturesIds: ['/CAYHquX7XFsFReEPH0gYa7QxbIQN/I/u4XEqgwvdpQ='],
-                    pictures: [
-                        'https://images.pexels.com/photos/744318/pexels-photo-744318.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500',
-                    ],
-                    location: {
-                        coordinates: [4.861320530534101, 52.37152192207486],
-                        address: {
-                            city: 'Liège',
-                            country: {
-                                name: 'Belgium'
-                            }
-                        }
-                    }
-                },
-                {
-                    id: 1,
-                    price: 2300,
-                    name: 'Awesome place',
-                    instant_booking: true,
-                    picturesIds: ['/CAYHquX7XFsFReEPH0gYa7QxbIQN/I/u4XEqgwvdpQ='],
-                    pictures: [
-                        'https://images.pexels.com/photos/1327430/pexels-photo-1327430.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
-                    ],
-                    location: {
-                        coordinates: [4.831320530534101, 52.36752192207486],
-                        address: {
-                            city: 'Liège',
-                            country: {
-                                name: 'Belgium'
-                            }
-                        }
-                    }
-                },
-                {
-                    id: 1,
-                    price: 2175,
-                    name: 'Casa de la Mama',
-                    instant_booking: true,
-                    picturesIds: ['/CAYHquX7XFsFReEPH0gYa7QxbIQN/I/u4XEqgwvdpQ='],
-                    pictures: [
-                        'https://www.jetstudio.com/wp-content/uploads/layerslider/Jet-Studio-Home/jet-Studio-index-1.jpg',
-                    ],
-                    location: {
-                        coordinates: [5.576180, 50.596520],
-                        address: {
-                            city: 'Liège',
-                            country: {
-                                name: 'Belgium'
-                            }
-                        }
-                    }
-                },
-            ],
+            studios: [],
+            searchIsProcessing: false,
             filters: filters
         }
     },
@@ -243,8 +112,72 @@ export default Vue.extend({
         if (this.filters['location']) {
             this.$refs.map.setLocation(this.filters['location']);
         }
+
+        this.searchStudios();
     },
     methods: {
+        // Executes a HTTP request to the search endpoint with the current filters' values.
+        searchStudios() {
+            this.searchIsProcessing = true;
+
+            this.studios = [];
+
+            let url = NC_ROUTES.controllers.StudiosController.search().url;
+
+            let params = { };
+            let filters = this.filters;
+
+            if (filters['location']) {
+                if (filters['location']['bbox']) {
+                    let bbox = filters['location']['bbox'];
+                    params['location.bbox'] = `${bbox[3]},${bbox[1]},${bbox[0]},${bbox[2]}`;
+                }
+
+                if (filters['location']['center']) {
+                    params['location.center'] = filters['location']['center'].join(',');
+                }
+            }
+
+            if (filters['available-on']) {
+                params['available-on'] = filters['available-on'];
+            }
+
+            axios.get(url, { params: params })
+                .then(response => { this.studios = response.data['results']; })
+                .catch(error => { })
+                .then(() => { this.searchIsProcessing = false; });
+        },
+
+        // Sets the URL hash parameters to the current filter values.
+        setUrlHashParams() {
+            let filters = this.filters;
+
+            let hashValues = [];
+
+            if (filters['location']) {
+                if (filters['location']['place_name']) {
+                    let encodedName = encodeURIComponent(filters['location']['place_name']);
+                    hashValues.push('location.place_name=' + encodedName);
+                }
+
+                if (filters['location']['bbox']) {
+                    hashValues.push('location.bbox=' + filters['location']['bbox'].join(','));
+                }
+
+                if (filters['location']['center']) {
+                    hashValues.push('location.center=' + filters['location']['center'].join(','));
+                }
+            }
+
+            if (filters['available-on']) {
+                hashValues.push('available-on=' + filters['available-on']);
+            }
+
+            if (hashValues.length > 0) {
+                window.location.hash = '#' + hashValues.join('&');
+            }
+        },
+
         onListingStudioHover(studioIdx) {
             this.$refs.map.setStudioHighlight(studioIdx);
         },
@@ -258,37 +191,16 @@ export default Vue.extend({
         },
     },
     watch: {
-        filters(val) {
-            if (val.location) {
-                this.$refs.map.setLocation(val['location']);
-            }
+        filters: {
+            handler(val) {
+                this.searchStudios();
+                this.setUrlHashParams();
 
-            // Updates the URL parameters
-
-            let hashValues = [];
-
-            if (val['location']) {
-                if (val['location']['place_name']) {
-                    let encodedName = encodeURIComponent(val['location']['place_name']);
-                    hashValues.push('location.place_name=' + encodedName);
+                if (val.location) {
+                    this.$refs.map.setLocation(val['location']);
                 }
-
-                if (val['location']['bbox']) {
-                    hashValues.push('location.bbox=' + val['location']['bbox'].join(','));
-                }
-
-                if (val['location']['center']) {
-                    hashValues.push('location.center=' + val['location']['center'].join(','));
-                }
-            }
-
-            if (val['date']) {
-                hashValues.push('date=' + val['date']);
-            }
-
-            if (hashValues.length > 0) {
-                window.location.hash = '#' + hashValues.join('&');
-            }
+            },
+            deep: true,
         },
     },
     components: { StudiosIndexFilters, StudiosIndexListing, StudiosIndexMap }
