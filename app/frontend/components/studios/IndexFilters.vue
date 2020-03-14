@@ -84,8 +84,14 @@ export default Vue.extend({
         }
     },
     watch: {
-        location() { this.emitValueChanged() },
-        availableOn() { this.emitValueChanged() },
+        location() {
+            this.$emit('input-location', this.location);
+            this.emitValueChanged();
+        },
+        availableOn() {
+            this.$emit('input-available-on', this.availableOn);
+            this.emitValueChanged();
+        },
     },
     components: { LocationInput }
 });

@@ -44,27 +44,34 @@ export default Vue.extend({
         this.map = new mapboxgl.Map({
             container: this.$refs.map,
             style: 'mapbox://styles/mapbox/streets-v10',
-            center: [4.9036, 52.3680], // starting position
-            zoom: 10, // starting zoom
+            // starting position covers whole globe
+            bounds: [[-180, 90], [180, -90]],
         });
 
         this.map.addControl(new mapboxgl.NavigationControl());
 
         this.updateStudioMarkers();
+
+        this.map.on('moveend', this.onMapMove)
     },
     methods: {
         // Centers the map on provided location.
         setLocation(place) {
+            // Adds a `isApiTriggered` properties to events triggered through
+            // the API.
+            // That will prevents the on `moveend` event listener to trigger a
+            // new studio search on these events.
+            let eventData = { isApiTriggered: true, };
+
             if (place.bbox) {
-                let bbox = place.bbox;
-                this.map.fitBounds([[bbox[0], bbox[1]],[bbox[2], bbox[3]]]);
+                this.map.fitBounds(place.bbox, {}, eventData);
             } else {
                 // The selected location does not have a bbox, use a default
                 // zoom.
                 this.map.flyTo({
                     center: place.center,
                     zoom: 9,
-                });
+                }, eventData);
             }
         },
 
@@ -99,7 +106,7 @@ export default Vue.extend({
                     .text(priceStr)
                     .mouseover(() => this.$emit('studio-hover', index))
                     .mouseout(() => this.$emit('studio-hover', null))
-                    .click(() => this.$emit('studio-clicked', index));
+                    .click(() => this.$emit('studio-click', index));
 
                 this.studiosElems.push(elem);
 
@@ -126,6 +133,15 @@ export default Vue.extend({
             } else {
                 this.highlightedStudio = null;
             }
+        },
+
+        onMapMove(event) {
+            if (event.isApiTriggered) {
+                // Ignore map view events triggered by a call to `flyTo()`.
+                return;
+            }
+
+            this.$emit('map-view-change', this.map.getBounds());
         }
     },
     watch: {

@@ -21,7 +21,10 @@
         <div class="cell medium-12 large-5">
             <div class="grid-y grid-padding-x results">
                 <div class="cell shrink section">
-                    <studios-index-filters v-model="filters">
+                    <studios-index-filters
+                        :value="initialFilters"
+                        @input-location="onFilterInputLocation"
+                        @input-available-on="onFilterInputAvailaibleOn">
                     </studios-index-filters>
                 </div>
 
@@ -41,7 +44,8 @@
                 ref="map"
                 :studios="studios"
                 @studio-hover="onMapStudioHover"
-                @studio-clicked="onMapStudioClick">
+                @studio-click="onMapStudioClick"
+                @map-view-change="onMapViewChange">
             </studios-index-map>
         </div>
     </div>
@@ -49,6 +53,7 @@
 
 <script lang="ts">
 import axios from 'axios';
+import * as mapboxgl from 'mapbox-gl';
 import Vue from "vue";
 
 declare var NC_ROUTES: any;
@@ -58,15 +63,61 @@ import StudiosIndexFilters from './IndexFilters.vue';
 import StudiosIndexListing from './IndexListing.vue';
 import StudiosIndexMap from './IndexMap.vue';
 
+// Returns a string version of a BBox-like object.
+function serializeBBox(bbox) {
+    bbox = mapboxgl.LngLatBounds.convert(bbox);
+    return `${bbox.getNorth()},${bbox.getSouth()},` +
+        `${bbox.getWest()},${bbox.getEast()}`;
+}
+
+// Parses a BBox-like object encoded as a string.
+function unserializeBBox(str) {
+    if (str == null) {
+        return null
+    }
+
+    let values = str.split(',');
+
+    let north = parseFloat(values[0]),
+        south = parseFloat(values[1]),
+        west = parseFloat(values[2]),
+        east = parseFloat(values[3]);
+
+    return new mapboxgl.LngLatBounds(
+        new mapboxgl.LngLat(west, south),
+        new mapboxgl.LngLat(east, north)
+    );
+}
+
+function serializeCenter(center) {
+    center = mapboxgl.LngLat.convert(center);
+    return `${center.lng},${center.lat}`;
+}
+
+function unserializeCenter(str) {
+    if (str == null) {
+        return null
+    }
+
+    let values = str.split(',');
+
+    let long = parseFloat(values[0]),
+        lat = parseFloat(values[1]);
+
+    return new mapboxgl.LngLat(long, lat);
+}
+
 export default Vue.extend({
     props: {
     },
     data() {
-        var filters = {};
-
-        // Extracts filter values based on the URL hash parameters.
+        // Extracts the `location` and `availableOn` values based on the URL
+        // hash parameters.
         //
         // i.e. /studios#location.place_name=London
+
+        let location = {};
+        var availableOn = null;
 
         // Extracts the hash query parameters as a JS Object.
         let params = {};
@@ -86,60 +137,69 @@ export default Vue.extend({
             params['location.place_name']
             && (params['location.bbox'] || params['location.center'])
         ) {
-            filters['location'] = { 'place_name': params['location.place_name'] };
+            location['place_name'] = params['location.place_name'];
 
             if (params['location.bbox']) {
-                filters['location']['bbox'] = params['location.bbox'].split(',');
+                location['bbox'] = unserializeBBox(params['location.bbox']);
             }
 
             if (params['location.center']) {
-                filters['location']['center'] = params['location.center'].split(',');
+                location['center'] = unserializeCenter(params['location.center']);
             }
         }
 
         if (params['available-on']) {
-            filters['available-on'] = params['available-on'];
+            availableOn = params['available-on'];
         }
 
         return {
             studios: [],
             searchIsProcessing: false,
-            filters: filters
+
+            location: location,
+            availableOn: availableOn,
+
+            initialFilters: {
+                'location': location,
+                'available-on': availableOn,
+            },
         }
     },
     mounted() {
         // If we parsed some location value from the URL parameter, immediatly moves the map.
-        if (this.filters['location']) {
-            this.$refs.map.setLocation(this.filters['location']);
+        if (this.location['center'] || this.location['bbox']) {
+            this.$refs.map.setLocation(this.location);
         }
 
-        this.searchStudios();
+        this.searchStudios(true);
     },
     methods: {
         // Executes a HTTP request to the search endpoint with the current filters' values.
-        searchStudios() {
+        searchStudios(removeResultFirst) {
             this.searchIsProcessing = true;
 
-            this.studios = [];
+            if (removeResultFirst) {
+                this.studios = [];
+            }
 
             let url = NC_ROUTES.controllers.StudiosController.search().url;
 
             let params = { };
-            let filters = this.filters;
 
-            if (filters['location']) {
-                if (filters['location']['bbox']) {
-                    let bbox = filters['location']['bbox'];
-                    params['location.bbox'] = `${bbox[3]},${bbox[1]},${bbox[0]},${bbox[2]}`;
+            if (this.location) {
+                let bbox = this.location['bbox'];
+                if (bbox) {
+                    params['location.bbox'] = serializeBBox(bbox);
                 }
 
-                if (filters['location']['center']) {
-                    params['location.center'] = filters['location']['center'].join(',');
+                let center = this.location['center'];
+                if (center) {
+                    params['location.center'] = serializeCenter(center);
                 }
             }
 
-            if (filters['available-on']) {
-                params['available-on'] = filters['available-on'];
+            if (this.availableOn) {
+                params['available-on'] = this.availableOn;
             }
 
             axios.get(url, { params: params })
@@ -150,32 +210,50 @@ export default Vue.extend({
 
         // Sets the URL hash parameters to the current filter values.
         setUrlHashParams() {
-            let filters = this.filters;
-
             let hashValues = [];
 
-            if (filters['location']) {
-                if (filters['location']['place_name']) {
-                    let encodedName = encodeURIComponent(filters['location']['place_name']);
+            if (this.location) {
+                if (this.location['place_name']) {
+                    let encodedName = encodeURIComponent(this.location['place_name']);
                     hashValues.push('location.place_name=' + encodedName);
                 }
 
-                if (filters['location']['bbox']) {
-                    hashValues.push('location.bbox=' + filters['location']['bbox'].join(','));
+                let bbox = this.location['bbox'];
+                if (bbox) {
+                    hashValues.push('location.bbox=' + serializeBBox(bbox));
                 }
 
-                if (filters['location']['center']) {
-                    hashValues.push('location.center=' + filters['location']['center'].join(','));
+                let center = this.location['center'];
+                if (center) {
+                    hashValues.push('location.center=' + serializeCenter(center));
                 }
             }
 
-            if (filters['available-on']) {
-                hashValues.push('available-on=' + filters['available-on']);
+            if (this.availableOn) {
+                hashValues.push('available-on=' + this.availableOn);
             }
 
             if (hashValues.length > 0) {
                 window.location.hash = '#' + hashValues.join('&');
             }
+        },
+
+        onFilterInputLocation(location) {
+            this.location = location;
+
+            if (this.location) {
+                this.$refs.map.setLocation(this.location);
+            }
+
+            this.searchStudios(true);
+            this.setUrlHashParams();
+        },
+
+        onFilterInputAvailaibleOn(availableOn) {
+            this.availableOn = availableOn;
+
+            this.searchStudios(true);
+            this.setUrlHashParams();
         },
 
         onListingStudioHover(studioIdx) {
@@ -189,18 +267,13 @@ export default Vue.extend({
         onMapStudioClick(studioIdx) {
             this.$refs.listing.studioScroll(studioIdx);
         },
-    },
-    watch: {
-        filters: {
-            handler(val) {
-                this.searchStudios();
-                this.setUrlHashParams();
 
-                if (val.location) {
-                    this.$refs.map.setLocation(val['location']);
-                }
-            },
-            deep: true,
+        onMapViewChange(bbox) {
+            // Overrides the filter's bbox on user map drag/zoom.
+            this.location['bbox'] = bbox;
+
+            this.searchStudios(false);
+            this.setUrlHashParams();
         },
     },
     components: { StudiosIndexFilters, StudiosIndexListing, StudiosIndexMap }
