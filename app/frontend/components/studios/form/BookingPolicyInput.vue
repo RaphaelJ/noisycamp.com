@@ -74,7 +74,7 @@
                 value="true">
 
             <label for="booking-policy-can-cancel">
-                Reimburse customers that cancel their booking
+                Reimburse customers who cancel their booking
 
                 <span v-if="fieldHasError('can-cancel')" class="error">
                     {{ fieldError('can-cancel') }}

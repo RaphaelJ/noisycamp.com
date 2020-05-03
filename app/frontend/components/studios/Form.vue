@@ -128,6 +128,27 @@
             <hr>
         </div>
 
+        <!-- Equipments & instruments -->
+
+        <div
+            class="cell"
+            v-if="isShown('equipments')">
+
+            <h2>Equipment &amp; instruments</h2>
+
+            <p>
+                List the instruments and various equipments that come with your rehearsal place.
+                <!-- You can request an extra fee for some of these items. -->
+            </p>
+
+            <equipment-input
+                name="equipments"
+                :currency="currency">
+            </equipment-input>
+
+            <hr>
+        </div>
+
         <!-- Pictures -->
 
         <div
@@ -137,28 +158,6 @@
             <h2>Pictures</h2>
 
             <picture-input name="pictures[]"></picture-input>
-
-            <hr>
-        </div>
-
-        <!-- Equipment & instruments -->
-
-        <div
-            class="cell"
-            v-if="isShown('equipment')">
-
-            <h2>Equipment &amp; instruments</h2>
-
-            <p>
-                List the instruments and various equipments that come with your rehearsal place.
-                This will allow user to easily find places that match their needs.<br>
-                You can request an extra fee for some of these items.
-            </p>
-
-            <equipment-input
-                name="equipment"
-                :currency="currency">
-            </equipment-input>
 
             <hr>
         </div>
@@ -235,7 +234,7 @@ export default Vue.extend({
         isShown(section) {
             return [
                 'general-info', 'location', 'opening-times', 'payment-policy',
-                'pricing-policy', 'booking-policy', 'pictures'
+                'pricing-policy', 'booking-policy', 'pictures', 'equipments',
             ].includes(section);
         }
     },

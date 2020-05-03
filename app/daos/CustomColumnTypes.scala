@@ -26,6 +26,7 @@ import slick.jdbc.JdbcProfile
 import squants.market
 
 import i18n.{ Country, Currency }
+import misc.EquipmentCategory
 import models.{ PictureId, StudioBookingStatus }
 
 trait CustomColumnTypes {
@@ -53,6 +54,10 @@ trait CustomColumnTypes {
   /** Stores a java.time.Duration as an amount of milliseconds. */
   implicit val durationType =
     MappedColumnType.base[Duration, Long](_.toMillis, Duration.ofMillis)
+
+  implicit val equipmentCategoryType =
+    MappedColumnType.base[EquipmentCategory.Val, String](
+      _.code, EquipmentCategory.byCode(_))
 
   /** Alternative implementation of java.time.LocalDateTime that maps to a
    * string. */

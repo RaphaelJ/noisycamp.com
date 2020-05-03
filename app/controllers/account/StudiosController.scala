@@ -85,6 +85,8 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
               pricingPolicy = data.pricingPolicy,
               bookingPolicy = data.bookingPolicy,
               paymentPolicy = data.paymentPolicy))
+            _ <- daos.studioEquipment.setStudioEquipments(
+              studio.id, data.equipments)
             _ <- daos.studioPicture.setStudioPics(studio.id, data.pictures)
           } yield studio
         }.transactionally)

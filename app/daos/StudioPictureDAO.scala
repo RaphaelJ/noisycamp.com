@@ -53,11 +53,13 @@ class StudioPictureDAO @Inject() (
   lazy val query = TableQuery[StudioPictureTable]
 
   lazy val insert = query returning
-    query.map(_.id) into ((stuPic, id) => stuPic.copy(id=id))
+    query.map(_.id) into ((stuPic, id) => stuPic.copy(id = id))
 
-  /** Sets or updates the pictures associated with a studio */
+  /** Sets or updates the pictures associated with a studio.
+   *
+   * Should run in a transaction. */
   def setStudioPics(studioId: Studio#Id, pics: Seq[Picture#Id]) = {
-    // Deletes any existing picture and inserts the new ones.
+    // Deletes any picture associations and inserts the new ones.
     DBIO.seq(
       query.filter(_.studioId === studioId).delete,
       query ++= pics.map { picId =>

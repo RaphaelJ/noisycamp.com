@@ -32,8 +32,8 @@
 
         <div
             class="cell callout alert"
-            v-if="fieldHasError('pictures[]')">
-            {{ fieldError('pictures[]') }}
+            v-if="fieldHasError('')">
+            {{ fieldError('') }}
         </div>
 
         <div

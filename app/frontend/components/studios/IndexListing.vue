@@ -64,54 +64,28 @@
 
                         <p class="details">
                             <span class="location">
-                                <i class="fi-marker"></i>&nbsp;
+                                <i class="fi-marker"></i>
                                 {{ studioLocation(studio) }}
                             </span>
 
-                            <span class="schedule">
-                                <i class="fi-clock"></i>&nbsp;
-                                Mon - Tue - <strong>Wed</strong> - Thu - <strong>Fri</strong>
-                                - Sat - Sun
+                            <span
+                                class="schedule"
+                                title="Opening schedule">
+                                <i class="fi-clock"></i>
+
+                                <span
+                                    v-for="(day, index) in studio['opening-schedule']"
+                                    :key="index"
+                                    :class="{ 'is-open': day['is-open'], 'is-closed': !day['is-open'] }">
+
+                                    {{ weekDays[index] }}
+                                    <span v-if="index < 6">-</span>
+                                </span>
                             </span>
                         </p>
                     </div>
                 </a>
             </li>
-
-            <!-- <li
-                v-for="(studio, index) in studios"
-                :ref="'studio-' + index"
-                class="cell small-12 medium-6 studio"
-                :class="{
-                    'large-6': index < 2,
-                    'large-4': index >= 2,
-                    'highlighted': highlightedStudio == index,
-                }"
-                @mouseover="$emit('studio-hover', index)"
-                @mouseout="$emit('studio-hover', null)">
-                <ul class="pictures">
-                    <li>
-                        <img
-                            :src="studio.pictures[0]"
-                            :alt="studio.name">
-                    </li>
-                </ul>
-
-                <div
-                    v-if="studio.instant_booking"
-                    class="instant-booking"
-                    title="Instant booking availaible for that place">
-                    <i class="fi-target"></i>
-                </div>
-
-                <div class="details">
-                    <span class="name">{{ studio.name }}</span>
-                    <span class="price">
-                        <strong>{{ renderCurrency(studio.price) }}</strong>
-                        per hour
-                    </span>
-                </div>
-            </li> -->
         </ul>
     </div>
 </template>
@@ -134,6 +108,11 @@ export default Vue.extend({
             location: null,
             highlightedStudio: null,
         }
+    },
+    computed: {
+        weekDays() {
+            return ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        },
     },
     methods: {
         studioURL(studio) {
@@ -162,7 +141,7 @@ export default Vue.extend({
         studioScroll(studioIdx) {
             let elem = this.$refs['studio-' + studioIdx];
             $(this.$el).parent().scrollTop(elem[0].offsetTop);
-        }
+        },
     },
     components: { ReactivePicture },
 });
@@ -205,46 +184,17 @@ ul.studios li.studio .details span.schedule {
     display: block;
 }
 
-/*
-ul.studios li.studio .instant-booking {
-    position: absolute;
-    top: 0;
-    right: 0;
-    padding: 5px 15px;
-    margin: 0;
-
-    color: white;
-    text-shadow: 0 0 3px rgba(0, 0, 0, 0.8);
-    font-size: 1.5rem;
-
-    cursor: help;
+ul.studios li.studio .details span.location .fi-marker,
+ul.studios li.studio .details span.schedule .fi-clock {
+    display: inline-block;
+    width: 13px;
 }
 
-ul.studios li.studio .details {
-    position: absolute;
-    top: calc(100% - 45px);
-    left: 0;
-    height: 45px;
-    width: 100%;
-    box-sizing: border-box;
-    padding-left: 1rem;
-    padding-right: 1rem;
-
-    border-top: 2px solid #b37216;
-    border-bottom-left-radius: 3px;
-    border-bottom-right-radius: 3px;
-
-    background-color: rgba(0, 0, 0, 0.75);
-    color: white;
-    line-height: 45px;
-    font-size: 1.15rem;
+ul.studios li.studio .details span.schedule .is-open {
+    font-weight: bold;
 }
 
-ul.studios li.studio .details .name {
-    float: left;
+ul.studios li.studio .details span.schedule .is-closed {
+    color: #999;
 }
-
-ul.studios li.studio .details .price {
-    float: right;
-} */
 </style>

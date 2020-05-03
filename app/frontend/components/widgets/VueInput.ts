@@ -32,25 +32,43 @@ export default {
         },
     },
     methods: {
-        // Returns a prefixed sub-field name.
-        fieldName(fieldName) {
+        // Returns a prefixed sub-field name, including the parent form's
+        // prefix if there is one.
+        //
+        // If `index` is provided, will add a `[index]` subscript prefix.
+        fieldName(subFieldName?: string, index?: number) {
+            var prefix;
             if (this.name != '') {
-                return this.name + '.' + fieldName;
+                prefix = this.name;
             } else {
-                return fieldName;
+                prefix = '';
+            }
+
+            if (index != undefined) {
+                prefix += '[' + index + ']';
+            }
+
+            if (subFieldName != undefined) {
+                if (prefix != '') {
+                    return prefix + '.' + subFieldName;
+                } else {
+                    return subFieldName;
+                }
+            } else {
+                return prefix;
             }
         },
 
-        fieldHasError(fieldName) {
-            return this.fieldName(fieldName) in this.errors;
+        fieldHasError(fieldName: string, index?: number) {
+            return this.fieldName(fieldName, index) in this.errors;
         },
 
-        fieldErrors(fieldName) {
-            return this.errors[this.fieldName(fieldName)];
+        fieldErrors(fieldName: string, index?: number) {
+            return this.errors[this.fieldName(fieldName, index)];
         },
 
-        fieldError(fieldName) {
-            return this.fieldErrors(fieldName)[0];
+        fieldError(fieldName: string, index?: number) {
+            return this.fieldErrors(fieldName, index)[0];
         },
     }
 };

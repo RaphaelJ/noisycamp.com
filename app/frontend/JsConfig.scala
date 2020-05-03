@@ -23,7 +23,7 @@ import play.api.mvc.RequestHeader
 import views.html.helper.CSRF
 
 import i18n.{ Country, Currency }
-import misc.{ Equipment, EquipmentFamily }
+import misc.{ EquipmentCategory, EquipmentFamily }
 
 /** Provides a JSON dump of the configuration variables used by the front-end
  * code. */
@@ -83,7 +83,7 @@ object JsConfig {
       ),
 
       "equipments" -> JsObject(
-        for ((code, equipment) <- Equipment.byCode)
+        for ((code, equipment) <- EquipmentCategory.byCode)
         yield code -> Json.obj(
           "code" -> equipment.code,
           "name" -> equipment.name,

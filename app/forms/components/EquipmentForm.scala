@@ -15,18 +15,28 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package daos
+package forms.components
 
-import javax.inject._
+import play.api.data.Form
+import play.api.data.Forms._
 
-/** The default DAOs provided to the controllers. */
-class DAOs @Inject () (
-  val user: UserDAO,
-  val userLoginInfo: UserLoginInfoDAO,
+import forms.CustomFields
+import models.Equipment
 
-  val studio: StudioDAO,
-  val studioPicture: StudioPictureDAO,
-  val studioEquipment: StudioEquipmentDAO,
-  val studioBooking: StudioBookingDAO,
+object EquipmentForm {
 
-  val picture: PictureDAO)
+  type Data = Equipment
+
+  val form = Form {
+    // Default ID field to 0 (auto-increment) if not specified.
+    val idField = optional(CustomFields.longId).
+      transform(_.getOrElse(0L), (v: Long) => Some(v))
+
+    mapping(
+      "id"                      -> idField,
+      "category"                -> optional(CustomFields.equipmentCategory),
+      "details"                 -> CustomFields.optionalText,
+      "price-per-hour"          -> optional(CustomFields.amount)
+    )(Equipment.apply)(Equipment.unapply)
+  }
+}

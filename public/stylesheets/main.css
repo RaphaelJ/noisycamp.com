@@ -110,13 +110,20 @@ main {
     background-color: rgba(0, 0, 0, 0.05);
 }
 
-.button.primary {
+.button.primary,
+.button.primary:visited,
+.button.primary:disabled {
     color: white;
     background-color: #b37216;
 }
 
-.button.primary:hover {
+.button.primary:hover,
+.button.primary:hover:disabled {
     background-color: #915c11;
+}
+
+.button.primary:active {
+    background-color: #825313;
 }
 
 .button.secondary {

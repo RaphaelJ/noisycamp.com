@@ -23,7 +23,7 @@ import play.api.data.Forms._
 import forms.CustomFields
 import forms.components.PaymentPolicyForm
 import models.{
-  BookingPolicy, Location, OpeningSchedule, Picture, PricingPolicy }
+  BookingPolicy, Equipment, Location, OpeningSchedule, Picture, PricingPolicy }
 
 /** A form to create and edit studios. */
 object StudioForm {
@@ -38,6 +38,8 @@ object StudioForm {
       "pricing-policy" -> forms.components.PricingPolicyForm.form.mapping,
       "booking-policy" -> forms.components.BookingPolicyForm.form.mapping,
       "payment-policy" -> forms.components.PaymentPolicyForm.form.mapping,
+
+      "equipments" -> seq(forms.components.EquipmentForm.form.mapping),
       "pictures" -> seq(CustomFields.pictureId)
     )(Data.apply)(Data.unapply))
 
@@ -51,5 +53,6 @@ object StudioForm {
     bookingPolicy:    BookingPolicy,
     paymentPolicy:    PaymentPolicyForm.Data,
 
+    equipments:       Seq[Equipment],
     pictures:         Seq[Picture#Id])
 }

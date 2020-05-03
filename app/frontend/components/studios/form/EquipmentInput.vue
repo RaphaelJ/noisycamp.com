@@ -20,39 +20,36 @@
 
 <template>
     <div class="grid-x grid-margin-y">
-        <div class="cell callout alert" v-if="fieldHasError('equipments[]')">
-            {{ fieldError('equipments[]') }}
+        <div class="cell callout alert" v-if="fieldHasError()">
+            {{ fieldError() }}
         </div>
 
-        <div class="cell">
-            <div v-if="equipments.length < 1" class="text-center">
-                <em>No equipment specified.</em>
-            </div>
-
-            <ul class="equipment-list grid-x grid-margin-x grid-margin-y grid-padding-x grid-padding-y">
+        <div class="cell small-12" v-if="equipments.length > 0">
+            <ul
+                class="equipment-list grid-x grid-margin-x grid-margin-y grid-padding-x grid-padding-y">
                 <li
                     class="equipment cell small-12 medium-6 large-4"
                     v-for="(equipment, index) in equipments">
 
                     <input
                         type="hidden"
-                        :name="fieldName('equipments[].id')"
+                        :name="fieldName('id', index)"
                         :value="equipment.id">
 
                     <input
                         type="hidden"
-                        :name="fieldName('equipments[].type')"
-                        :value="equipment.type">
+                        :name="fieldName('category', index)"
+                        :value="equipment.category">
 
                     <input
                         type="hidden"
-                        :name="fieldName('equipments[].details')"
+                        :name="fieldName('details', index)"
                         :value="equipment.details">
 
-                    <input
+                    <!-- <input
                         type="hidden"
-                        :name="fieldName('equipments[].fees')"
-                        :value="equipment.fees">
+                        :name="fieldName('pricePerHour', index)"
+                        :value="equipment.pricePerHour"> -->
 
                     <button
                         class="close-button equipment-remove"
@@ -62,29 +59,33 @@
                     </button>
 
                     <div class="grid-x grid-margin-x">
-                        <div class="cell small-3 text-center">
+                        <div class="cell small-3 medium-4 text-center">
                             <img
                                 class="equipment-icon"
-                                :alt="equipmentTypeName(equipment)"
-                                :src="equipmentTypeIcon(equipment)">
+                                :alt="equipmentCategoryName(equipment)"
+                                :src="equipmentCategoryIcon(equipment)">
                         </div>
 
-                        <div class="cell small-9">
+                        <div class="cell small-9 medium-8">
                             <div class="grid-x">
-                                <div class="cell small-7">
-                                    <h6>{{ equipmentTypeName(equipment) }}</h6>
+                                <div class="cell small-12 equipment-name">
+                                    <h6 :title="equipmentCategoryName(equipment)">
+                                        {{ equipmentCategoryName(equipment) }}
+                                    </h6>
                                 </div>
 
-                                <div class="cell small-4 text-right">
-                                    <small v-if="equipment.fee">
-                                        €{{ equipment.fee }}/hour
+                                <!-- <div class="cell small-4 text-right">
+                                    <small v-if="equipment.pricePerHour">
+                                        €{{ equipment.pricePerHour }}/hour
                                     </small>
                                     <small v-else>
                                         Included
                                     </small>
-                                </div>
+                                </div> -->
 
-                                <div class="cell small-12">
+                                <div
+                                    class="cell small-12 equipment-details"
+                                    :title="equipment.details">
                                     <small>{{ equipment.details }}</small>
                                 </div>
                             </div>
@@ -95,16 +96,15 @@
         </div>
 
         <div class="cell small-12">
-            <h4>Add new equipment</h4>
+            <h5>Add new equipment</h5>
 
             <div class="grid-x grid-margin-x">
-                <label class="cell small-12 medium-4 large-3">
-                    Type
+                <label class="cell small-12 medium-4">
+                    Category
 
                     <select
-                        ref="new-type"
-                        v-model="newEquipment.type">
-                        <option disabled>Please select an equipment type</option>
+                        v-model="newEquipment.category">
+                        <option disabled>Please select an equipment category</option>
                         <optgroup
                             v-for="family in equipmentByFamily"
                             :label="family.name">
@@ -115,7 +115,7 @@
                                 {{ equipment.name }}
                             </option>
                         </optgroup>
-                        <option value="">Other</option>
+                        <option value="__other">Other</option>
                     </select>
                 </label>
 
@@ -125,11 +125,10 @@
                     <input
                         type="text"
                         v-model="newEquipment.details"
-                        placeholder="i.e. brand, model"
-                        required>
+                        placeholder="i.e. brand, model">
                 </label>
 
-                <div class="cell small-12">
+                <!-- <div class="cell small-12">
                     <input
                         id="new-equipment-has-extra-fee"
                         type="checkbox"
@@ -140,21 +139,28 @@
                     </label>
                 </div>
 
-                <label class="cell small-12 medium-4 medium-offset-1 large-3">
-                    Price per hour
+                <slide-down-transition :max-height="85">
+                    <div
+                        class="cell small-12 medium-4 medium-offset-1 large-3"
+                        v-if="newEquipment.hasExtraFee">
 
-                    <currency-input
-                        :currency="currency"
-                        v-model="newEquipment.extraFee"
-                        :disabled="!newEquipment.hasExtraFee"
-                        :required="newEquipment.hasExtraFee">
-                    </currency-input>
-                </label>
+                        <label>
+                            Price per hour
+
+                            <money-input
+                                :currency="currency"
+                                v-model="newEquipment.pricePerHour"
+                                :required="newEquipment.hasExtraFee">
+                            </money-input>
+                        </label>
+                    </div>
+                </slide-down-transition> -->
 
                 <div class="cell small-12">
                     <button
-                        type="button" class="button"
-                        @click="equipmentAdd()">
+                        type="button" class="button primary"
+                        @click="equipmentAdd()"
+                        :disabled="!newEquipment.category">
                         Add equipment
                     </button>
                 </div>
@@ -167,6 +173,8 @@
 import Vue from "vue";
 
 import VueInput from '../../widgets/VueInput';
+import MoneyInput from '../../widgets/MoneyInput.vue';
+import SlideDownTransition from '../../../transitions/SlideDownTransition.vue';
 
 declare var NC_CONFIG: any;
 declare var NC_ROUTES: any;
@@ -178,21 +186,8 @@ export default Vue.extend({
     },
     data() {
         return {
-            newEquipment: { type: null, details: null, hasExtraFee: false, extraFee: null },
+            newEquipment: { category: null, details: null, hasExtraFee: false, pricePerHour: null },
 
-            // equipments: [
-            //     {
-            //         id: 1234,
-            //         type: 'drum-kit',
-            //         details: "Tama Superstar w/ Zildjian SBT cymbals",
-            //         fee: 5.0,
-            //     }, {
-            //         id: 1235,
-            //         type: 'electric-guitar',
-            //         details: "Fender Stratocaster",
-            //         fee: null,
-            //     },
-            // ],
             equipments: []
         }
     },
@@ -223,18 +218,26 @@ export default Vue.extend({
     },
     methods: {
         equipmentAdd() {
+            if (!this.newEquipment.category) {
+                return;
+            }
+
+            if (this.newEquipment.category == '__other') {
+                this.newEquipment.category = null;
+            }
+
             var fee = null;
             if (this.newEquipment.hasExtraFee && this.newEquipment.extraFee) {
                 fee = this.newEquipment.extraFee;
             }
 
             this.equipments.push({
-                type: this.newEquipment.type,
+                category: this.newEquipment.category,
                 details: this.newEquipment.details,
                 fee: fee,
             });
 
-            this.newEquipment.type = null;
+            this.newEquipment.category = null;
             this.newEquipment.details = null;
             this.newEquipment.hasExtraFee = false;
             this.newEquipment.extraFee = null;
@@ -244,20 +247,20 @@ export default Vue.extend({
             this.equipments.splice(index, 1);
         },
 
-        equipmentTypeIcon(equipment) {
-            var icon_name;
-            if (equipment.type) {
-                icon_name = "images/vendor/music-icons/" + equipment.type + ".svg";
+        equipmentCategoryIcon(equipment) {
+            var iconName;
+            if (equipment.category) {
+                iconName = "images/vendor/music-icons/" + equipment.category + ".svg";
             } else {
-                icon_name = "images/vendor/music-icons/other.svg";
+                iconName = "images/vendor/music-icons/other.svg";
             }
 
-            return NC_ROUTES.controllers.Assets.versioned(icon_name).url;
+            return NC_ROUTES.controllers.Assets.versioned(iconName).url;
         },
 
-        equipmentTypeName(equipment) {
-            if (equipment.type) {
-                return NC_CONFIG.equipments[equipment.type].name;
+        equipmentCategoryName(equipment) {
+            if (equipment.category) {
+                return NC_CONFIG.equipments[equipment.category].name;
             } else {
                 return "Other";
             }
@@ -265,6 +268,7 @@ export default Vue.extend({
     },
     watch: {
     },
+    components: { MoneyInput, SlideDownTransition },
 });
 </script>
 
@@ -278,7 +282,19 @@ export default Vue.extend({
     display: inline-block;
 
     border: 1px solid rgba(0,0,0,0.1);
-    border-radius: 2px;
+    border-radius: 3px;
+}
+
+.equipment-list li .equipment-name h6 {
+    margin-bottom: 0;
+
+}
+
+.equipment-list li .equipment-name,
+.equipment-list li .equipment-details {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .equipment-list li .equipment-remove {

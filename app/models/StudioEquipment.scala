@@ -15,18 +15,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package daos
+package models
 
-import javax.inject._
+case class StudioEquipment(
+  id: StudioEquipment#Id = 0L,
+  studioId: Studio#Id,
+  equipmentId: Equipment#Id) {
 
-/** The default DAOs provided to the controllers. */
-class DAOs @Inject () (
-  val user: UserDAO,
-  val userLoginInfo: UserLoginInfoDAO,
-
-  val studio: StudioDAO,
-  val studioPicture: StudioPictureDAO,
-  val studioEquipment: StudioEquipmentDAO,
-  val studioBooking: StudioBookingDAO,
-
-  val picture: PictureDAO)
+  type Id = Long
+}

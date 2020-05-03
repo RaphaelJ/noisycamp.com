@@ -54,7 +54,7 @@
                 value="true">
 
             <label for="pricing-has-evening-pricing">
-                This place has a different pricing for evening sessions
+                Pricing is different for evening sessions
 
                 <span v-if="fieldHasError('has-evening-pricing')" class="error">
                     {{ fieldError('has-evening-pricing') }}
@@ -115,7 +115,7 @@
                 value="true">
 
             <label for="pricing-has-weekend-pricing">
-                This place has a different pricing for weekend sessions
+                Pricing is different for weekend sessions
 
                 <span v-if="fieldHasError('has-weekend-pricing')" class="error">
                     {{ fieldError('has-weekend-pricing') }}

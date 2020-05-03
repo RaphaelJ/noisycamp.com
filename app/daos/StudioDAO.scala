@@ -41,7 +41,6 @@ class StudioDAO @Inject()
 
     def id                  = column[Studio#Id]("id", O.PrimaryKey, O.AutoInc)
     def createdAt           = column[Instant]("created_at")
-
     def ownerId             = column[User#Id]("owner_id")
 
     def name                = column[String]("name")

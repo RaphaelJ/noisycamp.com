@@ -164,6 +164,7 @@ create table "studio" (
 create table "picture" (
     id                  bytea primary key,
     created_at          timestamp,
+
     format              varchar not null
         check (format in ('png', 'gif', 'jpeg')),
     content             bytea not null
@@ -174,6 +175,28 @@ create table "studio_picture" (
     studio_id           integer not null references "studio"(id),
     picture_id          bytea not null references "picture"(id)
 );
+
+create index "idx_studio_picture_studio_id" on "studio_picture" ("studio_id");
+create index "idx_studio_picture_picture_id" on "studio_picture" ("picture_id");
+
+-- Studio equipment
+
+create table "equipment" (
+    id                  serial primary key,
+
+    category            varchar,
+    details             varchar,
+    price_per_hour      amount
+);
+
+create table "studio_equipment" (
+    id                  serial primary key,
+    studio_id           integer not null references "studio"(id),
+    equipment_id        integer not null references "equipment"(id)
+);
+
+create index "idx_studio_equipment_studio_id" on "studio_equipment" ("studio_id");
+create index "idx_studio_equipment_equipment_id" on "studio_equipment" ("equipment_id");
 
 -- Bookings
 
@@ -224,6 +247,9 @@ create table "studio_booking" (
 # --- !Downs
 
 drop table "studio_booking";
+
+drop table "studio_equipment";
+drop table "equipment";
 
 drop table "studio_picture";
 drop table "picture";

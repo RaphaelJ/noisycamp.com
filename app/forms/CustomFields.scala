@@ -28,6 +28,7 @@ import squants.market
 
 import i18n.{ Country, Currency }
 import models.{ BBox, Coordinates, Picture, PictureId }
+import misc.EquipmentCategory
 
 object CustomFields {
 
@@ -61,7 +62,7 @@ object CustomFields {
         val coords = value.split(',').map(BigDecimal(_))
         Coordinates(coords(0), coords(1))
       }
-      
+
       parsing(parse, "Invalid coordinates", Nil)(key, data)
     }
 
@@ -100,6 +101,15 @@ object CustomFields {
 
     of(enumFormat)
   }
+
+  val equipmentCategory: Mapping[EquipmentCategory.Val] =
+    enumeration[EquipmentCategory.Val](
+      EquipmentCategory.values.
+        toSeq.
+        map(_.asInstanceOf[EquipmentCategory.Val]).
+        map { v => v -> v.code }, "Invalid equipment category")
+
+  val longId: Mapping[Long] = longNumber(min = 0)
 
   /** Parses a `<input type="date">` as a LocalDate value. */
   val localDate: Mapping[LocalDate] = {

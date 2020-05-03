@@ -34,7 +34,7 @@ object EquipmentFamily extends Enumeration {
     toMap
 }
 
-object Equipment extends Enumeration {
+object EquipmentCategory extends Enumeration {
 
   case class Val(
     val code: String, val name: String, val family: EquipmentFamily.Val)
