@@ -1,6 +1,6 @@
 <!--
   Noisycamp is a platform for booking music studios.
-  Copyright (C) 2019  Raphael Javaux <raphaeljavaux@gmail.com>
+  Copyright (C) 2019, 2020  Raphael Javaux <raphaeljavaux@gmail.com>
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -58,54 +58,12 @@ import Vue from "vue";
 
 declare var NC_ROUTES: any;
 
-import LocationInput from '../widgets/LocationInput.vue'
+import LocationInput from '../widgets/LocationInput.vue';
 import StudiosIndexFilters from './IndexFilters.vue';
 import StudiosIndexListing from './IndexListing.vue';
 import StudiosIndexMap from './IndexMap.vue';
-
-// Returns a string version of a BBox-like object.
-function serializeBBox(bbox) {
-    bbox = mapboxgl.LngLatBounds.convert(bbox);
-    return `${bbox.getNorth()},${bbox.getSouth()},` +
-        `${bbox.getWest()},${bbox.getEast()}`;
-}
-
-// Parses a BBox-like object encoded as a string.
-function unserializeBBox(str) {
-    if (str == null) {
-        return null
-    }
-
-    let values = str.split(',');
-
-    let north = parseFloat(values[0]),
-        south = parseFloat(values[1]),
-        west = parseFloat(values[2]),
-        east = parseFloat(values[3]);
-
-    return new mapboxgl.LngLatBounds(
-        new mapboxgl.LngLat(west, south),
-        new mapboxgl.LngLat(east, north)
-    );
-}
-
-function serializeCenter(center) {
-    center = mapboxgl.LngLat.convert(center);
-    return `${center.lng},${center.lat}`;
-}
-
-function unserializeCenter(str) {
-    if (str == null) {
-        return null
-    }
-
-    let values = str.split(',');
-
-    let long = parseFloat(values[0]),
-        lat = parseFloat(values[1]);
-
-    return new mapboxgl.LngLat(long, lat);
-}
+import { serializeBBox, unserializeBBox, serializeCenter, unserializeCenter,
+    serializeFeature } from '../../misc/GeoUtils';
 
 export default Vue.extend({
     props: {
@@ -213,20 +171,7 @@ export default Vue.extend({
             let hashValues = [];
 
             if (this.location) {
-                if (this.location['place_name']) {
-                    let encodedName = encodeURIComponent(this.location['place_name']);
-                    hashValues.push('location.place_name=' + encodedName);
-                }
-
-                let bbox = this.location['bbox'];
-                if (bbox) {
-                    hashValues.push('location.bbox=' + serializeBBox(bbox));
-                }
-
-                let center = this.location['center'];
-                if (center) {
-                    hashValues.push('location.center=' + serializeCenter(center));
-                }
+                hashValues.push(serializeFeature(this.location));
             }
 
             if (this.availableOn) {

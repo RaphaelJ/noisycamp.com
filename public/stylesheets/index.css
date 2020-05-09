@@ -22,15 +22,14 @@
 }
 
 .hero.home-hero .middle-content-section {
-    margin-left: 60%;
-    width: 475px;
+    width: 750px;
 }
 
 /* Become a host section */
 
 .become-a-host .section-title {
     text-align: center;
-    margin-top: 3rem;
+    margin-top: 3.5rem;
     margin-bottom: 2rem;
 }
 

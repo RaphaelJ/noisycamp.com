@@ -1,0 +1,87 @@
+<!--
+  Noisycamp is a platform for booking music studios.
+  Copyright (C) 2019  Raphael Javaux <raphaeljavaux@gmail.com>
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+-->
+
+<template>
+    <div class="grid-x grid-padding-x">
+        <h2 class="cell">
+            Book a music or rehearsal studio.
+        </h2>
+
+        <div class="cell small-12 medium-auto">
+            <label>
+                Location
+                <location-input v-model="location">
+                </location-input>
+            </label>
+
+            <p class="help-text">
+                Or use your
+                <a href="#">
+                    current location&nbsp; <i class="fi-marker"></i>
+                </a>
+            </p>
+        </div>
+
+        <div class="cell small-12 medium-shrink">
+            <label>
+                &nbsp;<!-- Force button alignment with input -->
+            </label>
+            <a
+                :href="searchUrl"
+                class="button primary large">
+                <i class="fi-magnifying-glass"></i>&nbsp;
+                Search
+            </a>
+        </div>
+    </div>
+</template>
+
+<script lang="ts">
+import Vue from "vue";
+
+declare var NC_ROUTES: any;
+
+import LocationInput from '../widgets/LocationInput.vue';
+
+import { serializeFeature } from '../../misc/GeoUtils';
+
+export default Vue.extend({
+    props: {
+    },
+    data() {
+        return {
+            location: null
+        }
+    },
+    computed: {
+        searchUrl() {
+            var url = NC_ROUTES.controllers.StudiosController.index().url;
+
+            if (this.location) {
+                url += '#' + serializeFeature(this.location);
+            }
+
+            return url;
+        },
+    },
+    components: { LocationInput }
+});
+</script>
+
+<style>
+</style>

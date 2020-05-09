@@ -34,41 +34,29 @@
         </div>
 
         <div class="middle-content-section">
-            <form class="panel-section">
-                <h3>Book a music or rehearsal studio.</h3>
-
-                <label>
-                    Location
-                    <input type="text">
-                </label>
-
-                <p class="help-text">
-                    Or use your
-                    <a href="#">
-                        current location&nbsp; <i class="fi-marker"></i>
-                    </a>
-                </p>
-
-                <label>
-                    Dates
-                    <input type="text">
-                </label>
-
-                <div class="text-right">
-                    <button type="submit" class="button primary large">
-                        Search
-                    </button>
+            <div class="panel-section">
+                <div class="grid-container">
+                    <search-form></search-form>
                 </div>
-            </form>
+            </div>
         </div>
 
         <div class="bottom-content-section">
-            <a href="#become-a-host" data-smooth-scroll>
-                <h5>
+            <a
+                href="#become-a-host"
+                onclick="$('html, body').animate({
+                        scrollTop: $('#become-a-host').offset().top
+                }, 500); return false">
+                <div>
                     Want to list your professional or personal studio?
-                </h5>
+                </div>
                 <arrow direction="bottom"></arrow>
             </a>
+        </div>
+
+        <div class="picture-credits">
+            Photo by
+            <a href="https://unsplash.com/@@john_matychuk">John Matychuk</a>
         </div>
     </div>
 
@@ -86,7 +74,7 @@
                 <img
                     src="@routes.Assets.versioned("images/index/devices.png")"
                     alt="NoisyCamp is available on mobile devices."
-                    style="max-height: 200px">
+                    style="max-height: 300px">
             </div>
             <div class="cell medium-6">
                 <h3>Build an online presence</h3>
@@ -113,7 +101,12 @@
                     fee, and bookings made through your
                 </p>
             </div>
-            <div class="cell medium-6"></div>
+            <div class="cell medium-6 text-center">
+                <img
+                    src="@routes.Assets.versioned("images/index/map.svg")"
+                    alt="NoisyCamp is available in 35 countries."
+                    style="max-height: 300px">
+            </div>
 
             <div class="cell medium-6"></div>
             <div class="cell medium-6">

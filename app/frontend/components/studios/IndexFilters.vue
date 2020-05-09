@@ -28,7 +28,7 @@
 
         <div class="cell small-12 medium-6 hide-for-small-only">
             <label>
-                Open on
+                Available on
 
                 <input
                     type="date"

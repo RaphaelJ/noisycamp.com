@@ -130,18 +130,12 @@ main {
     border: 1px solid #b37216;
 }
 
-.button.large {
-    padding: .75em 1em;
-    font-size: 1.10rem;
-    border-radius: 4px;
-}
-
 /* Input and forms */
 
 .help-text {
     color: #666;
     font-size: 0.85rem;
-    /* margin-top: -.9rem; */
+    margin-top: -0.75rem;
 }
 
 [type="color"], [type="date"], [type="datetime-local"], [type="datetime"],
@@ -150,16 +144,18 @@ main {
 [type="week"], textarea, select {
     background-color: #fefefecc;
     border: 1px solid rgba(0, 0, 0, 0.1);
-    border-radius: 3px;
     box-shadow: none;
-
-    height: 2.7rem;
-    padding: 0.6rem .75rem;
-    line-height: 1.5rem;
 }
 
-select {
-    padding-right: 1.5rem;
+/* Makes the .large buttons and input the same height. */
+[type="color"], [type="date"], [type="datetime-local"], [type="datetime"],
+[type="email"], [type="month"], [type="number"], [type="password"],
+[type="search"], [type="tel"], [type="text"], [type="time"], [type="url"],
+[type="week"], textarea, select, .button.large {
+    border-radius: 3px;
+
+    height: 3rem;
+    padding: .75rem 1rem;
 }
 
 [type="color"]:focus, [type="date"]:focus, [type="datetime-local"]:focus,
@@ -170,7 +166,7 @@ select {
 select:focus
 {
     border: 1px solid rgba(0, 0, 0, 0.2);
-    box-shadow: 0 0 3px rgba(202, 202, 202, 0.2);
+    box-shadow: 0 0 4px rgba(202, 202, 202, 0.075);
 }
 
 [type="color"]:disabled, [type="date"]:disabled,
@@ -186,6 +182,11 @@ select:focus
 /* Makes checkboxes and radio buttons 30% larger. */
 [type="checkbox"], [type="radio"] {
     transform: scale(1.2, 1.2);
+}
+
+/* Adds additional padding on select fields, required by the right arrow. */
+select {
+    padding-right: 1.5rem;
 }
 
 .input-group > :last-child,
@@ -336,7 +337,7 @@ form label .error {
 /* Slightly larger padding on medium and large screens. */
 @media screen and (min-width: 40em) {
     .panel-section {
-        padding: 18px 25px;
+        padding: 18px;
     }
 }
 
@@ -368,6 +369,11 @@ form label .error {
     background: transparent center center no-repeat;
     background-size: cover;
 
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+
     position: relative;
 }
 
@@ -376,13 +382,23 @@ form label .error {
 }
 
 .hero .top-content-section {
-    width: 100%;
+    order: 1;
+    align-content: flex-start;
+}
+
+.hero .middle-content-section {
+    order: 2;
+    align-content: center;
 }
 
 .hero .bottom-content-section {
-    text-align: center;
-    color: white;
+    order: 3;
+    align-content: flex-end;
     padding: 1rem;
+
+    text-align: center;
+    font-size: 1.15rem;
+    color: white;
     opacity: 0.8;
 }
 
@@ -396,9 +412,9 @@ form label .error {
 
 .hero .bottom-content-section svg {
     margin-top: 10px;
-    height: 2.75rem;
-    width: 2.75rem;
-    fill: rgba(255, 255, 255, 1);
+    height: 2.25rem;
+    width: 2.25rem;
+    fill: white;
 }
 
 .hero .picture-credits {
@@ -406,8 +422,9 @@ form label .error {
     bottom: 0;
     right: 0;
     padding: 1rem;
+    font-size: 0.9rem;
 
-    opacity: 0.6;
+    opacity: 0.5;
 }
 
 .hero .picture-credits, .hero .picture-credits a {
@@ -416,6 +433,10 @@ form label .error {
 
 .hero .picture-credits:hover {
     opacity: 1;
+}
+
+.hero .panel-section {
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.25);
 }
 
 /* Footer */
