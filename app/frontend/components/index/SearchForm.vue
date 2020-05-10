@@ -25,13 +25,13 @@
         <div class="cell small-12 medium-auto">
             <label>
                 Location
-                <location-input v-model="location">
+                <location-input ref="locationInput" v-model="location">
                 </location-input>
             </label>
 
             <p class="help-text">
                 Or use your
-                <a href="#">
+                <a @click="setCurrentLocation()">
                     current location&nbsp; <i class="fi-marker"></i>
                 </a>
             </p>
@@ -78,6 +78,13 @@ export default Vue.extend({
 
             return url;
         },
+    },
+    methods: {
+        setCurrentLocation() {
+            this.$refs.locationInput.setCurrentLocation();
+
+            return false;
+        }
     },
     components: { LocationInput }
 });
