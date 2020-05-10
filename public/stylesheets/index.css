@@ -18,11 +18,52 @@
 /* Full-screen hero with search box. */
 
 .hero.home-hero {
+    /* TODO: use different picture sizes depending on screen size */
     background-image: url("/assets/images/index/hero.jpg");
 }
 
 .hero.home-hero .middle-content-section {
     width: 750px;
+}
+
+@media screen and (max-width: 39.9375em) {
+    .hero.home-hero .middle-content-section {
+        width: 100%;
+    }
+
+    .hero.home-hero .middle-content-section .panel-section {
+        border-radius: 0;
+    }
+}
+
+@media screen and (min-width: 40em) and (max-width: 63.9375em) {
+    .hero.home-hero .middle-content-section {
+        width: 500px;
+    }
+}
+
+.hero .bottom-content-section {
+    padding: 1rem;
+
+    text-align: center;
+    font-size: 1.15rem;
+    color: white;
+    opacity: 0.8;
+}
+
+.hero .bottom-content-section:hover {
+    opacity: 1;
+}
+
+.hero .bottom-content-section a {
+    color: white;
+}
+
+.hero .bottom-content-section svg {
+    margin-top: 1rem;
+    height: 2.25rem;
+    width: 2.25rem;
+    fill: white;
 }
 
 /* Become a host section */

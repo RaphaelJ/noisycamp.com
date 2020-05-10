@@ -22,7 +22,7 @@
             Book a music or rehearsal studio.
         </h2>
 
-        <div class="cell small-12 medium-auto">
+        <div class="cell medium-12 large-auto">
             <label>
                 Location
                 <location-input ref="locationInput" v-model="location">
@@ -37,13 +37,13 @@
             </p>
         </div>
 
-        <div class="cell small-12 medium-shrink">
-            <label>
+        <div class="cell medium-12 large-shrink">
+            <label class="show-for-large">
                 &nbsp;<!-- Force button alignment with input -->
             </label>
             <a
                 :href="searchUrl"
-                class="button primary large">
+                class="button primary large medium-down-expanded">
                 <i class="fi-magnifying-glass"></i>&nbsp;
                 Search
             </a>

@@ -15,12 +15,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/* Variables */
-
-:root {
-    --top-bar-height: calc(1.6rem + 2 * 0.7rem + 8px);
-}
-
 /* General */
 
 body {
@@ -224,7 +218,14 @@ form label .error {
     background-color: #2a1f0d;
 }
 
-.top-bar {
+:root {
+    --top-bar-line-height: calc(
+       1.2rem       /* Title font size */
+       + 2 * 0.7rem /* Title line padding */
+       + 2 * 0.5rem /* Top bar padding */
+    );
+
+   --top-bar-height: var(--top-bar-line-height);
 }
 
 .top-bar.no-full-screen {
@@ -234,18 +235,18 @@ form label .error {
 }
 
 .top-bar .logo {
-    font-size: 1.2em;
+    font-size: 1.2rem;
     font-family: 'Playfair Display', serif;
     font-weight: 700;
 }
 
 .top-bar .logo img {
-    height: 23px;
-    padding-bottom: 2px;
+    height: 1.75rem;
+    padding-bottom: 0.25rem;
 
-    margin-right: 10px;
-    margin-top: -5px;
-    margin-bottom: -5px;
+    margin-right: 1rem;
+    margin-top: -0.5rem;
+    margin-bottom: -0.5rem;
 }
 
 .top-bar, .top-bar a {
@@ -255,8 +256,8 @@ form label .error {
 .top-bar .top-bar-right a {
     position: relative;
 
-    margin-left: 5px;
-    margin-right: 5px;
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
 }
 
 /* Creates an animated :hover effect on links. */
@@ -286,6 +287,10 @@ form label .error {
 
     .top-bar .logo {
         margin-bottom: 0.5rem;
+    }
+
+    :root {
+        --top-bar-height: calc(2 * var(--top-bar-line-height) - 0.7rem);
     }
 }
 
@@ -341,7 +346,7 @@ form label .error {
     }
 }
 
-/* Removes panel cell padding on small devices. */
+/* Removes panel cell padding on small devices is the cell is full width. */
 @media screen and (max-width: 39.9375em) {
     .small-12 .panel-section {
         border-radius: 0;
@@ -394,27 +399,6 @@ form label .error {
 .hero .bottom-content-section {
     order: 3;
     align-content: flex-end;
-    padding: 1rem;
-
-    text-align: center;
-    font-size: 1.15rem;
-    color: white;
-    opacity: 0.8;
-}
-
-.hero .bottom-content-section:hover {
-    opacity: 1;
-}
-
-.hero .bottom-content-section a {
-    color: white;
-}
-
-.hero .bottom-content-section svg {
-    margin-top: 10px;
-    height: 2.25rem;
-    width: 2.25rem;
-    fill: white;
 }
 
 .hero .picture-credits {
@@ -437,6 +421,13 @@ form label .error {
 
 .hero .panel-section {
     box-shadow: 0 0 6px rgba(0, 0, 0, 0.25);
+}
+
+/* Slightly larger padding on medium and large screens. */
+@media screen and (min-width: 40em) {
+    .panel-section {
+        padding: 18px;
+    }
 }
 
 /* Footer */
