@@ -383,7 +383,7 @@ form label .error {
 }
 
 .hero.full-screen {
-    height: calc(100vh - var(--top-bar-height));
+    min-height: calc(100vh - var(--top-bar-height));
 }
 
 .hero .top-content-section {
@@ -419,15 +419,14 @@ form label .error {
     opacity: 1;
 }
 
-.hero .panel-section {
-    box-shadow: 0 0 6px rgba(0, 0, 0, 0.25);
+@media screen and (max-width: 39.9375em) {
+    .hero .picture-credits {
+        display: none;
+    }
 }
 
-/* Slightly larger padding on medium and large screens. */
-@media screen and (min-width: 40em) {
-    .panel-section {
-        padding: 18px;
-    }
+.hero .panel-section {
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.25);
 }
 
 /* Footer */

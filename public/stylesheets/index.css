@@ -27,12 +27,14 @@
 }
 
 @media screen and (max-width: 39.9375em) {
+    /* Search form is full-width on small devices. */
     .hero.home-hero .middle-content-section {
         width: 100%;
     }
 
     .hero.home-hero .middle-content-section .panel-section {
         border-radius: 0;
+        box-shadow: none;
     }
 }
 
@@ -42,7 +44,7 @@
     }
 }
 
-.hero .bottom-content-section {
+.hero.home-hero .bottom-content-section {
     padding: 1rem;
 
     text-align: center;
@@ -51,15 +53,15 @@
     opacity: 0.8;
 }
 
-.hero .bottom-content-section:hover {
+.hero.home-hero .bottom-content-section:hover {
     opacity: 1;
 }
 
-.hero .bottom-content-section a {
+.hero.home-hero .bottom-content-section a {
     color: white;
 }
 
-.hero .bottom-content-section svg {
+.hero.home-hero .bottom-content-section svg {
     margin-top: 1rem;
     height: 2.25rem;
     width: 2.25rem;

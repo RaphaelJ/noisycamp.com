@@ -26,53 +26,37 @@
     implicit request: RequestHeader, messagesProvider: MessagesProvider,
     config: Configuration)
 
-@head = {
-    <link
-        rel="stylesheet"
-        href="@routes.Assets.versioned("stylesheets/auth/sign.css")">
-}
-
 @implicitField = @{
     helper.FieldConstructor(utils.forms.foundationFieldConstructor.f)
 }
 
-@layout(Seq("Sign in"), head=head, identity=None, fullScreen=true) {
-    <div class="hero full-screen sign-in-hero">
-        <div class="top-content-section"></div>
+@layout("Sign in", socialProviders, redirectTo) {
+    <div class="cell">
+        @helper.form(
+            action = controllers.routes.AuthController.signInSubmit(redirectTo)) {
 
-        <div class="middle-content-section">
-            <div class="panel-section">
-                <h2>Sign in</h2>
+            @helper.CSRF.formField
 
-                @helper.form(
-                    action = controllers.routes.AuthController.signInSubmit(redirectTo)) {
-
-                    @helper.CSRF.formField
-
+            <div class="grid-x">
+                <div class="cell">
                     @helper.inputText(signInForm("email"),
                         '_label -> "Email", '_showConstraints -> false,
                         'type -> "email")
+                </div>
+
+                <div class="cell">
                     @helper.inputPassword(signInForm("password"),
                         '_label -> "Password", '_showConstraints -> false)
+                </div>
 
+                <div class="cell">
                     <button
                         type="submit"
-                        class="button primary large expanded">
+                        class="button primary large expanded sign-in">
                         Sign in
                     </button>
-                }
-
-                <hr>
-
-                @tags.socialSignInButtons(socialProviders, redirectTo)
+                </div>
             </div>
-        </div>
-
-        <div class="bottom-content-section"></div>
-
-        <div class="picture-credits">
-            Photo by
-            <a href="https://unsplash.com/@@thenigmatic">The Nigmatic</a>
-        </div>
+        }
     </div>
 }

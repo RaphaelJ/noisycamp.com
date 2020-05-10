@@ -17,13 +17,29 @@
 
 /* Full-screen hero with search box. */
 
-.hero.sign-in-hero, .hero.sign-up-hero {
+.hero.auth-hero {
     background-image: url("/assets/images/auth/hero.jpg");
 }
 
-.hero.sign-in-hero .middle-content-section,
-.hero.sign-up-hero .middle-content-section {
-    width: 500px;
+.hero.auth-hero .middle-content-section {
+    width: 550px;
+}
+
+@media screen and (max-width: 39.9375em) {
+    .hero.auth-hero .middle-content-section {
+        width: 100%;
+    }
+
+    .hero.auth-hero .middle-content-section .panel-section {
+        border-radius: 0;
+        box-shadow: none;
+    }
+}
+
+.hero.auth-hero .button.sign-in,
+.hero.auth-hero .button.sign-up {
+    /* Cancels bottom border as there is already one for <hr>. */
+    margin-bottom: 0;
 }
 
 .button.provider.facebook {

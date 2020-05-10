@@ -97,7 +97,7 @@ export default Vue.extend({
 });
 </script>
 
-<style>
+<style scoped>
 label {
     margin-top: 0.6rem;
 }

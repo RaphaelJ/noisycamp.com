@@ -17,16 +17,14 @@
 
 @(elements: helper.FieldElements)
 
-<div class="cell medium-6">
-    <label>
-        @elements.label
-        @elements.input
-        @for(error <- elements.errors) {
-            <span class="error">@error</span>
-        }
-    </label>
-
-    @for(info <- elements.infos) {
-        <p class="help-text">@info</p>
+<label>
+    @elements.label
+    @elements.input
+    @for(error <- elements.errors) {
+        <span class="error">@error</span>
     }
-</div>
+</label>
+
+@for(info <- elements.infos) {
+    <p class="help-text">@info</p>
+}

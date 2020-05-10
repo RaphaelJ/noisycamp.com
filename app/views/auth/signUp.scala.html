@@ -1,5 +1,5 @@
 @* Noisycamp is a platform for booking music studios.
- * Copyright (C) 2019  Raphael Javaux <raphaeljavaux@gmail.com>
+ * Copyright (C) 2019, 2020  Raphael Javaux <raphaeljavaux@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,48 +36,40 @@
     helper.FieldConstructor(utils.forms.foundationFieldConstructor.f)
 }
 
-@layout(Seq("Sign up"), head=head, identity=None, fullScreen=true) {
+@layout("Sign up", socialProviders, redirectTo) {
+    <div class="cell">
+        @helper.form(
+            action = controllers.routes.AuthController.signUpSubmit(redirectTo)) {
 
-    <div class="hero full-screen sign-in-hero">
-        <div class="top-content-section"></div>
+            @helper.CSRF.formField
 
-        <div class="middle-content-section">
-            <div class="panel-section">
-                <h2>Sign up</h2>
-
-                @helper.form(
-                    action = controllers.routes.AuthController.signUpSubmit(redirectTo)) {
-
-                    @helper.CSRF.formField
-
+            <div class="grid-x">
+                <div class="cell">
                     @helper.inputText(signUpForm("firstName"),
                         '_label -> "First name", '_showConstraints -> false)
+                </div>
+
+                <div class="cell">
                     @helper.inputText(signUpForm("lastName"),
                         '_label -> "Last name", '_showConstraints -> false)
-                    @helper.inputText(signUpForm("email"),
+                        @helper.inputText(signUpForm("email"),
                         '_label -> "Email", '_showConstraints -> false,
                         'type -> "email")
+                </div>
+
+                <div class="cell">
                     @helper.inputPassword(signUpForm("password"),
                         '_label -> "Password", '_showConstraints -> false)
+                </div>
 
+                <div class="cell">
                     <button
                         type="submit"
-                        class="button primary large expanded">
+                        class="button primary large expanded sign-up">
                         Create new account
                     </button>
-                }
-
-                <hr>
-
-                @tags.socialSignInButtons(socialProviders, redirectTo)
+                </div>
             </div>
-        </div>
-
-        <div class="bottom-content-section"></div>
-
-        <div class="picture-credits">
-            Photo by
-            <a href="https://unsplash.com/@@thenigmatic">The Nigmatic</a>
-        </div>
+        }
     </div>
 }

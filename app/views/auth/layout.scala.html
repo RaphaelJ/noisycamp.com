@@ -1,0 +1,70 @@
+@* Noisycamp is a platform for booking music studios.
+ * Copyright (C) 2019, 2020  Raphael Javaux <raphaeljavaux@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *@
+
+@import com.mohiva.play.silhouette.impl.providers.SocialProviderRegistry
+@import play.api.Configuration
+
+@(
+    title: String, socialProviders: SocialProviderRegistry,
+    redirectTo: Option[String])(
+    form: Html)(
+    implicit request: RequestHeader, config: Configuration)
+
+@head = {
+    <link
+        rel="stylesheet"
+        href="@routes.Assets.versioned("stylesheets/auth/main.css")">
+}
+
+@_root_.views.html.layout(Seq(title), head=head, identity=None, fullScreen=true) {
+    <div class="hero full-screen auth-hero">
+        <div class="top-content-section"></div>
+
+        <div class="middle-content-section">
+            <div class="panel-section">
+                <div class="grid-container">
+                    <div class="grid-x grid-padding-x">
+                        <h2 class="cell">@title</h2>
+
+                        @form
+
+                        <div class="cell">
+                            <hr>
+                        </div>
+
+                        @for(p <- socialProviders.providers) {
+                            <div class="cell small-12 medium-6">
+                                <a
+                                    href="@controllers.routes.AuthController.oauth2Authenticate(p.id, redirectTo)"
+                                    class="button primary large expanded provider @p.id">
+                                    Sign in with @p.id.capitalize
+                                </a>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bottom-content-section"></div>
+
+        <div class="picture-credits">
+            Photo by
+            <a href="https://unsplash.com/@@thenigmatic" target="_blank">The Nigmatic</a>
+        </div>
+    </div>
+}
