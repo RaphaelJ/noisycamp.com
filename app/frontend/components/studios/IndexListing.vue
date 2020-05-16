@@ -17,7 +17,7 @@
 -->
 
 <template>
-    <div>
+    <div ref="listing">
         <div
             v-if="searchIsProcessing"
             class="message">
@@ -32,57 +32,59 @@
 
         <ul
             v-if="!searchIsProcessing && studios.length > 0"
-            class="grid-x grid-margin-x grid-padding-y studios">
+            class="grid-x studios">
             <li v-for="(studio, index) in studios"
                 :ref="'studio-' + index"
-                class="cell small-12 studio"
-                :class="{
-                    'highlighted': highlightedStudio == index,
-                }"
-                @mouseover="$emit('studio-hover', index)"
-                @mouseout="$emit('studio-hover', null)">
+                class="cell small-12">
 
                 <a
                     :href="studioURL(studio)"
                     target="_blank"
-                    class="grid-x grid-padding-x">
+                    class="studio panel-section"
+                    :class="{
+                        'highlighted': highlightedStudio == index,
+                    }"
+                    @mouseover="$emit('studio-hover', index)"
+                    @mouseout="$emit('studio-hover', null)">
 
-                    <div class="cell small-4 pictures">
-                        <reactive-picture
-                            :alt="studio.name + ' picture'"
-                            :picture-id="studio.picture"
-                            :width="400"
-                            :height="225"
-                            classes="border-radius">
-                        </reactive-picture>
-                    </div>
+                    <div class="grid-x grid-padding-x">
+                        <div class="cell small-12 medium-4 pictures">
+                            <reactive-picture
+                                :alt="studio.name + ' picture'"
+                                :picture-id="studio.picture"
+                                :width="450"
+                                :height="300"
+                                classes="border-radius">
+                            </reactive-picture>
+                        </div>
 
-                    <div class="cell small-8">
-                        <h5>
-                            {{ studio.name }}
-                        </h5>
+                        <div class="cell small-12 medium-8">
+                            <h5 class="title">
+                                {{ studio.name }}
+                            </h5>
 
-                        <p class="details">
-                            <span class="location">
-                                <i class="fi-marker"></i>
-                                {{ studioLocation(studio) }}
-                            </span>
-
-                            <span
-                                class="schedule"
-                                title="Opening schedule">
-                                <i class="fi-clock"></i>
+                            <div class="details">
+                                <span class="location">
+                                    <i class="fi-marker"></i>
+                                    {{ studioLocation(studio) }}
+                                </span>
 
                                 <span
-                                    v-for="(day, index) in studio['opening-schedule']"
-                                    :key="index"
-                                    :class="{ 'is-open': day['is-open'], 'is-closed': !day['is-open'] }">
+                                    class="schedule"
+                                    title="Opening schedule">
+                                    <i class="fi-clock"></i>
 
-                                    {{ weekDays[index] }}
-                                    <span v-if="index < 6">-</span>
+                                    <span
+                                        v-for="(day, index) in studio['opening-schedule']"
+                                        :key="index"
+                                        :class="{ 'is-open': day['is-open'], 'is-closed': !day['is-open'] }">
+
+                                        {{ weekDays[index] }}
+                                        <span v-if="index < 6">-</span>
+                                    </span>
                                 </span>
-                            </span>
-                        </p>
+                            </div>
+                        </div>
                     </div>
                 </a>
             </li>
@@ -139,8 +141,12 @@ export default Vue.extend({
 
         // Scrolls to the given studio index.
         studioScroll(studioIdx) {
-            let elem = this.$refs['studio-' + studioIdx];
-            $(this.$el).parent().scrollTop(elem[0].offsetTop);
+            let container = $(this.$refs['listing']).parent();
+            let elem = this.$refs['studio-' + studioIdx][0];
+
+            container.animate({
+                scrollTop: elem.offsetTop - container[0].offsetTop
+            }, 500);
         },
     },
     components: { ReactivePicture },
@@ -156,45 +162,52 @@ export default Vue.extend({
 
 ul.studios {
     list-style-type: none;
+    margin-left: 0;
 }
 
-ul.studios li.studio {
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+ul.studios li .studio {
+    display: block;
+    margin-top: 1rem;
+
+    border: 2px solid transparent;
+    transition: border 0.2s ease-out;
 }
 
-ul.studios li.studio:hover,
-ul.studios li.studio.highlighted {
-    background-color: rgba(255, 255, 255, 0.4);
+ul.studios li .studio.highlighted {
+    border: 2px solid #b3721675;
 }
 
-/* Enlarges studio on over/activate */
-ul.studios li.studio:hover,
-ul.studios li.studio.highlighted {
-    transform: scale(1.015);
-    overflow: hidden; /* makes the block not overflow when enlarged */
+@media screen and (max-width: 39.9375em) {
+    ul.studios li .studio .pictures img {
+        width: 100%;
+    }
+
+    ul.studios li .studio .title {
+        margin-top: 0.5rem;
+    }
 }
 
-ul.studios li.studio .details {
+ul.studios li .studio .details {
     color: #777;
     font-size: 0.87em;
 }
 
-ul.studios li.studio .details span.location,
-ul.studios li.studio .details span.schedule {
+ul.studios li .studio .details span.location,
+ul.studios li .studio .details span.schedule {
     display: block;
 }
 
-ul.studios li.studio .details span.location .fi-marker,
-ul.studios li.studio .details span.schedule .fi-clock {
+ul.studios li .studio .details span.location .fi-marker,
+ul.studios li .studio .details span.schedule .fi-clock {
     display: inline-block;
     width: 13px;
 }
 
-ul.studios li.studio .details span.schedule .is-open {
+ul.studios li .studio .details span.schedule .is-open {
     font-weight: bold;
 }
 
-ul.studios li.studio .details span.schedule .is-closed {
+ul.studios li .studio .details span.schedule .is-closed {
     color: #999;
 }
 </style>

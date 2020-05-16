@@ -169,7 +169,7 @@ export default Vue.extend({
     z-index: 10;
     pointer-events: none;
 
-    box-shadow: inset 7px 0 9px -7px rgba(0, 0, 0, 0.2);
+    box-shadow: inset 7px 0 9px -7px rgba(0, 0, 0, 0.075);
 }
 
 /* Studio map marker */
@@ -207,7 +207,8 @@ export default Vue.extend({
     border-color: transparent transparent #2a1f0d transparent;
 }
 
-.studios-map .studio-marker:hover, .studios-map .studio-marker.highlighted {
+.studios-map .studio-marker:hover,
+.studios-map .studio-marker.highlighted {
     opacity: 1;
     z-index: 100;
 }

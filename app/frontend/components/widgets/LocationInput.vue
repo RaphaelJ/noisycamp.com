@@ -268,7 +268,7 @@ export default Vue.extend({
 
 .location-input .location-autocomplete li {
     border-bottom: 1px solid #b372161a;
-    padding: 5px 10px;
+    padding: .75rem 1rem;
 
     white-space: nowrap;
     overflow: hidden;

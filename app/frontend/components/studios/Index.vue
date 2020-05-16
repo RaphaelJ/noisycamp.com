@@ -18,7 +18,7 @@
 
 <template>
     <div class="grid-x index">
-        <div class="cell medium-12 large-5">
+        <div class="cell medium-12 large-6">
             <div class="grid-y grid-padding-x results">
                 <div class="cell shrink section">
                     <studios-index-filters
@@ -28,7 +28,7 @@
                     </studios-index-filters>
                 </div>
 
-                <div class="cell auto listing">
+                <div class="cell listing">
                     <studios-index-listing
                         ref="listing"
                         :studios="studios"
@@ -39,7 +39,10 @@
             </div>
         </div>
 
-        <div class="cell large-7 show-for-large map">
+        <div
+            class="cell large-6 show-for-large map"
+            ref="map-container">
+
             <studios-index-map
                 ref="map"
                 :studios="studios"
@@ -187,7 +190,8 @@ export default Vue.extend({
             this.location = location;
 
             if (this.location) {
-                this.$refs.map.setLocation(this.location);
+                this.$refs.map
+                .setLocation(this.location);
             }
 
             this.searchStudios(true);
@@ -214,11 +218,17 @@ export default Vue.extend({
         },
 
         onMapViewChange(bbox) {
-            // Overrides the filter's bbox on user map drag/zoom.
-            this.location['bbox'] = bbox;
+            let isMapDisplayed = window
+                .getComputedStyle(this.$refs['map-container'])
+                .display != "none";
 
-            this.searchStudios(false);
-            this.setUrlHashParams();
+            if (isMapDisplayed) {
+                // Overrides the filter's bbox on user map drag/zoom.
+                this.location['bbox'] = bbox;
+
+                this.searchStudios(false);
+                this.setUrlHashParams();
+            }
         },
     },
     components: { StudiosIndexFilters, StudiosIndexListing, StudiosIndexMap }
@@ -226,11 +236,15 @@ export default Vue.extend({
 </script>
 
 <style>
-.index .results, .index .map {
-    height: calc(100vh - var(--top-bar-height));
-}
+@media print, screen and (min-width: 64em) {
+    .index .results, .index .map {
+        height: calc(100vh - var(--top-bar-height));
+    }
 
-.index .listing {
-    overflow-y: scroll;
+    .index .listing {
+        /* Makes the listing scollable and expand as much as possible. */
+        overflow-y: scroll;
+        flex: 1 1 0px;
+    }
 }
 </style>
