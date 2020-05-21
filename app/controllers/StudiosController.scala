@@ -29,7 +29,7 @@ import daos.CustomColumnTypes
 import forms.studios.SearchForm
 import misc.GIS
 import misc.JsonWrites._
-import models.{ BBox, Studio, StudioWithPicture }
+import models.{ BBox, Studio, StudioWithPictureAndEquipments }
 
 @Singleton
 class StudiosController @Inject() (ccc: CustomControllerCompoments)
@@ -99,13 +99,25 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
                 headOption
               })
 
-          } yield studios zip picIds
+          // Fetches matching studios' equipment
+          equipments <- DBIO.sequence(
+            studios.map { studio =>
+              daos.studioEquipment.
+                withStudioEquipment(studio.id).
+                result
+              })
+
+          } yield studios zip picIds zip equipments
 
         }.transactionally).map { studios =>
 
-          val studiosWithPicture = studios.
-            map { case (studio, picId) => StudioWithPicture(studio, picId) }
-          Ok(Json.obj("results" -> Json.toJson(studiosWithPicture)))
+          val results = studios.
+            map { case ((studio, picId), equips) =>
+              val localEquips = equips.map(_.localEquipment(studio))
+              StudioWithPictureAndEquipments(studio, picId, localEquips)
+            }
+
+          Ok(Json.obj("results" -> Json.toJson(results)))
         }
       }
     )

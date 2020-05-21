@@ -17,30 +17,9 @@
 
 package models
 
-import squants.market.{ Currency, CurrencyExchangeRate, Money }
-
-import misc.EquipmentCategory
-
-/** A equipment associated with a studio. */
-case class Equipment(
-  id:             Equipment#Id = 0L,
-
-  category:       Option[EquipmentCategory.Val],
-  details:        Option[String],
-  pricePerHour:   Option[BigDecimal]) {
-
-  type Id = Long
-
-  def localEquipment(studio: Studio) = {
-    val currency = studio.location.address.country.currency
-    LocalEquipment(id, category, details, pricePerHour.map(currency(_)))
-  }
-}
-
-/** Same as `PricingPolicy` but with `Money` objects. */
-case class LocalEquipment(
-  id:             Equipment#Id = 0L,
-
-  category:       Option[EquipmentCategory.Val],
-  details:        Option[String],
-  pricePerHour:   Option[Money])
+/** Contains an instance of `Studio` with one associated picture and the
+ * associated equipments. */
+case class StudioWithPictureAndEquipments(
+  studio:     Studio,
+  picture:    Option[PictureId],
+  equipments: Seq[LocalEquipment])

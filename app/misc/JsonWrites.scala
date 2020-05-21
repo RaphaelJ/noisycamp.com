@@ -22,9 +22,10 @@ import squants.market.Money
 
 import models.{
   Address, BookingPolicy, BookingTimes, CancellationPolicy, Coordinates,
-  LocalPricingPolicy, LocalEveningPricingPolicy, LocalWeekendPricingPolicy,
-  Location, OpeningSchedule, OpeningTimes, PaymentPolicy, PictureId, Studio,
-  StudioWithPicture }
+  LocalEquipment,  LocalPricingPolicy, LocalEveningPricingPolicy,
+  LocalWeekendPricingPolicy, Location, OpeningSchedule, OpeningTimes,
+  PaymentPolicy, PictureId, Studio, StudioWithPicture,
+  StudioWithPictureAndEquipments }
 
 /** Provides JSON Writes implementation for model objects. */
 object JsonWrites {
@@ -78,6 +79,14 @@ object JsonWrites {
       "begins-at" -> policy.beginsAt,
       "price-per-hour" -> policy.pricePerHour
     )
+  }
+
+  implicit object LocalEquipmentWrites extends Writes[LocalEquipment] {
+    def writes(equip: LocalEquipment): JsValue = Json.obj(
+      "id"            -> equip.id,
+      "category"      -> equip.category.map(_.code),
+      "details"       -> equip.details,
+      "pricePerHour"  -> equip.pricePerHour)
   }
 
   implicit object LocalWeekendPricingPolicyWrites
@@ -158,7 +167,22 @@ object JsonWrites {
       val studioObj = Json.toJson(value.studio).asInstanceOf[JsObject]
       val studioPic = Json.toJson(value.picture)
 
-      studioObj + ("picture" -> studioPic)
+      studioObj ++ Json.obj("picture" -> studioPic)
+    }
+  }
+
+  implicit object StudioWithPictureAndEquipmentsWrites
+    extends Writes[StudioWithPictureAndEquipments] {
+
+    def writes(value: StudioWithPictureAndEquipments): JsValue = {
+      val studioObj = Json.toJson(value.studio).asInstanceOf[JsObject]
+      val studioPic = Json.toJson(value.picture)
+      val studioEquip = Json.toJson(value.equipments)
+
+      studioObj ++ Json.obj(
+        "picture"     -> studioPic,
+        "equipments"  -> studioEquip
+      )
     }
   }
 }

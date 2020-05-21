@@ -77,4 +77,12 @@ class StudioEquipmentDAO @Inject() (
         StudioEquipment(studioId = studioId, equipmentId = equip.id) }
     } yield studioEquips
   }
+
+  def withStudioEquipment(id: Studio#Id) /* : Query[Seq[Equipment]] */ = {
+    val studioEquips = query.
+      filter(_.studioId === id)
+
+    (studioEquips join equipmentDao.query on (_.equipmentId === _.id)).
+      map(_._2)
+  }
 }

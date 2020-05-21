@@ -21,8 +21,6 @@ import java.time.LocalTime
 
 import squants.market.{ Currency, CurrencyExchangeRate, Money }
 
-import i18n.ExchangeRates
-
 case class PricingPolicy(
   pricePerHour:         BigDecimal,
   evening:              Option[EveningPricingPolicy],
