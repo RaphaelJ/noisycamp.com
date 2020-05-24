@@ -20,7 +20,7 @@ import * as currency from 'currency.js';
 declare var NC_CONFIG: any;
 
 // Returns a new currency.js object from a JSON-described amount of money.
-export function asCurrency(value) {
+export function asCurrency(value): currency {
     let currInfo = NC_CONFIG.currencies[value['currency']];
 
     return currency(value['value'], {

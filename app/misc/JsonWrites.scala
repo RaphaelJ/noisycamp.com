@@ -76,17 +76,17 @@ object JsonWrites {
     extends Writes[LocalEveningPricingPolicy] {
 
     def writes(policy: LocalEveningPricingPolicy): JsValue = Json.obj(
-      "begins-at" -> policy.beginsAt,
-      "price-per-hour" -> policy.pricePerHour
+      "begins-at"       -> policy.beginsAt,
+      "price-per-hour"  -> policy.pricePerHour
     )
   }
 
   implicit object LocalEquipmentWrites extends Writes[LocalEquipment] {
     def writes(equip: LocalEquipment): JsValue = Json.obj(
-      "id"            -> equip.id,
-      "category"      -> equip.category.map(_.code),
-      "details"       -> equip.details,
-      "pricePerHour"  -> equip.pricePerHour)
+      "id"              -> equip.id,
+      "category"        -> equip.category.map(_.code),
+      "details"         -> equip.details,
+      "price-per-hour"  -> equip.pricePerHour)
   }
 
   implicit object LocalWeekendPricingPolicyWrites

@@ -37,56 +37,14 @@
                 :ref="'studio-' + index"
                 class="cell small-12">
 
-                <a
-                    :href="studioURL(studio)"
-                    target="_blank"
-                    class="studio panel-section"
-                    :class="{
-                        'highlighted': highlightedStudio == index,
-                    }"
+                <studios-index-listing-item
+                    :studio="studio"
+                    :booking-date="bookingDate"
+                    :highlighted="highlightedStudio == index"
+
                     @mouseover="$emit('studio-hover', index)"
                     @mouseout="$emit('studio-hover', null)">
-
-                    <div class="grid-x grid-padding-x">
-                        <div class="cell small-12 medium-4 pictures">
-                            <reactive-picture
-                                :alt="studio.name + ' picture'"
-                                :picture-id="studio.picture"
-                                :width="450"
-                                :height="300"
-                                classes="border-radius">
-                            </reactive-picture>
-                        </div>
-
-                        <div class="cell small-12 medium-8">
-                            <h5 class="title">
-                                {{ studio.name }}
-                            </h5>
-
-                            <div class="details">
-                                <span class="location">
-                                    <i class="fi-marker"></i>
-                                    {{ studioLocation(studio) }}
-                                </span>
-
-                                <span
-                                    class="schedule"
-                                    title="Opening schedule">
-                                    <i class="fi-clock"></i>
-
-                                    <span
-                                        v-for="(day, index) in studio['opening-schedule']"
-                                        :key="index"
-                                        :class="{ 'is-open': day['is-open'], 'is-closed': !day['is-open'] }">
-
-                                        {{ weekDays[index] }}
-                                        <span v-if="index < 6">-</span>
-                                    </span>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </a>
+                </studios-index-listing-item>
             </li>
         </ul>
     </div>
@@ -95,15 +53,16 @@
 <script lang="ts">
 import Vue, { PropOptions } from "vue";
 
-import ReactivePicture from '../widgets/ReactivePicture.vue';
-
 declare var NC_CONFIG: any;
-declare var NC_ROUTES: any;
+
+import StudiosIndexListingItem from './IndexListingItem.vue';
 
 export default Vue.extend({
     props: {
         studios: <PropOptions<Object[]>>{ type: Array, required: true },
-        searchIsProcessing: { type: Boolean, required: false, default: false }
+
+        bookingDate: { type: Object, required: false, default: null },
+        searchIsProcessing: { type: Boolean, required: false, default: false },
     },
     data() {
         return {
@@ -111,27 +70,7 @@ export default Vue.extend({
             highlightedStudio: null,
         }
     },
-    computed: {
-        weekDays() {
-            return ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-        },
-    },
     methods: {
-        studioURL(studio) {
-            return NC_ROUTES.controllers.StudiosController.show(studio.id).url;
-        },
-
-        studioLocation(studio) {
-            let city = studio.location.address.city;
-            let country = NC_CONFIG.countries[studio.location.address['country-code']].name;
-            return `${city}, ${country}`
-        },
-
-        renderCurrency(value) {
-            return new Intl.NumberFormat(
-                navigator.language, { style: 'currency', currency: 'EUR' }
-            ).format(value / 100);
-        },
 
         // Makes the given studio more visible. Reset studio highlighting if
         // studioIdx is `null`.
@@ -149,11 +88,11 @@ export default Vue.extend({
             }, 500);
         },
     },
-    components: { ReactivePicture },
+    components: { StudiosIndexListingItem },
 });
 </script>
 
-<style>
+<style scoped>
 .message {
     margin-top: 1.5rem;
 
@@ -165,49 +104,4 @@ ul.studios {
     margin-left: 0;
 }
 
-ul.studios li .studio {
-    display: block;
-    margin-top: 1rem;
-
-    border: 2px solid transparent;
-    transition: border 0.2s ease-out;
-}
-
-ul.studios li .studio.highlighted {
-    border: 2px solid #b3721675;
-}
-
-@media screen and (max-width: 39.9375em) {
-    ul.studios li .studio .pictures img {
-        width: 100%;
-    }
-
-    ul.studios li .studio .title {
-        margin-top: 0.5rem;
-    }
-}
-
-ul.studios li .studio .details {
-    color: #777;
-    font-size: 0.87em;
-}
-
-ul.studios li .studio .details span.location,
-ul.studios li .studio .details span.schedule {
-    display: block;
-}
-
-ul.studios li .studio .details span.location .fi-marker,
-ul.studios li .studio .details span.schedule .fi-clock {
-    display: inline-block;
-    width: 13px;
-}
-
-ul.studios li .studio .details span.schedule .is-open {
-    font-weight: bold;
-}
-
-ul.studios li .studio .details span.schedule .is-closed {
-    color: #999;
-}
 </style>

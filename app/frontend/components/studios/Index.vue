@@ -32,6 +32,7 @@
                     <studios-index-listing
                         ref="listing"
                         :studios="studios"
+                        :booking-date="availableOn"
                         :search-is-processing="searchIsProcessing"
                         @studio-hover="onListingStudioHover">
                     </studios-index-listing>
