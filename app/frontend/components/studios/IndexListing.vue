@@ -61,7 +61,7 @@ export default Vue.extend({
     props: {
         studios: <PropOptions<Object[]>>{ type: Array, required: true },
 
-        bookingDate: { type: Object, required: false, default: null },
+        bookingDate: { type: String, required: false, default: null },
         searchIsProcessing: { type: Boolean, required: false, default: false },
     },
     data() {

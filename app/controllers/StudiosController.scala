@@ -127,14 +127,22 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
     implicit request =>
 
     db.run {
-      daos.studioPicture.getStudioWithPictures(id)
+      for {
+        studio <- daos.studio.query.
+          filter(_.id === id).
+          result.headOption
+
+        equips <- daos.studioEquipment.withStudioEquipment(id).result
+        picIds <- daos.studioPicture.withStudioPictureIds(id).result
+      } yield (studio, equips, picIds)
     }.map {
-      case (Some(studio), picIds) => {
+      case (Some(studio), equips, picIds) => {
+
         Ok(views.html.studios.show(
           identity = request.identity,
-          studio, picIds))
+          studio, equips.map(_.localEquipment(studio)), picIds))
       }
-      case (None, _) => NotFound("Studio not found.")
+      case (None, _, _) => NotFound("Studio not found.")
     }
   }
 }

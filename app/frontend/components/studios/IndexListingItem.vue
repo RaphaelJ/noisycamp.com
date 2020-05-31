@@ -38,15 +38,12 @@
 
             <div class="cell small-12 medium-8">
                 <div class="grid-y info">
-                    <h5 class="cell shrink title">
+                    <h5 class="cell shrink text-sans-serif title">
                         {{ studio.name }}
                     </h5>
 
                     <div class="cell medium-auto details">
-                        <span class="location">
-                            <i class="fi-marker"></i>
-                            {{ location }}
-                        </span>
+                        <span class="location">{{ location }}</span>
 
                         <span
                             class="schedule"
@@ -84,7 +81,7 @@
                         </span>
                     </div>
 
-                    <h5 class="cell shrink pricing">
+                    <h5 class="cell shrink pricing text-sans-serif">
                         <small v-if="hasMoreExpensivePricing">Starting at </small>
                         <money-amount :value="pricing">
                         </money-amount>
@@ -113,7 +110,7 @@ export default Vue.extend({
     props: {
         studio: { type: Object, required: true },
 
-        bookingDate: { type: Object, required: false, default: null },
+        bookingDate: { type: String, required: false, default: null },
 
         highlighted: { type: Boolean, required: false, default: false },
     },
@@ -210,9 +207,18 @@ export default Vue.extend({
     border: 2px solid #b3721675;
 }
 
+.studio .title {
+    font-weight: 700;
+}
+
 .studio .details {
     color: #777;
     font-size: 0.87em;
+}
+
+.studio .details span.location {
+    margin-top: -0.5rem;
+    margin-bottom: 0.75rem;
 }
 
 .studio .details span.location,
@@ -242,6 +248,7 @@ export default Vue.extend({
 
     .studio .info {
         height: 100%;
+        min-height: 135px;
     }
 
     .studio .pricing {

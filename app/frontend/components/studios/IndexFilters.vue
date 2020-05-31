@@ -66,8 +66,8 @@ export default Vue.extend({
     },
     data() {
         return {
-            location: this.value.location,
-            availableOn: this.value.availableOn,
+            location: this.value['location'],
+            availableOn: this.value['available-on'],
         };
     },
     computed: {
@@ -78,8 +78,8 @@ export default Vue.extend({
     methods: {
         emitValueChanged() {
             this.$emit('input', {
-                location: this.location,
-                availableOn: this.availableOn,
+                'location': this.location,
+                'available-on': this.availableOn,
             });
         }
     },

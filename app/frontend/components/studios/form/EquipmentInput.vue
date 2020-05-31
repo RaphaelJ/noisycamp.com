@@ -28,7 +28,7 @@
             <ul
                 class="equipment-list grid-x grid-margin-x grid-margin-y grid-padding-x grid-padding-y">
                 <li
-                    class="equipment cell small-12 medium-6 large-4"
+                    class="cell small-12 medium-6 large-4 equipment"
                     v-for="(equipment, index) in equipments">
 
                     <input
@@ -69,7 +69,9 @@
                         <div class="cell small-9 medium-8">
                             <div class="grid-x">
                                 <div class="cell small-12 equipment-name">
-                                    <h6 :title="equipmentCategoryName(equipment)">
+                                    <h6
+                                        class="text-sans-serif"
+                                        :title="equipmentCategoryName(equipment)">
                                         {{ equipmentCategoryName(equipment) }}
                                     </h6>
                                 </div>
@@ -273,31 +275,7 @@ export default Vue.extend({
 </script>
 
 <style>
-.equipment-list {
-    list-style: none;
-}
-
-.equipment-list li {
-    position: relative;
-    display: inline-block;
-
-    border: 1px solid rgba(0,0,0,0.1);
-    border-radius: 3px;
-}
-
-.equipment-list li .equipment-name h6 {
-    margin-bottom: 0;
-
-}
-
-.equipment-list li .equipment-name,
-.equipment-list li .equipment-details {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.equipment-list li .equipment-remove {
+.equipment-list .equipment .equipment-remove {
     position: absolute;
     top: 0rem;
     right: 0.35rem;
@@ -305,11 +283,7 @@ export default Vue.extend({
     opacity: 0.5;
 }
 
-.equipment-list li .equipment-remove:hover {
+.equipment-list .equipment .equipment-remove:hover {
     opacity: 1;
-}
-
-.equipment-list li .equipment-icon {
-    width: 100%;
 }
 </style>
