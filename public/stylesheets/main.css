@@ -18,31 +18,33 @@
 /* General */
 
 body {
-    font-family: 'Source Sans Pro', sans-serif;
     background-color: #f5f3f2;
     color: #262626;
 }
 
-h1 {
-    margin-top: 0.5rem;
+body, .text-sans-serif {
+    font-family: 'Source Sans Pro', sans-serif;
 }
 
 h1, h2, h3, h4, h5, h6, .text-serif {
     font-family: 'Playfair Display', serif;
 }
 
-.h1 small, .h2 small, .h3 small, .h4 small, .h5 small, .h6 small,
-h1 small, h2 small, h3 small, h4 small, h5 small, h6 small {
-    color: #777;
+h1 {
+    margin-top: 0.5rem;
 }
 
-/* Overrides link color in headers. */
-
+h1, h2, h3, h4, h5, h6,
 a h1, a h2, a h3, a h4, a h5, a h6,
 a:hover h1, a:hover h2, a:hover h3, a:hover h4, a:hover h5, a:hover h6,
 h1 a, h2 a, h3 a, h4 a, h5 a, h6 a,
 h1 a:hover, h2 a:hover, h3 a:hover, h4 a:hover, h5 a:hover, h6 a:hover {
-    color: #0a0a0a;
+    color: #202020;
+}
+
+.h1 small, .h2 small, .h3 small, .h4 small, .h5 small, .h6 small,
+h1 small, h2 small, h3 small, h4 small, h5 small, h6 small {
+    color: #777;
 }
 
 /* Overrides Foundation title sizes on large screens. */
@@ -427,6 +429,35 @@ form label .error {
 
 .hero .panel-section {
     box-shadow: 0 0 6px rgba(0, 0, 0, 0.25);
+}
+
+/* Equipment/Instrument list */
+
+.equipment-list {
+    list-style: none;
+}
+
+.equipment-list .equipment {
+    position: relative;
+    display: inline-block;
+
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+}
+
+.equipment-list .equipment .equipment-name h6 {
+    margin-bottom: 0;
+}
+
+.equipment-list .equipment .equipment-name,
+.equipment-list .equipment .equipment-details {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.equipment-list .equipment .equipment-icon {
+    width: 100%;
 }
 
 /* Footer */

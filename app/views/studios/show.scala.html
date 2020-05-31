@@ -21,12 +21,13 @@
 @import play.api.libs.json.Json
 @import play.api.mvc.RequestHeader
 
-@import models.Picture
+@import models.{ LocalEquipment, Picture }
 @import misc.JsonWrites._
 
 @(
     identity: Option[models.Identity],
     studio: models.Studio,
+    equipments: Seq[LocalEquipment],
     pictures: Seq[models.Picture#Id])(
     implicit req: RequestHeader, config: Configuration)
 
@@ -136,6 +137,19 @@
                     <p>@tags.nl2br(studio.description.trim)</p>
 
                     <hr>
+
+                    @if(equipments.length > 0) {
+
+                        <h3>Equipment &amp; instruments</h3>
+
+                        <div class="equipment-list grid-x grid-margin-x grid-margin-y grid-padding-x grid-padding-y">
+                            @for(equip <- equipments) {
+                                @tags.equipment(equip)
+                            }
+                        </div>
+
+                        <hr>
+                    }
 
                     <h3>Opening schedule</h3>
 
