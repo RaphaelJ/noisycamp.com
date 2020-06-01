@@ -225,6 +225,10 @@ export default Vue.extend({
 .studio .details span.schedule,
 .studio .details span.equipments {
     display: block;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .studio .details span.location .fi-marker,
