@@ -27,7 +27,7 @@ case AddressFormat.American => {
     @for(address2 <- address.address2) {
         @address2<br>
     }
-    @address.city, @address.stateCode.get @address.zipcode<br>
+    @address.city, @address.stateCode.get @address.zipcode.get<br>
     @address.country.name
 }
 case AddressFormat.British => {
@@ -36,7 +36,7 @@ case AddressFormat.British => {
         @address2<br>
     }
     @address.city<br>
-    @address.zipcode<br>
+    @address.zipcode.get<br>
     @address.country.name
 }
 case AddressFormat.English => {
@@ -44,7 +44,7 @@ case AddressFormat.English => {
     @for(address2 <- address.address2) {
         @address2<br>
     }
-    @address.city @for(stateCode <- address.stateCode) { stateCode } @address.zipcode<br>
+    @address.city @for(stateCode <- address.stateCode) { stateCode } @address.zipcode.get<br>
     @address.country.name
 }
 case AddressFormat.European => {
@@ -52,7 +52,15 @@ case AddressFormat.European => {
     @for(address2 <- address.address2) {
         @address2<br>
     }
-    @address.zipcode @address.city<br>
+    @address.zipcode.get @address.city<br>
+    @address.country.name
+}
+case AddressFormat.HongKong => {
+    @address.address1<br>
+    @for(address2 <- address.address2) {
+        @address2<br>
+    }
+    @address.city<br>
     @address.country.name
 }
 case AddressFormat.Hungarian => {
@@ -61,7 +69,7 @@ case AddressFormat.Hungarian => {
     @for(address2 <- address.address2) {
         @address2<br>
     }
-    @address.zipcode<br>
+    @address.zipcode.get<br>
     @address.country.name
 }
 }

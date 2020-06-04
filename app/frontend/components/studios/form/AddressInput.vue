@@ -104,8 +104,8 @@
                             type="text"
                             :name="fieldName('zipcode')"
                             v-model="address.zipcode"
-                            :disabled="!address.country"
-                            required>
+                            :disabled="!address.country || !hasZipCode"
+                            :required="hasZipCode">
 
                         <span v-if="fieldHasError('zipcode')" class="error">
                             {{ fieldError('zipcode') }}
@@ -194,6 +194,10 @@ export default Vue.extend({
 
         hasStates() {
             return this.countryValue && NC_CONFIG.countries[this.countryValue].states;
+        },
+
+        hasZipCode() {
+            return this.countryValue && NC_CONFIG.countries[this.countryValue].hasZipCode;
         },
 
         // Returns the list of states/provinces of the currently selected

@@ -48,7 +48,7 @@ class StudioDAO @Inject()
 
     def address1            = column[String]("address1")
     def address2            = column[Option[String]]("address2")
-    def zipcode             = column[String]("zipcode")
+    def zipcode             = column[Option[String]]("zipcode")
     def city                = column[String]("city")
     def stateCode           = column[Option[String]]("state_code")
     def country             = column[Country.Val]("country_code")
@@ -127,7 +127,8 @@ class StudioDAO @Inject()
       BookingPolicyTuple, PaymentPolicyTuple)
 
     private type AddressTuple = (
-      String, Option[String], String, String, Option[String], Country.Val)
+      String, Option[String], Option[String], String, Option[String],
+      Country.Val)
 
     private type CoordinatesTuple = (BigDecimal, BigDecimal)
 

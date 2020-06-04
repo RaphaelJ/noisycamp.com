@@ -22,7 +22,7 @@ import i18n.Country
 case class Address(
   address1:   String,
   address2:   Option[String],
-  zipcode:    String,
+  zipcode:    Option[String],
   city:       String,
   stateCode:  Option[String],
   country:    Country.Val)

@@ -69,7 +69,7 @@ create table "studio" (
     -- Address
     address1                varchar not null,
     address2                varchar,
-    zipcode                 varchar not null,
+    zipcode                 varchar,
     city                    varchar not null,
     state_code              varchar,
     country_code            char(2),

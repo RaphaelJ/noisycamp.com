@@ -69,7 +69,7 @@ object JsConfig {
               JsNull
             }
           },
-          "accountType" -> country.accountType.name
+          "hasZipCode" -> country.hasZipCode
         )
       ),
 

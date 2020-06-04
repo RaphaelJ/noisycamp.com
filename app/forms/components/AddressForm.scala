@@ -29,7 +29,7 @@ object AddressForm {
     mapping(
       "address-1" -> nonEmptyText,
       "address-2" -> CustomFields.optionalText,
-      "zipcode" -> nonEmptyText,
+      "zipcode" -> optional(nonEmptyText),
       "city" -> nonEmptyText,
       "state" -> optional(nonEmptyText),
       "country" -> CustomFields.country,
@@ -41,7 +41,9 @@ object AddressForm {
           case (states, None) if states.isEmpty => true
           case _ => false
         }
-      }
-    })
+      } }).
+      verifying("Invalid zipcode.", { address => {
+        address.country.hasZipCode == address.zipcode.isDefined
+      } })
   )
 }

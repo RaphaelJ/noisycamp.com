@@ -28,5 +28,8 @@ object AddressFormat extends Enumeration {
 
   val European = Value
 
+  /** Does not have zip code. */
+  val HongKong = Value
+
   val Hungarian = Value
 }

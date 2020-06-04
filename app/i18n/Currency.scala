@@ -31,6 +31,7 @@ object Currency {
   object ISK extends market.Currency("ISK", "Icelandic króna", "kr", 0)
   object PLN extends market.Currency("PLN", "Polish złoty", "zł", 2)
   object RON extends market.Currency("RON", "Romanian leu", "L", 2)
+  object SGD extends market.Currency("SGD", "Singapore dollar", "$", 2)
 
   // Export aliases to existing Squants currencies
   def AUD = market.AUD
@@ -40,6 +41,7 @@ object Currency {
   def DKK = market.DKK
   def EUR = market.EUR
   def GBP = market.GBP
+  def HKD = market.HKD
   def NOK = market.NOK
   def NZD = market.NZD
   def SEK = market.SEK
@@ -53,7 +55,7 @@ object Currency {
     NOK, CHF, ISK,
 
     // Other
-    AUD, CAD, NZD, USD)
+    AUD, CAD, HKD, NZD, SGD, USD)
 
   def byCode: Map[String, market.Currency] = {
     currencies.map(c => c.code -> c).toMap
