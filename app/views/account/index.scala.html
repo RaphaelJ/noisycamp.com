@@ -19,7 +19,7 @@
 
 @(identity: models.Identity)(implicit req: RequestHeader, config: Configuration)
 
-@accountLayout(
+@layout(
     Seq("My account", identity.user.fullName.getOrElse(identity.user.email)),
     identity=identity) {
 

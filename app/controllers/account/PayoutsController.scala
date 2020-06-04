@@ -15,28 +15,26 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package models
+package controllers.account
 
-import java.time.Instant
+import java.time.LocalDate
+import javax.inject._
 
-/** Stores the information about an user. */
-case class User(
-  id: User#Id = 0L,
-  createdAt: Instant = Instant.now(),
-  firstName: Option[String],
-  lastName: Option[String],
-  email: String,
-  avatarId: Option[Long]) {
+import play.api._
+import play.api.mvc._
+import squants.market.Money
 
-  type Id = Long
+import _root_.i18n.Currency
+import _root_.controllers.{ CustomBaseController, CustomControllerCompoments }
 
-  def fullName: Option[String] = (firstName, lastName) match {
-    case (Some(fn), Some(ln)) => Some(fn + ' ' + ln)
-    case _ => None
+@Singleton
+class PayoutsController @Inject() (ccc: CustomControllerCompoments)
+  extends CustomBaseController(ccc) {
+
+  def index = silhouette.SecuredAction { implicit request =>
+    Ok(views.html.account.payouts(
+      identity=request.identity,
+      currentBalance=Currency.EUR(1230.12),
+      nextPayout=LocalDate.now()))
   }
-
-  /** Returns the full-name if availaible, or else the email. */
-  def displayName: String = fullName.getOrElse(email)
-
-  def stripeConnectAccount: Option[String] = None // Some("test")
 }

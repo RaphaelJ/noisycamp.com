@@ -25,7 +25,7 @@
     rightPaneContent: Html)(
     implicit req: RequestHeader, config: Configuration)
 
-@layout(title, head=head, identity=Some(identity)) {
+@_root_.views.html.layout(title, head=head, identity=Some(identity)) {
     <div class="grid-container">
         <div class="grid-x grid-padding-x grid-padding-y">
             <div class="cell">
@@ -41,9 +41,21 @@
                         <h6 class="text-center"><small>@identity.user.email</small></h6>
                     }
 
-                    <div class="text-right">
-                        <a href="#">Edit your profile</a>
-                    </div>
+                    <hr>
+
+                    <ul class="vertical menu">
+                        <li>
+                            <a href="@controllers.account.routes.StudiosController.index">
+                                Manage my studios
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="@controllers.account.routes.PayoutsController.index">
+                                Payout preferences
+                            </a>
+                        </li>
+                    </ul>
                 </div>
             </div>
 
