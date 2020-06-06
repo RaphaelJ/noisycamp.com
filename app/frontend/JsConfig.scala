@@ -38,7 +38,7 @@ object JsConfig {
       "currentUri" -> request.uri,
 
       "mapboxToken" -> config.get[String]("mapbox.token"),
-      "stripePublicKey" -> config.get[String]("stripe.public_key"),
+      "stripePublicKey" -> config.get[String]("stripe.publicKey"),
 
       // Currencies
 

@@ -35,6 +35,7 @@ GET     /account/studios/create         controllers.account.StudiosController.cr
 POST    /account/studios/create         controllers.account.StudiosController.createSubmit
 
 GET     /account/payouts                controllers.account.PayoutsController.index
+GET     /account/payouts/stripe-oauth   controllers.account.PayoutsController.stripeOAuthRedirect(state: String, code: String)
 
 # Studios
 

@@ -23,7 +23,8 @@
 @(
     identity: models.Identity,
     currentBalance: Money,
-    nextPayout: LocalDate)(
+    nextPayout: LocalDate,
+    stripeOAuthUrl: String)(
     implicit req: RequestHeader, config: Configuration)
 
 @connectStripeAccount = {
@@ -44,7 +45,7 @@
         </div>
 
         <div class="cell small-12 text-center">
-            <a href="" class="button large primary">
+            <a href="@stripeOAuthUrl" class="button large primary">
                 Continue on Stripe
             </a>
         </div>

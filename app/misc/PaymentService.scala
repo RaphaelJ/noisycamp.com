@@ -25,10 +25,12 @@ import scala.math.BigDecimal.RoundingMode
 import com.stripe.Stripe
 import com.stripe.exception.StripeException
 import com.stripe.model.checkout.Session
+import com.stripe.model.oauth.TokenResponse
 import com.stripe.model.PaymentIntent
-import com.stripe.net.RequestOptions
+import com.stripe.net.{ OAuth, RequestOptions }
 import play.api.Configuration
 import play.api.mvc.{ Call, RequestHeader }
+import play.filters.csrf.CSRF
 import squants.market.Money
 
 import i18n.Currency
@@ -45,7 +47,7 @@ class PaymentService @Inject() (
   implicit val executionContext: TaskExecutionContext) {
 
   def secretKey(implicit config: Configuration): String =
-    config.get[String]("stripe.secret_key")
+    config.get[String]("stripe.secretKey")
 
   def requestOptions(implicit config: Configuration): RequestOptions = {
     RequestOptions.builder().
@@ -70,8 +72,6 @@ class PaymentService @Inject() (
       map { id => controllers.routes.PictureController.cover(id, "500x500") }.
       map(_.absoluteURL).
       asJava
-
-    println(picUrls)
 
     val items: java.util.List[java.util.Map[String, AnyRef]] = Seq(
       Map(
@@ -102,8 +102,6 @@ class PaymentService @Inject() (
       }.asInstanceOf[Object],
       "description" -> description,
       "statement_descriptor" -> statement).asJava
-
-    println(onSuccess.absoluteURL)
 
     val params: java.util.Map[String, Object] = Map(
       "client_reference_id" -> customer.id.toString,
@@ -146,6 +144,40 @@ class PaymentService @Inject() (
     Future[PaymentIntent] = {
 
     Future { intent.cancel(requestOptions) }
+  }
+
+  /** Returns the URL to the Stripe Express onboarding for the provided user.
+   */
+  def connectOAuthUrl(user: User, redirectUrl: String)(
+    implicit request: RequestHeader, config: Configuration): String = {
+
+    val clientID = config.get[String]("stripe.clientID")
+    val csrfToken = CSRF.getToken.get
+
+    "https://connect.stripe.com/express/oauth/authorize" +
+      "?redirect_uri=" + redirectUrl +
+      "&client_id=" + clientID +
+      "&state=" + csrfToken.value +
+      "&stripe_user[email]=" + user.email +
+      user.firstName.map("&stripe_user[first_name]=" + _).getOrElse("") +
+      user.lastName.map("&stripe_user[last_name]=" + _).getOrElse("")
+  }
+
+  /** Completes the Stripe Connect OAuth process.
+   *
+   * @param code is the received Stripe OAuth code.
+   *
+   * @return the Stripe Connect response containing the account ID.
+   */
+  def connectOAuthComplete(code: String)(implicit config: Configuration):
+    Future[TokenResponse] = {
+
+    val params: java.util.Map[String, Object] = Map(
+      "grant_type" -> "authorization_code",
+      "code" -> code,
+      "assert_capabilities" -> Seq("transfers").asJava).asJava
+
+    Future { OAuth.token(params, requestOptions) }
   }
 }
 

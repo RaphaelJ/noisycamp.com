@@ -88,7 +88,7 @@ hr {
 }
 
 main {
-    min-height: calc(100vh - var(--top-bar-height) - 61px);
+    min-height: calc(100vh - var(--top-bar-height));
 }
 
 /* Buttons */
