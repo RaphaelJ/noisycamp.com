@@ -33,7 +33,9 @@ create table "user" (
     first_name              varchar,
     last_name               varchar,
     email                   varchar not null,
-    avatar_id               integer
+    avatar_id               integer,
+
+    stripe_user_id          varchar
 );
 
 -- Multiple login providers could be associated with a single user.

@@ -26,7 +26,9 @@ case class User(
   firstName: Option[String],
   lastName: Option[String],
   email: String,
-  avatarId: Option[Long]) {
+  avatarId: Option[Long],
+
+  stripeUserId: Option[String] = None) {
 
   type Id = Long
 
@@ -37,6 +39,4 @@ case class User(
 
   /** Returns the full-name if availaible, or else the email. */
   def displayName: String = fullName.getOrElse(email)
-
-  def stripeConnectAccount: Option[String] = None // Some("test")
 }

@@ -1,5 +1,5 @@
 /* Noisycamp is a platform for booking music studios.
- * Copyright (C) 2019  Raphael Javaux <raphaeljavaux@gmail.com>
+ * Copyright (C) 2020  Raphael Javaux <raphaeljavaux@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,7 +43,17 @@ class PayoutsController @Inject() (
   sessionConfig: SessionConfiguration)
   extends CustomBaseController(ccc) {
 
+  import profile.api._
+
   def index = silhouette.SecuredAction { implicit request =>
+    var redirectUrl = routes.PayoutsController.stripeOAuthRedirect("", "").
+      absoluteURL.
+      // Removes the query string from the URL
+      takeWhile(_ != '?')
+
+    val stripeOAuthUrl =
+      paymentService.connectOAuthUrl(request.identity.user, redirectUrl)
+
     Ok(views.html.account.payouts(
       identity=request.identity,
       currentBalance=Currency.EUR(1230.12),
@@ -57,7 +67,6 @@ class PayoutsController @Inject() (
 
     // The `state` parameter is the CSRF token. Validates the state based on
     // Play's internal token.
-
     val tokenProvider =
       new CSRF.TokenProviderProvider(csrfConfig, csrfTokenSigner).get
     val refToken =
@@ -66,24 +75,41 @@ class PayoutsController @Inject() (
         get
     val isTokenValid = tokenProvider.compareTokens(refToken, state)
 
-    if (isTokenValid) {
-      paymentService.
-        connectOAuthComplete(code).
-        map { res => Ok(res.getStripeUserId()) }
-    } else {
+    val user = request.identity.user
+
+    if (!isTokenValid) {
       Future.successful(BadRequest("Invalid `state` parameter."))
+    } else {
+      // Sets the Stripe User ID from the returned value from the Stripe API.
+      paymentService.
+        // Retreives the account ID from the API.
+        connectOAuthComplete(code).
+        map { _.getStripeUserId }.
+        // Saves the account ID in the database.
+        flatMap { stripeUserId =>
+          db.run {
+            daos.user.query.
+              filter(_.id === user.id).
+              map(_.stripeUserId).
+              update(Some(stripeUserId))
+          }
+        }.
+        map { _ => Redirect(routes.PayoutsController.index) }
     }
   }
 
+  /** Redirects the user to the Stripe Express dashboard. */
+  def stripeDashboard = silhouette.SecuredAction.async { implicit request =>
 
-  def stripeOAuthUrl(implicit request: SecuredRequest[DefaultEnv, AnyContent]) :
-    String = {
+    val user = request.identity.user
 
-    var redirectUrl = routes.PayoutsController.stripeOAuthRedirect("", "").
-      absoluteURL.
-      // Removes the query string from the URL
-      takeWhile(_ != '?')
-
-    paymentService.connectOAuthUrl(request.identity.user, redirectUrl)
+    user.stripeUserId match {
+      case None => Future { BadRequest("No Stripe account connected.") }
+      case Some(stripeUserId) => {
+        paymentService.
+          connectDashboardUrl(stripeUserId).
+          map { TemporaryRedirect _ }
+      }
+    }
   }
 }

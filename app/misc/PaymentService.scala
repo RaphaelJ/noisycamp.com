@@ -26,7 +26,7 @@ import com.stripe.Stripe
 import com.stripe.exception.StripeException
 import com.stripe.model.checkout.Session
 import com.stripe.model.oauth.TokenResponse
-import com.stripe.model.PaymentIntent
+import com.stripe.model.{ LoginLink, PaymentIntent }
 import com.stripe.net.{ OAuth, RequestOptions }
 import play.api.Configuration
 import play.api.mvc.{ Call, RequestHeader }
@@ -178,6 +178,17 @@ class PaymentService @Inject() (
       "assert_capabilities" -> Seq("transfers").asJava).asJava
 
     Future { OAuth.token(params, requestOptions) }
+  }
+
+  /** Returns the URL to the Stripe Express dashboard associated witht the
+   * account. */
+  def connectDashboardUrl(stripeUserId: String)(implicit config: Configuration):
+    Future[String] = {
+
+    val params: java.util.Map[String, Object] = Map.empty.asJava
+
+    Future { LoginLink.createOnAccount(stripeUserId, params, requestOptions) }.
+      map { _.getUrl }
   }
 }
 
