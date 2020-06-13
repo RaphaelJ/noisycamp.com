@@ -20,11 +20,14 @@
 @import play.api.Configuration
 @import squants.market.Money
 
+@import models.Payout
+
 @(
     identity: models.Identity,
     currentBalance: Money,
     nextPayout: LocalDate,
-    stripeOAuthUrl: String)(
+    stripeOAuthUrl: String,
+    payouts: Seq[Payout])(
     implicit req: RequestHeader, config: Configuration)
 
 @connectStripeAccount = {
@@ -100,38 +103,30 @@
                         <div class="grid-x grid-padding-y">
                             <h4 class="cell small-12">Payout history</h4>
 
-                            <table class="cell small-12">
-                                <thead>
-                                    <tr>
-                                        <th width="200">Date</th>
-                                        <th>Amount</th>
-                                        <th width="200"></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>@tags.localDate(nextPayout)</td>
-                                        <td>@tags.moneyAmount(currentBalance)</td>
-                                        <td>
-                                            <a href="#">Details</a>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>@tags.localDate(nextPayout)</td>
-                                        <td>@tags.moneyAmount(currentBalance)</td>
-                                        <td>
-                                            <a href="#">Details</a>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>@tags.localDate(nextPayout)</td>
-                                        <td>@tags.moneyAmount(currentBalance)</td>
-                                        <td>
-                                            <a href="#">Details</a>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                            @if(payouts.isEmpty) {
+                                <p class="cell small-12 text-center">
+                                    Payouts to your bank account will appear here.
+                                </p>
+                            } else {
+                                <table class="cell small-12">
+                                    <thead>
+                                        <tr>
+                                            <th width="700">Date</th>
+                                            <th>Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @for(payout <- payouts) {
+                                            <tr>
+                                                <td>
+                                                    @tags.localDate(payout.date)
+                                                </td>
+                                                <td>@tags.moneyAmount(payout.amount)</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            }
                         </div>
                     </div>
                 </div>

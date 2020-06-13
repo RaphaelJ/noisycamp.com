@@ -1,5 +1,5 @@
 /* Noisycamp is a platform for booking music studios.
- * Copyright (C) 2019  Raphael Javaux <raphaeljavaux@gmail.com>
+ * Copyright (C) 2020  Raphael Javaux <raphaeljavaux@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,20 +15,25 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package daos
+package models
 
-import javax.inject._
+import java.time.{ Instant, LocalDate, ZoneId }
 
-/** The default DAOs provided to the controllers. */
-class DAOs @Inject () (
-  val user: UserDAO,
-  val userLoginInfo: UserLoginInfoDAO,
+import squants.market.Money
 
-  val studio: StudioDAO,
-  val studioPicture: StudioPictureDAO,
-  val studioEquipment: StudioEquipmentDAO,
-  val studioBooking: StudioBookingDAO,
+/** Stores the information about an user. */
+case class Payout(
+  id: Payout#Id = 0L,
+  createdAt: Instant = Instant.now(),
 
-  val payout: PayoutDAO,
+  customerId: User#Id,
 
-  val picture: PictureDAO)
+  stripePayoutId: String,
+
+  amount: Money) {
+
+  type Id = Long
+
+  /** Returns the UTC date of the payout. */
+  def date: LocalDate = LocalDate.ofInstant(createdAt, ZoneId.of("UTC"))
+}

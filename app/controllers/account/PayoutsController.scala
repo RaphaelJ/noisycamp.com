@@ -45,20 +45,29 @@ class PayoutsController @Inject() (
 
   import profile.api._
 
-  def index = silhouette.SecuredAction { implicit request =>
+  def index = silhouette.SecuredAction.async { implicit request =>
+
+    val user = request.identity.user
+
     var redirectUrl = routes.PayoutsController.stripeOAuthRedirect("", "").
       absoluteURL.
       // Removes the query string from the URL
       takeWhile(_ != '?')
 
-    val stripeOAuthUrl =
-      paymentService.connectOAuthUrl(request.identity.user, redirectUrl)
+    val stripeOAuthUrl = paymentService.connectOAuthUrl(user, redirectUrl)
 
-    Ok(views.html.account.payouts(
-      identity=request.identity,
-      currentBalance=Currency.EUR(1230.12),
-      nextPayout=LocalDate.now(),
-      stripeOAuthUrl=stripeOAuthUrl))
+    db.run {
+      daos.payout.query.
+        filter(_.customerId === user.id).
+        result
+    }.map { payouts =>
+      Ok(views.html.account.payouts(
+        identity=request.identity,
+        currentBalance=Currency.EUR(1230.12),
+        nextPayout=LocalDate.now(),
+        stripeOAuthUrl=stripeOAuthUrl,
+        payouts=payouts))
+    }
   }
 
   /** Processes the Stripe Connect OAuth response.  */

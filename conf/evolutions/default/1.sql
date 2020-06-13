@@ -246,7 +246,25 @@ create table "studio_booking" (
     check (stripe_payment_intent_id is not null = (payment_method = 'online'))
 );
 
+-- Payouts
+
+create table "payout" (
+    id                          serial primary key,
+    created_at                  timestamp not null,
+
+    customer_id                 integer not null references "user"(id),
+
+    stripe_payout_id            varchar unique not null,
+
+    currency_code               char(3) not null,
+    amount                      amount not null
+);
+
+create index "idx_payout_customer_id" on "payout" ("customer_id");
+
 # --- !Downs
+
+drop table "payout";
 
 drop table "studio_booking";
 
