@@ -28,11 +28,13 @@ import play.api.mvc._
 import play.api.http.SessionConfiguration
 import play.api.libs.crypto.CSRFTokenSigner
 import play.filters.csrf.{ CSRF, CSRFActionHelper, CSRFConfig }
+import slick.ast.TypedType
 import squants.market.Money
+import squants.market
 
 import auth.DefaultEnv
-import _root_.i18n.Currency
 import _root_.controllers.{ CustomBaseController, CustomControllerCompoments }
+import daos.CustomColumnTypes
 
 @Singleton
 class PayoutsController @Inject() (
@@ -41,7 +43,8 @@ class PayoutsController @Inject() (
   csrfConfig: CSRFConfig,
   csrfTokenSigner: CSRFTokenSigner,
   sessionConfig: SessionConfiguration)
-  extends CustomBaseController(ccc) {
+  extends CustomBaseController(ccc)
+  with CustomColumnTypes {
 
   import profile.api._
 
@@ -51,23 +54,59 @@ class PayoutsController @Inject() (
 
     var redirectUrl = routes.PayoutsController.stripeOAuthRedirect("", "").
       absoluteURL.
-      // Removes the query string from the URL
+      // Removes the query string from the URL, as these will be added by
+      // Stripe.
       takeWhile(_ != '?')
 
     val stripeOAuthUrl = paymentService.connectOAuthUrl(user, redirectUrl)
 
-    db.run {
-      daos.payout.query.
+    db.run((for {
+      // Sums the total received bookings per currency, minus the payouts
+      // already received in these currencies.
+      balances <- {
+        def orZero(nullable: Rep[Option[BigDecimal]]) = {
+          val coalesce = SimpleFunction.binary[
+            Option[BigDecimal], BigDecimal, BigDecimal]("coalesce")
+
+          coalesce(nullable, BigDecimal(0))
+        }
+
+        daos.studioBooking.query.
+          join(daos.studio.query).on(_.studioId === _.id).
+          filter { case (_, studio) => studio.ownerId === user.id }.
+          groupBy { case (booking, _) => booking.currency }.
+          map { case (currency, group) =>
+            val bookingTotal = group.
+              map { case (booking, _) => booking.total }.
+              sum
+
+            (orZero(bookingTotal), currency)
+          }.
+          map { case (total, currency) =>
+            val payoutTotal = daos.payout.query.
+              filter(_.customerId === user.id).
+              filter(_.currency === currency).
+              map { payout => payout.amount }.
+              sum
+
+            (total - orZero(payoutTotal), currency)
+          }.
+          result
+        }
+
+      payouts <- daos.payout.query.
         filter(_.customerId === user.id).
         result
-    }.map { payouts =>
-      Ok(views.html.account.payouts(
-        identity=request.identity,
-        currentBalance=Currency.EUR(1230.12),
-        nextPayout=LocalDate.now(),
-        stripeOAuthUrl=stripeOAuthUrl,
-        payouts=payouts))
-    }
+    } yield (balances, payouts)).transactionally).
+      map { case (balances, payouts) =>
+
+        Ok(views.html.account.payouts(
+          identity=request.identity,
+          balances=balances.map { case (total, currency) => currency(total) },
+          nextPayout=LocalDate.now(),
+          stripeOAuthUrl=stripeOAuthUrl,
+          payouts=payouts))
+      }
   }
 
   /** Processes the Stripe Connect OAuth response.  */

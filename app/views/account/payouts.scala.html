@@ -24,7 +24,7 @@
 
 @(
     identity: models.Identity,
-    currentBalance: Money,
+    balances: Seq[Money],
     nextPayout: LocalDate,
     stripeOAuthUrl: String,
     payouts: Seq[Payout])(
@@ -73,7 +73,13 @@
                     <div class="panel-section">
                         <h4>Current balance</h4>
 
-                        @tags.moneyAmount(currentBalance)
+                        @if(balances.isEmpty) {
+                            No pending balance.
+                        }
+
+                        @for(balance <- balances) {
+                            @tags.moneyAmount(balance) &nbsp;
+                        }
                     </div>
                 </div>
 
