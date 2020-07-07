@@ -16,6 +16,17 @@
  *@
 
 @import play.api.libs.json.{ Json, JsValue }
+@import play.twirl.api.HtmlFormat
 
-@* Formats the given JSON value as a JSON string. *@
-@(value: JsValue)@Html(Json.stringify(value))
+@* Formats the given JSON value as a JSON string.
+ *
+ * If `htmlEscape` is true, will escape the string value to be used in an HTML attribute.
+ *@
+@(value: JsValue, htmlEscape: Boolean = false)@{
+    val str = Json.stringify(value)
+    if (htmlEscape) {
+        HtmlFormat.escape(str)
+    } else {
+        Html(str)
+    }
+}

@@ -25,7 +25,11 @@
             <label>
                 Studio name
 
-                <input type="text" :name="fieldName('name')" required>
+                <input
+                    type="text"
+                    :name="fieldName('name')"
+                    :value="fieldValue('name')"
+                    required>
 
                 <span v-if="fieldHasError('name')" class="error">
                     {{ fieldError('name') }}
@@ -42,7 +46,11 @@
             <label>
                 Short description
 
-                <textarea :name="fieldName('description')" rows="10" required></textarea>
+                <textarea
+                    :name="fieldName('description')"
+                    :value="fieldValue('description')"
+                    rows="10" required>
+                </textarea>
 
                 <span v-if="fieldHasError('description')" class="error">
                     {{ fieldError('description') }}

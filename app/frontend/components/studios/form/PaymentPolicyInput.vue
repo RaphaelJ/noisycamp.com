@@ -29,8 +29,7 @@
                 id="payment-policy-has-online-payment"
                 type="checkbox"
                 :name="fieldName('has-online-payment')"
-                v-model="hasOnlinePayment"
-                value="true">
+                v-model="hasOnlinePayment">
 
             <label for="payment-policy-has-online-payment">
                 Allow online payments using credit and debit cards
@@ -42,29 +41,19 @@
 
             <p class="help-text">
                 Payment of booking fees will be securely collected online at the
-                time the customer books his/her session.
-            </p>
-        </div>
-
-        <slide-down-transition :max-height="85">
-            <p
-                class="cell small-12 callout secondary"
-                v-if="hasOnlinePayment">
-
-                Online payments will require you to provide us a valid bank account and to verify
-                your identity.
-                <br>
+                time the customer books his/her session.<br>
+                To allow secure online payments, we will ask you for a valid bank account and we
+                will verify your identity.
                 <a href="#" target="_blank">Learn more about online payments</a>.
             </p>
-        </slide-down-transition>
+        </div>
 
         <div class="cell">
             <input
                 id="payment-policy-has-onsite-payment"
                 type="checkbox"
                 :name="fieldName('has-onsite-payment')"
-                v-model="hasOnsitePayment"
-                value="true">
+                v-model="hasOnsitePayment">
 
             <label for="payment-policy-has-onsite-payment">
                 Allow onsite payments
@@ -79,14 +68,27 @@
                 customers that choose this payment method.
             </p>
 
-            <div
-                class="callout warning"
-                v-if="hasCancellationNotice">
-                Please note that NoisyCamp will not be able to enforce your
-                booking cancellation policy on these onsite payments.<br>
-                If you wish your customers to comply with your cancellation
-                policy, disable onsite payments.
-            </div>
+            <slide-down-transition :max-height="100">
+                <div
+                    class="grid-x grid-margin-y grid-margin-x callout warning"
+                    v-if="hasOnsitePayment && canCancelAnytime === false">
+
+                    <div class="cell shrink text-center">
+                        <i class="fi-alert" style="font-size: 4rem"></i>
+                    </div>
+
+                    <div class="cell auto">
+                        We will not be able to enforce your booking cancellation policy on onsite
+                        payments.<br>
+                        If you wish your customers to comply with your cancellation
+                        policy,
+                        <a @click="hasOnsitePayment = false">
+                            disable onsite payments
+                        </a>
+                        or adapt your cancellation policy.
+                    </div>
+                </div>
+            </slide-down-transition>
         </div>
     </div>
 </template>
@@ -100,13 +102,24 @@ import SlideDownTransition from '../../../transitions/SlideDownTransition.vue';
 export default Vue.extend({
     mixins: [VueInput],
     props: {
-        hasCancellationNotice: { type: Boolean, default: false },
+        value: { type: Object, default() { return {}; } },
+        canCancelAnytime: { type: Boolean },
     },
     data() {
-        return {
+        let data =  {
             hasOnlinePayment: true,
             hasOnsitePayment: false,
+        };
+
+        if ('has-online-payment' in this.value) {
+            data.hasOnlinePayment = this.value['has-online-payment'];
         }
+
+        if ('has-onsite-payment' in this.value) {
+            data.hasOnsitePayment = this.value['has-onsite-payment'];
+        }
+
+        return data;
     },
     components: { SlideDownTransition },
 });

@@ -28,7 +28,9 @@
  * @param fullScreen if true, will expand the header and footer to fill the screen.
  *@
 @(
-    title: Seq[String], head: Html = Html(""), javascript: Html = Html(""),
+    title: Seq[String],
+    head: Html = Html(""),
+    javascript: Html = Html(""),
     identity: Option[Identity],
     fullScreen: Boolean = false)(content: Html)(
     implicit req: RequestHeader, config: Configuration)
@@ -162,7 +164,7 @@
         </div>
 
         <script>
-            var NC_CONFIG = @tags.asJson(JsConfig());
+            var NC_CONFIG = @tags.json(JsConfig());
         </script>
 
         @helper.javascriptRouter("NC_ROUTES")(

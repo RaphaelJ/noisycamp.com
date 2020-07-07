@@ -41,7 +41,8 @@ object StudioForm {
 
       "equipments" -> seq(forms.components.EquipmentForm.form.mapping),
       "pictures" -> seq(CustomFields.pictureId)
-    )(Data.apply)(Data.unapply))
+    )(Data.apply)(Data.unapply).
+      verifying("PLESE REMOVE", _ => false))
 
   case class Data(
     name:             String,

@@ -100,23 +100,35 @@ import VueInput from '../../widgets/VueInput';
 export default Vue.extend({
     mixins: [VueInput],
     props: {
+        value: { type: Object, default() { return {}; } }
     },
     data() {
-        return {
-            weekDays: [
-                'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'
-            ],
+        let weekDays = [
+            'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'
+        ];
 
-            schedule: Array(7).fill(null).map((_) => {
-                return {
-                    isOpen: false,
-                    opensAt: '08:00',
-                    closesAt: '20:00',
-                };
+        return {
+            weekDays: weekDays,
+
+            schedule: weekDays.map((day) => {
+                let lcDay = day.toLowerCase();
+
+                if (lcDay in this.value) {
+                    let dayValue = this.value[lcDay];
+                    return {
+                        isOpen: dayValue["is-open"] == "true",
+                        opensAt: dayValue["opens-at"],
+                        closesAt:  dayValue["closes-at"],
+                    };
+                } else {
+                    return {
+                        isOpen: false,
+                        opensAt: '08:00',
+                        closesAt: '20:00',
+                    };
+                }
             }),
         };
-    },
-    computed: {
     },
 });
 </script>

@@ -95,10 +95,19 @@ declare var NC_ROUTES: any;
 export default Vue.extend({
     mixins: [VueInput],
     props: {
+        value: { type: Object, default() { return {}; } },
     },
     data() {
+        let pictures = [];
+
+        if (this.value) {
+            Object.keys(this.value).sort().forEach(idx => {
+                pictures.push(this.value[idx]);
+            });
+        }
+
         return {
-            pictures: [],
+            pictures: pictures,
 
             error: null,
 

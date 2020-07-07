@@ -54,19 +54,19 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
           })
       } yield studios zip picIds
     }.transactionally).map { studios =>
-      Ok(views.html.account.studios(request.identity, studios))
+      Ok(views.html.account.studios.index(request.identity, studios))
     }
   }
 
   /** Shows a form to list a new studio. */
   def create = silhouette.SecuredAction { implicit request =>
-    Ok(views.html.account.studioCreate(request.identity, StudioForm.form))
+    Ok(views.html.account.studios.create(request.identity, StudioForm.form))
   }
 
   def createSubmit = silhouette.SecuredAction.async { implicit request =>
 
     StudioForm.form.bindFromRequest.fold(
-      form => Future.successful(BadRequest(views.html.account.studioCreate(
+      form => Future.successful(BadRequest(views.html.account.studios.create(
         request.identity, form))),
       data => {
         val timezone: ZoneId = timeZoneService.

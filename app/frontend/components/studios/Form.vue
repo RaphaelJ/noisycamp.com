@@ -33,7 +33,11 @@
 
             <h2>General information</h2>
 
-            <general-info-input name="general-info" :errors="errors"></general-info-input>
+            <general-info-input
+                name="general-info"
+                :errors="errors"
+                :value="value['general-info']">
+            </general-info-input>
 
             <hr>
         </div>
@@ -54,13 +58,13 @@
             <hr>
         </div>
 
-        <!-- Opening times -->
+        <!-- Opening schedule -->
 
         <div
             class="cell"
-            v-if="isShown('opening-times')">
+            v-if="isShown('opening-schedule')">
 
-            <h2>Opening times</h2>
+            <h2>Opening schedule</h2>
 
             <p>Select studio's opening days and hours.</p>
 
@@ -69,7 +73,10 @@
                 schedule, like holidays, can be defined later in the calendar application.
             </p>
 
-            <opening-schedule-input name="opening-schedule" :errors="errors">
+            <opening-schedule-input
+                name="opening-schedule"
+                :value="value['opening-schedule']"
+                :errors="errors">
             </opening-schedule-input>
 
             <hr>
@@ -85,6 +92,7 @@
 
             <pricing-policy-input
                 name="pricing-policy"
+                :value="value['pricing-policy']"
                 :currency="currency">
             </pricing-policy-input>
 
@@ -99,7 +107,11 @@
 
             <h2>Booking &amp; cancellation policy</h2>
 
-            <booking-policy-input name="booking-policy"></booking-policy-input>
+            <booking-policy-input
+                name="booking-policy"
+                :value="value['booking-policy']"
+                v-on:cancellation-policy-changed="cancellationPolicyChanged">
+            </booking-policy-input>
 
             <hr>
         </div>
@@ -112,7 +124,11 @@
 
             <h2>Payment policy</h2>
 
-            <payment-policy-input name="payment-policy"></payment-policy-input>
+            <payment-policy-input
+                name="payment-policy"
+                :value="value['payment-policy']"
+                :can-cancel-anytime="canCancelAnytime">
+            </payment-policy-input>
 
             <hr>
         </div>
@@ -143,6 +159,7 @@
 
             <equipment-input
                 name="equipments"
+                :value="value['equipments']"
                 :currency="currency">
             </equipment-input>
 
@@ -157,7 +174,10 @@
 
             <h2>Pictures</h2>
 
-            <picture-input name="pictures[]"></picture-input>
+            <picture-input
+                name="pictures[]"
+                :value="value['pictures']">
+            </picture-input>
 
             <hr>
         </div>
@@ -192,8 +212,8 @@ export default Vue.extend({
 
         csrfToken: { type: String, required: false },
 
-        // The form data, indexed by the field's name.
-        data: {
+        // The form data as a JSON object.
+        value: {
             type: Object, required: false,
             default: function () { return {}; }
         },
@@ -210,32 +230,58 @@ export default Vue.extend({
         isMultiPage: { type: Boolean, required: false, default: false },
     },
     data() {
-        return {
-            location: {
+        var location;
+        if ('location' in this.value) {
+            location = this.value['location'];
+        } else {
+            location = {
                 address: {},
                 coordinates: {}
-            }
+            };
+        }
+
+        var cancellationPolicy = null;
+        if ('booking-policy' in this.value) {
+            cancellationPolicy = this.value['booking-policy'];
+        }
+
+        return {
+            location: location,
+            cancellationPolicy: cancellationPolicy,
         };
     },
     computed: {
+        // The currency of the money input fields. Default to Euro, but changes
+        // once the user sets the studio location.
         currency() {
             let address = this.location.address;
-
-            console.log(this.location);
 
             if (address && address.country) {
                 return NC_CONFIG.countries[address.country].currency;
             } else {
                 return 'EUR';
             }
+        },
+
+        canCancelAnytime() {
+            if (!this.cancellationPolicy || !this.cancellationPolicy['cancellation-notice']) {
+                return null;
+            } else {
+                return this.cancellationPolicy['can-cancel']
+                    && this.cancellationPolicy['cancellation-notice'] == 0;
+            }
         }
     },
     methods: {
         isShown(section) {
             return [
-                'general-info', 'location', 'opening-times', 'payment-policy',
+                'general-info', 'location', 'opening-schedule', 'payment-policy',
                 'pricing-policy', 'booking-policy', 'pictures', 'equipments',
             ].includes(section);
+        },
+
+        cancellationPolicyChanged(policy) {
+            this.cancellationPolicy = policy;
         }
     },
     components: {

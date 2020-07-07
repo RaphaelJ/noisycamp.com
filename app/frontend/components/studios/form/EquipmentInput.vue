@@ -184,13 +184,29 @@ declare var NC_ROUTES: any;
 export default Vue.extend({
     mixins: [VueInput],
     props: {
+        value: { type: Object, default() { return {}; } },
+
         currency: { type: String, required: false },
     },
     data() {
+        let equipments = [];
+
+        if (this.value) {
+            Object.keys(this.value).sort().forEach(idx => {
+                let equipment = this.value[idx];
+                equipments.push({
+                    id: equipment.id,
+                    category: equipment.category,
+                    details: equipment.details,
+                    fee: null,
+                });
+            });
+        }
+
         return {
             newEquipment: { category: null, details: null, hasExtraFee: false, pricePerHour: null },
 
-            equipments: []
+            equipments: equipments,
         }
     },
     computed: {

@@ -14,15 +14,18 @@
 
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-  Provides a mixin with common methods and interface shared by components that
-  provide an <input>-like behavior.
 */
 
+// Provides a mixin with common methods and interface shared by components that provide an
+// <input>-like behavior.
 export default {
     props: {
         // The prefix that will be used for <input> sub-fields. Can be empty (i.e. no prefix).
         name: { type: String, required: true },
+
+        // The input data object or value. If the input if a composite field, use an object to
+        // describe the values of the object.
+        value: { type: [ Object, String ], required: false },
 
         // The form errors, indexed by the field's name (see
         // `play.api.data.Form.errorsAsJson`)
@@ -37,12 +40,7 @@ export default {
         //
         // If `index` is provided, will add a `[index]` subscript prefix.
         fieldName(subFieldName?: string, index?: number) {
-            var prefix;
-            if (this.name != '') {
-                prefix = this.name;
-            } else {
-                prefix = '';
-            }
+            var prefix = this.name;
 
             if (index != undefined) {
                 prefix += '[' + index + ']';
@@ -59,6 +57,14 @@ export default {
             }
         },
 
+        fieldValue(fieldName: string, defaultVal = undefined) {
+            if (this.value && fieldName in this.value) {
+                return this.value[fieldName];
+            } else {
+                return defaultVal;
+            }
+        },
+
         fieldHasError(fieldName: string, index?: number) {
             return this.fieldName(fieldName, index) in this.errors;
         },
@@ -67,6 +73,7 @@ export default {
             return this.errors[this.fieldName(fieldName, index)];
         },
 
+        // Returns the first error of the field if any.
         fieldError(fieldName: string, index?: number) {
             return this.fieldErrors(fieldName, index)[0];
         },

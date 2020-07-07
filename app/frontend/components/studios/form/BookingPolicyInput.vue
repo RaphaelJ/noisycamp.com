@@ -29,7 +29,6 @@
                     v-model="minBookingDuration"
                     required>
                     <option value="" disabled>Please select a value</option>
-                    <option value="900">15 minutes</option>
                     <option value="1800">30 minutes</option>
                     <option value="3600">1 hour</option>
                     <option value="7200">2 hours</option>
@@ -70,7 +69,7 @@
                 id="booking-policy-can-cancel"
                 type="checkbox"
                 :name="fieldName('can-cancel')"
-                v-model="refundCancelled"
+                v-model="canCancel"
                 value="true">
 
             <label for="booking-policy-can-cancel">
@@ -85,7 +84,7 @@
         <slide-down-transition :max-height="135">
             <div
                 class="cell small-12 medium-10 medium-offset-1 large-5"
-                v-if="refundCancelled">
+                v-if="canCancel">
 
                 <label>
                     Minimum cancellation notice
@@ -93,8 +92,8 @@
                     <select
                         :name="fieldName('cancellation-notice')"
                         v-model="cancellationNotice"
-                        :disabled="!refundCancelled"
-                        :required="refundCancelled">
+                        :disabled="!canCancel"
+                        :required="canCancel">
                         <option value="" disabled>Please select a value</option>
                         <option value="0">No notice</option>
                         <option value="3600">1 hour before the session</option>
@@ -126,20 +125,53 @@ import SlideDownTransition from '../../../transitions/SlideDownTransition.vue';
 export default Vue.extend({
     mixins: [VueInput],
     props: {
+        value: { type: Object, default() { return {}; } }
     },
     data() {
-        return {
+        let data = {
             automaticApproval: false,
 
             minBookingDuration: null,
 
-            refundCancelled: false,
+            canCancel: false,
             cancellationNotice: null,
         };
+
+        if ('automatic-approval' in this.value) {
+            data.automaticApproval = this.value['automatic-approval'] == 'true';
+        }
+
+        if ('min-booking-duration' in this.value) {
+            data.minBookingDuration = this.value['min-booking-duration'];
+        }
+
+        if ('can-cancel' in this.value) {
+            data.canCancel = this.value['can-cancel'] == 'true';
+        }
+        if ('cancellation-notice' in this.value) {
+            data.cancellationNotice = this.value['cancellation-notice'];
+        }
+
+        return data;
     },
-    computed: {
+    methods: {
+        emitCancellationPolicyChanged() {
+            this.$emit('cancellation-policy-changed', {
+                'can-cancel': this.canCancel,
+                'cancellation-notice': this.cancellationNotice,
+            });
+        },
     },
-    components: { SlideDownTransition }
+    watch: {
+        canCancel() {
+            this.emitCancellationPolicyChanged();
+        },
+
+        cancellationNotice() {
+            this.emitCancellationPolicyChanged();
+        },
+    },
+    components: { SlideDownTransition },
 });
 </script>
 

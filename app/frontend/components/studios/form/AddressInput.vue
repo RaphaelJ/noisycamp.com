@@ -26,7 +26,7 @@
 
                 <country-select
                     :name="fieldName('country')"
-                    v-model="address.country"
+                    v-model="address['country']"
                     required>
                 </country-select>
 
@@ -40,7 +40,7 @@
             v-if="!hasCountrySelector"
             type="hidden"
             :name="fieldName('country')"
-            v-model="address.country">
+            v-model="address['country']">
 
         <div class="cell">
             <label>
@@ -49,7 +49,7 @@
                 <input
                     type="text"
                     :name="fieldName('address-1')"
-                    v-model="address.address1"
+                    v-model="address['address-1']"
                     :disabled="!address.country"
                     required>
 
@@ -68,8 +68,8 @@
                 <input
                     type="text"
                     :name="fieldName('address-2')"
-                    v-model="address.address2"
-                    :disabled="!address.country">
+                    v-model="address['address-2']"
+                    :disabled="!address['country']">
 
                     <span v-if="fieldHasError('address-2')" class="error">
                         {{ fieldError('address-2') }}
@@ -86,8 +86,8 @@
                         <input
                             type="text"
                             :name="fieldName('city')"
-                            v-model="address.city"
-                            :disabled="!address.country"
+                            v-model="address['city']"
+                            :disabled="!address['country']"
                             required>
 
                         <span v-if="fieldHasError('city')" class="error">
@@ -103,8 +103,8 @@
                         <input
                             type="text"
                             :name="fieldName('zipcode')"
-                            v-model="address.zipcode"
-                            :disabled="!address.country || !hasZipCode"
+                            v-model="address['zipcode']"
+                            :disabled="!address['country'] || !hasZipCode"
                             :required="hasZipCode">
 
                         <span v-if="fieldHasError('zipcode')" class="error">
@@ -119,7 +119,7 @@
 
                         <select
                             :name="fieldName('state')"
-                            v-model="address.state"
+                            v-model="address['state']"
                             :disabled="!hasStates"
                             :required="hasStates">
                             <option
@@ -157,9 +157,9 @@ export default Vue.extend({
     props: {
         value: {
             type: Object,
-            default () {
+            default() {
                 return {
-                    country: null, address1: null, address2: null, city: null,
+                    country: null, 'address-1': null, 'address-2': null, city: null,
                     zipcode: null, state: null
                 }
             }
@@ -174,12 +174,12 @@ export default Vue.extend({
     data() {
         return {
             address: {
-                country: this.country ? this.country : this.value.country,
-                address1: this.value.address1,
-                address2: this.value.address2,
-                city: this.value.city,
-                zipcode: this.value.zipcode,
-                state: this.value.state,
+                country: this.country ? this.country : this.value['country'],
+                'address-1': this.value['address-1'],
+                'address-2': this.value['address-2'],
+                city: this.value['city'],
+                zipcode: this.value['zipcode'],
+                state: this.value['state'],
             },
         }
     },
@@ -189,7 +189,7 @@ export default Vue.extend({
         },
 
         countryValue() {
-            return this.country ? this.country : this.value.country;
+            return this.country ? this.country : this.value['country'];
         },
 
         hasStates() {
@@ -238,7 +238,7 @@ export default Vue.extend({
 
         'address.country': function() {
             // Resets the state field on country change.
-            this.address.state = null;
+            this.address['state'] = null;
         }
     },
     components: { CountrySelect },

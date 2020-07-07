@@ -97,9 +97,9 @@
             @defining(studio.localPricingPolicy) { pricingPolicy =>
                 <booking-form
                     :studio-id='@studio.id'
-                    :opening-schedule='@tags.asJson(Json.toJson(studio.openingSchedule))'
-                    :pricing-policy='@tags.asJson(Json.toJson(pricingPolicy))'
-                    :booking-times='@tags.asJson(Json.toJson(bookingTimes))'
+                    :opening-schedule="@tags.json(Json.toJson(studio.openingSchedule), htmlEscape = true)"
+                    :pricing-policy="@tags.json(Json.toJson(pricingPolicy), htmlEscape = true)"
+                    :booking-times="@tags.json(Json.toJson(bookingTimes), htmlEscape = true)"
                     :has-online-payment='@studio.paymentPolicy.hasOnlinePayment'
                     :has-onsite-payment='@studio.paymentPolicy.hasOnsitePayment'
                     csrf-token="@helper.CSRF.getToken.value">

@@ -158,10 +158,12 @@ import SlideDownTransition from '../../../transitions/SlideDownTransition.vue';
 export default Vue.extend({
     mixins: [VueInput],
     props: {
+        value: { type: Object, default() { return {}; } },
+
         currency: { type: String, required: false },
     },
     data() {
-        return {
+        let data = {
             pricePerHour: null,
 
             hasEveningPricing: false,
@@ -171,8 +173,29 @@ export default Vue.extend({
             hasWeekendPricing: false,
             weekendPricePerHour: null,
         };
-    },
-    computed: {
+
+        if ('price-per-hour' in this.value) {
+            data.pricePerHour = this.value['price-per-hour'];
+        }
+
+        if ('has-evening-pricing' in this.value) {
+            data.hasEveningPricing = this.value['has-evening-pricing'] == 'true';
+        }
+        if ('evening-begins-at' in this.value) {
+            data.eveningBeginsAt = this.value['evening-begins-at'];
+        }
+        if ('evening-price-per-hour' in this.value) {
+            data.eveningPricePerHour = this.value['evening-price-per-hour'];
+        }
+
+        if ('has-weekend-pricing' in this.value) {
+            data.hasWeekendPricing = this.value['has-weekend-pricing'] == 'true';
+        }
+        if ('weekend-price-per-hour' in this.value) {
+            data.weekendPricePerHour = this.value['weekend-price-per-hour'];
+        }
+
+        return data;
     },
     components: { MoneyInput, SlideDownTransition }
 });

@@ -21,7 +21,9 @@
 <template>
     <div class="grid-x grid-margin-x">
         <div class="cell large-6">
-            <address-input :name="fieldName('address')" v-model="address">
+            <address-input
+                :name="fieldName('address')"
+                v-model="address">
             </address-input>
         </div>
 
@@ -59,21 +61,20 @@ declare var NC_CONFIG: any;
 export default Vue.extend({
     mixins: [VueInput],
     props: {
-        // A {address: {}, coordinates: {}} object.
-        value: { type: Object, required: false },
+        value: {
+            type: Object,
+            default() {
+                return {
+                    address: {},
+                    coordinates: {}
+                }
+            }
+        }, // Overiddes VueInput
     },
     data() {
-        var address = {};
-        var coordinates = {};
-
-        if (this.value) {
-            address = this.value.address;
-            coordinates = this.value.coordinates;
-        }
-
         return {
-            address: address,
-            coordinates: coordinates,
+            address: this.value.address,
+            coordinates: this.value.coordinates,
 
             // The last Geocoding object returned by Mapbox.
             place: null,
@@ -81,35 +82,38 @@ export default Vue.extend({
             // If set to `false`, the marker position will not be updated when
             // the address changes. Will be automatically set to `false` once
             // the marker has been manually dragged.
-            shouldUpdateMarker: !this.value.long || !this.value.lat,
+            shouldUpdateMarker: true,
         }
     },
     mounted() {
-        mapboxgl.accessToken = NC_CONFIG.mapboxToken;
+        // Initializes Mapbox map and geocoding plugins.
+        {
+            mapboxgl.accessToken = NC_CONFIG.mapboxToken;
 
-        this.map = new mapboxgl.Map({
-            container: this.$refs.map,
-            style: 'mapbox://styles/mapbox/streets-v10',
-        });
+            this.map = new mapboxgl.Map({
+                container: this.$refs.map,
+                style: 'mapbox://styles/mapbox/streets-v10',
+            });
 
-        this.map.addControl(new mapboxgl.NavigationControl());
+            this.map.addControl(new mapboxgl.NavigationControl());
 
-        this.marker = new mapboxgl.Marker({
+            this.marker = new mapboxgl.Marker({
                 color: '#b37216',
                 draggable: true,
             });
-        this.marker.on('drag', this.dragMarker);
+            this.marker.on('drag', this.dragMarker);
 
-        this.geocodingClient = mbxGeocoding({
-            accessToken: NC_CONFIG.mapboxToken
-        });
-
-        if (!this.value.long || !this.value.lat) {
-            this.updateMarker();
-        } else {
-            this.setMarker({
-                center: [this.value.long, this.value.lat],
+            this.geocodingClient = mbxGeocoding({
+                accessToken: NC_CONFIG.mapboxToken
             });
+
+            if (!this.coordinates.long || !this.coordinates.lat) {
+                this.updateMarker();
+            } else {
+                this.setMarker({
+                    center: [this.coordinates.long, this.coordinates.lat],
+                }, false);
+            }
         }
     },
     computed: {
@@ -145,12 +149,12 @@ export default Vue.extend({
             let fieldHierachy = [
                 { value: this.countryFullname, required: true },
                 {
-                    value: this.address.state,
-                    required: this.hasStates(this.address.country) },
-                { value: this.address.zipcode, required: !this.address.city },
-                { value: this.address.city, required: !this.address.zipcode },
-                { value: this.address.address2, required: false },
-                { value: this.address.address1, required: true },
+                    value: this.address['state'],
+                    required: this.hasStates(this.address['country']) },
+                { value: this.address['zipcode'], required: !this.address['city'] },
+                { value: this.address['city'], required: !this.address['zipcode'] },
+                { value: this.address['address-2'], required: false },
+                { value: this.address['address-1'], required: true },
             ];
 
             var query: string[] = [];
@@ -190,8 +194,8 @@ export default Vue.extend({
         // position with address changes.
         dragMarker() {
             let pos = this.marker.getLngLat();
-            this.coordinates.long = pos.lng;
-            this.coordinates.lat = pos.lat;
+            console.log(pos);
+            this.coordinates = { long: pos.lng, lat: pos.lat };
             this.shouldUpdateMarker = false;
         },
 
@@ -202,7 +206,7 @@ export default Vue.extend({
         },
 
         // Sets the marker to the given place and fly the map to its position.
-        setMarker(place) {
+        setMarker(place, animate: boolean = true) {
             let hadPlace = this.place;
             this.place = place;
 
@@ -225,16 +229,26 @@ export default Vue.extend({
 
             if (place.bbox) {
                 let bbox = place.bbox;
-                this.map.fitBounds(
-                    [[bbox[0], bbox[1]],[bbox[2], bbox[3]]]
-                );
+                let bounds = [[bbox[0], bbox[1]],[bbox[2], bbox[3]]];
+
+                if (animate) {
+                    this.map.fitBounds(bounds);
+                } else {
+                    this.map.fitBounds(bounds, { duration: 0 });
+                }
             } else {
                 // Some features don't have bounding-boxes, centers the
                 // map on location and use a default zoom.
-                this.map.flyTo({
+                let options = {
                     center: place.center,
                     zoom: 15,
-                });
+                };
+
+                if (!animate) {
+                    options['duration'] = 0;
+                }
+
+                this.map.flyTo(options);
             }
         },
 
@@ -258,6 +272,7 @@ export default Vue.extend({
         'coordinates': {
             deep: true,
             handler() {
+                console.log("Updated");
                 this.emitValueChanged();
             }
         },

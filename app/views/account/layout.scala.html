@@ -21,11 +21,12 @@
 @(
     title: Seq[String],
     head: Html = Html(""),
+    javascript: Html = Html(""),
     identity: models.Identity)(
     rightPaneContent: Html)(
     implicit req: RequestHeader, config: Configuration)
 
-@_root_.views.html.layout(title, head=head, identity=Some(identity)) {
+@_root_.views.html.layout(title, head=head, javascript=javascript, identity=Some(identity)) {
     <div class="grid-container">
         <div class="grid-x grid-padding-x grid-padding-y">
             <div class="cell">
