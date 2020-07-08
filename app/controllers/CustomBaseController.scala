@@ -37,46 +37,46 @@ import misc.{ PaymentService, TaskExecutionContext }
 import pictures.PictureCache
 
 class CustomControllerCompoments @Inject() (
-  val cc: ControllerComponents,
-  val config: Configuration,
+    val cc: ControllerComponents,
+    val config: Configuration,
 
-  val executionContext: ExecutionContext,
-  val taskExecutionContext: TaskExecutionContext,
+    val executionContext: ExecutionContext,
+    val taskExecutionContext: TaskExecutionContext,
 
-  // Database and DAOs
-  val dbConfigProvider: DatabaseConfigProvider,
-  val daos: DAOs,
+    // Database and DAOs
+    val dbConfigProvider: DatabaseConfigProvider,
+    val daos: DAOs,
 
-  // Auth
-  val silhouette: Silhouette[DefaultEnv],
+    // Auth
+    val silhouette: Silhouette[DefaultEnv],
 
-  // Misc
-  val exchangeRatesService: ExchangeRatesService,
-  val geoIpService: GeoIpService,
-  val paymentService: PaymentService,
-  val timeZoneService: TimeZoneService)
+    // Misc
+    val exchangeRatesService: ExchangeRatesService,
+    val geoIpService: GeoIpService,
+    val paymentService: PaymentService,
+    val timeZoneService: TimeZoneService)
 
 /** Provides a base class for controllers and simplifies the injection process
  * for common used objects.
  */
 abstract class CustomBaseController @Inject () (
-  ccc: CustomControllerCompoments)
-  extends AbstractController(ccc.cc)
-  with HasDatabaseConfigProvider[JdbcProfile]
-  with I18nSupport {
+    ccc: CustomControllerCompoments)
+    extends AbstractController(ccc.cc)
+    with HasDatabaseConfigProvider[JdbcProfile]
+    with I18nSupport {
 
-  implicit val config = ccc.config
-  implicit val executionContext = ccc.executionContext
-  /** Uses this execution context for blocking calls. */
-  val taskExecutionContext = ccc.taskExecutionContext
+    implicit val config = ccc.config
+    implicit val executionContext = ccc.executionContext
+    /** Uses this execution context for blocking calls. */
+    val taskExecutionContext = ccc.taskExecutionContext
 
-  val dbConfigProvider = ccc.dbConfigProvider
-  val daos = ccc.daos
+    val dbConfigProvider = ccc.dbConfigProvider
+    val daos = ccc.daos
 
-  val silhouette = ccc.silhouette
+    val silhouette = ccc.silhouette
 
-  val exchangeRatesService = ccc.exchangeRatesService
-  val geoIpService = ccc.geoIpService
-  val timeZoneService = ccc.timeZoneService
-  val paymentService = ccc.paymentService
+    implicit val exchangeRatesService = ccc.exchangeRatesService
+    implicit val geoIpService = ccc.geoIpService
+    implicit val timeZoneService = ccc.timeZoneService
+    implicit val paymentService = ccc.paymentService
 }

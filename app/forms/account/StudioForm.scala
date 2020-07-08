@@ -17,13 +17,16 @@
 
 package forms.account
 
+import java.time.{ Instant, ZoneId }
+
 import play.api.data.Form
 import play.api.data.Forms._
 
 import forms.CustomFields
 import forms.components.PaymentPolicyForm
+import i18n.TimeZoneService
 import models.{
-  BookingPolicy, Equipment, Location, OpeningSchedule, Picture, PricingPolicy, Studio }
+  BookingPolicy, Equipment, Location, OpeningSchedule, Picture, PricingPolicy, Studio, User }
 
 /** A form to create and edit studios. */
 object StudioForm {
@@ -54,7 +57,32 @@ object StudioForm {
         paymentPolicy:    PaymentPolicyForm.Data,
 
         equipments:       Seq[Equipment],
-        pictures:         Seq[Picture#Id])
+        pictures:         Seq[Picture#Id]) {
+
+        def toStudio(userId: User#Id, id: Studio#Id = 0L, createdAt: Instant = Instant.now())(
+            implicit timeZoneService: TimeZoneService)
+            : (Studio, Seq[Equipment], Seq[Picture#Id]) = {
+
+            val timezone: ZoneId = timeZoneService.
+              query(location.coordinates.lat, location.coordinates.long).
+              getOrElse(ZoneId.of("UTC"))
+
+            val studio = Studio(
+                id = id,
+                createdAt = createdAt,
+                ownerId = userId,
+                name = name,
+                description = description,
+                location = location,
+                timezone = timezone,
+                openingSchedule = openingSchedule,
+                pricingPolicy = pricingPolicy,
+                bookingPolicy = bookingPolicy,
+                paymentPolicy = paymentPolicy)
+
+            (studio, equipments, pictures)
+        }
+    }
 
     def fromStudio(studio: Studio, equipments: Seq[Equipment], pictures: Seq[Picture#Id])
         : Form[Data] = {
@@ -70,6 +98,5 @@ object StudioForm {
             paymentPolicy = studio.paymentPolicy,
 
             equipments, pictures))
-
     }
 }

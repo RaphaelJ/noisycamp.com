@@ -1,5 +1,5 @@
 /* Noisycamp is a platform for booking music studios.
- * Copyright (C) 2019  Raphael Javaux <raphaeljavaux@gmail.com>
+ * Copyright (C) 2019-2020  Raphael Javaux <raphaeljavaux@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,69 +31,57 @@ import _root_.controllers.{ CustomBaseController, CustomControllerCompoments }
 
 @Singleton
 class StudiosController @Inject() (ccc: CustomControllerCompoments)
-  extends CustomBaseController(ccc) {
+    extends CustomBaseController(ccc) {
 
-  import profile.api._
+    import profile.api._
 
-  /** Lists all studios from a single host. */
-  def index = silhouette.SecuredAction.async { implicit request =>
+    /** Lists all studios from a single host. */
+    def index = silhouette.SecuredAction.async { implicit request =>
+        val user = request.identity.user
 
-    val user = request.identity.user
+        db.run({ for {
+          studios <- daos.studio.query.
+            filter(_.ownerId === user.id).
+            result
 
-    db.run({ for {
-      studios <- daos.studio.query.
-        filter(_.ownerId === user.id).
-        result
-
-      picIds <- DBIO.sequence(
-          studios.map { studio =>
-            daos.studioPicture.
-              withStudioPictureIds(studio.id).
-              take(1).result.
-              headOption
-          })
-      } yield studios zip picIds
-    }.transactionally).map { studios =>
-      Ok(views.html.account.studios.index(request.identity, studios))
+          picIds <- DBIO.sequence(
+              studios.map { studio =>
+                daos.studioPicture.
+                  withStudioPictureIds(studio.id).
+                  take(1).result.
+                  headOption
+              })
+          } yield studios zip picIds
+        }.transactionally).map { studios =>
+          Ok(views.html.account.studios.index(request.identity, studios))
+        }
     }
-  }
 
-  /** Shows a form to list a new studio. */
-  def create = silhouette.SecuredAction { implicit request =>
-    Ok(views.html.account.studios.create(request.identity, StudioForm.form))
-  }
+    /** Shows a form to list a new studio. */
+    def create = silhouette.SecuredAction { implicit request =>
+        Ok(views.html.account.studios.create(request.identity, StudioForm.form))
+    }
 
-  def createSubmit = silhouette.SecuredAction.async { implicit request =>
+    def createSubmit = silhouette.SecuredAction.async { implicit request =>
 
-    StudioForm.form.bindFromRequest.fold(
-      form => Future.successful(BadRequest(views.html.account.studios.create(
-        request.identity, form))),
-      data => {
-        val timezone: ZoneId = timeZoneService.
-          query(data.location.coordinates.lat, data.location.coordinates.long).
-          getOrElse(ZoneId.of("UTC"))
+        StudioForm.form.bindFromRequest.fold(
+            form => Future.successful(BadRequest(views.html.account.studios.create(
+                request.identity, form))),
+            data => {
+                val (studio, equipments, pictures) = data.toStudio(request.identity.user.id)
 
-        val studio: Future[Studio] = db.run({
-          for {
-            studio <- daos.studio.insert(Studio(
-              ownerId = request.identity.user.id,
-              name = data.name,
-              description = data.description,
-              location = data.location,
-              timezone = timezone,
-              openingSchedule = data.openingSchedule,
-              pricingPolicy = data.pricingPolicy,
-              bookingPolicy = data.bookingPolicy,
-              paymentPolicy = data.paymentPolicy))
-            _ <- daos.studioEquipment.setStudioEquipments(
-              studio.id, data.equipments)
-            _ <- daos.studioPicture.setStudioPics(studio.id, data.pictures)
-          } yield studio
-        }.transactionally)
-
-        studio.map(s => Ok(s.toString))
-      })
-  }
+                db.run({
+                    for {
+                        dbStudio <- daos.studio.insert(studio)
+                        _ <- daos.studioEquipment.setStudioEquipments(
+                          dbStudio.id, equipments)
+                        _ <- daos.studioPicture.setStudioPics(dbStudio.id, pictures)
+                    } yield dbStudio
+                }.transactionally).map { s =>
+                    Ok(s.toString)
+                }
+            })
+    }
 
     /** Shows the form with the studio settings. */
     def settings(id: Studio#Id) = silhouette.SecuredAction.async { implicit request =>
@@ -114,15 +102,46 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
 
                 Ok(views.html.account.studios.settings(request.identity, studio, form))
             }
-            case (Some(studio), _, _) if studio.ownerId != user.id =>  {
-                Forbidden("Only the studio owner can edit this studio.")
-            }
+            case (Some(studio), _, _) => Forbidden("Only the studio owner can edit settings.")
             case (None, _, _) => NotFound("Studio not found.")
         }
-  }
+    }
 
-  /** Shows the form with the studio settings. */
-  def settingsSubmit(id: Long) = silhouette.SecuredAction { implicit request =>
-    Ok("Not Implemented Yet")
-  }
+    /** Validates and saves the new studio's settings. */
+    def settingsSubmit(id: Studio#Id) = silhouette.SecuredAction.async { implicit request =>
+        val user = request.identity.user
+
+        val onSuccess = {
+            Redirect(routes.StudiosController.settings(id))
+        }
+
+        db.run({
+            val dbStudio = daos.studio.query.
+                filter(_.id === id).
+                result.headOption
+
+            dbStudio.flatMap { (_ match {
+                case Some(studio) if studio.ownerId == user.id => {
+                    StudioForm.form.bindFromRequest.fold(
+                        form => DBIO.successful(Ok(
+                            views.html.account.studios.settings(request.identity, studio, form))),
+                        data => {
+                            val (newStudio, newEquips, newPics) =
+                                data.toStudio(user.id, id, studio.createdAt)
+
+                            DBIO.seq(
+                                daos.studio.query.
+                                    filter(_.id === id).
+                                    update(newStudio),
+                                daos.studioEquipment.setStudioEquipments(id, newEquips),
+                                daos.studioPicture.setStudioPics(id, newPics)
+                            ).map { _ => onSuccess }
+                        })
+                }
+                case Some(studio) => DBIO.successful(
+                    Forbidden("Only the studio owner can edit settings."))
+                case None => DBIO.successful(NotFound("Studio not found."))
+            }): (Option[Studio] => DBIOAction[Result, slick.dbio.NoStream, Effect.All])
+        } })
+    }
 }
