@@ -23,37 +23,53 @@ import play.api.data.Forms._
 import forms.CustomFields
 import forms.components.PaymentPolicyForm
 import models.{
-  BookingPolicy, Equipment, Location, OpeningSchedule, Picture, PricingPolicy }
+  BookingPolicy, Equipment, Location, OpeningSchedule, Picture, PricingPolicy, Studio }
 
 /** A form to create and edit studios. */
 object StudioForm {
 
-  val form = Form(
-    mapping(
-      "general-info.name" -> nonEmptyText,
-      "general-info.description" -> nonEmptyText,
+    val form = Form(
+        mapping(
+            "general-info.name" -> nonEmptyText,
+            "general-info.description" -> nonEmptyText,
 
-      "location" -> forms.components.LocationForm.form.mapping,
-      "opening-schedule" -> forms.components.OpeningScheduleForm.form.mapping,
-      "pricing-policy" -> forms.components.PricingPolicyForm.form.mapping,
-      "booking-policy" -> forms.components.BookingPolicyForm.form.mapping,
-      "payment-policy" -> forms.components.PaymentPolicyForm.form.mapping,
+            "location" -> forms.components.LocationForm.form.mapping,
+            "opening-schedule" -> forms.components.OpeningScheduleForm.form.mapping,
+            "pricing-policy" -> forms.components.PricingPolicyForm.form.mapping,
+            "booking-policy" -> forms.components.BookingPolicyForm.form.mapping,
+            "payment-policy" -> forms.components.PaymentPolicyForm.form.mapping,
 
-      "equipments" -> seq(forms.components.EquipmentForm.form.mapping),
-      "pictures" -> seq(CustomFields.pictureId)
-    )(Data.apply)(Data.unapply).
-      verifying("PLESE REMOVE", _ => false))
+            "equipments" -> seq(forms.components.EquipmentForm.form.mapping),
+            "pictures" -> seq(CustomFields.pictureId)
+        )(Data.apply)(Data.unapply))
 
-  case class Data(
-    name:             String,
-    description:      String,
+    case class Data(
+        name:             String,
+        description:      String,
 
-    location:         Location,
-    openingSchedule:  OpeningSchedule,
-    pricingPolicy:    PricingPolicy,
-    bookingPolicy:    BookingPolicy,
-    paymentPolicy:    PaymentPolicyForm.Data,
+        location:         Location,
+        openingSchedule:  OpeningSchedule,
+        pricingPolicy:    PricingPolicy,
+        bookingPolicy:    BookingPolicy,
+        paymentPolicy:    PaymentPolicyForm.Data,
 
-    equipments:       Seq[Equipment],
-    pictures:         Seq[Picture#Id])
+        equipments:       Seq[Equipment],
+        pictures:         Seq[Picture#Id])
+
+    def fromStudio(studio: Studio, equipments: Seq[Equipment], pictures: Seq[Picture#Id])
+        : Form[Data] = {
+
+        form.fill(Data(
+            name = studio.name,
+            description = studio.description,
+
+            location = studio.location,
+            openingSchedule = studio.openingSchedule,
+            pricingPolicy = studio.pricingPolicy,
+            bookingPolicy = studio.bookingPolicy,
+            paymentPolicy = studio.paymentPolicy,
+
+            equipments, pictures))
+
+    }
 }

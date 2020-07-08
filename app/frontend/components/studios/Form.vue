@@ -19,10 +19,7 @@
 -->
 
 <template>
-    <form
-        :action="action" :method="method"
-        class="grid-x">
-
+    <div>
         <input type="hidden" name="csrfToken" :value="csrfToken">
 
         <!-- General information -->
@@ -181,13 +178,7 @@
 
             <hr>
         </div>
-
-        <div class="cell text-right">
-            <button type="submit" class="button primary large small-only-expanded">
-                Save and continue
-            </button>
-        </div>
-    </form>
+    </div>
 </template>
 
 <script lang="ts">
@@ -206,10 +197,6 @@ declare var NC_CONFIG: any;
 
 export default Vue.extend({
     props: {
-        // The target and method of the form (i.e. URL and GET/POST).
-        action: { type: String, required: true },
-        method: { type: String, required: true },
-
         csrfToken: { type: String, required: false },
 
         // The form data as a JSON object.

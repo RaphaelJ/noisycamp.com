@@ -94,4 +94,35 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
         studio.map(s => Ok(s.toString))
       })
   }
+
+    /** Shows the form with the studio settings. */
+    def settings(id: Studio#Id) = silhouette.SecuredAction.async { implicit request =>
+        val user = request.identity.user
+
+        db.run {
+            for {
+                studio <- daos.studio.query.
+                    filter(_.id === id).
+                    result.headOption
+
+                equips <- daos.studioEquipment.withStudioEquipment(id).result
+                picIds <- daos.studioPicture.withStudioPictureIds(id).result
+            } yield (studio, equips, picIds)
+        }.map {
+            case (Some(studio), equips, picIds) if studio.ownerId == user.id => {
+                val form = StudioForm.fromStudio(studio, equips, picIds)
+
+                Ok(views.html.account.studios.settings(request.identity, studio, form))
+            }
+            case (Some(studio), _, _) if studio.ownerId != user.id =>  {
+                Forbidden("Only the studio owner can edit this studio.")
+            }
+            case (None, _, _) => NotFound("Studio not found.")
+        }
+  }
+
+  /** Shows the form with the studio settings. */
+  def settingsSubmit(id: Long) = silhouette.SecuredAction { implicit request =>
+    Ok("Not Implemented Yet")
+  }
 }
