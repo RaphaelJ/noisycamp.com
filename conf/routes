@@ -24,6 +24,8 @@ POST    /sign-in                        controllers.AuthController.signInSubmit(
 GET     /sign-up                        controllers.AuthController.signUp(redirectTo: Option[String] ?= None)
 POST    /sign-up                        controllers.AuthController.signUpSubmit(redirectTo: Option[String] ?= None)
 
+GET     /sign-out                       controllers.AuthController.signOut
+
 GET     /social/authenticate/:provider  controllers.AuthController.oauth2Authenticate(provider: String, redirectTo: Option[String] ?= None)
 
 # User account
