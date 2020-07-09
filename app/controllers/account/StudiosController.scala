@@ -112,7 +112,8 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
         val user = request.identity.user
 
         val onSuccess = {
-            Redirect(routes.StudiosController.settings(id))
+            Redirect(routes.StudiosController.settings(id)).
+                flashing("success" -> "Settings have been successfully saved.")
         }
 
         db.run({

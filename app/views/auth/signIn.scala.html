@@ -24,7 +24,7 @@
     signInForm: Form[Data], socialProviders: SocialProviderRegistry,
     redirectTo: Option[String])(
     implicit request: RequestHeader, messagesProvider: MessagesProvider,
-    config: Configuration)
+    config: Configuration, flash: Flash)
 
 @implicitField = @{
     helper.FieldConstructor(utils.forms.foundationFieldConstructor.f)

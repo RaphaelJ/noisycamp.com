@@ -17,7 +17,7 @@
 
 @import play.api.Configuration
 
-@(identity: models.Identity)(implicit req: RequestHeader, config: Configuration)
+@(identity: models.Identity)(implicit req: RequestHeader, config: Configuration, flash: Flash)
 
 @layout(
     Seq("My account", identity.user.fullName.getOrElse(identity.user.email)),

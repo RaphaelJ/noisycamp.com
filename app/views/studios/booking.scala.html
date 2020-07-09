@@ -27,7 +27,7 @@
     studio: models.Studio,
     pictures: Seq[models.Picture#Id],
     summary: Either[Seq[FormError], models.BookingTimes])(
-    implicit req: RequestHeader, config: Configuration)
+    implicit req: RequestHeader, config: Configuration, flash: Flash)
 
 @leftPanel = {
     <div class="grid-y grid-padding-y">

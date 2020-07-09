@@ -19,7 +19,7 @@
 
 @(
     identity: Option[models.Identity])(
-    implicit req: play.api.mvc.RequestHeader, config: Configuration)
+    implicit req: play.api.mvc.RequestHeader, config: Configuration, flash: Flash)
 
 @head = {
     <link

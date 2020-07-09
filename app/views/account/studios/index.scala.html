@@ -20,7 +20,7 @@
 @(
     identity: models.Identity,
     studios: Seq[(Studio, Option[models.Picture#Id])])(
-    implicit req: RequestHeader, config: Configuration)
+    implicit req: RequestHeader, config: Configuration, flash: Flash)
 
 @studioBlock(studio: Studio, picIdOpt: Option[models.Picture#Id]) = {
     <div class="grid-x grid-padding-x grid-padding-y">

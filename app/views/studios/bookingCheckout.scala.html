@@ -23,7 +23,7 @@
 @(
     identity: Option[models.Identity],
     stripeSession: Session)(
-    implicit req: RequestHeader, config: Configuration)
+    implicit req: RequestHeader, config: Configuration, flash: Flash)
 
 @javascript = {
     <script src="https://js.stripe.com/v3/"></script>

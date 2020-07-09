@@ -25,7 +25,7 @@
     studio: models.Studio,
     studioForm: Form[Data])(
     implicit request: RequestHeader, messagesProvider: MessagesProvider,
-    config: Configuration)
+    config: Configuration, flash: Flash)
 
 @head = {
     <link

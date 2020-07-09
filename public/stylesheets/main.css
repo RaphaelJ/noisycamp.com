@@ -296,6 +296,13 @@ form label .error {
     }
 }
 
+/* Flash bar */
+
+.flash-bar {
+    background-color: #639315;
+    color: white;
+}
+
 /* Menus and lists */
 
 /* Reduces the padding when using .menu with .small  */

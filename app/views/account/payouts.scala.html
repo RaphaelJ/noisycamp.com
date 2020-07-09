@@ -28,7 +28,7 @@
     nextPayout: LocalDate,
     stripeOAuthUrl: String,
     payouts: Seq[Payout])(
-    implicit req: RequestHeader, config: Configuration)
+    implicit req: RequestHeader, config: Configuration, flash: Flash)
 
 @connectStripeAccount = {
     <div class="grid-x grid-padding-y grid-padding-x">

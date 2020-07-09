@@ -33,7 +33,7 @@
     javascript: Html = Html(""),
     identity: Option[Identity],
     fullScreen: Boolean = false)(content: Html)(
-    implicit req: RequestHeader, config: Configuration)
+    implicit req: RequestHeader, config: Configuration, flash: Flash)
 
 @topBar = {
     <div class="top-bar-container">
@@ -125,6 +125,32 @@
             @topBar
 
             <main>
+                @for(successMessage <- flash.get("success")) {
+                    <div class="flash-bar success">
+                        <div class="grid-container-fluid">
+                            <div class="grid-x grid-padding-x grid-padding-y">
+                                <div class="cell small-12 text-center">
+                                    <i class="fi-check"></i>&nbsp;
+                                    @successMessage
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                @for(errorMessage <- flash.get("error")) {
+                    <div class="flash-bar error">
+                        <div class="grid-container-fluid">
+                            <div class="grid-x grid-padding-x grid-padding-y">
+                                <div class="cell small-12 text-center">
+                                    <i class="fi-check"></i>&nbsp;
+                                    @errorMessage
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
                 @content
             </main>
 

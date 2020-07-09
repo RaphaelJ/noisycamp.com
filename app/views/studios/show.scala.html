@@ -29,7 +29,7 @@
     studio: models.Studio,
     equipments: Seq[LocalEquipment],
     pictures: Seq[models.Picture#Id])(
-    implicit req: RequestHeader, config: Configuration)
+    implicit req: RequestHeader, config: Configuration, flash: Flash)
 
 @head = {
     <link

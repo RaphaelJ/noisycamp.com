@@ -24,7 +24,7 @@
     javascript: Html = Html(""),
     identity: models.Identity)(
     rightPaneContent: Html)(
-    implicit req: RequestHeader, config: Configuration)
+    implicit req: RequestHeader, config: Configuration, flash: Flash)
 
 @_root_.views.html.layout(title, head=head, javascript=javascript, identity=Some(identity)) {
     <div class="grid-container">

@@ -207,30 +207,33 @@ class AuthController @Inject() (
     }
   }
 
-  /** Authenticates the user by redirecting with an authentication cookie.
-   *
-   * If no redirect url provided, redirect to the main page. */
-  private def authenticate(loginInfo: LoginInfo, redirectTo: Option[String])(
-    implicit request: RequestHeader): Future[Result] = {
+    /** Authenticates the user by redirecting with an authentication cookie.
+    *
+    * If no redirect url provided, redirect to the main page. */
+    private def authenticate(loginInfo: LoginInfo, redirectTo: Option[String])(
+        implicit request: RequestHeader): Future[Result] = {
 
-    val authService = silhouette.env.authenticatorService
+        val authService = silhouette.env.authenticatorService
 
-    authService.
-      create(loginInfo).
-      flatMap { authenticator =>
-        authService.init(authenticator)
-      }.
-      flatMap { token =>
-        authService.embed(token, redirectToResult(redirectTo))
-      }
-  }
+        authService.
+            create(loginInfo).
+            flatMap { authenticator =>
+                authService.init(authenticator)
+            }.
+            flatMap { token =>
+                authService.embed(
+                    token,
+                    redirectToResult(redirectTo).
+                        flashing("success" -> "You have been successfully authenticated."))
+            }
+    }
 
-  private def redirectToResult(redirectTo: Option[String]): Result = {
+    private def redirectToResult(redirectTo: Option[String]): Result = {
     val call = redirectTo match {
       case Some(url) => Call("GET", url)
       case None => routes.IndexController.index
     }
 
     Redirect(call)
-  }
+    }
 }

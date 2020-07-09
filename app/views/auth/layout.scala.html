@@ -22,7 +22,7 @@
     title: String, socialProviders: SocialProviderRegistry,
     redirectTo: Option[String])(
     form: Html)(
-    implicit request: RequestHeader, config: Configuration)
+    implicit request: RequestHeader, config: Configuration, flash: Flash)
 
 @head = {
     <link
