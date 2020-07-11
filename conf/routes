@@ -37,8 +37,10 @@ GET     /account/studios                controllers.account.StudiosController.in
 GET     /account/studios/create         controllers.account.StudiosController.create
 POST    /account/studios/create         controllers.account.StudiosController.createSubmit
 
-GET     /account/studios/:id/settings  controllers.account.StudiosController.settings(id: Long)
-POST    /account/studios/:id/settings  controllers.account.StudiosController.settingsSubmit(id: Long)
+GET     /account/studios/:id/settings   controllers.account.StudiosController.settings(id: Long)
+POST    /account/studios/:id/settings   controllers.account.StudiosController.settingsSubmit(id: Long)
+
+GET     /account/studios/:id/publish    controllers.account.StudiosController.publish(id: Long)
 
 GET     /account/payouts                controllers.account.PayoutsController.index
 GET     /account/payouts/stripe-oauth   controllers.account.PayoutsController.stripeOAuthRedirect(state: String, code: String)

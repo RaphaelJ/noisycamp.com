@@ -68,7 +68,7 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
             form => Future.successful(BadRequest(views.html.account.studios.create(
                 request.identity, form))),
             data => {
-                val (studio, equipments, pictures) = data.toStudio(request.identity.user.id)
+                val (studio, equipments, pictures) = data.toStudio(Left(request.identity.user.id))
 
                 db.run({
                     for {
@@ -77,8 +77,11 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
                           dbStudio.id, equipments)
                         _ <- daos.studioPicture.setStudioPics(dbStudio.id, pictures)
                     } yield dbStudio
-                }.transactionally).map { s =>
-                    Ok(s.toString)
+                }.transactionally).map { studio =>
+                    Redirect(_root_.controllers.routes.StudiosController.show(studio.id)).
+                        flashing("success" ->
+                            ("Your studio page is ready. " +
+                             "You can now review it before making it available to the public."))
                 }
             })
     }
@@ -111,11 +114,6 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
     def settingsSubmit(id: Studio#Id) = silhouette.SecuredAction.async { implicit request =>
         val user = request.identity.user
 
-        val onSuccess = {
-            Redirect(routes.StudiosController.settings(id)).
-                flashing("success" -> "Settings have been successfully saved.")
-        }
-
         db.run({
             val dbStudio = daos.studio.query.
                 filter(_.id === id).
@@ -128,7 +126,12 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
                             views.html.account.studios.settings(request.identity, studio, form))),
                         data => {
                             val (newStudio, newEquips, newPics) =
-                                data.toStudio(user.id, id, studio.createdAt)
+                                data.toStudio(Right(studio))
+
+                            val onSuccess = {
+                                Redirect(routes.StudiosController.settings(id)).
+                                    flashing("success" -> "Settings have been successfully saved.")
+                            }
 
                             DBIO.seq(
                                 daos.studio.query.
@@ -142,7 +145,34 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
                 case Some(studio) => DBIO.successful(
                     Forbidden("Only the studio owner can edit settings."))
                 case None => DBIO.successful(NotFound("Studio not found."))
-            }): (Option[Studio] => DBIOAction[Result, slick.dbio.NoStream, Effect.All])
-        } })
+            }): (Option[Studio] => DBIOAction[Result, slick.dbio.NoStream, Effect.All]) }
+        }.transactionally)
+    }
+
+    def publish(id: Studio#Id) = silhouette.SecuredAction.async { implicit request =>
+        val user = request.identity.user
+
+        db.run({
+            val dbStudio = daos.studio.query.
+                filter(_.id === id).
+                result.headOption
+
+            dbStudio.flatMap { (_ match {
+                case Some(studio) if studio.ownerId == user.id => {
+                    val onSuccess = Redirect(_root_.controllers.routes.StudiosController.show(id)).
+                        flashing("success" -> "The studio is now visible to the public.")
+
+                    daos.studio.query.
+                        filter(_.id === id).
+                        map(_.published).
+                        update(true).
+                        map { _ => onSuccess }
+                    }
+                case Some(studio) => DBIO.successful(
+                    Forbidden("Only the studio owner can publish."))
+                case None => DBIO.successful(
+                    NotFound("Studio not found."))
+            }) }
+        }.transactionally)
     }
 }

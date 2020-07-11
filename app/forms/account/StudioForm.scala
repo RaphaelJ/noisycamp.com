@@ -59,9 +59,17 @@ object StudioForm {
         equipments:       Seq[Equipment],
         pictures:         Seq[Picture#Id]) {
 
-        def toStudio(userId: User#Id, id: Studio#Id = 0L, createdAt: Instant = Instant.now())(
+        /** Constructs a new studio object from the form data, either with default values or from
+         * an existing studio object. */
+        def toStudio(initialValue: Either[User#Id, Studio])(
             implicit timeZoneService: TimeZoneService)
             : (Studio, Seq[Equipment], Seq[Picture#Id]) = {
+
+            val (id, createdAt, ownerId, published) = initialValue match {
+                case Left(ownerId) => (0L, Instant.now(), ownerId, false)
+                case Right(studio) => (
+                    studio.id, studio.createdAt, studio.ownerId, studio.published)
+            }
 
             val timezone: ZoneId = timeZoneService.
               query(location.coordinates.lat, location.coordinates.long).
@@ -70,7 +78,8 @@ object StudioForm {
             val studio = Studio(
                 id = id,
                 createdAt = createdAt,
-                ownerId = userId,
+                ownerId = ownerId,
+                published = published,
                 name = name,
                 description = description,
                 location = location,

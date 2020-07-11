@@ -23,34 +23,41 @@ import scala.math.BigDecimal.RoundingMode
 import squants.market.{ Currency, Money }
 
 case class Studio(
-  id:               Studio#Id         = 0L,
-  createdAt:        Instant           = Instant.now(),
+    id:               Studio#Id         = 0L,
+    createdAt:        Instant           = Instant.now(),
 
-  ownerId:          User#Id,
+    ownerId:          User#Id,
 
-  name:             String,
-  description:      String,
+    published:        Boolean           = false,
 
-  location:         Location,
-  timezone:         ZoneId,
-  openingSchedule:  OpeningSchedule,
-  pricingPolicy:    PricingPolicy,
-  bookingPolicy:    BookingPolicy,
-  paymentPolicy:    PaymentPolicy) {
+    name:             String,
+    description:      String,
 
-  type Id = Long
+    location:         Location,
+    timezone:         ZoneId,
+    openingSchedule:  OpeningSchedule,
+    pricingPolicy:    PricingPolicy,
+    bookingPolicy:    BookingPolicy,
+    paymentPolicy:    PaymentPolicy) {
 
-  def localPricingPolicy = {
-    val currency = location.address.country.currency
+    type Id = Long
 
-    LocalPricingPolicy(
-      currency(pricingPolicy.pricePerHour),
-      pricingPolicy.evening.map { eveningPolicy => LocalEveningPricingPolicy(
-        eveningPolicy.beginsAt,
-        currency(eveningPolicy.pricePerHour)
-      ) },
-      pricingPolicy.weekend.map { weekendPolicy => LocalWeekendPricingPolicy(
-        currency(weekendPolicy.pricePerHour)
-      ) })
-  }
+    def localPricingPolicy = {
+        val currency = location.address.country.currency
+
+        LocalPricingPolicy(
+            currency(pricingPolicy.pricePerHour),
+            pricingPolicy.evening.map { eveningPolicy => LocalEveningPricingPolicy(
+                eveningPolicy.beginsAt,
+                currency(eveningPolicy.pricePerHour))
+            },
+            pricingPolicy.weekend.map { weekendPolicy => LocalWeekendPricingPolicy(
+                currency(weekendPolicy.pricePerHour))
+            })
+    }
+
+    def isOwner(user: User): Boolean = ownerId == user.id
+
+    /** Returns true iff the studio is public or owned by the given user. */
+    def canAccess(user: Option[User]): Boolean = published || (user.map(isOwner _).getOrElse(false))
 }

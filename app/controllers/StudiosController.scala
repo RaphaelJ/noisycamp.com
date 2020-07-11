@@ -29,120 +29,120 @@ import daos.CustomColumnTypes
 import forms.studios.SearchForm
 import misc.GIS
 import misc.JsonWrites._
-import models.{ BBox, Studio, StudioWithPictureAndEquipments }
+import models.{ BBox, Studio, StudioWithPictureAndEquipments, User }
 
 @Singleton
 class StudiosController @Inject() (ccc: CustomControllerCompoments)
-  extends CustomBaseController(ccc)
-  with CustomColumnTypes {
+    extends CustomBaseController(ccc)
+    with CustomColumnTypes {
 
-  import profile.api._
+    import profile.api._
 
-  def index = silhouette.UserAwareAction { implicit request =>
-    Ok(views.html.studios.index(identity=request.identity))
-  }
-
-  def search = silhouette.UserAwareAction.async { implicit request =>
-    SearchForm.form.bindFromRequest.fold(
-      form => Future.successful(BadRequest("Invalid search parameters.")),
-      data => {
-        // Uses the BBox parameter, or generates a BBox around the location's
-        // center if not provided.
-        val bboxRadius = BigDecimal(60 * 1000) // 60 Km
-        val bboxOpt = data.bbox.
-          orElse { data.center.map(GIS.centeredBBox(bboxRadius, _)) }
-
-        db.run({ for {
-          // Fetches studios matching query.
-          studios <- daos.studio.query.
-            filter { studio =>
-              // Geographical filter
-              val isInBBox = bboxOpt match {
-                case Some(BBox(north, south, west, east)) => {
-                  studio.long >= west && studio.long <= east &&
-                  studio.lat >= south && studio.lat <= north
-                }
-                case None => true: Rep[Boolean]
-              }
-
-              // Is open on date
-              val isOpen = data.availableOn match {
-                case Some(date) => {
-                  date.getDayOfWeek match {
-                    case DayOfWeek.MONDAY => studio.mondayIsOpen
-                    case DayOfWeek.TUESDAY => studio.tuesdayIsOpen
-                    case DayOfWeek.WEDNESDAY => studio.wednesdayIsOpen
-                    case DayOfWeek.THURSDAY => studio.thursdayIsOpen
-                    case DayOfWeek.FRIDAY => studio.fridayIsOpen
-                    case DayOfWeek.SATURDAY => studio.saturdayIsOpen
-                    case DayOfWeek.SUNDAY => studio.sundayIsOpen
-                  }
-                }
-                case None => true: Rep[Boolean]
-              }
-
-              // FIXME: does not filter out studios that are not availaible on
-              // the selected day.
-
-              isInBBox && isOpen
-            }.
-            take(200). // Limits to 200 studios
-            result
-
-          // Fetches matching studios' pictures
-          picIds <- DBIO.sequence(
-            studios.map { studio =>
-              daos.studioPicture.
-                withStudioPictureIds(studio.id).
-                take(1).
-                result.
-                headOption
-              })
-
-          // Fetches matching studios' equipment
-          equipments <- DBIO.sequence(
-            studios.map { studio =>
-              daos.studioEquipment.
-                withStudioEquipment(studio.id).
-                result
-              })
-
-          } yield studios zip picIds zip equipments
-
-        }.transactionally).map { studios =>
-
-          val results = studios.
-            map { case ((studio, picId), equips) =>
-              val localEquips = equips.map(_.localEquipment(studio))
-              StudioWithPictureAndEquipments(studio, picId, localEquips)
-            }
-
-          Ok(Json.obj("results" -> Json.toJson(results)))
-        }
-      }
-    )
-  }
-
-  def show(id: Studio#Id) = silhouette.UserAwareAction.async {
-    implicit request =>
-
-    db.run {
-      for {
-        studio <- daos.studio.query.
-          filter(_.id === id).
-          result.headOption
-
-        equips <- daos.studioEquipment.withStudioEquipment(id).result
-        picIds <- daos.studioPicture.withStudioPictureIds(id).result
-      } yield (studio, equips, picIds)
-    }.map {
-      case (Some(studio), equips, picIds) => {
-
-        Ok(views.html.studios.show(
-          identity = request.identity,
-          studio, equips.map(_.localEquipment(studio)), picIds))
-      }
-      case (None, _, _) => NotFound("Studio not found.")
+    def index = silhouette.UserAwareAction { implicit request =>
+        Ok(views.html.studios.index(identity=request.identity))
     }
-  }
+
+    def search = silhouette.UserAwareAction.async { implicit request =>
+        SearchForm.form.bindFromRequest.fold(
+            form => Future.successful(BadRequest("Invalid search parameters.")),
+            data => {
+                // Uses the BBox parameter, or generates a BBox around the location's
+                // center if not provided.
+                val bboxOpt = data.bbox.
+                    orElse {
+                        val bboxRadius = BigDecimal(60 * 1000) // 60 Km
+                        data.center.map(GIS.centeredBBox(bboxRadius, _))
+                    }
+
+                db.run({ for {
+                    // Fetches studios matching query.
+                    studios <- daos.studio.query.
+                        filter { studio =>
+                            // Geographical filter
+                            val isInBBox = bboxOpt match {
+                                case Some(BBox(north, south, west, east)) => {
+                                    studio.long >= west && studio.long <= east &&
+                                    studio.lat >= south && studio.lat <= north
+                                }
+                                case None => true: Rep[Boolean]
+                            }
+
+                            // Is open on date
+                            val isOpen = data.availableOn match {
+                                case Some(date) => {
+                                    date.getDayOfWeek match {
+                                        case DayOfWeek.MONDAY => studio.mondayIsOpen
+                                        case DayOfWeek.TUESDAY => studio.tuesdayIsOpen
+                                        case DayOfWeek.WEDNESDAY => studio.wednesdayIsOpen
+                                        case DayOfWeek.THURSDAY => studio.thursdayIsOpen
+                                        case DayOfWeek.FRIDAY => studio.fridayIsOpen
+                                        case DayOfWeek.SATURDAY => studio.saturdayIsOpen
+                                        case DayOfWeek.SUNDAY => studio.sundayIsOpen
+                                    }
+                                }
+                                case None => true: Rep[Boolean]
+                            }
+
+                            // FIXME: does not filter out studios that are not availaible on
+                            // the selected day.
+
+                            studio.published && isInBBox && isOpen
+                        }.
+                        take(200). // Limits to 200 studios
+                        result
+
+                    // Fetches matching studios' pictures
+                    picIds <- DBIO.sequence(
+                        studios.map { studio =>
+                            daos.studioPicture.
+                                withStudioPictureIds(studio.id).
+                                take(1).
+                                result.
+                            headOption
+                        })
+
+                    // Fetches matching studios' equipment
+                    equipments <- DBIO.sequence(
+                        studios.map { studio =>
+                            daos.studioEquipment.
+                                withStudioEquipment(studio.id).
+                                result
+                        })
+
+                  } yield studios zip picIds zip equipments
+
+                }.transactionally).map { studios =>
+                    val results = studios.
+                        map { case ((studio, picId), equips) =>
+                            val localEquips = equips.map(_.localEquipment(studio))
+                            StudioWithPictureAndEquipments(studio, picId, localEquips)
+                        }
+
+                    Ok(Json.obj("results" -> Json.toJson(results)))
+                }
+            }
+        )
+    }
+
+    def show(id: Studio#Id) = silhouette.UserAwareAction.async { implicit request =>
+        val user: Option[User] = request.identity.map(_.user)
+
+        db.run {
+            for {
+                studio <- daos.studio.query.
+                    filter(_.id === id).
+                    result.headOption
+
+                equips <- daos.studioEquipment.withStudioEquipment(id).result
+                picIds <- daos.studioPicture.withStudioPictureIds(id).result
+            } yield (studio, equips, picIds)
+        }.map {
+            case (Some(studio), equips, picIds) if studio.canAccess(user) => {
+                Ok(views.html.studios.show(
+                    identity = request.identity,
+                    studio, equips.map(_.localEquipment(studio)), picIds))
+            }
+            case _ => NotFound("Studio not found.")
+        }
+    }
 }

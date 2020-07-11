@@ -208,7 +208,7 @@ export default Vue.extend({
 }
 
 .studio .title {
-    font-weight: 700;
+    font-weight: bold;
 }
 
 .studio .details {

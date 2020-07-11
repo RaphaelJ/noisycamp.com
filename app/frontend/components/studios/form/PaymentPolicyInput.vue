@@ -84,9 +84,6 @@
                         payments.<br>
                         If you wish your customers to comply with your cancellation
                         policy,
-                        <a @click="hasOnsitePayment = false">
-                            disable onsite payments
-                        </a>
                         or adapt your cancellation policy.
                     </div>
                 </div>

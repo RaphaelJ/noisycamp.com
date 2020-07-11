@@ -43,6 +43,8 @@ class StudioDAO @Inject()
     def createdAt           = column[Instant]("created_at")
     def ownerId             = column[User#Id]("owner_id")
 
+    def published           = column[Boolean]("published")
+
     def name                = column[String]("name")
     def description         = column[String]("description")
 
@@ -122,7 +124,7 @@ class StudioDAO @Inject()
     def hasOnsitePayment    = column[Boolean]("has_onsite_payment")
 
     private type StudioTuple = (
-      Studio#Id, Instant, User#Id, String, String,
+      Studio#Id, Instant, User#Id, Boolean, String, String,
       LocationTuple, ZoneId, OpeningScheduleTuple, PricingPolicyTuple,
       BookingPolicyTuple, PaymentPolicyTuple)
 
@@ -152,7 +154,7 @@ class StudioDAO @Inject()
     private type PaymentPolicyTuple = (Boolean, Boolean)
 
     private val studioShaped = (
-      id, createdAt, ownerId, name, description, (
+      id, createdAt, ownerId, published, name, description, (
         (address1, address2, zipcode, city, stateCode, country),
         (long, lat)),
       timezone, (
@@ -170,15 +172,15 @@ class StudioDAO @Inject()
 
     private def toStudio(studioTuple: StudioTuple): Studio = {
       Studio(studioTuple._1, studioTuple._2, studioTuple._3, studioTuple._4,
-        studioTuple._5,
-        toLocation(studioTuple._6), studioTuple._7,
-        toOpeningSchedule(studioTuple._8),
-        toPricingPolicy(studioTuple._9),
-        toBookingPolicy(studioTuple._10), toPaymentPolicy(studioTuple._11))
+        studioTuple._5, studioTuple._6,
+        toLocation(studioTuple._7), studioTuple._8,
+        toOpeningSchedule(studioTuple._9),
+        toPricingPolicy(studioTuple._10),
+        toBookingPolicy(studioTuple._11), toPaymentPolicy(studioTuple._12))
     }
 
     private def fromStudio(studio: Studio): Option[StudioTuple] = {
-      Some((studio.id, studio.createdAt, studio.ownerId, studio.name,
+      Some((studio.id, studio.createdAt, studio.ownerId, studio.published, studio.name,
         studio.description, fromLocation(studio.location),
         studio.timezone, fromOpeningSchedule(studio.openingSchedule),
         fromPricingPolicy(studio.pricingPolicy),

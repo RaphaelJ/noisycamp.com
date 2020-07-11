@@ -65,6 +65,8 @@ create table "studio" (
 
     owner_id                integer not null references "user"(id),
 
+    published               boolean,
+
     name                    varchar not null,
     description             varchar not null,
 

@@ -47,6 +47,10 @@ h1 small, h2 small, h3 small, h4 small, h5 small, h6 small {
     color: #777;
 }
 
+.text-alert {
+    color: #c65050;
+}
+
 /* Overrides Foundation title sizes on large screens. */
 
 @media print, screen and (min-width: 40em) {

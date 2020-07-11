@@ -154,8 +154,7 @@ class AuthController @Inject() (
 
                                     // Immediatly authenticates the user.
                                     result <- authenticate(loginInfo, redirectTo)
-                                } yield result.
-                                    flashing("top-message" -> "Account successfully created.")
+                                } yield result
                             }
                         }
                     }
