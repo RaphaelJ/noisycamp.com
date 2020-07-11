@@ -21,11 +21,10 @@ import play.api.data.Form
 import play.api.libs.json.{ JsObject, Json, JsString }
 
 object FormUtils {
-    /** Constructs a hierarchical JSON object from the form data. */
+    // Constructs a hierarchical JSON object from the form data.
     def dataAsJson(form: Form[_]): JsObject = {
-        /** Recursively goes through the key "." hierarchy (e.g.
-         * "location.address.zipcode") and construct a single item JSON object.
-         */
+        // Recursively goes through the key "." hierarchy (e.g. "location.address.zipcode") and
+        // construct a single item JSON object.
         def goValue(key: String, value: String): JsObject = {
             val (prefix, suffix) = key.span(_ != '.')
 

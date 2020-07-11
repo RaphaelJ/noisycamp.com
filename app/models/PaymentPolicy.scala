@@ -17,10 +17,10 @@
 
 package models
 
-/** Lists the supported payment methods. */
+// Lists the supported payment methods.
 case class PaymentPolicy(
-  /** If true, accepts online payments during booking. */
+  // If true, accepts online payments during booking.
   hasOnlinePayment:   Boolean,
 
-  /** If true, accepts payment-less booking. */
+  // If true, accepts payment-less booking.
   hasOnsitePayment:   Boolean)

@@ -19,10 +19,10 @@ package models
 
 import com.mohiva.play.silhouette.api
 
-/** Contains miscellaneous user related information as obtained from the
- * database during authentication. */
+// Contains miscellaneous user related information as obtained from the database during
+// authentication.
 case class Identity(
   val user: User,
 
-  /** True if the person hosts at least one studio. */
+  // True if the person hosts at least one studio.
   val isAHost: Boolean) extends api.Identity

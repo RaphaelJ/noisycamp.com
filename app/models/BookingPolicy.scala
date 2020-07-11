@@ -23,8 +23,7 @@ case class BookingPolicy(
   minBookingDuration:   Duration,
   automaticApproval:    Boolean,
 
-  /** If set, allow the customer to cancel the booking within the specified
-   * notice. */
+  // If set, allow the customer to cancel the booking within the specified notice.
   cancellationPolicy:   Option[CancellationPolicy])
 
 case class CancellationPolicy(

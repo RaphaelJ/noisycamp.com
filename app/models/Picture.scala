@@ -23,7 +23,7 @@ import scala.language.implicitConversions
 import com.sksamuel.scrimage.Format
 
 case class PictureId(
-  /** SHA-256 hash of the content */
+  // SHA-256 hash of the content
   val value: Array[Byte]) {
 
   def base64 = java.util.Base64.getEncoder.encodeToString(value)
