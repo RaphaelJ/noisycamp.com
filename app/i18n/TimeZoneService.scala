@@ -21,15 +21,35 @@ import java.time.ZoneId
 import javax.inject._
 
 import net.iakovlev.timeshape.TimeZoneEngine
+import play.api.Configuration
 
 /** Provides a way to deduce the timezone of given coordinates. */
 @Singleton
-class TimeZoneService {
-  val engine = TimeZoneEngine.initialize();
+class TimeZoneService @Inject() (
+    val config: Configuration) {
 
-  def query(lat: BigDecimal, long: BigDecimal): Option[ZoneId] = {
-    engine.query(lat.doubleValue, long.doubleValue).
-      map[Option[ZoneId]](Option.apply(_)).
-      orElse(Option.empty)
-  }
+    private var engineInstance: Option[TimeZoneEngine] = None;
+
+    def engine: TimeZoneEngine = {
+        engineInstance match {
+            case Some(instance) => instance
+            case None => {
+                val instance = TimeZoneEngine.initialize()
+
+                val cacheEngine = config.underlying.getBoolean("noisycamp.cacheTimeZoneEngine")
+                if (cacheEngine) {
+                    engineInstance = Some(instance)
+                }
+
+                instance
+            }
+        }
+    }
+
+    def query(lat: BigDecimal, long: BigDecimal): Option[ZoneId] = {
+        engine.
+            query(lat.doubleValue, long.doubleValue).
+            map[Option[ZoneId]](Option.apply(_)).
+            orElse(Option.empty)
+    }
 }
