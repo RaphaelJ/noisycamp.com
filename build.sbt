@@ -96,5 +96,5 @@ webpackBuild := { (Process("npm run build", file("./app/frontend"))).! }
 val webpackBuildDev = taskKey[Unit]("Webpack build task, development mode.")
 webpackBuildDev := { (Process("npm run build-dev", file("./app/frontend"))).! }
 
-(root / Compile / packageBin) := ((root / Compile / packageBin) dependsOn webpackBuild).value
-(root / Compile / packageBin) := ((root / Compile / packageBin) dependsOn webpackInstall).value
+stage := (stage dependsOn webpackBuild).value
+stage := (stage dependsOn webpackInstall).value
