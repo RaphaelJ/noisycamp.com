@@ -19,9 +19,7 @@
 
 @(identity: models.Identity)(implicit req: RequestHeader, config: Configuration, flash: Flash)
 
-@layout(
-    Seq("My account", identity.user.fullName.getOrElse(identity.user.email)),
-    identity=identity) {
+@layout(Seq("My account"), identity=identity) {
 
     <div class="grid-y grid-padding-y">
         <div class="cell">

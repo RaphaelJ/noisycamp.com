@@ -31,6 +31,10 @@
         <div class="grid-x grid-padding-x grid-padding-y">
             <div class="cell">
                 <h1>@title.head</h1>
+
+                @if(title.length >= 2) {
+                    <h4><small>@title(1)</small></h4>
+                }
             </div>
 
             <div class="cell small-12 medium-3">

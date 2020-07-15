@@ -55,9 +55,7 @@
     </div>
 }
 
-@layout(
-    Seq("Payout preferences", identity.user.fullName.getOrElse(identity.user.email)),
-    identity=identity) {
+@layout(Seq("Payout preferences"), identity=identity) {
 
     <div class="grid-x grid-margin-y grid-padding-x">
         @identity.user.stripeUserId match  {

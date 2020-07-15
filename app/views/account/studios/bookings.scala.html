@@ -24,7 +24,7 @@
     implicit request: RequestHeader, messagesProvider: MessagesProvider,
     config: Configuration, flash: Flash)
 
-@views.html.account.layout(Seq("Studio bookings"), identity=identity) {
+@views.html.account.layout(Seq("Studio bookings", studio.name), identity=identity) {
     <div class="panel-section">
         <table class="stack">
             <thead>

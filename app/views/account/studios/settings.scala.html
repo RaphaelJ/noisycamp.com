@@ -33,7 +33,7 @@
         href="https://api.mapbox.com/mapbox-gl-js/v1.8.1/mapbox-gl.css">
 }
 
-@views.html.account.layout(Seq("Studio settings"), head=head, identity=identity) {
+@views.html.account.layout(Seq("Studio settings", studio.name), head=head, identity=identity) {
     <div class="panel-section">
         <form
             action="@controllers.account.routes.StudiosController.settingsSubmit(studio.id)"
