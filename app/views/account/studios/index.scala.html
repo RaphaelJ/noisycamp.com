@@ -58,17 +58,20 @@
                     <div class="cell shrink">
                         <a
                             href="@controllers.routes.StudiosController.show(studio.id)"
-                            target="_blank">
-                            <strong class="text-alert">
-                                <i class="fi-alert"></i>&nbsp;
-                                Unpublished
-                            </strong>
+                            target="_blank"
+                            class="text-alert">
+                            <i class="fi-alert"></i>&nbsp;
+                            Unpublished
                         </a>
                     </div>
                 }
 
                 <ul class="cell small-12 vertical menu small">
-                    <li><a href="#">Manage bookings</a></li>
+                    <li>
+                        <a href="@controllers.account.routes.StudiosController.bookings(studio.id)">
+                            Bookings
+                        </a>
+                    </li>
                     <li><a href="#">Calendar</a></li>
                     <li>
                         <a href="@controllers.account.routes.StudiosController.settings(studio.id)">

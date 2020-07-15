@@ -149,6 +149,37 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
         }.transactionally)
     }
 
+    def bookings(id: Studio#Id) = silhouette.SecuredAction.async { implicit request =>
+        val user = request.identity.user
+
+        db.run({
+            val dbStudio = daos.studio.query.
+                filter(_.id === id).
+                result.headOption
+
+            dbStudio.flatMap {
+                case Some(studio) => {
+                    daos.studioBooking.query.
+                        filter(_.studioId === id).
+                        join(daos.user.query).on(_.customerId === _.id).
+                        sortBy(_._1.beginsAt.desc).
+                        result.
+                        map { bookings =>
+                            Some((studio, bookings))
+                        }
+                }
+                case None => DBIO.successful(None)
+            }
+        }.transactionally).
+            map {
+                case Some((studio, bookings)) if studio.isOwner(user) => {
+                    Ok(views.html.account.studios.bookings(request.identity, studio, bookings))
+                }
+                case Some(_) => Forbidden("Only the studio owner can see bookings.")
+                case None => NotFound("Studio not found.")
+            }
+    }
+
     def publish(id: Studio#Id) = silhouette.SecuredAction.async { implicit request =>
         val user = request.identity.user
 
@@ -158,7 +189,7 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
                 result.headOption
 
             dbStudio.flatMap { (_ match {
-                case Some(studio) if studio.ownerId == user.id => {
+                case Some(studio) if studio.isOwner(user) => {
                     val onSuccess = Redirect(_root_.controllers.routes.StudiosController.show(id)).
                         flashing("success" -> "The studio is now visible to the public.")
 

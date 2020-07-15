@@ -40,6 +40,8 @@ POST    /account/studios/create         controllers.account.StudiosController.cr
 GET     /account/studios/:id/settings   controllers.account.StudiosController.settings(id: Long)
 POST    /account/studios/:id/settings   controllers.account.StudiosController.settingsSubmit(id: Long)
 
+GET     /account/studios/:id/bookings   controllers.account.StudiosController.bookings(id: Long)
+
 GET     /account/studios/:id/publish    controllers.account.StudiosController.publish(id: Long)
 
 GET     /account/payouts                controllers.account.PayoutsController.index

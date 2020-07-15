@@ -1,0 +1,57 @@
+@* Noisycamp is a platform for booking music studios.
+ * Copyright (C) 2020  Raphael Javaux <raphaeljavaux@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *@
+
+@import play.api.Configuration
+
+@(
+    identity: models.Identity,
+    studio: models.Studio,
+    bookings: Seq[(models.StudioBooking, models.User)])(
+    implicit request: RequestHeader, messagesProvider: MessagesProvider,
+    config: Configuration, flash: Flash)
+
+@views.html.account.layout(Seq("Studio bookings"), identity=identity) {
+    <div class="panel-section">
+        <table class="stack">
+            <thead>
+                <tr>
+                    <th width="25%">Guest name</th>
+                    <th width="15%">Begins on</th>
+                    <th width="10%">Duration</th>
+                    <th width="10%">Total</th>
+                    <th width="20%">Payment status</th>
+                    <th width="20%">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for((booking, customer) <- bookings) {
+                    <tr>
+                        <td>@customer.fullName</td>
+                        <td>@booking.beginsAt</td>
+                        <td>@tags.duration(booking.durationTotal)</td>
+                        <td>@tags.moneyAmount(booking.currency(booking.total))</td>
+                        <td>@tags.moneyAmount(booking.currency(booking.total))</td>
+                        <td class="text-alert">
+                            <i class="fi-alert"></i>&nbsp;
+                            Pending approval
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
