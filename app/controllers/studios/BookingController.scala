@@ -37,7 +37,7 @@ import models.{ BookingTimes, Identity, LocalPricingPolicy, PaymentMethod, Pictu
     StudioBooking, StudioBookingPaymentOnline, StudioBookingStatus, User }
 
 @Singleton
-class Booking @Inject() (ccc: CustomControllerCompoments)
+class BookingController @Inject() (ccc: CustomControllerCompoments)
     extends CustomBaseController(ccc)
     with CustomColumnTypes {
 
@@ -82,7 +82,10 @@ class Booking @Inject() (ccc: CustomControllerCompoments)
     def paymentSuccess(id: Long, sessionId: String) = silhouette.SecuredAction.async {
         implicit request =>
 
-        lazy val onPaymentSuccess = Ok("Payment successful")
+        def onPaymentSuccess(booking: StudioBooking) = {
+            Redirect(_root_.controllers.account.routes.BookingsController.show(booking.id)).
+                flashing("success" -> "Your session has been successfully booked.")
+        }
         def onPaymentFailure(booking: StudioBooking) = Forbidden("Payment failed.")
         lazy val onBookingNotFound = NotFound("Booking not found.")
 
@@ -112,7 +115,7 @@ class Booking @Inject() (ccc: CustomControllerCompoments)
                                             filter(_.stripeCheckoutSessionId === sessionId).
                                             map(_.status).
                                             update(StudioBookingStatus.Succeeded).
-                                            map { _ => onPaymentSuccess }
+                                            map { _ => onPaymentSuccess(booking) }
                                     } else {
                                         DBIO.successful(onPaymentFailure(booking))
                                     }
@@ -177,13 +180,14 @@ class Booking @Inject() (ccc: CustomControllerCompoments)
         // TODO: compute according to booking times and cu
         val total = pricingPolicy.pricePerHour
 
-        val onSuccessEscaped = routes.Booking.paymentSuccess(studio.id, "{CHECKOUT_SESSION_ID}")
+        val onSuccessEscaped = routes.BookingController.paymentSuccess(
+            studio.id, "{CHECKOUT_SESSION_ID}")
         // De-escape { and } characters
         val onSuccess = onSuccessEscaped.copy(
             url=onSuccessEscaped.url.replaceAll("%7B", "{").replaceAll("%7D", "}"))
 
         val beginsAt = bookingTimes.beginsAt
-        val onCancel = routes.Booking.show(
+        val onCancel = routes.BookingController.show(
             id = studio.id,
             beginsAt = beginsAt.toString,
             duration = bookingTimes.duration.getSeconds.toInt)

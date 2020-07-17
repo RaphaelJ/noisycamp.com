@@ -97,7 +97,7 @@ export default Vue.extend({
     },
     computed: {
         bookingUrl() {
-            let url = NC_ROUTES.controllers.studios.Booking.show(this.studioId).url;
+            let url = NC_ROUTES.controllers.studios.BookingController.show(this.studioId).url;
             // Removes any unspecified URL parameter.
             return url.substring(0, url.indexOf('?'));
         },

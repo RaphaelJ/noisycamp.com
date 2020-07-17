@@ -130,7 +130,7 @@ export default Vue.extend({
     },
     computed: {
         bookingSubmitUrl() {
-            return NC_ROUTES.controllers.studios.Booking.submit(this.studioId).url;
+            return NC_ROUTES.controllers.studios.BookingController.submit(this.studioId).url;
         },
 
         cardIcons() {

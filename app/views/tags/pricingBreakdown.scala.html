@@ -1,0 +1,68 @@
+@* Noisycamp is a platform for booking music studios.
+ * Copyright (C) 2020  Raphael Javaux <raphaeljavaux@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *@
+
+@(breakdown: models.PriceBreakdown)
+
+@if(!breakdown.durationRegular.isZero) {
+    <div class="grid-x grid-margin-x">
+        <div class="cell shrink">
+            @tags.duration(breakdown.durationRegular)
+            ×
+            @tags.moneyAmount(breakdown.regularPricePerHour)
+        </div>
+        <div class="cell auto text-right">
+            @tags.moneyAmount(breakdown.regularTotal)
+        </div>
+    </div>
+}
+
+@if(!breakdown.durationEvening.isZero) {
+    <div class="grid-x grid-margin-x">
+        <div class="cell shrink">
+            @tags.duration(breakdown.durationEvening)
+            ×
+            @tags.moneyAmount(breakdown.eveningPricePerHour.get) (evening)
+        </div>
+        <div class="cell auto text-right">
+            @tags.moneyAmount(breakdown.eveningTotal.get)
+        </div>
+    </div>
+}
+
+@if(!breakdown.durationWeekend.isZero) {
+    <div class="grid-x grid-margin-x">
+        <div class="cell shrink">
+            @tags.duration(breakdown.durationWeekend)
+            ×
+            @tags.moneyAmount(breakdown.weekendPricePerHour.get) (weekend)
+        </div>
+        <div class="cell auto text-right">
+            @tags.moneyAmount(breakdown.weekendTotal.get)
+        </div>
+    </div>
+}
+
+<div class="grid-x grid-margin-x total">
+    <div class="cell shrink">
+        <strong>Total</strong>
+    </div>
+    <div class="cell auto text-right">
+        <strong>
+            @tags.moneyAmount(breakdown.total)
+        </strong>
+    </div>
+</div>

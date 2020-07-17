@@ -40,20 +40,20 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
         val user = request.identity.user
 
         db.run({ for {
-          studios <- daos.studio.query.
-            filter(_.ownerId === user.id).
-            result
+            studios <- daos.studio.query.
+                filter(_.ownerId === user.id).
+                result
 
-          picIds <- DBIO.sequence(
-              studios.map { studio =>
-                daos.studioPicture.
-                  withStudioPictureIds(studio.id).
-                  take(1).result.
-                  headOption
-              })
-          } yield studios zip picIds
+            picIds <- DBIO.sequence(
+                studios.map { studio =>
+                    daos.studioPicture.
+                        withStudioPictureIds(studio.id).
+                        take(1).result.
+                        headOption
+                })
+            } yield studios zip picIds
         }.transactionally).map { studios =>
-          Ok(views.html.account.studios.index(request.identity, studios))
+            Ok(views.html.account.studios.index(request.identity, studios))
         }
     }
 
@@ -188,7 +188,7 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
                 filter(_.id === id).
                 result.headOption
 
-            dbStudio.flatMap { (_ match {
+            dbStudio.flatMap {
                 case Some(studio) if studio.isOwner(user) => {
                     val onSuccess = Redirect(_root_.controllers.routes.StudiosController.show(id)).
                         flashing("success" -> "The studio is now visible to the public.")
@@ -203,7 +203,7 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
                     Forbidden("Only the studio owner can publish."))
                 case None => DBIO.successful(
                     NotFound("Studio not found."))
-            }) }
+            }
         }.transactionally)
     }
 }

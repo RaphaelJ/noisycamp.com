@@ -32,6 +32,8 @@ GET     /social/authenticate/:provider  controllers.AuthController.oauth2Authent
 
 GET     /account                        controllers.account.IndexController.index
 
+GET     /account/bookings/:id           controllers.account.BookingsController.show(id: Long)
+
 GET     /account/studios                controllers.account.StudiosController.index
 
 GET     /account/studios/create         controllers.account.StudiosController.create
@@ -57,12 +59,12 @@ GET     /studios/:id                    controllers.StudiosController.show(id: L
 
 # Booking
 
-GET     /studios/:id/book               controllers.studios.Booking.show(id: Long, beginsAt: String, duration: Int)
-POST    /studios/:id/book               controllers.studios.Booking.submit(id: Long)
+GET     /studios/:id/book               controllers.studios.BookingController.show(id: Long, beginsAt: String, duration: Int)
+POST    /studios/:id/book               controllers.studios.BookingController.submit(id: Long)
 
-GET     /studios/:id/book/payment/:sessionId/success controllers.studios.Booking.paymentSuccess(id: Long, sessionId: String)
+GET     /studios/:id/book/payment/:sessionId/success controllers.studios.BookingController.paymentSuccess(id: Long, sessionId: String)
 
-GET     /webhooks/stripe/session-completed controllers.studios.Booking.stripeCompleted
+GET     /webhooks/stripe/session-completed controllers.studios.BookingController.stripeCompleted
 
 # Pictures
 
