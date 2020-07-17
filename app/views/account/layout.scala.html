@@ -39,12 +39,18 @@
 
             <div class="cell small-12 medium-3">
                 <div class="panel-section">
-                    <div class="text-center">@tags.avatar(identity.user, size = 64)</div>
+                    <div class="grid-x">
+                        <h4 class="cell small-12 text-center" style="margin-bottom: 0">
+                            @* @tags.avatar(identity.user, size = 64) *@
+                            @identity.user.displayName
+                        </h4>
 
-                    <h5 class="text-center">@identity.user.displayName</h5>
-                    @if(identity.user.fullName.isDefined) {
-                        <h6 class="text-center"><small>@identity.user.email</small></h6>
-                    }
+                        @if(identity.user.fullName.isDefined) {
+                            <h6 class="cell small-12 text-center">
+                                <small>@identity.user.email</small>
+                            </h6>
+                        }
+                    </div>
 
                     <hr>
 
