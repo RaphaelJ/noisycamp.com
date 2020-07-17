@@ -48,18 +48,19 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
                             filter(_.id === booking.studioId).
                             result.head
 
-                        picIds <- daos.studioPicture.
-                            withStudioPictureIds(studio.id).
-                            result
+                        studioOwner <- daos.user.query.
+                            filter(_.id === studio.ownerId).
+                            result.head
 
-                    } yield Some((studio, picIds, booking))
+                    } yield Some((studio, studioOwner, booking))
                 }
                 case None => DBIO.successful(None)
             }
         }.transactionally).
             map {
-                case Some((studio, picIds, booking)) if booking.isCustomer(user) => Ok(
-                    views.html.account.bookings.show(request.identity, studio, picIds, booking))
+                case Some((studio, studioOwner, booking)) if booking.isCustomer(user) => Ok(
+                    views.html.account.bookings.show(
+                        request.identity, studio, studioOwner, booking))
                 case Some(_) => Forbidden("Cannot access other customers' bookings.")
                 case None => NotFound("Booking not found.")
             }

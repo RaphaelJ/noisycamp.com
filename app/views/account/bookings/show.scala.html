@@ -29,7 +29,7 @@
 @(
     identity: models.Identity,
     studio: models.Studio,
-    pictures: Seq[models.Picture#Id],
+    studioOwner: models.User,
     booking: models.StudioBooking)(
     implicit req: RequestHeader, config: Configuration, flash: Flash)
 
@@ -60,6 +60,7 @@
                 <hr>
 
                 <p class="address">
+
                     @tags.address(studio.location.address)<br>
 
                     @defining(studio.location.coordinates) { coords =>
@@ -69,6 +70,12 @@
                             Get directions
                         </a>
                     }
+                </p>
+
+                <p>
+                    <a href="mailto:@studioOwner.email">
+                        @studioOwner.email
+                    </a>
                 </p>
 
                 <hr class="show-for-small-only">
