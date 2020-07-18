@@ -1,5 +1,5 @@
 /* Noisycamp is a platform for booking music studios.
- * Copyright (C) 2019  Raphael Javaux <raphaeljavaux@gmail.com>
+ * Copyright (C) 2019-2020 Raphael Javaux <raphaeljavaux@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@ import Calendar from './components/calendar/Calendar.vue';
 import Arrow from './components/widgets/Arrow.vue';
 import CurrencySelector from './components/widgets/CurrencySelector.vue';
 import LocationMap from './components/widgets/LocationMap.vue';
+import FixedBottomBox from './components/widgets/FixedBottomBox.vue';
 import PictureCarousel from './components/widgets/PictureCarousel.vue';
 import ReactivePicture from './components/widgets/ReactivePicture.vue';
 import StripeCheckoutRedirect from './components/widgets/StripeCheckoutRedirect.vue';
@@ -40,7 +41,7 @@ var ncApp = new Vue({
     el: "#nc-app",
     components: {
         Calendar,
-        Arrow, LocationMap, PictureCarousel, ReactivePicture,
+        Arrow, LocationMap, FixedBottomBox, PictureCarousel, ReactivePicture,
         StripeCheckoutRedirect,
         BookingForm, BookingTimesForm, BookingPricingCalculator,
         SearchForm, StudioForm,

@@ -211,11 +211,26 @@
                 </div>
             </div>
 
-            <div class="cell small-12 medium-4">
+            <div class="cell small-12 medium-4" id="booking">
                 <div class="panel-section booking-panel">
                     @bookingPanel
                 </div>
             </div>
+
+            <fixed-bottom-box
+                :class="{ 'booking-footer-link': true, 'show-for-small-only': true }"
+                id="booking-footer-link"
+                hide-if-visible="#booking">
+                <a
+                    class="button primary large expanded"
+                    style="margin: 0"
+                    href="#availability"
+                    onclick="$('html, body').animate({
+                        scrollTop: $('#booking').offset().top
+                    }, 500); return false">
+                    Book now
+                </a>
+            </fixed-bottom-box>
         </div>
     </div>
 }
