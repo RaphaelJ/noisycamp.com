@@ -442,6 +442,41 @@ form label .error {
     box-shadow: 0 0 6px rgba(0, 0, 0, 0.25);
 }
 
+/* Plan comparison table */
+
+table.plan-comparison-table {
+    border-collapse: unset;
+}
+
+/* Adds a larger margin between plans on medium and large screens. */
+@media screen and (max-width: 39.9375em) {
+    table.plan-comparison-table {
+        border-spacing: 0.25rem 0;
+    }
+}
+
+@media screen and (min-width: 40em) {
+    table.plan-comparison-table {
+        border-spacing: 2rem 0px;
+    }
+}
+
+.plan-comparison-table th, .plan-comparison-table td {
+    vertical-align: top;
+    padding: 1.1rem;
+
+    border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.plan-comparison-table th,
+.plan-comparison-table tr:not(:last-child) td {
+    border-bottom: none;
+}
+
+.plan-comparison-table tr td {
+    border-top: none;
+}
+
 /* Equipment/Instrument list */
 
 .equipment-list {
