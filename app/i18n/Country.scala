@@ -25,11 +25,14 @@ object Country extends Enumeration {
     * @param vat Local VAT tax, as a percentage.
     * @param states If the country has state or province subdivisions, maps
     * state codes (e.g. `NY`) to state names.
+    * @param namePrefix A prefix that should be added to the country name, like in
+    * "The Netherlands".
     */
   case class Val(
     val name: String, val currency: market.Currency, val isoCode: String,
     val vat: Option[Double] = None, val addressFormat: AddressFormat.Value,
-    val states: Map[String, String] = Map(), val hasZipCode: Boolean = true)
+    val states: Map[String, String] = Map(), val hasZipCode: Boolean = true,
+    val namePrefix: Option[String] = None)
     extends super.Val
 
   /** Eurozone (EU-19) */
@@ -60,7 +63,7 @@ object Country extends Enumeration {
     Some(17), AddressFormat.European)
   val Malta = Val("Malta", Currency.EUR, "MT", Some(18), AddressFormat.European)
   val Netherlands = Val("Netherlands", Currency.EUR, "NL",
-    Some(21), AddressFormat.European)
+    Some(21), AddressFormat.European, namePrefix = Some("The"))
   val Portugal = Val("Portugal", Currency.EUR, "PT",
     Some(23), AddressFormat.European)
   val Slovakia = Val("Slovakia", Currency.EUR, "SK",
@@ -78,7 +81,7 @@ object Country extends Enumeration {
   val Croatia = Val("Croatia", Currency.HRK, "HR",
     Some(25), AddressFormat.European)
   val CzechRepublic = Val("Czech Republic", Currency.CZK, "CZ",
-    Some(21), AddressFormat.European)
+    Some(21), AddressFormat.European, namePrefix = Some("The"))
   val Hungary = Val("Hungary", Currency.HUF, "HU", Some(27),
     AddressFormat.Hungarian)
   val Poland = Val("Poland", Currency.PLN, "PL", Some(23),
@@ -88,7 +91,7 @@ object Country extends Enumeration {
   val Sweden = Val("Sweden", Currency.SEK, "SE", Some(25),
     AddressFormat.European)
   val UnitedKingdom = Val("United Kingdom", Currency.GBP, "UK", Some(20),
-    AddressFormat.British)
+    AddressFormat.British, namePrefix = Some("The"))
 
   /* Europe, non EU */
   val Iceland = Val("Iceland", Currency.ISK, "IS", Some(24),
@@ -190,7 +193,7 @@ object Country extends Enumeration {
       "GU" -> "Guam",
       "MP" -> "Northern Mariana Islands",
       "PR" -> "Puerto Rico",
-      "VI" -> "Virgin Islands"))
+      "VI" -> "Virgin Islands"), namePrefix = Some("The"))
 
   /** Maps country ISO codes to `Country` instances. */
   val byCode: Map[String, Val] = values.

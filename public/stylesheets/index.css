@@ -68,6 +68,19 @@
     fill: white;
 }
 
+/* Frequently asked questions */
+
+dl.faq dt {
+    margin-bottom: 1rem;
+
+    font-size: 1.15em;
+    font-family: 'Playfair Display', serif;
+}
+
+dl.faq dd {
+    margin-bottom: 1.75rem;
+}
+
 /* Become a host section */
 
 .become-a-host .section-title {
@@ -78,4 +91,9 @@
 
 .become-a-host img {
     max-height: 200px;
+}
+
+.become-a-host .become-a-host-button {
+    padding-top: 1.75rem;
+    padding-bottom: 1.75rem;
 }

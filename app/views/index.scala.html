@@ -17,6 +17,8 @@
 
 @import play.api.Configuration
 
+@import i18n.Country
+
 @(identity: Option[models.Identity])(
 implicit req: RequestHeader, config: Configuration, flash: Flash)
 
@@ -122,11 +124,63 @@ implicit req: RequestHeader, config: Configuration, flash: Flash)
                 </p>
             </div>
 
+            <hr class="cell small-12">
 
-            <h2 class="cell small-12 text-center">Plans and pricing</h2>
+            <h2 class="cell small-12 text-center" id="pricing">Plans and pricing</h2>
 
             <div class="cell small-12 large-offset-1 large-10">
                 @tags.planComparisonTable()
+            </div>
+
+            <hr class="cell small-12">
+
+            <h2 class="cell small-12 text-center" id="faq">Frequently asked questions</h2>
+
+            <dl class="cell small-12 large-offset-1 large-10 faq">
+                <dt>Where is NoisyCamp available?</dt>
+                <dd>
+                    NoisyCamp is currently availaible in @Country.values.size countries:<br>
+                    @{
+                        val names = Country.values.
+                            toSeq.
+                            sortBy(_.asInstanceOf[Country.Val].name).
+                            map { v =>
+                                val country = v.asInstanceOf[Country.Val]
+                                country.namePrefix match {
+                                    case Some(prefix) => s"$prefix ${country.name}"
+                                    case None => country.name
+                                }
+                            }
+
+                        s"${names.init.mkString(", ")} and ${names.last}."
+                    }
+                </dd>
+
+                <dt>How do online transactions work?</dt>
+                <dd>
+                    If the studio owner wishes to accept online payments, musicians will be allowed
+                    to settle the reservation amount at the time of the booking using a valid credit
+                    card.<br>
+                    The studio owner will then receive that amount directly on their bank account,
+                    minus the NoisyCamp service fee (8% for <i>Free</i> plan users, 5% for
+                    <i>Plus</i> plan users).<br>
+                    Payouts to the owner's bank account are done daily for <i>Plus</i> accounts
+                    and monthtly for <i>Free</i> accounts (on the 15th day of the month).
+                    Payments are released for payout 48 hours after the end of the session. <br>
+                    For example, a payment for a session on June 24th will be transferred on June
+                    26th for <i>Plus</i> plan users but on July 15th for <i>Free</i> plan users.
+                    <br>
+                </dd>
+            </dl>
+
+            <hr class="cell small-12">
+
+            <div class="cell small-12 medium-4 medium-offset-4 text-center become-a-host-button">
+                <a href="#" class="button primary large expanded">Become a host</a>
+                <p class="help-text">
+                    Or <a href="@routes.StudiosController.index()">
+                        browse existing studios</a>.
+                </p>
             </div>
         </div>
     </div>
