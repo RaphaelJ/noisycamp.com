@@ -50,7 +50,7 @@
                 </div>
             </div>
 
-            <div class="schedule" ref="schedule">
+            <div class="schedule" ref="schedule" :class="{ 'scrollable': scrollable }">
                 <div class="schedule-container">
                     <div class="hour-labels">
                         <div
@@ -115,6 +115,9 @@ export default Vue.extend({
 
         // The CSS classes of the event.
         classes: <PropOptions<Object[]>>{ type: Array, default: () => [] },
+
+        // If true, the calendar will only show 14h and be scrollable.
+        scrollable: { type: Boolean, default: true },
     },
     data() {
         return {
@@ -388,27 +391,31 @@ export default Vue.extend({
 
 .calendar .schedule {
     position: relative;
+}
 
+.calendar .schedule .schedule-container {
+    display: flex;
+    flex-direction: row;
+}
+
+.calendar .schedule.scrollable {
     height: 100%;
     overflow-y: scroll;
 }
 
-.calendar .schedule:after {
+.calendar .schedule.scrollable:after {
     /* Keeps a 1:2 aspect ratio. */
     padding-top: calc(1 / 2 * 100%);
     display: block;
     content: '';
 }
 
-.calendar .schedule .schedule-container {
+.calendar .schedule.scrollable .schedule-container {
     position: absolute;
     top: 0;
     bottom: 0;
     right: 0;
     left: 0;
-
-    display: flex;
-    flex-direction: row;
 
     /* Only shows 14h of the day. */
     height: calc(100% / 14 * 24);

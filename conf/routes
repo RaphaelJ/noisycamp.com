@@ -44,6 +44,8 @@ POST    /account/studios/:id/settings   controllers.account.StudiosController.se
 
 GET     /account/studios/:id/bookings   controllers.account.StudiosController.bookings(id: Long)
 
+GET     /account/studios/:id/calendar   controllers.account.StudiosController.calendar(id: Long)
+
 GET     /account/studios/:id/publish    controllers.account.StudiosController.publish(id: Long)
 
 GET     /account/payouts                controllers.account.PayoutsController.index

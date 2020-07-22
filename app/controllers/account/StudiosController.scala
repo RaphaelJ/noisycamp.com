@@ -22,11 +22,13 @@ import javax.inject._
 
 import scala.concurrent.Future
 
+import com.mohiva.play.silhouette.api.actions.SecuredRequest
 import play.api._
 import play.api.mvc._
 
+import auth.DefaultEnv
 import forms.account.StudioForm
-import models.{ PaymentPolicy, Studio }
+import models.{ PaymentPolicy, Studio, StudioBooking, User }
 import _root_.controllers.{ CustomBaseController, CustomControllerCompoments }
 
 @Singleton
@@ -150,6 +152,21 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
     }
 
     def bookings(id: Studio#Id) = silhouette.SecuredAction.async { implicit request =>
+        withStudioBookings(id, { case (studio, bookings) =>
+            Ok(views.html.account.studios.bookings(request.identity, studio, bookings))
+        })
+    }
+
+    def calendar(id: Studio#Id) = silhouette.SecuredAction.async { implicit request =>
+        withStudioBookings(id, { case (studio, bookings) =>
+            Ok(views.html.account.studios.calendar(request.identity, studio, bookings))
+        })
+    }
+
+    private def withStudioBookings[T](id: Studio#Id,
+        f: ((Studio, Seq[(StudioBooking, User)]) => Result))
+        (implicit request: SecuredRequest[DefaultEnv, T]): Future[Result] = {
+
         val user = request.identity.user
 
         db.run({
@@ -172,9 +189,7 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
             }
         }.transactionally).
             map {
-                case Some((studio, bookings)) if studio.isOwner(user) => {
-                    Ok(views.html.account.studios.bookings(request.identity, studio, bookings))
-                }
+                case Some((studio, bookings)) if studio.isOwner(user) => f(studio, bookings)
                 case Some(_) => Forbidden("Only the studio owner can see bookings.")
                 case None => NotFound("Studio not found.")
             }
