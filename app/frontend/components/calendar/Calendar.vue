@@ -39,6 +39,7 @@
                 <div class="day-label"></div>
                 <div
                     class="day-label"
+                    :class="{'today': isToday(currentWeekDays[day - 1]) }"
                     v-for="day in 7"
                     :key="day">
                     <div class="day-label-name">
@@ -111,7 +112,7 @@ export default Vue.extend({
 
         // The list of events to be displayed in the calendar, with calendar
         // local dates as ISO 8601 strings.
-        events: <PropOptions<Object[]>>{ type: Array, required: true },
+        events: <PropOptions<Object[]>>{ type: Array, default() { return []; } },
 
         // The CSS classes of the event.
         classes: <PropOptions<Object[]>>{ type: Array, default: () => [] },
@@ -126,11 +127,12 @@ export default Vue.extend({
         }
     },
     mounted() {
-        // Scrolls the schedule to the 9th hour.
-        this.$refs.schedule.scroll(0, this.$refs.scheduleHour9[0].offsetTop);
+        if (this.scrollable) {
+            // Scrolls the schedule to the 9th hour.
+            this.$refs.schedule.scroll(0, this.$refs.scheduleHour9[0].offsetTop);
+        }
     },
     computed: {
-
         // Current server time as a MomentJS object.
         mCurrentTime() {
             return moment(this.currentTime);
@@ -303,7 +305,11 @@ export default Vue.extend({
             }
 
             return styles;
-        }
+        },
+
+        isToday(date) {
+            return this.mCurrentTime.isSame(date, 'day');
+        },
     },
     components: { Arrow },
 });
@@ -385,6 +391,10 @@ export default Vue.extend({
 .calendar .day-labels .day-label .day-label-date {
     display: block;
     margin-top: -0.3rem;
+}
+
+.calendar .day-labels .day-label.today {
+    font-weight: bold;
 }
 
 /* Schedule */

@@ -32,8 +32,17 @@
 @views.html.account.layout(Seq("Studio calendar", studio.name), identity=identity) {
 
     <div class="panel-section">
-        <div class="grid-x grid-padding-x">
+        <div class="grid-x grid-padding-x grid-padding-y">
+            <div class="cell small-12">
+                <calendar
+                    current-time="@Instant.now.toString"
+                    :scrollable="false"
+                    :opening-schedule="@tags.json(Json.toJson(studio.openingSchedule), htmlEscape = true)"
+                    :events="[]">
+                </calendar>
+            </div>
 
+            <!-- Forces the buttons to be aligned on the right on medium/large screens. -->
             <div class="cell auto hide-for-small-only"></div>
 
             <div class="cell small-6 medium-shrink">
@@ -48,15 +57,6 @@
                     <i class="fi-refresh"></i>&nbsp;
                     Export calendar
                 </a>
-            </div>
-
-            <div class="cell small-12">
-                <calendar
-                    current-time="@Instant.now.toString"
-                    :scrollable="false"
-                    :opening-schedule="@tags.json(Json.toJson(studio.openingSchedule), htmlEscape = true)"
-                    :events="[]">
-                </calendar>
             </div>
         </div>
     </div>
