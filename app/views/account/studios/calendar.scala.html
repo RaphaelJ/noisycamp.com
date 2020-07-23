@@ -38,7 +38,7 @@
                     current-time="@Instant.now.toString"
                     :scrollable="false"
                     :opening-schedule="@tags.json(Json.toJson(studio.openingSchedule), htmlEscape = true)"
-                    :events="[]">
+                    :events="[{'starts-at': '2020-07-25T12:00', 'ends-at': '2020-07-25T15:00', 'classes': ['booking'], 'title': 'Raphael Javaux'}]">
                 </calendar>
             </div>
 
@@ -46,15 +46,15 @@
             <div class="cell auto hide-for-small-only"></div>
 
             <div class="cell small-6 medium-shrink">
-                <a href="#" class="button primary small small-only-expanded">
-                    <i class="fi-plus"></i>&nbsp;
+                <a href="#" class="button primary small-only-expanded">
+                    <i class="fi-plus hide-for-small-only">&nbsp;</i>
                     Add manual booking
                 </a>
             </div>
 
             <div class="cell small-6 medium-shrink">
-                <a href="#" class="button primary small small-only-expanded">
-                    <i class="fi-refresh"></i>&nbsp;
+                <a href="#" class="button primary small-only-expanded">
+                    <i class="fi-upload hide-for-small-only">&nbsp;</i>
                     Export calendar
                 </a>
             </div>

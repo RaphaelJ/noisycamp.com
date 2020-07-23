@@ -84,6 +84,10 @@
                             :key="'event-' + index + '-style-' + styleIndex"
                             :class="eventClasses(event)"
                             :style="style">
+                            <div class="times" v-if="!event.isOpeningScheduleEvent">
+                                {{ event.startsAt.format('HH:MM') }}
+                            </div>
+                            <div class="title" v-if="event.title">{{ event.title }}</div>
                         </div>
                     </div>
                 </div>
@@ -145,8 +149,9 @@ export default Vue.extend({
                     return {
                         startsAt: moment(event['starts-at']),
                         endsAt: moment(event['ends-at']),
-                        classes: event['classes']
-                    }
+                        classes: event['classes'],
+                        title: event['title'],
+                    };
                 });
         },
 
@@ -200,7 +205,6 @@ export default Vue.extend({
                         endsAt: withTimeComponent(
                             todaySDate, today['opens-at']
                         ),
-                        classes: ['closing-time']
                     });
 
                     if (today['closes-at'] > today['opens-at']) {
@@ -209,21 +213,21 @@ export default Vue.extend({
                                 todaySDate, today['closes-at']
                             ),
                             endsAt: withTimeComponent(tomorrowSDate, '00:00'),
-                            classes: ['closing-time']
                         });
                     }
                 } else {
                     events.push({
                         startsAt: withTimeComponent(todaySDate, prevDayOverlap),
                         endsAt: withTimeComponent(tomorrowSDate, '00:00'),
-                        classes: ['closing-time']
                     });
                 }
 
                 prevDay = today;
             }
 
-            return events;
+            return events.map(event =>
+                Object.assign(event, { classes: ["closed"], isOpeningScheduleEvent: true })
+            );
         },
 
         // Events of the currently shown week.
@@ -472,9 +476,24 @@ export default Vue.extend({
 }
 
 .calendar .schedule .event.striped,
-.calendar .schedule .event.closing-time {
+.calendar .schedule .event.closed {
     background: repeating-linear-gradient(
         -45deg, #f5f3f2c2, #f5f3f2c2 5px, #dfdcdbc2 5px, #dfdcdbc2 10px
     );
+}
+
+.calendar .schedule .event.booking {
+    padding: 0.2rem;
+
+    border-left: 3px solid #b37216;
+    background-color: #b372167a;
+}
+
+.calendar .schedule .event.booking .times {
+    font-size: 0.75rem;
+}
+
+.calendar .schedule .event.booking .title {
+    font-size: 0.85rem;
 }
 </style>
