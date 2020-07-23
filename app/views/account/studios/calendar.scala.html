@@ -38,7 +38,9 @@
                     current-time="@studio.currentDateTime.toString"
                     :scrollable="false"
                     :opening-schedule="@tags.json(Json.toJson(studio.openingSchedule), htmlEscape = true)"
-                    :events="[{'starts-at': '2020-07-25T12:00', 'ends-at': '2020-07-25T15:00', 'classes': ['booking'], 'title': 'Raphael Javaux'}]">
+                    :events="@{tags.json(
+                        Json.toJson(bookings.map { case (booking, user) => booking.toEvent(user) }),
+                        htmlEscape = true)}">
                 </calendar>
             </div>
 

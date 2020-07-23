@@ -100,4 +100,8 @@ case class StudioBooking(
         }
         formatter.toString
     }
+
+    def toEvent(customer: User): Event = {
+        Event(beginsAt, durationTotal, Some(customer.displayName), None, Seq("booking"))
+    }
 }

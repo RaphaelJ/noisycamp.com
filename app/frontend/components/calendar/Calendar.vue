@@ -86,7 +86,7 @@
                             :style="style">
                             <div class="times" v-if="!event.isOpeningScheduleEvent">
                                 {{ event.startsAt.format('HH:mm') }}
-                                <span v-if="event.duration">
+                                <span v-if="event.duration" class="show-for-large-only">
                                     - {{ event.duration.asHours() }} hours
                                 </span>
                             </div>
@@ -159,7 +159,7 @@ export default Vue.extend({
                         duration =  moment.duration(endsAt.diff(startsAt));
                     } else {
                         duration = moment.duration(event['duration']);
-                        endsAt = startsAt.add(duration);
+                        endsAt = startsAt.clone().add(duration);
                     }
 
                     return {
@@ -258,7 +258,9 @@ export default Vue.extend({
                     );
                 })
 
-            return events.concat(this.openingScheduleEvents);
+            let currEvents = events.concat(this.openingScheduleEvents);
+
+            return currEvents;
         },
     },
     methods: {
@@ -502,7 +504,8 @@ export default Vue.extend({
 .calendar .schedule .event.booking {
     padding: 0.2rem;
 
-    border-left: 3px solid #b37216;
+    border: 1px solid #b37216;
+    border-left: 4px solid #b37216;
     background-color: #b372167a;
 }
 
