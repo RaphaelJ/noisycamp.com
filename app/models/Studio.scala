@@ -17,7 +17,7 @@
 
 package models
 
-import java.time.{ Instant, ZoneId }
+import java.time.{ LocalDateTime, Instant, ZoneId }
 import scala.math.BigDecimal.RoundingMode
 
 import squants.market.{ Currency, Money }
@@ -60,4 +60,7 @@ case class Studio(
 
     /** Returns true iff the studio is public or owned by the given user. */
     def canAccess(user: Option[User]): Boolean = published || (user.map(isOwner _).getOrElse(false))
+
+    /** The current time at the studio's timezone. */
+    def currentDateTime: LocalDateTime = Instant.now.atZone(timezone).toLocalDateTime
 }

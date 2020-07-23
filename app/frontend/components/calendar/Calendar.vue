@@ -85,7 +85,10 @@
                             :class="eventClasses(event)"
                             :style="style">
                             <div class="times" v-if="!event.isOpeningScheduleEvent">
-                                {{ event.startsAt.format('HH:MM') }}
+                                {{ event.startsAt.format('HH:mm') }}
+                                <span v-if="event.duration">
+                                    - {{ event.duration.asHours() }} hours
+                                </span>
                             </div>
                             <div class="title" v-if="event.title">{{ event.title }}</div>
                         </div>
@@ -146,9 +149,23 @@ export default Vue.extend({
         mEvents() {
             return this.events
                 .map(event => {
+                    let startsAt = moment(event['starts-at']);
+
+                    var endsAt, duration;
+
+                    // Either `duration` or `ends-at` should be provided.
+                    if ('ends-at' in event) {
+                        endsAt = moment(event['ends-at']);
+                        duration =  moment.duration(endsAt.diff(startsAt));
+                    } else {
+                        duration = moment.duration(event['duration']);
+                        endsAt = startsAt.add(duration);
+                    }
+
                     return {
-                        startsAt: moment(event['starts-at']),
-                        endsAt: moment(event['ends-at']),
+                        startsAt: startsAt,
+                        endsAt: endsAt,
+                        duration: duration,
                         classes: event['classes'],
                         title: event['title'],
                     };

@@ -35,7 +35,7 @@
         <div class="grid-x grid-padding-x grid-padding-y">
             <div class="cell small-12">
                 <calendar
-                    current-time="@Instant.now.toString"
+                    current-time="@studio.currentDateTime.toString"
                     :scrollable="false"
                     :opening-schedule="@tags.json(Json.toJson(studio.openingSchedule), htmlEscape = true)"
                     :events="[{'starts-at': '2020-07-25T12:00', 'ends-at': '2020-07-25T15:00', 'classes': ['booking'], 'title': 'Raphael Javaux'}]">
