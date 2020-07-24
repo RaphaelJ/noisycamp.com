@@ -192,6 +192,10 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
             beginsAt = beginsAt.toString,
             duration = bookingTimes.duration.getSeconds.toInt)
 
+        implicit val bigDecimalLoader: ConfigLoader[BigDecimal] =
+            ConfigLoader(_.getString).map(BigDecimal(_))
+        val transactionFee = total * config.get[BigDecimal]("noisycamp.defaultTransactionFeeRate")
+
         val stripeSession = paymentService.initiatePayment(
             user, total, title, description, statement, studioPics,
             PaymentCaptureMethod.Manual, onSuccess, onCancel)
@@ -218,6 +222,7 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
                         pricingPolicy.evening.map(_.pricePerHour.amount),
                     weekendPricePerHour =
                         pricingPolicy.weekend.map(_.pricePerHour.amount),
+                    transactionFee = Some(transactionFee.amount),
                     payment = payment))
             }.transactionally)
 

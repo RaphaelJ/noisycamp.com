@@ -235,6 +235,8 @@ create table "studio_booking" (
 
     -- Payment
 
+    transaction_fee             amount,
+
     payment_method              varchar not null
         check (payment_method in ('online', 'onsite')),
 

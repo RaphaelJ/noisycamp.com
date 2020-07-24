@@ -61,10 +61,10 @@ GET     /studios/:id                    controllers.StudiosController.show(id: L
 
 # Booking
 
-GET     /studios/:id/book               controllers.studios.BookingController.show(id: Long, beginsAt: String, duration: Int)
-POST    /studios/:id/book               controllers.studios.BookingController.submit(id: Long)
+GET     /studios/:id/booking            controllers.studios.BookingController.show(id: Long, beginsAt: String, duration: Int)
+POST    /studios/:id/booking            controllers.studios.BookingController.submit(id: Long)
 
-GET     /studios/:id/book/payment/:sessionId/success controllers.studios.BookingController.paymentSuccess(id: Long, sessionId: String)
+GET     /studios/:id/booking/payment/:sessionId/success controllers.studios.BookingController.paymentSuccess(id: Long, sessionId: String)
 
 GET     /webhooks/stripe/session-completed controllers.studios.BookingController.stripeCompleted
 

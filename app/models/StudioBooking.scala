@@ -42,32 +42,33 @@ final case class StudioBookingPaymentOnline(
 final case class StudioBookingPaymentOnsite() extends StudioBookingPayment
 
 case class StudioBooking(
-    id:                   User#Id = 0L,
-    createdAt:            Instant = Instant.now(),
+    id:                     User#Id = 0L,
+    createdAt:              Instant = Instant.now(),
 
-    studioId:             Studio#Id,
-    customerId:           User#Id,
+    studioId:               Studio#Id,
+    customerId:             User#Id,
 
-    status:               StudioBookingStatus.Value,
+    status:                 StudioBookingStatus.Value,
 
-    beginsAt:             LocalDateTime,
+    beginsAt:               LocalDateTime,
 
-    durationTotal:        Duration,
-    durationRegular:      Duration,
-    durationEvening:      Duration,
-    durationWeekend:      Duration,
+    durationTotal:          Duration,
+    durationRegular:        Duration,
+    durationEvening:        Duration,
+    durationWeekend:        Duration,
 
-    currency:             market.Currency,
+    currency:               market.Currency,
 
-    total:                BigDecimal,
+    total:                  BigDecimal,
 
-    regularPricePerHour:  BigDecimal,
-    eveningPricePerHour:  Option[BigDecimal],
-    weekendPricePerHour:  Option[BigDecimal],
+    regularPricePerHour:    BigDecimal,
+    eveningPricePerHour:    Option[BigDecimal],
+    weekendPricePerHour:    Option[BigDecimal],
 
-    transactionFee:
+    /** The fee collected by NoisyCamp. */
+    transactionFee:         Option[BigDecimal],
 
-    payment:              StudioBookingPayment) {
+    payment:                StudioBookingPayment) {
 
     type Id = Long
 
@@ -77,7 +78,8 @@ case class StudioBooking(
         PriceBreakdown(
             durationTotal, durationRegular, durationEvening, durationWeekend,
             currency(total), currency(regularPricePerHour),
-            eveningPricePerHour.map { currency(_) }, weekendPricePerHour.map { currency (_) })
+            eveningPricePerHour.map { currency(_) }, weekendPricePerHour.map { currency (_) },
+            transactionFee.map { currency(_) })
     }
 
     /** Pseudo-random 6-characters reservation code generated from the booking ID. */

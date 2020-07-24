@@ -23,16 +23,18 @@ import squants.market
 
 /** Contains the duration and price components of a booking. */
 case class PriceBreakdown(
-    durationTotal:        Duration,
-    durationRegular:      Duration,
-    durationEvening:      Duration,
-    durationWeekend:      Duration,
+    durationTotal:          Duration,
+    durationRegular:        Duration,
+    durationEvening:        Duration,
+    durationWeekend:        Duration,
 
-    total:                market.Money,
+    total:                  market.Money,
 
-    regularPricePerHour:  market.Money,
-    eveningPricePerHour:  Option[market.Money],
-    weekendPricePerHour:  Option[market.Money]) {
+    regularPricePerHour:    market.Money,
+    eveningPricePerHour:    Option[market.Money],
+    weekendPricePerHour:    Option[market.Money],
+
+    transactionFee:         Option[market.Money]) {
 
     require(durationTotal.equals(durationRegular plus durationEvening plus durationWeekend))
 
