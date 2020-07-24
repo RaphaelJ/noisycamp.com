@@ -194,7 +194,9 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
 
         implicit val bigDecimalLoader: ConfigLoader[BigDecimal] =
             ConfigLoader(_.getString).map(BigDecimal(_))
-        val transactionFee = total * config.get[BigDecimal]("noisycamp.defaultTransactionFeeRate")
+        val transactionFee =
+            (total * config.get[BigDecimal]("noisycamp.defaultTransactionFeeRate")).
+                rounded(total.currency.formatDecimals)
 
         val stripeSession = paymentService.initiatePayment(
             user, total, title, description, statement, studioPics,

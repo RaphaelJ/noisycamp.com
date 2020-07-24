@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *@
 
-@(breakdown: models.PriceBreakdown)
+@(breakdown: models.PriceBreakdown, showTransactionFee: Boolean = false)
 
 @if(!breakdown.durationRegular.isZero) {
     <div class="grid-x grid-margin-x">
@@ -66,3 +66,25 @@
         </strong>
     </div>
 </div>
+
+@if(showTransactionFee) {
+    @for(transactionFee <- breakdown.transactionFee) {
+        <div class="grid-x grid-margin-x">
+            <div class="cell shrink" style="padding-left: 1rem;">
+                <em>Incl. transaction fee</em>
+            </div>
+            <div class="cell auto text-right">
+                <em>-@tags.moneyAmount(transactionFee)</em>
+            </div>
+        </div>
+
+        <div class="grid-x grid-margin-x">
+            <div class="cell shrink">
+                <strong>You will receive</strong>
+            </div>
+            <div class="cell auto text-right">
+                <strong>@tags.moneyAmount(breakdown.netTotal)</strong>
+            </div>
+        </div>
+    }
+}

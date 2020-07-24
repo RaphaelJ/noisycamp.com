@@ -53,4 +53,9 @@ case class PriceBreakdown(
     private def durationAsHours(duration: Duration): BigDecimal = {
         BigDecimal(durationRegular.getSeconds) / BigDecimal(3600.0)
     }
+
+    /** The booking total minus the transaction fee. */
+    def netTotal: market.Money = {
+        total - transactionFee.getOrElse(total.currency(0))
+    }
 }
