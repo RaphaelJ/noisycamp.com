@@ -36,7 +36,7 @@
 @views.html.account.layout(Seq("Studio settings", studio.name), head=head, identity=identity) {
     <div class="panel-section">
         <form
-            action="@controllers.account.routes.StudiosController.settingsSubmit(studio.id)"
+            action="@controllers.account.studios.routes.IndexController.settingsSubmit(studio.id)"
             method="post"
             class="grid-x">
 

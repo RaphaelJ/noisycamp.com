@@ -34,19 +34,19 @@ GET     /account                        controllers.account.IndexController.inde
 
 GET     /account/bookings/:id           controllers.account.BookingsController.show(id: Long)
 
-GET     /account/studios                controllers.account.StudiosController.index
+GET     /account/studios                controllers.account.studios.IndexController.index
 
-GET     /account/studios/create         controllers.account.StudiosController.create
-POST    /account/studios/create         controllers.account.StudiosController.createSubmit
+GET     /account/studios/create         controllers.account.studios.IndexController.create
+POST    /account/studios/create         controllers.account.studios.IndexController.createSubmit
 
-GET     /account/studios/:id/settings   controllers.account.StudiosController.settings(id: Long)
-POST    /account/studios/:id/settings   controllers.account.StudiosController.settingsSubmit(id: Long)
+GET     /account/studios/:id/settings   controllers.account.studios.IndexController.settings(id: Long)
+POST    /account/studios/:id/settings   controllers.account.studios.IndexController.settingsSubmit(id: Long)
 
-GET     /account/studios/:id/bookings   controllers.account.StudiosController.bookings(id: Long)
+GET     /account/studios/:id/bookings           controllers.account.studios.BookingsController.index(id: Long)
+GET     /account/studios/:id/bookings/calendar  controllers.account.studios.BookingsController.calendar(id: Long)
+GET     /account/studios/:id/bookings/:booking  controllers.account.studios.BookingsController.show(id: Long, booking: Long)
 
-GET     /account/studios/:id/calendar   controllers.account.StudiosController.calendar(id: Long)
-
-GET     /account/studios/:id/publish    controllers.account.StudiosController.publish(id: Long)
+GET     /account/studios/:id/publish    controllers.account.studios.IndexController.publish(id: Long)
 
 GET     /account/payouts                controllers.account.PayoutsController.index
 GET     /account/payouts/stripe-oauth   controllers.account.PayoutsController.stripeOAuthRedirect(state: String, code: String)

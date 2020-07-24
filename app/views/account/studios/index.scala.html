@@ -68,17 +68,17 @@
 
                 <ul class="cell small-12 vertical menu small">
                     <li>
-                        <a href="@controllers.account.routes.StudiosController.bookings(studio.id)">
+                        <a href="@controllers.account.studios.routes.BookingsController.index(studio.id)">
                             Bookings
                         </a>
                     </li>
                     <li>
-                        <a href="@controllers.account.routes.StudiosController.calendar(studio.id)">
+                        <a href="@controllers.account.studios.routes.BookingsController.calendar(studio.id)">
                             Calendar
                         </a>
                     </li>
                     <li>
-                        <a href="@controllers.account.routes.StudiosController.settings(studio.id)">
+                        <a href="@controllers.account.studios.routes.IndexController.settings(studio.id)">
                             Settings
                         </a>
                     </li>
@@ -97,7 +97,7 @@
             <div class="text-center">
                 No studio associated with this account.
                 Do you want to
-                <a href="@controllers.account.routes.StudiosController.create">
+                <a href="@controllers.account.studios.routes.IndexController.create">
                     host a studio</a>?
             </div>
         } else {
@@ -111,7 +111,7 @@
 
                 <div class="cell text-center">
                     <a
-                        href="@controllers.account.routes.StudiosController.create"
+                        href="@controllers.account.studios.routes.IndexController.create"
                         class="button primary small-only-expanded">
                         Host a new studio
                     </a>

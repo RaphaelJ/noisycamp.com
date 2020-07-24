@@ -54,13 +54,13 @@
                     @if(identity.isDefined && identity.get.isAHost) {
                         <li>
                             <a
-                                href="@controllers.account.routes.StudiosController.index">
+                                href="@controllers.account.studios.routes.IndexController.index">
                                 Manage my studios</a>
                         </li>
                     } else {
                         <li>
                             <a
-                                href="@controllers.account.routes.StudiosController.create"
+                                href="@controllers.account.studios.routes.IndexController.create"
                                 class="button primary">Host a studio</a>
                         </li>
                     }
@@ -187,8 +187,6 @@
                                 <span style="color: #3e3e3e">Made</span>
                                 <span style="color: #8f8f20">in</span>
                                 <span style="color: #8c3c3c">Belgium</span>
-                                with
-                                <span style="color: #d76b6b">♥</span>
                             </li>
                             <li>BE 749.513.654</li>
                         </ul>

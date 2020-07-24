@@ -65,6 +65,8 @@ case class StudioBooking(
     eveningPricePerHour:  Option[BigDecimal],
     weekendPricePerHour:  Option[BigDecimal],
 
+    transactionFee:
+
     payment:              StudioBookingPayment) {
 
     type Id = Long

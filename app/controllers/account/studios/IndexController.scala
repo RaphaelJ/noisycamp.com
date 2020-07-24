@@ -15,24 +15,21 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package controllers.account
+package controllers.account.studios
 
-import java.time.ZoneId
 import javax.inject._
 
 import scala.concurrent.Future
 
-import com.mohiva.play.silhouette.api.actions.SecuredRequest
 import play.api._
 import play.api.mvc._
 
-import auth.DefaultEnv
 import forms.account.StudioForm
-import models.{ PaymentPolicy, Studio, StudioBooking, User }
+import models.{ PaymentPolicy, Studio, User }
 import _root_.controllers.{ CustomBaseController, CustomControllerCompoments }
 
 @Singleton
-class StudiosController @Inject() (ccc: CustomControllerCompoments)
+class IndexController @Inject() (ccc: CustomControllerCompoments)
     extends CustomBaseController(ccc) {
 
     import profile.api._
@@ -131,7 +128,7 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
                                 data.toStudio(Right(studio))
 
                             val onSuccess = {
-                                Redirect(routes.StudiosController.settings(id)).
+                                Redirect(routes.IndexController.settings(id)).
                                     flashing("success" -> "Settings have been successfully saved.")
                             }
 
@@ -149,50 +146,6 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
                 case None => DBIO.successful(NotFound("Studio not found."))
             }): (Option[Studio] => DBIOAction[Result, slick.dbio.NoStream, Effect.All]) }
         }.transactionally)
-    }
-
-    def bookings(id: Studio#Id) = silhouette.SecuredAction.async { implicit request =>
-        withStudioBookings(id, { case (studio, bookings) =>
-            Ok(views.html.account.studios.bookings(request.identity, studio, bookings))
-        })
-    }
-
-    def calendar(id: Studio#Id) = silhouette.SecuredAction.async { implicit request =>
-        withStudioBookings(id, { case (studio, bookings) =>
-            Ok(views.html.account.studios.calendar(request.identity, studio, bookings))
-        })
-    }
-
-    private def withStudioBookings[T](id: Studio#Id,
-        f: ((Studio, Seq[(StudioBooking, User)]) => Result))
-        (implicit request: SecuredRequest[DefaultEnv, T]): Future[Result] = {
-
-        val user = request.identity.user
-
-        db.run({
-            val dbStudio = daos.studio.query.
-                filter(_.id === id).
-                result.headOption
-
-            dbStudio.flatMap {
-                case Some(studio) => {
-                    daos.studioBooking.query.
-                        filter(_.studioId === id).
-                        join(daos.user.query).on(_.customerId === _.id).
-                        sortBy(_._1.beginsAt.desc).
-                        result.
-                        map { bookings =>
-                            Some((studio, bookings))
-                        }
-                }
-                case None => DBIO.successful(None)
-            }
-        }.transactionally).
-            map {
-                case Some((studio, bookings)) if studio.isOwner(user) => f(studio, bookings)
-                case Some(_) => Forbidden("Only the studio owner can see bookings.")
-                case None => NotFound("Studio not found.")
-            }
     }
 
     def publish(id: Studio#Id) = silhouette.SecuredAction.async { implicit request =>
