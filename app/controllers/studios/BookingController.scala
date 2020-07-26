@@ -34,7 +34,8 @@ import daos.CustomColumnTypes
 import forms.studios.{ BookingForm, BookingTimesForm }
 import misc.PaymentCaptureMethod
 import models.{ BookingTimes, Identity, LocalPricingPolicy, PaymentMethod, Picture, Studio,
-    StudioBooking, StudioBookingPaymentOnline, StudioBookingStatus, User }
+    StudioBooking, StudioBookingPaymentOnline, StudioBookingPaymentOnsite, StudioBookingStatus,
+    User }
 
 @Singleton
 class BookingController @Inject() (ccc: CustomControllerCompoments)
@@ -207,7 +208,7 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
             val intentId = sess.getPaymentIntent
             val payment = StudioBookingPaymentOnline(sessionId, intentId)
 
-            val booking = db.run({
+            db.run({
                 daos.studioBooking.insert(StudioBooking(
                     studioId = studio.id,
                     customerId = user.id,
@@ -219,24 +220,47 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
                     durationWeekend = Duration.ZERO,
                     currency = total.currency,
                     total = total.amount,
-                        regularPricePerHour = pricingPolicy.pricePerHour.amount,
-                    eveningPricePerHour =
-                        pricingPolicy.evening.map(_.pricePerHour.amount),
-                    weekendPricePerHour =
-                        pricingPolicy.weekend.map(_.pricePerHour.amount),
+                    regularPricePerHour = pricingPolicy.pricePerHour.amount,
+                    eveningPricePerHour = pricingPolicy.evening.map(_.pricePerHour.amount),
+                    weekendPricePerHour = pricingPolicy.weekend.map(_.pricePerHour.amount),
                     transactionFee = Some(transactionFee.amount),
                     payment = payment))
-            }.transactionally)
-
-            booking.map { _ =>
-                Ok(views.html.studios.bookingCheckout(identity = Some(identity), sess))
-            }
+            }.transactionally).
+                map { _ =>
+                    Ok(views.html.studios.bookingCheckout(identity = Some(identity), sess))
+                }
         }
     }
 
     private def handleOnsitePayment(identity: Identity, studio: Studio, studioPics: Seq[Picture#Id],
         bookingTimes: BookingTimes)(implicit request: RequestHeader) : Future[Result] = {
 
-        Future.successful(Ok(bookingTimes.toString))
+        val user = identity.user
+
+        val pricingPolicy = studio.localPricingPolicy
+        val total = pricingPolicy.pricePerHour
+
+        db.run({
+            daos.studioBooking.insert(StudioBooking(
+                studioId = studio.id,
+                customerId = user.id,
+                status = StudioBookingStatus.Succeeded,
+                beginsAt = bookingTimes.beginsAt,
+                durationTotal = bookingTimes.duration,
+                durationRegular = bookingTimes.duration,
+                durationEvening = Duration.ZERO,
+                durationWeekend = Duration.ZERO,
+                currency = total.currency,
+                total = total.amount,
+                regularPricePerHour = pricingPolicy.pricePerHour.amount,
+                eveningPricePerHour = pricingPolicy.evening.map(_.pricePerHour.amount),
+                weekendPricePerHour = pricingPolicy.weekend.map(_.pricePerHour.amount),
+                transactionFee = None,
+                payment = StudioBookingPaymentOnsite()))
+        }.transactionally).
+            map { booking =>
+                Redirect(_root_.controllers.account.routes.BookingsController.show(booking.id)).
+                    flashing("success" -> "Your session has been successfully booked.")
+            }
     }
 }

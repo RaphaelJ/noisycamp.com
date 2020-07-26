@@ -42,7 +42,7 @@ final case class StudioBookingPaymentOnline(
 final case class StudioBookingPaymentOnsite() extends StudioBookingPayment
 
 case class StudioBooking(
-    id:                     User#Id = 0L,
+    id:                     StudioBooking#Id = 0L,
     createdAt:              Instant = Instant.now(),
 
     studioId:               Studio#Id,
@@ -65,8 +65,7 @@ case class StudioBooking(
     eveningPricePerHour:    Option[BigDecimal],
     weekendPricePerHour:    Option[BigDecimal],
 
-    /** The fee collected by NoisyCamp. */
-    transactionFee:         Option[BigDecimal],
+    transactionFee:         Option[BigDecimal], // The fee collected by NoisyCamp.
 
     payment:                StudioBookingPayment) {
 
@@ -107,5 +106,51 @@ case class StudioBooking(
 
     def toEvent(customer: User): Event = {
         Event(beginsAt, durationTotal, Some(customer.displayName), None, Seq("booking"))
+    }
+}
+
+object StudioBooking {
+
+    /** Constructs a booking object from user selected booking times. */
+    def apply(
+        studio: Studio, customer: User, status: StudioBookingStatus.Value,
+        bookingTimes: BookingTimes, bookingBreakdown: BookingBreakdown,
+        transactionFee: Option[BigDecimal], payment: StudioBookingPayment)
+        : StudioBooking = {
+
+        def durationAsHours(duration: Duration): BigDecimal = {
+            BigDecimal(duration.getSeconds) / BigDecimal(3600.0)
+        }
+
+        val pricingPolicy = studio.pricingPolicy
+        val localPricingPolicy = studio.localPricingPolicy
+
+        val totalRegular =  localPricingPolicy.pricePerHour *
+            durationAsHours(bookingBreakdown.durationRegular)
+        val totalEvening =  localPricingPolicy.evening.map(
+            _.pricePerHour * durationAsHours(bookingBreakdown.durationEvening))
+        val totalWeekend = localPricingPolicy.weekend.map(
+            _.pricePerHour * durationAsHours(bookingBreakdown.durationWeekend))
+
+        val currency = totalRegular.currency
+        val zero = currency(0)
+        val total = totalRegular + totalEvening.getOrElse(zero) + totalWeekend.getOrElse(zero)
+
+        StudioBooking(
+            studioId = studio.id,
+            customerId = customer.id,
+            status = status,
+            beginsAt = bookingTimes.beginsAt,
+            durationTotal = bookingBreakdown.durationTotal,
+            durationRegular = bookingBreakdown.durationRegular,
+            durationEvening = bookingBreakdown.durationEvening,
+            durationWeekend = bookingBreakdown.durationWeekend,
+            currency = currency,
+            total = total.amount,
+            regularPricePerHour = pricingPolicy.pricePerHour,
+            eveningPricePerHour = pricingPolicy.evening.map(_.pricePerHour),
+            weekendPricePerHour = pricingPolicy.weekend.map(_.pricePerHour),
+            transactionFee = transactionFee,
+            payment = payment)
     }
 }

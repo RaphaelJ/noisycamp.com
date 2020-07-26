@@ -47,7 +47,7 @@ object BookingTimesForm {
     )(BookingTimes.apply)(BookingTimes.unapply).
       verifying(
         "The studio is not open during the selected booking period.",
-        booking => studio.openingSchedule.validateBooking(booking)
+        booking => studio.openingSchedule.validateBooking(studio.pricingPolicy, booking).isDefined
       )
   }
 }
