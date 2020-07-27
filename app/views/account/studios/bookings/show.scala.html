@@ -57,11 +57,11 @@
             <div class="cell small-12 medium-6">
                 <p class="text-sans-serif">
                         <i class="fi-calendar"></i>&nbsp;
-                        @tags.localDateTime(booking.beginsAt)<br>
+                        @tags.localDateTime(booking.times.beginsAt)<br>
 
 
                     <i class="fi-clock"></i>&nbsp;
-                    @tags.duration(booking.durationTotal)
+                    @tags.duration(booking.times.duration)
                 </p>
 
                 <hr>

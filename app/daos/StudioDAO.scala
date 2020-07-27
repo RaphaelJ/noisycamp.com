@@ -53,7 +53,7 @@ class StudioDAO @Inject()
     def zipcode             = column[Option[String]]("zipcode")
     def city                = column[String]("city")
     def stateCode           = column[Option[String]]("state_code")
-    def country             = column[Country.Val]("country_code")
+    def country             = column[Country.Val]("country")
 
     def long                = column[BigDecimal]("long")
     def lat                 = column[BigDecimal]("lat")

@@ -33,9 +33,9 @@ import _root_.controllers.{ CustomBaseController, CustomControllerCompoments }
 import daos.CustomColumnTypes
 import forms.studios.{ BookingForm, BookingTimesForm }
 import misc.PaymentCaptureMethod
-import models.{ BookingTimes, Identity, LocalPricingPolicy, PaymentMethod, Picture, Studio,
-    StudioBooking, StudioBookingPaymentOnline, StudioBookingPaymentOnsite, StudioBookingStatus,
-    User }
+import models.{ BookingDurations, BookingTimes, Identity, LocalPricingPolicy, PaymentMethod,
+    Picture, Studio, StudioBooking, StudioBookingPaymentOnline, StudioBookingPaymentOnsite,
+    StudioBookingStatus, User }
 
 @Singleton
 class BookingController @Inject() (ccc: CustomControllerCompoments)
@@ -206,25 +206,13 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
         stripeSession.flatMap { sess =>
             val sessionId = sess.getId
             val intentId = sess.getPaymentIntent
+            val transactionFeeRate = Some(BigDecimal("0.08"))
             val payment = StudioBookingPaymentOnline(sessionId, intentId)
 
             db.run({
                 daos.studioBooking.insert(StudioBooking(
-                    studioId = studio.id,
-                    customerId = user.id,
-                    status = StudioBookingStatus.Processing,
-                    beginsAt = bookingTimes.beginsAt,
-                    durationTotal = bookingTimes.duration,
-                    durationRegular = bookingTimes.duration,
-                    durationEvening = Duration.ZERO,
-                    durationWeekend = Duration.ZERO,
-                    currency = total.currency,
-                    total = total.amount,
-                    regularPricePerHour = pricingPolicy.pricePerHour.amount,
-                    eveningPricePerHour = pricingPolicy.evening.map(_.pricePerHour.amount),
-                    weekendPricePerHour = pricingPolicy.weekend.map(_.pricePerHour.amount),
-                    transactionFee = Some(transactionFee.amount),
-                    payment = payment))
+                    studio, user, StudioBookingStatus.Processing, bookingTimes, transactionFeeRate,
+                    payment))
             }.transactionally).
                 map { _ =>
                     Ok(views.html.studios.bookingCheckout(identity = Some(identity), sess))
@@ -237,26 +225,10 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
 
         val user = identity.user
 
-        val pricingPolicy = studio.localPricingPolicy
-        val total = pricingPolicy.pricePerHour
-
         db.run({
             daos.studioBooking.insert(StudioBooking(
-                studioId = studio.id,
-                customerId = user.id,
-                status = StudioBookingStatus.Succeeded,
-                beginsAt = bookingTimes.beginsAt,
-                durationTotal = bookingTimes.duration,
-                durationRegular = bookingTimes.duration,
-                durationEvening = Duration.ZERO,
-                durationWeekend = Duration.ZERO,
-                currency = total.currency,
-                total = total.amount,
-                regularPricePerHour = pricingPolicy.pricePerHour.amount,
-                eveningPricePerHour = pricingPolicy.evening.map(_.pricePerHour.amount),
-                weekendPricePerHour = pricingPolicy.weekend.map(_.pricePerHour.amount),
-                transactionFee = None,
-                payment = StudioBookingPaymentOnsite()))
+                studio, user, StudioBookingStatus.Succeeded, bookingTimes, None,
+                StudioBookingPaymentOnsite()))
         }.transactionally).
             map { booking =>
                 Redirect(_root_.controllers.account.routes.BookingsController.show(booking.id)).

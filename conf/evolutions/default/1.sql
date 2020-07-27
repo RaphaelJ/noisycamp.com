@@ -6,9 +6,15 @@
 create domain duration as bigint
     check (value >= 0);
 
+-- Maps squants.Currency to its 3-chars ISO code.
+create domain currency as char(3);
+
 -- A amount of money.
 create domain amount as numeric
     check (value >= 0);
+
+-- Country as its 2-chars ISO code.
+create domain country as char(2);
 
 -- A decimal coordinate value.
 create domain coordinate as numeric
@@ -76,7 +82,7 @@ create table "studio" (
     zipcode                 varchar,
     city                    varchar not null,
     state_code              varchar,
-    country_code            char(2),
+    country                 char(2),
 
     -- Coordinates
     long                    coordinate not null,
@@ -217,25 +223,25 @@ create table "studio_booking" (
     -- Booking time and duration
 
     begins_at                   java_localdatetime not null,
+    duration                    duration not null,
 
-    duration_total              duration not null,
     duration_regular            duration not null,
     duration_evening            duration not null,
     duration_weekend            duration not null,
 
     -- Booking's pricing at the time of booking
 
-    currency_code               char(3) not null,
+    currency                    currency not null,
     total                       amount not null,
 
     -- Pricing policy at the time of booking
-    regular_price_per_hour      amount not null,
+    price_per_hour              amount not null,
     evening_price_per_hour      amount,
     weekend_price_per_hour      amount,
 
     -- Payment
 
-    transaction_fee             amount,
+    transaction_fee_rate        numeric,
 
     payment_method              varchar not null
         check (payment_method in ('online', 'onsite')),
@@ -243,9 +249,7 @@ create table "studio_booking" (
     stripe_checkout_session_id  varchar unique,
     stripe_payment_intent_id    varchar unique,
 
-    check (duration_total = (
-        duration_regular + duration_evening + duration_weekend
-    )),
+    check (duration = (duration_regular + duration_evening + duration_weekend)),
     check (stripe_checkout_session_id is not null = (payment_method = 'online')),
     check (stripe_payment_intent_id is not null = (payment_method = 'online'))
 );
@@ -260,7 +264,7 @@ create table "payout" (
 
     stripe_payout_id            varchar unique not null,
 
-    currency_code               char(3) not null,
+    currency                    currency not null,
     amount                      amount not null
 );
 
@@ -288,5 +292,7 @@ drop domain "java_zoneid";
 drop domain "java_localtime";
 drop domain "java_localdatetime";
 drop domain "coordinate";
+drop domain "country";
 drop domain "amount";
+drop domain "currency";
 drop domain "duration";

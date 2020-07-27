@@ -42,19 +42,9 @@ case class Studio(
 
     type Id = Long
 
-    def localPricingPolicy = {
-        val currency = location.address.country.currency
+    def currency: Currency = location.address.country.currency
 
-        LocalPricingPolicy(
-            currency(pricingPolicy.pricePerHour),
-            pricingPolicy.evening.map { eveningPolicy => LocalEveningPricingPolicy(
-                eveningPolicy.beginsAt,
-                currency(eveningPolicy.pricePerHour))
-            },
-            pricingPolicy.weekend.map { weekendPolicy => LocalWeekendPricingPolicy(
-                currency(weekendPolicy.pricePerHour))
-            })
-    }
+    def localPricingPolicy = LocalPricingPolicy(currency, pricingPolicy)
 
     def isOwner(user: User): Boolean = ownerId == user.id
 

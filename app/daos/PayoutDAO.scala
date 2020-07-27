@@ -46,7 +46,7 @@ class PayoutDAO @Inject() (
 
     def stripePayoutId  = column[String]("stripe_payout_id")
 
-    def currency        = column[market.Currency]("currency_code")
+    def currency        = column[market.Currency]("currency")
     def amount          = column[BigDecimal]("amount")
 
     private type PayoutTuple = (Payout#Id, Instant, User#Id, String,

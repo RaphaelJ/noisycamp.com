@@ -17,41 +17,41 @@
 
 @(breakdown: models.PriceBreakdown, showTransactionFee: Boolean = false)
 
-@if(!breakdown.durationRegular.isZero) {
+@if(!breakdown.durations.regular.isZero) {
     <div class="grid-x grid-margin-x">
         <div class="cell shrink">
-            @tags.duration(breakdown.durationRegular)
+            @tags.duration(breakdown.durations.regular)
             ×
-            @tags.moneyAmount(breakdown.regularPricePerHour)
+            @tags.moneyAmount(breakdown.pricePerHour)
         </div>
         <div class="cell auto text-right">
-            @tags.moneyAmount(breakdown.regularTotal)
+            @tags.moneyAmount(breakdown.totalRegular)
         </div>
     </div>
 }
 
-@if(!breakdown.durationEvening.isZero) {
+@if(!breakdown.durations.evening.isZero) {
     <div class="grid-x grid-margin-x">
         <div class="cell shrink">
-            @tags.duration(breakdown.durationEvening)
+            @tags.duration(breakdown.durations.evening)
             ×
-            @tags.moneyAmount(breakdown.eveningPricePerHour.get) (evening)
+            @tags.moneyAmount(breakdown.pricePerHourEvening.get) (evening)
         </div>
         <div class="cell auto text-right">
-            @tags.moneyAmount(breakdown.eveningTotal.get)
+            @tags.moneyAmount(breakdown.totalEvening.get)
         </div>
     </div>
 }
 
-@if(!breakdown.durationWeekend.isZero) {
+@if(!breakdown.durations.weekend.isZero) {
     <div class="grid-x grid-margin-x">
         <div class="cell shrink">
-            @tags.duration(breakdown.durationWeekend)
+            @tags.duration(breakdown.durations.weekend)
             ×
-            @tags.moneyAmount(breakdown.weekendPricePerHour.get) (weekend)
+            @tags.moneyAmount(breakdown.pricePerHourWeekend.get) (weekend)
         </div>
         <div class="cell auto text-right">
-            @tags.moneyAmount(breakdown.weekendTotal.get)
+            @tags.moneyAmount(breakdown.totalWeekend.get)
         </div>
     </div>
 }

@@ -22,27 +22,40 @@ import java.time.LocalTime
 import squants.market.{ Currency, CurrencyExchangeRate, Money }
 
 case class PricingPolicy(
-  pricePerHour:         BigDecimal,
-  evening:              Option[EveningPricingPolicy],
-  weekend:              Option[WeekendPricingPolicy]) {
-}
+    pricePerHour:         BigDecimal,
+    evening:              Option[EveningPricingPolicy],
+    weekend:              Option[WeekendPricingPolicy])
 
 case class EveningPricingPolicy(
-  beginsAt:             LocalTime,
-  pricePerHour:         BigDecimal)
+    beginsAt:             LocalTime,
+    pricePerHour:         BigDecimal)
 
 case class WeekendPricingPolicy(
-  pricePerHour:         BigDecimal)
+    pricePerHour:         BigDecimal)
 
 /** Same as `PricingPolicy` but with `Money` objects. */
 case class LocalPricingPolicy(
-  pricePerHour:         Money,
-  evening:              Option[LocalEveningPricingPolicy],
-  weekend:              Option[LocalWeekendPricingPolicy])
+    pricePerHour:         Money,
+    evening:              Option[LocalEveningPricingPolicy],
+    weekend:              Option[LocalWeekendPricingPolicy])
+
+object LocalPricingPolicy {
+    def apply(currency: Currency, pricingPolicy: PricingPolicy): LocalPricingPolicy = {
+        LocalPricingPolicy(
+            currency(pricingPolicy.pricePerHour),
+            pricingPolicy.evening.map { eveningPolicy => LocalEveningPricingPolicy(
+                eveningPolicy.beginsAt,
+                currency(eveningPolicy.pricePerHour))
+            },
+            pricingPolicy.weekend.map { weekendPolicy => LocalWeekendPricingPolicy(
+                currency(weekendPolicy.pricePerHour))
+            })
+    }
+}
 
 case class LocalEveningPricingPolicy(
-  beginsAt:             LocalTime,
-  pricePerHour:         Money)
+    beginsAt:             LocalTime,
+    pricePerHour:         Money)
 
 case class LocalWeekendPricingPolicy(
-  pricePerHour:         Money)
+    pricePerHour:         Money)

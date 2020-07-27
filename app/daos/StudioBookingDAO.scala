@@ -26,8 +26,8 @@ import slick.jdbc.JdbcProfile
 import squants.market
 
 import models.{
-    Studio, StudioBooking, StudioBookingPayment, StudioBookingPaymentOnline,
-    StudioBookingPaymentOnsite, StudioBookingStatus, User }
+    BookingDurations, BookingTimes, Studio, StudioBooking, StudioBookingPayment,
+    StudioBookingPaymentOnline, StudioBookingPaymentOnsite, StudioBookingStatus, User }
 
 class StudioBookingDAO @Inject()
     (protected val dbConfigProvider: DatabaseConfigProvider)
@@ -48,23 +48,21 @@ class StudioBookingDAO @Inject()
 
         def status                  = column[StudioBookingStatus.Value]("status")
 
-        def beginsAt                = column[LocalDateTime]("begins_at")(
-        localDateTimeType)
+        def beginsAt                = column[LocalDateTime]("begins_at")(localDateTimeType)
+        def duration                = column[Duration]("duration")
 
-        def durationTotal           = column[Duration]("duration_total")
         def durationRegular         = column[Duration]("duration_regular")
         def durationEvening         = column[Duration]("duration_evening")
         def durationWeekend         = column[Duration]("duration_weekend")
 
-        def currency                = column[market.Currency]("currency_code")
-
+        def currency                = column[market.Currency]("currency")
         def total                   = column[BigDecimal]("total")
 
-        def regularPricePerHour     = column[BigDecimal]("regular_price_per_hour")
+        def pricePerHour            = column[BigDecimal]("price_per_hour")
         def eveningPricePerHour     = column[Option[BigDecimal]]("evening_price_per_hour")
         def weekendPricePerHour     = column[Option[BigDecimal]]("weekend_price_per_hour")
 
-        def transactionFee          = column[Option[BigDecimal]]("transaction_fee")
+        def transactionFeeRate      = column[Option[BigDecimal]]("transaction_fee_rate")
 
         def paymentMethod           = column[String]("payment_method")
 
@@ -74,39 +72,43 @@ class StudioBookingDAO @Inject()
         private type StudioBookingTuple = (
             StudioBooking#Id, Instant,
             Studio#Id, User#Id,
-            StudioBookingStatus.Value, LocalDateTime,
-            Duration, Duration, Duration, Duration,
+            StudioBookingStatus.Value,
+            BookingTimesTuple,
+            BookingDurationsTuple,
             market.Currency, BigDecimal,
             BigDecimal, Option[BigDecimal], Option[BigDecimal],
             Option[BigDecimal],
             StudioBookingPaymentTuple)
 
-        private type StudioBookingPaymentTuple = (
-            String, Option[String], Option[String])
+        private type BookingTimesTuple = (LocalDateTime, Duration)
+
+        private type BookingDurationsTuple = (Duration, Duration, Duration)
+
+        private type StudioBookingPaymentTuple = (String, Option[String], Option[String])
 
         private def toStudioBooking(bookingTuple: StudioBookingTuple) = {
             StudioBooking(
                 bookingTuple._1, bookingTuple._2,
                 bookingTuple._3, bookingTuple._4,
-                bookingTuple._5, bookingTuple._6,
-                bookingTuple._7, bookingTuple._8, bookingTuple._9, bookingTuple._10,
-                bookingTuple._11, bookingTuple._12,
-                bookingTuple._13, bookingTuple._14, bookingTuple._15,
-                bookingTuple._16,
-                toStudioBookingPayment(bookingTuple._17))
+                bookingTuple._5,
+                BookingTimes.tupled(bookingTuple._6),
+                BookingDurations.tupled(bookingTuple._7),
+                bookingTuple._8, bookingTuple._9,
+                bookingTuple._10, bookingTuple._11, bookingTuple._12,
+                bookingTuple._13,
+                toStudioBookingPayment(bookingTuple._14))
         }
 
         private def fromStudioBooking(booking: StudioBooking) = {
             Some((
                 booking.id, booking.createdAt,
                 booking.studioId, booking.customerId,
-                booking.status, booking.beginsAt,
-                booking.durationTotal, booking.durationRegular, booking.durationEvening,
-                booking.durationWeekend,
+                booking.status,
+                BookingTimes.unapply(booking.times).get,
+                BookingDurations.unapply(booking.durations).get,
                 booking.currency, booking.total,
-                booking.regularPricePerHour, booking.eveningPricePerHour,
-                booking.weekendPricePerHour,
-                booking.transactionFee,
+                booking.pricePerHour, booking.eveningPricePerHour, booking.weekendPricePerHour,
+                booking.transactionFeeRate,
                 fromStudioBookingPayment(booking.payment)))
         }
 
@@ -130,11 +132,12 @@ class StudioBookingDAO @Inject()
         def * = (
             id, createdAt,
             studioId, customerId,
-            status, beginsAt,
-            durationTotal, durationRegular, durationEvening, durationWeekend,
+            status,
+            (beginsAt, duration),
+            (durationRegular, durationEvening, durationWeekend),
             currency, total,
-            regularPricePerHour, eveningPricePerHour, weekendPricePerHour,
-            transactionFee,
+            pricePerHour, eveningPricePerHour, weekendPricePerHour,
+            transactionFeeRate,
             (paymentMethod, stripeCheckoutSessionId, stripePaymentIntentId)
             ) <> (toStudioBooking, fromStudioBooking)
     }

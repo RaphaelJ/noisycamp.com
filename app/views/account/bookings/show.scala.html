@@ -36,7 +36,7 @@
 @views.html.account.layout(
     Seq("Your booking",
         "In " + studio.location.address.city + " on " +
-        tags.localDate(booking.beginsAt.toLocalDate).toString.trim),
+        tags.localDate(booking.times.beginsAt.toLocalDate).toString.trim),
     identity=identity) {
 
     <div class="panel-section">
@@ -84,11 +84,11 @@
             <div class="cell small-12 medium-6">
                 <p class="text-sans-serif">
                         <i class="fi-calendar"></i>&nbsp;
-                        @tags.localDateTime(booking.beginsAt)<br>
+                        @tags.localDateTime(booking.times.beginsAt)<br>
 
 
                     <i class="fi-clock"></i>&nbsp;
-                    @tags.duration(booking.durationTotal)
+                    @tags.duration(booking.durations.total)
                 </p>
 
                 <hr>

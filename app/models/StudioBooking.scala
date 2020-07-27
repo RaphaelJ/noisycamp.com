@@ -50,35 +50,28 @@ case class StudioBooking(
 
     status:                 StudioBookingStatus.Value,
 
-    beginsAt:               LocalDateTime,
-
-    durationTotal:          Duration,
-    durationRegular:        Duration,
-    durationEvening:        Duration,
-    durationWeekend:        Duration,
+    times:                  BookingTimes,
+    durations:              BookingDurations,
 
     currency:               market.Currency,
-
     total:                  BigDecimal,
 
-    regularPricePerHour:    BigDecimal,
+    pricePerHour:           BigDecimal,
     eveningPricePerHour:    Option[BigDecimal],
     weekendPricePerHour:    Option[BigDecimal],
 
-    transactionFee:         Option[BigDecimal], // The fee collected by NoisyCamp.
-
+    transactionFeeRate:     Option[BigDecimal], // The transaction fee rate collected by NoisyCamp
     payment:                StudioBookingPayment) {
 
     type Id = Long
 
+    require(times.duration == durations.total)
+
     def isCustomer(user: User): Boolean = customerId == user.id
 
     def priceBreakdown: PriceBreakdown = {
-        PriceBreakdown(
-            durationTotal, durationRegular, durationEvening, durationWeekend,
-            currency(total), currency(regularPricePerHour),
-            eveningPricePerHour.map { currency(_) }, weekendPricePerHour.map { currency (_) },
-            transactionFee.map { currency(_) })
+        PriceBreakdown(durations, currency(pricePerHour), eveningPricePerHour.map(currency(_)),
+            weekendPricePerHour.map(currency(_)), transactionFeeRate)
     }
 
     /** Pseudo-random 6-characters reservation code generated from the booking ID. */
@@ -105,7 +98,7 @@ case class StudioBooking(
     }
 
     def toEvent(customer: User): Event = {
-        Event(beginsAt, durationTotal, Some(customer.displayName), None, Seq("booking"))
+        Event(times.beginsAt, times.duration, Some(customer.displayName), None, Seq("booking"))
     }
 }
 
@@ -113,44 +106,32 @@ object StudioBooking {
 
     /** Constructs a booking object from user selected booking times. */
     def apply(
-        studio: Studio, customer: User, status: StudioBookingStatus.Value,
-        bookingTimes: BookingTimes, bookingBreakdown: BookingBreakdown,
-        transactionFee: Option[BigDecimal], payment: StudioBookingPayment)
-        : StudioBooking = {
-
-        def durationAsHours(duration: Duration): BigDecimal = {
-            BigDecimal(duration.getSeconds) / BigDecimal(3600.0)
-        }
+        studio: Studio, customer: User, status: StudioBookingStatus.Value, times: BookingTimes,
+        transactionFeeRate: Option[BigDecimal], payment: StudioBookingPayment) : StudioBooking = {
 
         val pricingPolicy = studio.pricingPolicy
         val localPricingPolicy = studio.localPricingPolicy
 
-        val totalRegular =  localPricingPolicy.pricePerHour *
-            durationAsHours(bookingBreakdown.durationRegular)
-        val totalEvening =  localPricingPolicy.evening.map(
-            _.pricePerHour * durationAsHours(bookingBreakdown.durationEvening))
-        val totalWeekend = localPricingPolicy.weekend.map(
-            _.pricePerHour * durationAsHours(bookingBreakdown.durationWeekend))
+        // Computes the duration and price components of the booking
 
-        val currency = totalRegular.currency
-        val zero = currency(0)
-        val total = totalRegular + totalEvening.getOrElse(zero) + totalWeekend.getOrElse(zero)
+        val durations = studio.openingSchedule.validateBooking(pricingPolicy, times).get
+
+        val priceBreakdown = PriceBreakdown(durations, localPricingPolicy.pricePerHour,
+            localPricingPolicy.evening.map(_.pricePerHour),
+            localPricingPolicy.weekend.map(_.pricePerHour), transactionFeeRate)
 
         StudioBooking(
             studioId = studio.id,
             customerId = customer.id,
             status = status,
-            beginsAt = bookingTimes.beginsAt,
-            durationTotal = bookingBreakdown.durationTotal,
-            durationRegular = bookingBreakdown.durationRegular,
-            durationEvening = bookingBreakdown.durationEvening,
-            durationWeekend = bookingBreakdown.durationWeekend,
-            currency = currency,
-            total = total.amount,
-            regularPricePerHour = pricingPolicy.pricePerHour,
+            times = times,
+            durations = durations,
+            currency = studio.currency,
+            total = priceBreakdown.total.amount,
+            pricePerHour = pricingPolicy.pricePerHour,
             eveningPricePerHour = pricingPolicy.evening.map(_.pricePerHour),
             weekendPricePerHour = pricingPolicy.weekend.map(_.pricePerHour),
-            transactionFee = transactionFee,
+            transactionFeeRate = transactionFeeRate,
             payment = payment)
     }
 }

@@ -21,41 +21,44 @@ import java.time.Duration
 
 import squants.market
 
-/** Contains the duration and price components of a booking. */
+/** Contains the duration and pricing policy applied to a booking, and provides with helpers to
+ * compute the actual monetary values of a booking. */
 case class PriceBreakdown(
-    durationTotal:          Duration,
-    durationRegular:        Duration,
-    durationEvening:        Duration,
-    durationWeekend:        Duration,
+    durations:              BookingDurations,
 
-    total:                  market.Money,
+    pricePerHour:           market.Money,
+    pricePerHourEvening:    Option[market.Money],
+    pricePerHourWeekend:    Option[market.Money],
 
-    regularPricePerHour:    market.Money,
-    eveningPricePerHour:    Option[market.Money],
-    weekendPricePerHour:    Option[market.Money],
+    // The rate at which the NoisyCamp transaction fee will be computed.
+    transactionFeeRate:     Option[BigDecimal]) {
 
-    transactionFee:         Option[market.Money]) {
-
-    require(durationTotal.equals(durationRegular plus durationEvening plus durationWeekend))
-
-    def regularTotal: market.Money = {
-        regularPricePerHour * durationAsHours(durationRegular)
+    lazy val total: market.Money = {
+        totalRegular + totalEvening.getOrElse(moneyZero) + totalWeekend.getOrElse(moneyZero)
     }
 
-    def eveningTotal: Option[market.Money] = {
-        eveningPricePerHour.map(_ * durationAsHours(durationEvening))
+    lazy val totalRegular: market.Money = pricePerHour * durationAsHours(durations.regular)
+
+    lazy val totalEvening: Option[market.Money] = {
+        pricePerHourEvening.map(_ * durationAsHours(durations.evening))
     }
 
-    def weekendTotal: Option[market.Money] = {
-        weekendPricePerHour.map(_ * durationAsHours(durationWeekend))
+    lazy val totalWeekend: Option[market.Money] = {
+        pricePerHourWeekend.map(_ * durationAsHours(durations.weekend))
     }
 
-    private def durationAsHours(duration: Duration): BigDecimal = {
-        BigDecimal(durationRegular.getSeconds) / BigDecimal(3600.0)
-    }
+    lazy val transactionFee: Option[market.Money] = transactionFeeRate.map(total * _)
 
     /** The booking total minus the transaction fee. */
     def netTotal: market.Money = {
-        total - transactionFee.getOrElse(total.currency(0))
+        total - transactionFee.getOrElse(moneyZero)
+    }
+
+    private def moneyZero: market.Money = {
+        pricePerHour.currency(0)
+    }
+
+    private def durationAsHours(duration: Duration): BigDecimal = {
+        BigDecimal(duration.getSeconds) / BigDecimal(3600.0)
     }
 }

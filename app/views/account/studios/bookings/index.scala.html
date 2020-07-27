@@ -41,8 +41,8 @@
                 @for((booking, customer) <- bookings) {
                     <tr>
                         <td>@customer.fullName</td>
-                        <td>@booking.beginsAt</td>
-                        <td>@tags.duration(booking.durationTotal)</td>
+                        <td>@booking.times.beginsAt</td>
+                        <td>@tags.duration(booking.times.duration)</td>
                         <td>@tags.moneyAmount(booking.currency(booking.total))</td>
                         <td>@tags.moneyAmount(booking.currency(booking.total))</td>
                         <td class="text-alert">

@@ -19,12 +19,11 @@ package models
 
 import java.time.Duration
 
-case class BookingBreakdown(
-    durationRegular:        Duration,
-    durationEvening:        Duration,
-    durationWeekend:        Duration) {
+/** Provides the various duration components of a booking. */
+case class BookingDurations(
+    regular:        Duration,   // The time the booking is not subject to a special rate.
+    evening:        Duration,
+    weekend:        Duration) {
 
-    def durationTotal: Duration = {
-        durationRegular plus durationEvening plus durationWeekend
-    }
+    def total: Duration = regular plus evening plus weekend
 }

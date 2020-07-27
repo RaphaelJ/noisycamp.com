@@ -47,43 +47,9 @@ case class OpeningSchedule(
      * If the booking is not valid, return `None`.
      */
     def validateBooking(pricingPolicy: PricingPolicy, booking: BookingTimes):
-        Option[BookingBreakdown] = {
+        Option[BookingDurations] = {
 
         require(booking.duration.compareTo(Duration.ofDays(1)) <= 0)
-
-        def toBreakdown(date: LocalDate, times: OpeningTimes): BookingBreakdown = {
-            lazy val weekDay = date.getDayOfWeek
-            lazy val isWeekend = weekDay == DayOfWeek.SATURDAY || weekDay == DayOfWeek.SUNDAY
-
-            if (pricingPolicy.weekend.isDefined && isWeekend) {
-                BookingBreakdown(Duration.ZERO, Duration.ZERO, booking.duration)
-            } else if (pricingPolicy.evening.isDefined) {
-                val eveningPolicy = pricingPolicy.evening.get
-
-                val eveningBeginsAt =
-                    if (times.opensAt.isAfter(eveningPolicy.beginsAt)) {
-                        // Evening pricing begins overnight.
-                        date.plusDays(1).atTime(eveningPolicy.beginsAt)
-                    } else {
-                        date.atTime(eveningPolicy.beginsAt)
-                    }
-
-                if (booking.beginsAt.isBefore(eveningBeginsAt)) {
-                    val regularDuration = Duration.between(booking.beginsAt, eveningBeginsAt)
-                    val eveningDuration = booking.duration.minus(regularDuration)
-
-                    assert(!regularDuration.isNegative && !regularDuration.isZero)
-                    assert(!eveningDuration.isNegative && !eveningDuration.isZero)
-
-                    BookingBreakdown(regularDuration, eveningDuration, Duration.ZERO)
-                } else {
-                    BookingBreakdown(Duration.ZERO, booking.duration, Duration.ZERO)
-                }
-
-            } else {
-                BookingBreakdown(booking.duration, Duration.ZERO, Duration.ZERO)
-            }
-        }
 
         val beginsAt = booking.beginsAt.toLocalTime
         val endsAt = beginsAt.plus(booking.duration)
@@ -107,7 +73,7 @@ case class OpeningSchedule(
                     // opensAt <= beginsAt && endsAt <= closesAt
                     !beginsAt.isBefore(times.opensAt) && !times.closesAt.isBefore(endsAt) => {
 
-                    Some(toBreakdown(date, times))
+                    Some(toDurations(pricingPolicy, times, date, booking))
                 }
                 case _ => None
             }
@@ -120,7 +86,7 @@ case class OpeningSchedule(
                 case Some(times) if !beginsAt.isBefore(times.opensAt) => {
                     // endsAt <= closesAt || hasOvernight
                     if (!times.closesAt.isBefore(endsAt) || times.hasOvernight) {
-                        Some(toBreakdown(date, times))
+                        Some(toDurations(pricingPolicy, times, date, booking))
                     } else {
                         None
                     }
@@ -136,12 +102,50 @@ case class OpeningSchedule(
                             // endsAt <= closesAt
                             !times.closesAt.isBefore(endsAt) => {
 
-                            Some(toBreakdown(yesterday, times))
+                            Some(toDurations(pricingPolicy, times, yesterday, booking))
                         }
                         case _ => None
                     }
                 }
             }
+        }
+    }
+
+    /** Contructs a BookingDurations object for the booking on the provided opened day. */
+    private def toDurations(
+        pricingPolicy: PricingPolicy, times: OpeningTimes, date: LocalDate,
+        booking: BookingTimes): BookingDurations = {
+
+        lazy val weekDay = date.getDayOfWeek
+        lazy val isWeekend = weekDay == DayOfWeek.SATURDAY || weekDay == DayOfWeek.SUNDAY
+
+        if (pricingPolicy.weekend.isDefined && isWeekend) {
+            BookingDurations(Duration.ZERO, Duration.ZERO, booking.duration)
+        } else if (pricingPolicy.evening.isDefined) {
+            val eveningPolicy = pricingPolicy.evening.get
+
+            val eveningBeginsAt =
+                if (times.opensAt.isAfter(eveningPolicy.beginsAt)) {
+                    // Evening pricing begins overnight.
+                    date.plusDays(1).atTime(eveningPolicy.beginsAt)
+                } else {
+                    date.atTime(eveningPolicy.beginsAt)
+                }
+
+            if (booking.beginsAt.isBefore(eveningBeginsAt)) {
+                val regularDuration = Duration.between(booking.beginsAt, eveningBeginsAt)
+                val eveningDuration = booking.duration.minus(regularDuration)
+
+                assert(!regularDuration.isNegative && !regularDuration.isZero)
+                assert(!eveningDuration.isNegative && !eveningDuration.isZero)
+
+                BookingDurations(regularDuration, eveningDuration, Duration.ZERO)
+            } else {
+                BookingDurations(Duration.ZERO, booking.duration, Duration.ZERO)
+            }
+
+        } else {
+            BookingDurations(booking.duration, Duration.ZERO, Duration.ZERO)
         }
     }
 }
