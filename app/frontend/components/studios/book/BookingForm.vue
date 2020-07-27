@@ -34,19 +34,9 @@
             name="booking-times.duration"
             :value="bookingTimes['duration']">
 
-        <h3>Price breakdown</h3>
-
-        <booking-pricing-calculator
-            :opening-schedule="openingSchedule"
-            :pricing-policy="pricingPolicy"
-            :booking-times="bookingTimes">
-        </booking-pricing-calculator>
-
-        <hr>
+        <h3>Please choose your payment method</h3>
 
         <fieldset>
-            <h3>Please choose your payment method</h3>
-
             <div class="grid-y">
                 <div class="cell">
                     <input

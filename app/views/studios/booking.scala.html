@@ -26,7 +26,7 @@
     identity: Option[models.Identity],
     studio: models.Studio,
     pictures: Seq[models.Picture#Id],
-    summary: Either[Seq[FormError], models.BookingTimes])(
+    summary: Either[Seq[FormError], (models.BookingTimes, models.PriceBreakdown)])(
     implicit req: RequestHeader, config: Configuration, flash: Flash)
 
 @leftPanel = {
@@ -70,7 +70,7 @@
                 </p>
             </div>
         }
-        case Right(bookingTimes) => {
+        case Right((bookingTimes, priceBreakdown)) => {
             <h3>Summary</h3>
 
             <div class="grid-y">
@@ -89,6 +89,12 @@
                     @tags.duration(bookingTimes.duration)
                 </div>
             </div>
+
+            <hr>
+
+            <h3>Price breakdown</h3>
+
+            @tags.priceBreakdown(priceBreakdown)
 
             <hr>
 

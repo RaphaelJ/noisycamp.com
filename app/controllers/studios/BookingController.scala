@@ -34,8 +34,8 @@ import daos.CustomColumnTypes
 import forms.studios.{ BookingForm, BookingTimesForm }
 import misc.PaymentCaptureMethod
 import models.{ BookingDurations, BookingTimes, Identity, LocalPricingPolicy, PaymentMethod,
-    Picture, Studio, StudioBooking, StudioBookingPaymentOnline, StudioBookingPaymentOnsite,
-    StudioBookingStatus, User }
+    Picture, PriceBreakdown, Studio, StudioBooking, StudioBookingPaymentOnline,
+    StudioBookingPaymentOnsite, StudioBookingStatus, User }
 
 @Singleton
 class BookingController @Inject() (ccc: CustomControllerCompoments)
@@ -55,7 +55,20 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
 
             val summary = BookingTimesForm.form(studio).bind(params).fold(
                 form => Left(form.errors),
-                bookingTimes => Right(bookingTimes))
+                bookingTimes => {
+                    // Computes the price components based on the booked times.
+                    val pricingPolicy = studio.pricingPolicy
+                    val localPricingPolicy = studio.localPricingPolicy
+                    val bookingDurations = studio.openingSchedule.
+                        validateBooking(pricingPolicy, bookingTimes).
+                        get
+                    val priceBreakdown = PriceBreakdown(
+                        bookingDurations, localPricingPolicy.pricePerHour,
+                        localPricingPolicy.evening.map(_.pricePerHour),
+                        localPricingPolicy.weekend.map(_.pricePerHour), None)
+
+                    Right((bookingTimes, priceBreakdown))
+                })
 
             DBIO.successful(Ok(views.html.studios.booking(
                 identity = Some(request.identity),
