@@ -179,6 +179,35 @@
                         <hr>
                     }
 
+                    <h3>Policy</h3>
+
+                    <div class="grid-x grid-padding-x">
+                        <label class="cell small-12 large-6">
+                            @defining(studio.bookingPolicy.minBookingDuration) { minDuration =>
+                                <input type="checkbox" checked disabled>
+                                Minimal session duration: @tags.duration(minDuration)
+                            }
+                        </label>
+
+                        <label class="cell small-12 large-6">
+                            @studio.bookingPolicy.cancellationPolicy match {
+                                case Some(CancellationPolicy(notice)) => {
+                                    <input type="checkbox" checked disabled>
+                                    Refunded if cancelled
+                                    @if(!notice.isZero) {
+                                        @tags.duration(notice) before the session
+                                    }
+                                }
+                                case None => {
+                                    <input type="checkbox" disabled>
+                                    Not refunded if cancelled
+                                }
+                            }
+                        </label>
+                    </div>
+
+                    <hr>
+
                     <h3>Opening schedule</h3>
 
                     @tags.openingSchedule(studio.openingSchedule)

@@ -20,8 +20,12 @@
 @* Renders a duration in an human readable way (e.g "5 hours 10 minutes 50 seconds") *@
 
 @(d: Duration)
-@defining(d.toHours) { hours =>
-    @tags.plural(hours, "hour", "hours", hideZero = true)
+@defining(d.toDays) { days =>
+    @tags.plural(days, "day", "days", hideZero = true)
+
+    @defining(d.toHours) { hours =>
+        @tags.plural(hours - days * 24, "hour", "hours", hideZero = true)
+    }
 }
 @defining(d.toMinutes % 60) { mins =>
     @tags.plural(mins, "minute", "minutes", hideZero = true)
