@@ -198,7 +198,7 @@
                     <h3>Location</h3>
 
                     <p class="address">
-                        @tags.address(studio.location.address)
+                        @tags.location(studio.location, showDirections = true)
                     </p>
 
                     <location-map
@@ -206,8 +206,6 @@
                         :long="@studio.location.coordinates.long"
                         :zoom="13">
                     </location-map>
-
-                    <hr>
                 </div>
             </div>
 

@@ -60,16 +60,7 @@
                 <hr>
 
                 <p class="address">
-
-                    @tags.address(studio.location.address)<br>
-
-                    @defining(studio.location.coordinates) { coords =>
-                        <a
-                            href="http://maps.google.com/maps?daddr=@coords.lat,@coords.long"
-                            target="_blank">
-                            Get directions
-                        </a>
-                    }
+                    @tags.location(studio.location, showDirections = true)
                 </p>
 
                 <p>
