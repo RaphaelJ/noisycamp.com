@@ -33,6 +33,9 @@ case class PriceBreakdown(
     // The rate at which the NoisyCamp transaction fee will be computed.
     transactionFeeRate:     Option[BigDecimal]) {
 
+    require(durations.evening.isZero || pricePerHourEvening.isDefined)
+    require(durations.weekend.isZero || pricePerHourWeekend.isDefined)
+
     lazy val total: market.Money = {
         totalRegular + totalEvening.getOrElse(moneyZero) + totalWeekend.getOrElse(moneyZero)
     }

@@ -23,7 +23,7 @@ import org.scalatest.Matchers._
 import org.scalatestplus.play._
 
 import models.{
-    BookingBreakdown, BookingTimes, EveningPricingPolicy, OpeningSchedule, OpeningTimes,
+    BookingDurations, BookingTimes, EveningPricingPolicy, OpeningSchedule, OpeningTimes,
     PricingPolicy, WeekendPricingPolicy }
 
 class OpeningScheduleSpec extends PlaySpec {
@@ -67,7 +67,7 @@ class OpeningScheduleSpec extends PlaySpec {
                 validateBooking(eveningWeekendPricingPolicy, BookingTimes(
                     LocalDateTime.of(2020, 12, 31, 22, 30), // Thursday
                     Duration.ofHours(4))) should be (
-                        Some(BookingBreakdown(Duration.ZERO, Duration.ofHours(4), Duration.ZERO)))
+                        Some(BookingDurations(Duration.ZERO, Duration.ofHours(4), Duration.ZERO)))
         }
 
         "validates when the booking starts overnight on an open day" in {
@@ -76,7 +76,7 @@ class OpeningScheduleSpec extends PlaySpec {
                 validateBooking(weekendPricingPolicy, BookingTimes(
                     LocalDateTime.of(2020, 2, 9, 0, 0),     // Sunday morning
                     Duration.ofHours(2))) should be (
-                        Some(BookingBreakdown(Duration.ZERO, Duration.ZERO, Duration.ofHours(2))))
+                        Some(BookingDurations(Duration.ZERO, Duration.ZERO, Duration.ofHours(2))))
 
             OpeningSchedule(
                 Some(OpeningTimes(LocalTime.of(20, 0), LocalTime.of(23, 30))),
@@ -85,7 +85,7 @@ class OpeningScheduleSpec extends PlaySpec {
                 validateBooking(eveningWeekendPricingPolicy, BookingTimes(
                     LocalDateTime.of(2020, 2, 10, 1, 0),     // Monday morning
                     Duration.ofHours(3))) should be (
-                        Some(BookingBreakdown(Duration.ZERO, Duration.ZERO, Duration.ofHours(3))))
+                        Some(BookingDurations(Duration.ZERO, Duration.ZERO, Duration.ofHours(3))))
         }
 
         "validates when the booking ends on the next day during an overnight" in {
@@ -96,7 +96,7 @@ class OpeningScheduleSpec extends PlaySpec {
                 validateBooking(pricingPolicy, BookingTimes(
                     LocalDateTime.of(2020, 2, 23, 18, 0),   // Sunday evening
                     Duration.ofHours(7))) should be (
-                        Some(BookingBreakdown(Duration.ofHours(7), Duration.ZERO, Duration.ZERO)))
+                        Some(BookingDurations(Duration.ofHours(7), Duration.ZERO, Duration.ZERO)))
         }
 
         "handles 24 opening shedules" in {
@@ -106,7 +106,7 @@ class OpeningScheduleSpec extends PlaySpec {
                 validateBooking(eveningWeekendPricingPolicy, BookingTimes(
                     LocalDateTime.of(2020, 2, 24, 0, 0),    // Monday
                     Duration.ofHours(24))) should be (
-                        Some(BookingBreakdown(
+                        Some(BookingDurations(
                             Duration.ofMinutes(18 * 60 + 30), Duration.ofMinutes(5 * 60 + 30),
                             Duration.ZERO)))
 
@@ -123,7 +123,7 @@ class OpeningScheduleSpec extends PlaySpec {
                 validateBooking(eveningPricingPolicy, BookingTimes(
                     LocalDateTime.of(2020, 2, 24, 10, 0),    // Monday
                     Duration.ofHours(21))) should be (
-                        Some(BookingBreakdown(
+                        Some(BookingDurations(
                             Duration.ofHours(8), Duration.ofHours(13), Duration.ZERO)))
 
             OpeningSchedule(
