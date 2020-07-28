@@ -137,7 +137,7 @@ case class OpeningSchedule(
                 val eveningDuration = booking.duration.minus(regularDuration)
 
                 assert(!regularDuration.isNegative && !regularDuration.isZero)
-                assert(!eveningDuration.isNegative && !eveningDuration.isZero)
+                assert(!eveningDuration.isNegative)
 
                 BookingDurations(regularDuration, eveningDuration, Duration.ZERO)
             } else {
