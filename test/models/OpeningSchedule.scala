@@ -70,6 +70,16 @@ class OpeningScheduleSpec extends PlaySpec {
                         Some(BookingDurations(Duration.ZERO, Duration.ofHours(4), Duration.ZERO)))
         }
 
+        "validates when the booking finishes before the studio evening rate applies" in {
+            OpeningSchedule(None, None,
+                Some(OpeningTimes(LocalTime.of(8, 0), LocalTime.of(20, 30))), None, None, None,
+                None).
+                validateBooking(eveningPricingPolicy, BookingTimes(
+                    LocalDateTime.of(2020, 7, 29, 10, 0), // Wednesday
+                    Duration.ofHours(5))) should be (
+                        Some(BookingDurations(Duration.ofHours(5), Duration.ZERO, Duration.ZERO)))
+        }
+
         "validates when the booking starts overnight on an open day" in {
             OpeningSchedule(None, None, None, None, None,
                 Some(OpeningTimes(LocalTime.of(18, 0), LocalTime.of(4, 30))), None).

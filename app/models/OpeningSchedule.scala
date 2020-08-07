@@ -133,7 +133,15 @@ case class OpeningSchedule(
                 }
 
             if (booking.beginsAt.isBefore(eveningBeginsAt)) {
-                val regularDuration = Duration.between(booking.beginsAt, eveningBeginsAt)
+                val endsAt = booking.beginsAt.plus(booking.duration)
+
+                val regularDuration =
+                    if (endsAt.isBefore(eveningBeginsAt)) {
+                        booking.duration
+                    } else {
+                        Duration.between(booking.beginsAt, eveningBeginsAt)
+                    }
+
                 val eveningDuration = booking.duration.minus(regularDuration)
 
                 assert(!regularDuration.isNegative && !regularDuration.isZero)
