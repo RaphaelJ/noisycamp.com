@@ -71,7 +71,7 @@ object JsonWrites {
             "duration"          -> event.duration,
 
             "title"             -> event.title,
-            "link"              -> event.link.map(_.url),
+            "href"              -> event.href.map(_.url),
 
             "classes"           -> event.classes)
     }

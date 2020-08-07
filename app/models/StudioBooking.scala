@@ -98,7 +98,8 @@ case class StudioBooking(
     }
 
     def toEvent(customer: User): Event = {
-        Event(times.beginsAt, times.duration, Some(customer.displayName), None, Seq("booking"))
+        val href = Some(controllers.account.studios.routes.BookingsController.show(studioId, id))
+        Event(times.beginsAt, times.duration, Some(customer.displayName), href, Seq("booking"))
     }
 }
 

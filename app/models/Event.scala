@@ -27,6 +27,6 @@ case class Event(
     duration:       Duration,
 
     title:          Option[String] = None,
-    link:           Option[Call] = None,
+    href:           Option[Call] = None,
 
     classes:        Seq[String] = Seq.empty)

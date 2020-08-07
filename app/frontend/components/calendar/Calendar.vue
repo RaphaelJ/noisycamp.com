@@ -79,18 +79,37 @@
                         v-for="(event, index) in currentWeekEvents"
                         :key="'event-' + index"
                         class="event-container">
+                        <!-- Displays one event <div> for each day the event occurs. -->
                         <div
                             v-for="(style, styleIndex) in eventStyles(event)"
                             :key="'event-' + index + '-style-' + styleIndex"
                             :class="eventClasses(event)"
                             :style="style">
-                            <div class="times" v-if="!event.isOpeningScheduleEvent">
-                                {{ event.startsAt.format('HH:mm') }}
-                                <span v-if="event.duration" class="show-for-large-only">
-                                    - {{ event.duration.asHours() }} hours
-                                </span>
+                            <a
+                                v-if="event.href"
+                                class="event-link-container"
+                                :href="event.href">
+                                <div v-if="styleIndex == 0">
+                                    <div class="times" v-if="!event.isOpeningScheduleEvent">
+                                        {{ event.startsAt.format('HH:mm') }}
+                                        <span v-if="event.duration" class="show-for-large-only">
+                                            - {{ event.duration.asHours() }} hours
+                                        </span>
+                                    </div>
+                                    <div class="title" v-if="event.title">{{ event.title }}</div>
+                                </div>
+                            </a>
+                            <div v-else>
+                                <div v-if="styleIndex == 0">
+                                    <div class="times" v-if="!event.isOpeningScheduleEvent">
+                                        {{ event.startsAt.format('HH:mm') }}
+                                        <span v-if="event.duration" class="show-for-large-only">
+                                            - {{ event.duration.asHours() }} hours
+                                        </span>
+                                    </div>
+                                    <div class="title" v-if="event.title">{{ event.title }}</div>
+                                </div>
                             </div>
-                            <div class="title" v-if="event.title">{{ event.title }}</div>
                         </div>
                     </div>
                 </div>
@@ -168,6 +187,7 @@ export default Vue.extend({
                         duration: duration,
                         classes: event['classes'],
                         title: event['title'],
+                        href: event['href'],
                     };
                 });
         },
@@ -492,6 +512,14 @@ export default Vue.extend({
     position: absolute;
 
     width: calc(100% / 8);
+}
+
+.calendar .schedule .event .event-link-container {
+    display: block;
+    width: 100%;
+    height: 100%;
+
+    color: unset;
 }
 
 .calendar .schedule .event.striped,
