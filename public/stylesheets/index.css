@@ -54,7 +54,7 @@
 /* Hero is takes 60% of the screen on large screens. */
 @media screen and (min-width: 64em) {
     .hero.home-hero {
-        min-height: calc(60vh - var(--top-bar-height));
+        min-height: calc(75vh - var(--top-bar-height));
     }
 
     .hero.home-hero .bottom-content-section * {

@@ -28,7 +28,7 @@
         </div>
 
         <div
-            class="cell medium-6 feature-text"
+            class="cell medium-6 feature-gallery-text"
             :class="{ 'active': currentFeature == 'online_presence' }"
             @click="featureClicked('online_presence')">
             <h3>Build an online presence</h3>
@@ -46,7 +46,7 @@
 
 
         <div
-            class="cell medium-6 feature-text"
+            class="cell medium-6 feature-gallery-text"
             :class="{ 'active': currentFeature == 'calendar' }"
             @click="featureClicked('calendar')">
             <h3>Booking automation</h3>
@@ -110,7 +110,7 @@ export default Vue.extend({
 });
 </script>
 
-<style>
+<style scoped>
 .feature-gallery .feature-image-container {
     text-align: center;
 }
@@ -125,21 +125,21 @@ export default Vue.extend({
     display: inline-block;
 }
 
-.feature-gallery .feature-text {
+.feature-gallery .feature-gallery-text {
     position: relative;
 
     margin-top: 1rem;
 }
 
-.feature-gallery .feature-text,
-.feature-gallery .feature-text::after {
+.feature-gallery .feature-gallery-text,
+.feature-gallery .feature-gallery-text::after {
     border: 1px solid transparent;
     transition: background 0.2s ease-in-out, border 0.2s ease-in-out;
 
     cursor: pointer;
 }
 
-.feature-gallery .feature-text::after {
+.feature-gallery .feature-gallery-text::after {
     display: block;
     content: "";
 
@@ -153,20 +153,20 @@ export default Vue.extend({
     transform: rotate(45deg);
 }
 
-.feature-gallery .feature-text.active,
-.feature-gallery .feature-text.active::after {
+.feature-gallery .feature-gallery-text.active,
+.feature-gallery .feature-gallery-text.active::after {
     background-color: #fefefe;
     border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-.feature-gallery .feature-text.active::after {
+.feature-gallery .feature-gallery-text.active::after {
     border-right: 1px solid transparent;
     border-bottom: 1px solid transparent;
 }
 
 /* Hide the arrow on small screens */
 @media screen and (max-width: 39.9375em) {
-    .feature-gallery .feature-text.active::after {
+    .feature-gallery .feature-gallery-text.active::after {
         display: none;
     }
 }
