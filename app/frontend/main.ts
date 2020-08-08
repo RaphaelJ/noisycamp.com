@@ -27,6 +27,7 @@ import PictureCarousel from './components/widgets/PictureCarousel.vue';
 import ReactivePicture from './components/widgets/ReactivePicture.vue';
 import StripeCheckoutRedirect from './components/widgets/StripeCheckoutRedirect.vue';
 
+import FeatureGallery from './components/index/FeatureGallery.vue';
 import SearchForm from './components/index/SearchForm.vue';
 
 import BookingForm from './components/studios/book/BookingForm.vue';
@@ -44,7 +45,7 @@ var ncApp = new Vue({
         Arrow, LocationMap, FixedBottomBox, PictureCarousel, ReactivePicture,
         StripeCheckoutRedirect,
         BookingForm, BookingTimesForm, BookingPricingCalculator,
-        SearchForm, StudioForm,
-        StudiosIndex,
+        SearchForm, FeatureGallery,
+        StudioForm, StudiosIndex,
     },
 });

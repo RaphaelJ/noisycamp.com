@@ -32,7 +32,7 @@ implicit req: RequestHeader, config: Configuration, flash: Flash)
     Seq("Music and rehearsal studio rentals"), head=head,
     identity=identity, fullScreen=true) {
 
-    <div class="hero full-screen home-hero">
+    <div class="hero home-hero">
         <div class="top-content-section">
         </div>
 
@@ -75,66 +75,74 @@ implicit req: RequestHeader, config: Configuration, flash: Flash)
                 </h2>
             </div>
 
-            <div class="cell medium-6 text-center">
+            <div class="cell small-12 section-feature-gallery">
+                <feature-gallery></feature-gallery>
+            </div>
+
+            <div class="cell small-12 medium-6 feature-image">
                 <img
-                    src="@routes.Assets.versioned("images/index/devices.png")"
-                    alt="NoisyCamp is available on mobile devices."
-                    style="max-height: 300px">
+                    src="@routes.Assets.versioned("images/index/room_availabilities.png")"
+                    alt="Real-time online availabilities.">
             </div>
-            <div class="cell medium-6">
-                <h3>Build an online presence</h3>
-
-                <h5>Reach thousands of musicians around the world</h5>
+            <div class="cell small-12 medium-6 feature-text">
+                <h3>Real-time room availabilities</h3>
 
                 <p>
-                    NoisyCamp is a build on top of a global community of thousands
-                    of musicians.<br>
-                    By listing your studio, you will increase your online presence
-                    and reach new customers.<br>
-                    NoisyCamp is also available on desktop and mobile devices.
+                    By enabling online bookings, musicians can immediately see when your room is
+                    available, and submit a reservation request anytime of the day.<br>
+                    <i>Premium</i> plan users can also synchronize their booking calendar with their
+                    favorite calendar app (<i>Google Calendar</i>, <i>Microsoft Outlook</i>,
+                    <i>Apple Calendar</i> ...).
                 </p>
             </div>
 
-            <div class="cell medium-6">
-                <h3>Simple, honest pricing</h3>
-                <h5>8% fee on online bookings</h5>
-                <p>
-                    NoisyCamp pricing is simple and does not have any hidden
-                    fee.<br>
-                    NoisyCamp charges a 8% fee on every booking transaction made
-                    through the platform. We will not charge you any recurring
-                    fee, and bookings made through your
-                </p>
-            </div>
-            <div class="cell medium-6 text-center">
+
+            <div class="cell small-12 medium-6 show-for-small-only feature-image">
                 <img
-                    src="@routes.Assets.versioned("images/index/map.svg")"
-                    alt="NoisyCamp is available in 35 countries."
-                    style="max-height: 300px">
+                    src="@routes.Assets.versioned("images/index/online_payment.png")"
+                    alt="Online booking payments.">
+            </div>
+            <div class="cell small-12 medium-6 feature-text">
+                <h3>Secure online payments</h3>
+
+                <p>
+                    With NoisyCamp, you can request an immediate and secure credit-card payment at
+                    the time of the booking.<br>
+                    The reservation amount will be directly transferred to your bank account.<br>
+                    Online payments is optional and increase your revenue by securing the booking
+                    amount even if the customer does not show up.
+                </p>
+            </div>
+            <div class="cell small-12 medium-6 show-for-medium feature-image">
+                <img
+                    src="@routes.Assets.versioned("images/index/online_payment.png")"
+                    alt="Online booking payments.">
             </div>
 
-            <div class="cell medium-6"></div>
-            <div class="cell medium-6">
-                <h3>Automate your calendar</h3>
-                <h5>See who booked your studio</h5>
-                <p>
-                    NoisyCamp provides you a clear view on your upcoming
-                    bookings, even those that have not been processed through
-                    the platform.
+            <div class="cell small-12 medium-6 medium-offset-3 large-4 large-offset-4 text-center become-a-host-button">
+                <a
+                    href="@controllers.account.studios.routes.IndexController.create"
+                    class="button primary large expanded">Become a host</a>
+                <p class="help-text">
+                    Get your room listed in 5 minutes. The first room is free.
                 </p>
             </div>
 
-            <hr class="cell small-12">
+            <div class="cell small-12">
+                <hr class="section-break">
+            </div>
 
-            <h2 class="cell small-12 text-center" id="pricing">Plans and pricing</h2>
+            <h2 class="cell small-12 section-title" id="pricing">Plans and pricing</h2>
 
             <div class="cell small-12 large-offset-1 large-10">
                 @tags.planComparisonTable()
             </div>
 
-            <hr class="cell small-12">
+            <div class="cell small-12">
+                <hr class="section-break">
+            </div>
 
-            <h2 class="cell small-12 text-center" id="faq">Frequently asked questions</h2>
+            <h2 class="cell small-12 section-title" id="faq">Frequently asked questions</h2>
 
             <dl class="cell small-12 large-offset-1 large-10 faq">
                 <dt>Where is NoisyCamp available?</dt>
@@ -163,20 +171,20 @@ implicit req: RequestHeader, config: Configuration, flash: Flash)
                     card.<br>
                     The studio owner will then receive that amount directly on their bank account,
                     minus the NoisyCamp service fee (8% for <i>Free</i> plan users, 5% for
-                    <i>Plus</i> plan users).<br>
-                    Payouts to the owner's bank account are done daily for <i>Plus</i> accounts
+                    <i>Premium</i> plan users).<br>
+                    Payouts to the owner's bank account are done daily for <i>Premium</i> accounts
                     and monthtly for <i>Free</i> accounts (on the 15th day of the month).
                     Payments are released for payout 48 hours after the end of the session. <br>
                     For example, a payment for a session on June 24th will be transferred on June
-                    26th for <i>Plus</i> plan users but on July 15th for <i>Free</i> plan users.
+                    26th for <i>Premium</i> plan users but on July 15th for <i>Free</i> plan users.
                     <br>
                 </dd>
             </dl>
 
-            <hr class="cell small-12">
-
-            <div class="cell small-12 medium-4 medium-offset-4 text-center become-a-host-button">
-                <a href="#" class="button primary large expanded">Become a host</a>
+            <div class="cell small-12 medium-6 medium-offset-3 large-4 large-offset-4 text-center become-a-host-button">
+                <a
+                    href="@controllers.account.studios.routes.IndexController.create"
+                    class="button primary large expanded">Become a host</a>
                 <p class="help-text">
                     Or <a href="@routes.StudiosController.index()">
                         browse existing studios</a>.

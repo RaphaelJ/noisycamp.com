@@ -44,6 +44,24 @@
     }
 }
 
+/* Hero is full screen on small and medium screens. */
+@media screen and (max-width: 63.9375em) {
+    .hero.home-hero {
+        min-height: calc(100vh - var(--top-bar-height));
+    }
+}
+
+/* Hero is takes 60% of the screen on large screens. */
+@media screen and (min-width: 64em) {
+    .hero.home-hero {
+        min-height: calc(60vh - var(--top-bar-height));
+    }
+
+    .hero.home-hero .bottom-content-section * {
+        display: none;
+    }
+}
+
 .hero.home-hero .bottom-content-section {
     padding: 1rem;
 
@@ -68,6 +86,58 @@
     fill: white;
 }
 
+/* Become a host section */
+
+.become-a-host {
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+}
+
+.become-a-host .section-title {
+    text-align: center;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+}
+
+.become-a-host .become-a-host-button {
+    margin-top: 1.5rem;
+}
+
+@media screen and (min-width: 40em) and (max-width: 63.9375em) {
+    .become-a-host .feature-text,
+    .become-a-host .feature-image {
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+    }
+}
+
+@media screen and (min-width: 40em) {
+    .become-a-host .become-a-host-button {
+        margin-top: 2.5rem;
+    }
+}
+
+@media screen and (min-width: 64em) {
+    .become-a-host .feature-text,
+    .become-a-host .feature-image {
+        margin-top: 6rem;
+        margin-bottom: 4rem;
+    }
+
+    .become-a-host .feature-text {
+        padding-top: 3rem;
+    }
+}
+
+.become-a-host .feature-image {
+    text-align: center;
+}
+
+.become-a-host .feature-image img {
+    max-height: 21rem;
+    box-shadow: 0 0 9px rgba(0, 0, 0, 0.075);
+}
+
 /* Frequently asked questions */
 
 dl.faq dt {
@@ -79,21 +149,4 @@ dl.faq dt {
 
 dl.faq dd {
     margin-bottom: 1.75rem;
-}
-
-/* Become a host section */
-
-.become-a-host .section-title {
-    text-align: center;
-    margin-top: 3.5rem;
-    margin-bottom: 2rem;
-}
-
-.become-a-host img {
-    max-height: 200px;
-}
-
-.become-a-host .become-a-host-button {
-    padding-top: 1.75rem;
-    padding-bottom: 1.75rem;
 }
