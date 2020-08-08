@@ -127,7 +127,7 @@ export default Vue.extend({
             let cards = [
                 ['Visa', 'visa.svg'],
                 ['MasterCard', 'mastercard-1.svg'],
-                ['American Express', 'Amex.svg']
+                ['American Express', 'amex.svg']
             ];
 
             return cards.map(card => [
