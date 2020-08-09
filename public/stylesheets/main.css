@@ -182,6 +182,8 @@ select:focus
 /* Makes checkboxes and radio buttons 30% larger. */
 [type="checkbox"], [type="radio"] {
     transform: scale(1.2, 1.2);
+
+    margin-left: 0.2rem;
 }
 
 /* Adds additional padding on select fields, required by the right arrow. */

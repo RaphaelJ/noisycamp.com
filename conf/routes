@@ -52,6 +52,8 @@ GET     /account/payouts                controllers.account.PayoutsController.in
 GET     /account/payouts/stripe-oauth   controllers.account.PayoutsController.stripeOAuthRedirect(state: String, code: String)
 GET     /account/payouts/stripe-dashboard   controllers.account.PayoutsController.stripeDashboard
 
+GET     /account/premium/upgrade        controllers.account.PremiumController.upgrade
+
 # Studios
 
 GET     /studios                        controllers.StudiosController.index
