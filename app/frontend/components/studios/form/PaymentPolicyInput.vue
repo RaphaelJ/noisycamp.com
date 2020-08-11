@@ -25,20 +25,22 @@
         <p class="cell">NoisyCamp supports online and onsite payments.</p>
 
         <div class="cell">
-            <input
-                id="payment-policy-has-online-payment"
-                type="checkbox"
-                :name="fieldName('has-online-payment')"
-                v-model="hasOnlinePayment"
-                value="true">
+            <div class="checkbox-group">
+                <input
+                    id="payment-policy-has-online-payment"
+                    type="checkbox"
+                    :name="fieldName('has-online-payment')"
+                    v-model="hasOnlinePayment"
+                    value="true">
 
-            <label for="payment-policy-has-online-payment">
-                Allow online payments using credit and debit cards
+                <label for="payment-policy-has-online-payment">
+                    Allow online payments using credit and debit cards
 
-                <span v-if="fieldHasError('has-online-payment')" class="error">
-                    {{ fieldError('has-online-payment') }}
-                </span>
-            </label>
+                    <span v-if="fieldHasError('has-online-payment')" class="error">
+                        {{ fieldError('has-online-payment') }}
+                    </span>
+                </label>
+            </div>
 
             <p class="help-text">
                 Payment of booking fees will be securely collected online at the
@@ -50,20 +52,22 @@
         </div>
 
         <div class="cell">
-            <input
-                id="payment-policy-has-onsite-payment"
-                type="checkbox"
-                :name="fieldName('has-onsite-payment')"
-                v-model="hasOnsitePayment"
-                value="true">
+            <div class="checkbox-group">
+                <input
+                    id="payment-policy-has-onsite-payment"
+                    type="checkbox"
+                    :name="fieldName('has-onsite-payment')"
+                    v-model="hasOnsitePayment"
+                    value="true">
 
-            <label for="payment-policy-has-onsite-payment">
-                Allow onsite payments
+                <label for="payment-policy-has-onsite-payment">
+                    Allow onsite payments
 
-                <span v-if="fieldHasError('has-onsite-payment')" class="1error">
-                    {{ fieldError('has-onsite-payment') }}
-                </span>
-            </label>
+                    <span v-if="fieldHasError('has-onsite-payment')" class="1error">
+                        {{ fieldError('has-onsite-payment') }}
+                    </span>
+                </label>
+            </div>
 
             <p class="help-text">
                 You will be in charge of collecting the fee payment from the

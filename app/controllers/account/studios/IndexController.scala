@@ -121,7 +121,7 @@ class IndexController @Inject() (ccc: CustomControllerCompoments)
             dbStudio.flatMap { (_ match {
                 case Some(studio) if studio.ownerId == user.id => {
                     StudioForm.form.bindFromRequest.fold(
-                        form => DBIO.successful(Ok(
+                        form => DBIO.successful(BadRequest(
                             views.html.account.studios.settings(request.identity, studio, form))),
                         data => {
                             val (newStudio, newEquips, newPics) =

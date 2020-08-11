@@ -43,20 +43,22 @@
         </div>
 
         <div class="cell small-12">
-            <input
-                id="booking-policy-automatic-approval"
-                type="checkbox"
-                :name="fieldName('automatic-approval')"
-                v-model="automaticApproval"
-                value="true">
+            <div class="checkbox-group">
+                <input
+                    id="booking-policy-automatic-approval"
+                    type="checkbox"
+                    :name="fieldName('automatic-approval')"
+                    v-model="automaticApproval"
+                    value="true">
 
-            <label for="booking-policy-automatic-approval">
-                Automatically accept booking requests
+                <label for="booking-policy-automatic-approval">
+                    Automatically accept booking requests
 
-                <span v-if="fieldHasError('automatic-approval')" class="error">
-                    {{ fieldError('automatic-approval') }}
-                </span>
-            </label>
+                    <span v-if="fieldHasError('automatic-approval')" class="error">
+                        {{ fieldError('automatic-approval') }}
+                    </span>
+                </label>
+            </div>
 
             <p class="help-text">
                 If disabled, every booking request will have to be manually approved within 7 days,
@@ -65,20 +67,22 @@
         </div>
 
         <div class="cell small-12">
-            <input
-                id="booking-policy-can-cancel"
-                type="checkbox"
-                :name="fieldName('can-cancel')"
-                v-model="canCancel"
-                value="true">
+            <div class="checkbox-group">
+                <input
+                    id="booking-policy-can-cancel"
+                    type="checkbox"
+                    :name="fieldName('can-cancel')"
+                    v-model="canCancel"
+                    value="true">
 
-            <label for="booking-policy-can-cancel">
-                Reimburse customers who cancel their booking
+                <label for="booking-policy-can-cancel">
+                    Reimburse customers who cancel their booking
 
-                <span v-if="fieldHasError('can-cancel')" class="error">
-                    {{ fieldError('can-cancel') }}
-                </span>
-            </label>
+                    <span v-if="fieldHasError('can-cancel')" class="error">
+                        {{ fieldError('can-cancel') }}
+                    </span>
+                </label>
+            </div>
         </div>
 
         <slide-down-transition :max-height="135">

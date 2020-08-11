@@ -29,7 +29,7 @@ object PremiumForm {
     val form = Form(
         mapping(
             "nonprofit"                 -> boolean,
-            "website"                   -> optional(nonEmptyText),
+            "website"                   -> CustomFields.optionalText,
 
             "rooms"                     -> number,
 

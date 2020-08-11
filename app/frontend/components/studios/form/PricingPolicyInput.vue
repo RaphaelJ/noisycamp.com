@@ -46,20 +46,22 @@
         <!-- Evening sessions -->
 
         <div class="cell small-12">
-            <input
-                id="pricing-has-evening-pricing"
-                type="checkbox"
-                :name="fieldName('has-evening-pricing')"
-                v-model="hasEveningPricing"
-                value="true">
+            <div class="checkbox-group">
+                <input
+                    id="pricing-has-evening-pricing"
+                    type="checkbox"
+                    :name="fieldName('has-evening-pricing')"
+                    v-model="hasEveningPricing"
+                    value="true">
 
-            <label for="pricing-has-evening-pricing">
-                Pricing is different for evening sessions
+                <label for="pricing-has-evening-pricing">
+                    Pricing is different for evening sessions
 
-                <span v-if="fieldHasError('has-evening-pricing')" class="error">
-                    {{ fieldError('has-evening-pricing') }}
-                </span>
-            </label>
+                    <span v-if="fieldHasError('has-evening-pricing')" class="error">
+                        {{ fieldError('has-evening-pricing') }}
+                    </span>
+                </label>
+            </div>
         </div>
 
         <slide-down-transition :max-height="85">
@@ -107,20 +109,22 @@
         <!-- Weekend sessions -->
 
         <div class="cell small-12">
-            <input
-                id="pricing-has-weekend-pricing"
-                type="checkbox"
-                :name="fieldName('has-weekend-pricing')"
-                v-model="hasWeekendPricing"
-                value="true">
+            <div class="checkbox-group">
+                <input
+                    id="pricing-has-weekend-pricing"
+                    type="checkbox"
+                    :name="fieldName('has-weekend-pricing')"
+                    v-model="hasWeekendPricing"
+                    value="true">
 
-            <label for="pricing-has-weekend-pricing">
-                Pricing is different for weekend sessions
+                <label for="pricing-has-weekend-pricing">
+                    Pricing is different for weekend sessions
 
-                <span v-if="fieldHasError('has-weekend-pricing')" class="error">
-                    {{ fieldError('has-weekend-pricing') }}
-                </span>
-            </label>
+                    <span v-if="fieldHasError('has-weekend-pricing')" class="error">
+                        {{ fieldError('has-weekend-pricing') }}
+                    </span>
+                </label>
+            </div>
         </div>
 
         <slide-down-transition :max-height="85">

@@ -39,32 +39,36 @@
         <fieldset>
             <div class="grid-y">
                 <div class="cell">
-                    <input
-                        type="radio"
-                        name="payment-method"
-                        v-model="paymentMethod"
-                        value="online"
-                        id="payment-method-online">
-                    <label for="payment-method-online">
-                        Credit/Debit card
+                    <div class="radio-group">
+                        <input
+                            type="radio"
+                            name="payment-method"
+                            v-model="paymentMethod"
+                            value="online"
+                            id="payment-method-online">
+                        <label for="payment-method-online">
+                            Credit/Debit card
 
-                        <span class="card-icons">
-                            <img
-                                v-for="card in cardIcons"
-                                :alt="card[0]"
-                                :src="card[1]">
-                        </span>
-                    </label>
+                            <span class="card-icons">
+                                <img
+                                    v-for="card in cardIcons"
+                                    :alt="card[0]"
+                                    :src="card[1]">
+                            </span>
+                        </label>
+                    </div>
                 </div>
 
                 <div class="cell">
-                    <input
-                        type="radio"
-                        name="payment-method"
-                        v-model="paymentMethod"
-                        value="onsite"
-                        id="payment-method-onsite">
-                    <label for="payment-method-onsite">Onsite</label>
+                    <div class="radio-group">
+                        <input
+                            type="radio"
+                            name="payment-method"
+                            v-model="paymentMethod"
+                            value="onsite"
+                            id="payment-method-onsite">
+                        <label for="payment-method-onsite">Onsite</label>
+                    </div>
                     <p class="help-text">
                         Payment will be requested by the studio's manager before or after you begin
                         your session.

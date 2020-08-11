@@ -108,13 +108,17 @@
                     <span class="text-serif">Premium</span> offer.
                 </p>
 
-                @helper.form(action = controllers.account.routes.PremiumController.upgrade) {
+                @helper.form(action = controllers.account.routes.PremiumController.upgradeSubmit) {
+
+                    @form.errors
+
                     @helper.CSRF.formField
 
                     <div class="grid-x">
                         <div class="cell small-12 medium-10 large-8">
                             @helper.inputText(form("website"),
-                                '_label -> "Studio website or social media page",
+                                '_label -> "Studio website or social media page (optional)",
+                                'placeholder -> "https://www.facebook.com/my-noisy-space",
                                 '_showConstraints -> false)
                         </div>
 
@@ -122,14 +126,18 @@
                             @helper.inputText(form("rooms"),
                                 'type -> "number",
                                 '_label -> "Estimated number of rooms that you will list on NoisyCamp",
+                                'min -> 0,
+                                'required -> "required",
                                 '_showConstraints -> false)
                         </div>
 
                         <fieldset class="cell small-12">
-                            <input id="checkbox0" type="checkbox">
-                            <label for="checkbox0">
-                                This studio is managed by a nonprofit organization
-                            </label>
+                            <div class="checkbox-group">
+                                <input id="checkbox0" type="checkbox">
+                                <label for="checkbox0">
+                                    This studio is managed by a nonprofit organization
+                                </label>
+                            </div>
 
                             <p class="help-text">
                                 NoisyCamp supports the music industry by providing special discounts
@@ -139,38 +147,66 @@
 
                         <fieldset class="cell small-12">
                             <legend>
-                                <span class="text-serif">Premium</span> features you're interested in
+                                <span class="text-serif">Premium</span> features you're interested
+                                in:
                             </legend>
 
-                            <div class="grid-x">
-                                <div class="cell large-6">
-                                    <input id="checkbox1" type="checkbox">
-                                    <label for="checkbox1">Lower online transaction rate</label>
+                            <div class="grid-x premium-features-form">
+                                <div class="cell small-12 large-6">
+                                    @utils.forms.inputCheckbox(
+                                        form("lower-transaction-rate"),
+                                        'label -> "Lower online transaction rate")
+
+                                    <p class="help-text">
+                                        Enjoy a discounted 5% rate on online transactions.
+                                    </p>
                                 </div>
 
-                                <div class="cell large-6">
-                                    <input id="checkbox2" type="checkbox">
-                                    <label for="checkbox2">Daily payouts</label>
+                                <div class="cell small-12 large-6">
+                                    @utils.forms.inputCheckbox(
+                                        form("daily-payouts"),
+                                        'label -> "Daily payouts")
+
+                                    <p class="help-text">
+                                        Receive daily online payment payouts instead of monthly
+                                        payouts.
+                                    </p>
                                 </div>
 
-                                <div class="cell large-6">
-                                    <input id="checkbox3" type="checkbox">
-                                    <label for="checkbox3">External calendar synchronization</label>
+                                <div class="cell small-12 large-6">
+                                    @utils.forms.inputCheckbox(
+                                        form("calendar-sync"),
+                                        'label -> "External calendar synchronization")
+
+                                    <p class="help-text">
+                                        Synchronize bookings with external calendar apps.
+                                    </p>
                                 </div>
 
-                                <div class="cell large-6">
-                                    <input id="checkbox4" type="checkbox">
-                                    <label for="checkbox4">Website integration</label>
+                                <div class="cell small-12 large-6">
+                                    @utils.forms.inputCheckbox(
+                                        form("website-integration"),
+                                        'label -> "Website integration")
+
+                                    <p class="help-text">
+                                        Integrate studio availabilities and online booking within
+                                        your website.
+                                    </p>
                                 </div>
 
-                                <div class="cell large-6">
-                                    <input id="checkbox5" type="checkbox">
-                                    <label for="checkbox5">Manual and/or recurring bookings</label>
+                                <div class="cell small-12 large-6">
+                                    @utils.forms.inputCheckbox(
+                                        form("manual-bookings"),
+                                        'label -> "Manual and recurring bookings")
+
+                                    <p class="help-text">
+                                        Create custom booking events, including recurring bookings.
+                                    </p>
                                 </div>
                             </div>
                         </fieldset>
 
-                        <div class="cell small-12 show-for-medium">
+                        <div class="cell small-12">
                             <hr>
                         </div>
 

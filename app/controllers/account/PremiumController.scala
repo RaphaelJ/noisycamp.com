@@ -19,6 +19,8 @@ package controllers.account
 
 import javax.inject._
 
+import scala.concurrent.Future
+
 import play.api.mvc._
 
 import _root_.controllers.{ CustomBaseController, CustomControllerCompoments }
@@ -32,5 +34,19 @@ class PremiumController @Inject() (ccc: CustomControllerCompoments)
 
     def upgrade = silhouette.SecuredAction { implicit request =>
         Ok(views.html.account.premium.upgrade(request.identity, PremiumForm.form))
+    }
+
+    def upgradeSubmit = silhouette.SecuredAction { implicit request =>
+
+        PremiumForm.form.bindFromRequest.fold(
+            form => {
+                BadRequest(views.html.account.premium.upgrade(request.identity, form))
+            },
+            data => {
+                Redirect(routes.PremiumController.upgrade).
+                    flashing("success" ->
+                        "Your request has been submitted, we will get back to you shortly.")
+            }
+        )
     }
 }

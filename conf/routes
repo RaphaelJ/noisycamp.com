@@ -53,6 +53,7 @@ GET     /account/payouts/stripe-oauth   controllers.account.PayoutsController.st
 GET     /account/payouts/stripe-dashboard   controllers.account.PayoutsController.stripeDashboard
 
 GET     /account/premium/upgrade        controllers.account.PremiumController.upgrade
+POST    /account/premium/upgrade        controllers.account.PremiumController.upgradeSubmit
 
 # Studios
 

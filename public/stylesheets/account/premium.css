@@ -29,3 +29,9 @@
     text-align: center;
     min-height: calc(2 * 1.4em); /* Two lines */
 }
+
+@media screen and (min-width: 40em) {
+    .premium-features-form {
+        margin-left: 1rem;
+    }
+}

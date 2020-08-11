@@ -26,28 +26,30 @@
 
             <div class="grid-x grid-margin-x">
                 <div class="cell small-12">
-                    <input
-                        :id="'opening-times-' + weekDay.toLowerCase() + '-is-open'"
-                        :name="fieldName(weekDay.toLowerCase() + '.is-open')"
-                        type="checkbox"
-                        value="true"
-                        v-model="schedule[dayIx].isOpen">
+                    <div class="checkbox-group">
+                        <input
+                            :id="'opening-times-' + weekDay.toLowerCase() + '-is-open'"
+                            :name="fieldName(weekDay.toLowerCase() + '.is-open')"
+                            type="checkbox"
+                            value="true"
+                            v-model="schedule[dayIx].isOpen">
 
-                    <label :for="'opening-times-' + weekDay.toLowerCase() + '-is-open'">
-                        <h5>{{ weekDay }}</h5>
+                        <label :for="'opening-times-' + weekDay.toLowerCase() + '-is-open'">
+                            <h5>{{ weekDay }}</h5>
 
-                        <span
-                            v-if="fieldHasError(weekDay.toLowerCase())"
-                            class="error">
-                            {{ fieldError(weekDay.toLowerCase()) }}
-                        </span>
+                            <span
+                                v-if="fieldHasError(weekDay.toLowerCase())"
+                                class="error">
+                                {{ fieldError(weekDay.toLowerCase()) }}
+                            </span>
 
-                        <span
-                            v-if="fieldHasError(weekDay.toLowerCase() + '.is-open')"
-                            class="error">
-                            {{ fieldError(weekDay.toLowerCase() + '.is-open') }}
-                        </span>
-                    </label>
+                            <span
+                                v-if="fieldHasError(weekDay.toLowerCase() + '.is-open')"
+                                class="error">
+                                {{ fieldError(weekDay.toLowerCase() + '.is-open') }}
+                            </span>
+                        </label>
+                    </div>
                 </div>
 
                 <div class="cell small-6">
