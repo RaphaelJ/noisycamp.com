@@ -19,7 +19,7 @@ package misc
 
 import collection.JavaConverters._
 import javax.inject.{ Inject, Singleton }
-import scala.concurrent.{ ExecutionContext, Future }
+import scala.concurrent.{ ExecutionContext, Future, blocking }
 import scala.math.BigDecimal.RoundingMode
 
 import com.stripe.Stripe
@@ -116,34 +116,34 @@ class PaymentService @Inject() (
 
       "line_items" -> items).asJava
 
-    Future { Session.create(params, requestOptions) }
+    Future { blocking { Session.create(params, requestOptions) } }
   }
 
   def retreiveSession(sessionId: String)(
     implicit request: RequestHeader, config: Configuration): Future[Session] = {
 
-    Future { Session.retrieve(sessionId, requestOptions) }
+    Future { blocking { Session.retrieve(sessionId, requestOptions) } }
   }
 
   def retreiveIntent(intentId: String)(
     implicit request: RequestHeader, config: Configuration):
     Future[PaymentIntent] = {
 
-    Future { PaymentIntent.retrieve(intentId, requestOptions) }
+    Future { blocking { PaymentIntent.retrieve(intentId, requestOptions) } }
   }
 
   def capturePayment(intent: PaymentIntent)(
     implicit request: RequestHeader, config: Configuration):
     Future[PaymentIntent] = {
 
-    Future { intent.capture(requestOptions) }
+    Future { blocking { intent.capture(requestOptions) } }
   }
 
   def cancelPayment(intent: PaymentIntent)(
     implicit request: RequestHeader, config: Configuration):
     Future[PaymentIntent] = {
 
-    Future { intent.cancel(requestOptions) }
+    Future { blocking { intent.cancel(requestOptions) } }
   }
 
   /** Returns the URL to the Stripe Express onboarding for the provided user.
@@ -177,7 +177,7 @@ class PaymentService @Inject() (
       "code" -> code,
       "assert_capabilities" -> Seq("transfers").asJava).asJava
 
-    Future { OAuth.token(params, requestOptions) }
+    Future { blocking { OAuth.token(params, requestOptions) } }
   }
 
   /** Returns the URL to the Stripe Express dashboard associated witht the
@@ -187,7 +187,7 @@ class PaymentService @Inject() (
 
     val params: java.util.Map[String, Object] = Map.empty.asJava
 
-    Future { LoginLink.createOnAccount(stripeUserId, params, requestOptions) }.
+    Future { blocking { LoginLink.createOnAccount(stripeUserId, params, requestOptions) } }.
       map { _.getUrl }
   }
 }

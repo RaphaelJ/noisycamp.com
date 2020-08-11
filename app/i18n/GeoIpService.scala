@@ -18,7 +18,7 @@
 package i18n
 
 import javax.inject._
-import scala.concurrent.{ ExecutionContext, Future }
+import scala.concurrent.{ ExecutionContext, Future, blocking }
 
 import com.github.benmanes.caffeine.cache.{ Caffeine, Weigher }
 import play.api.Configuration
@@ -26,6 +26,8 @@ import play.api.libs.ws._
 import scalacache._
 import scalacache.caffeine._
 import scalacache.modes.scalaFuture._
+
+import misc.TaskExecutionContext
 
 /** The result of an IP location lookup. */
 case class GeoIpLocation(country: Country.Val)
@@ -38,7 +40,7 @@ case class GeoIpLocation(country: Country.Val)
 class GeoIpService @Inject() (
   val config: Configuration,
   val ws: WSClient,
-  implicit val executionContext: ExecutionContext) {
+  implicit val executionContext: TaskExecutionContext) {
 
   def get(ip: String): Future[Option[GeoIpLocation]] = {
     cachingF(ip)(ttl = None) {

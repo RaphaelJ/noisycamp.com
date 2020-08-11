@@ -33,7 +33,7 @@ import auth.{ DefaultEnv, UserService }
 import daos.DAOs
 import _root_.i18n.{ Country, Currency, ExchangeRatesService, GeoIpService,
   GeoIpLocation, TimeZoneService }
-import misc.{ PaymentService, TaskExecutionContext }
+import misc.{ EmailService, PaymentService, TaskExecutionContext }
 import pictures.PictureCache
 
 class CustomControllerCompoments @Inject() (
@@ -51,6 +51,7 @@ class CustomControllerCompoments @Inject() (
     val silhouette: Silhouette[DefaultEnv],
 
     // Misc
+    val emailService: EmailService,
     val exchangeRatesService: ExchangeRatesService,
     val geoIpService: GeoIpService,
     val paymentService: PaymentService,
@@ -75,6 +76,7 @@ abstract class CustomBaseController @Inject () (
 
     val silhouette = ccc.silhouette
 
+    val emailService = ccc.emailService
     implicit val exchangeRatesService = ccc.exchangeRatesService
     implicit val geoIpService = ccc.geoIpService
     implicit val timeZoneService = ccc.timeZoneService

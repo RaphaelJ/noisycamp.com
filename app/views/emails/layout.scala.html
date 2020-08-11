@@ -1,0 +1,70 @@
+@* Noisycamp is a platform for booking music studios.
+ * Copyright (C) 2020  Raphael Javaux <raphael@noisycamp.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *@
+
+@import java.time.Year
+
+@(content: Html)(implicit req: RequestHeader)
+
+<!doctype html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+
+    <body style="
+        background-color: #f5f3f2;
+        font-family: Arial, Helvetica, sans-serif;">
+
+        <div style="
+            text-align: center;
+            padding: 20px 0;">
+
+            <a href="@routes.IndexController.index.absoluteURL">
+                <img
+                    src="@routes.Assets.versioned("images/emails/logo_black.png").absoluteURL"
+                    alt="NoisyCamp logo"
+                    width="175px">
+            </a>
+        </div>
+
+        <div style="
+            background-color: rgba(255, 255, 255, 1);
+            border-radius: 4px;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            padding: 12px 18px;
+            max-width: 600px;
+            margin: auto;">
+
+            @content
+        </div>
+
+        <div style="
+            text-align: center;
+            padding: 10px 0 20px 0;">
+            <a
+                href="@routes.IndexController.index.absoluteURL"
+                style="
+                    color: grey;
+                    text-decoration: none;
+                    font-size: 0.9rem;">
+                © @Year.now NoisyCamp
+            </a>
+        </div>
+    </body>
+</html>

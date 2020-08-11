@@ -36,16 +36,28 @@ class PremiumController @Inject() (ccc: CustomControllerCompoments)
         Ok(views.html.account.premium.upgrade(request.identity, PremiumForm.form))
     }
 
-    def upgradeSubmit = silhouette.SecuredAction { implicit request =>
+    def upgradeSubmit = silhouette.SecuredAction.async { implicit request =>
 
         PremiumForm.form.bindFromRequest.fold(
-            form => {
-                BadRequest(views.html.account.premium.upgrade(request.identity, form))
-            },
+            form => Future.successful(
+                BadRequest(views.html.account.premium.upgrade(request.identity, form))),
             data => {
-                Redirect(routes.PremiumController.upgrade).
-                    flashing("success" ->
-                        "Your request has been submitted, we will get back to you shortly.")
+                val user = request.identity.user
+
+                db.run(daos.studio.query.filter(_.ownerId === user.id).result).
+                    flatMap { studios =>
+                        // Submits the the form data to noisycamp.emailReplyTo
+                        val subject = f"Premium upgrade request - ${user.displayName}"
+                        val content = views.html.emails.premiumRequest(user, data, studios)
+                        val destEmail = emailService.replyToEmail.getEmail
+
+                        emailService.send(subject, content, destEmail)
+                    }.map { _ =>
+                        Redirect(controllers.account.routes.IndexController.index).
+                            flashing("success" ->
+                                ("Your Premium access request has been received, we will get " +
+                                 "back to you shortly."))
+                    }
             }
         )
     }

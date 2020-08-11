@@ -1,5 +1,5 @@
 // Noisycamp is a platform for booking music studios.
-// Copyright (C) 2019  Raphael Javaux <raphaeljavaux@gmail.com>
+// Copyright (C) 2019-2020  Raphael Javaux <raphael@noisycamp.com>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -26,60 +26,62 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala)
 scalaVersion := "2.12.10"
 
 scalacOptions ++= Seq(
-  "-deprecation",         // Emit warning and location for usages of deprecated
+    "-deprecation",         // Emit warning and location for usages of deprecated
                           // APIs.
-  "-feature",             // Emit warning and location for usages of features
+    "-feature",             // Emit warning and location for usages of features
                           // that should be imported explicitly.
-  "-unchecked",           // Enable additional warnings where generated code
+    "-unchecked",           // Enable additional warnings where generated code
                           // depends on assumptions.
-  "-Xfatal-warnings",     // Fail the compilation if there are any warnings.
-  "-Ywarn-adapted-args",  // Warn if an argument list is modified to match the
+    "-Xfatal-warnings",     // Fail the compilation if there are any warnings.
+    "-Ywarn-adapted-args",  // Warn if an argument list is modified to match the
                           // receiver.
-  "-Ywarn-dead-code",     // Warn when dead code is identified.
-  "-Ywarn-inaccessible",  // Warn about inaccessible types in method signatures.
+    "-Ywarn-dead-code",     // Warn when dead code is identified.
+    "-Ywarn-inaccessible",  // Warn about inaccessible types in method signatures.
 
-  // Warn when non-nullary overrides nullary, e.g. def foo() over def foo.
-  "-Ywarn-nullary-override",
-  "-Ywarn-numeric-widen", // Warn when numerics are widened.
+    // Warn when non-nullary overrides nullary, e.g. def foo() over def foo.
+    "-Ywarn-nullary-override",
+    "-Ywarn-numeric-widen", // Warn when numerics are widened.
 
-  // Play has a lot of issues with unused imports and unsued params
-  // https://github.com/playframework/playframework/issues/6690
-  // https://github.com/playframework/twirl/issues/105
-  "-Xlint:-unused,_"
+    // Play has a lot of issues with unused imports and unsued params
+    // https://github.com/playframework/playframework/issues/6690
+    // https://github.com/playframework/twirl/issues/105
+    "-Xlint:-unused,_"
 )
 
 resolvers += Resolver.jcenterRepo
 
 libraryDependencies ++= Seq(
-  guice, // Dependency injection library required by Play
+    guice, // Dependency injection library required by Play
 
-  evolutions, jdbc, // Executes database evolutions
+    evolutions, jdbc, // Executes database evolutions
 
-  ws, // WebService library
+    ws, // WebService library
 
-  "com.github.cb372" %% "scalacache-caffeine" % "0.28.0",
+    "com.github.cb372" %% "scalacache-caffeine" % "0.28.0",
 
-  "com.iheart" %% "ficus" % "1.4.7",
+    "com.iheart" %% "ficus" % "1.4.7",
 
-  "com.mohiva" %% "play-silhouette" % "6.1.1",
-  "com.mohiva" %% "play-silhouette-crypto-jca" % "6.1.1",
-  "com.mohiva" %% "play-silhouette-password-bcrypt" % "6.1.1",
-  "com.mohiva" %% "play-silhouette-persistence" % "6.1.1",
+    "com.mohiva" %% "play-silhouette" % "6.1.1",
+    "com.mohiva" %% "play-silhouette-crypto-jca" % "6.1.1",
+    "com.mohiva" %% "play-silhouette-password-bcrypt" % "6.1.1",
+    "com.mohiva" %% "play-silhouette-persistence" % "6.1.1",
 
-  "com.sksamuel.scrimage" %% "scrimage-core" % "2.1.8",
+    "com.sendgrid" % "sendgrid-java" % "4.6.3",
 
-  "com.stripe" % "stripe-java" % "16.4.0",
+    "com.sksamuel.scrimage" %% "scrimage-core" % "2.1.8",
 
-  "com.typesafe.play" %% "play-slick" % "4.0.2",
+    "com.stripe" % "stripe-java" % "16.4.0",
 
-  "org.postgresql" % "postgresql" % "42.2.8",
+    "com.typesafe.play" %% "play-slick" % "4.0.2",
 
-  "org.typelevel" %% "squants" % "1.3.0",
+    "org.postgresql" % "postgresql" % "42.2.8",
 
-  "org.scalatestplus.play" %% "scalatestplus-play" % "4.0.3" % Test,
+    "org.typelevel" %% "squants" % "1.3.0",
 
-  "net.codingwell" %% "scala-guice" % "4.2.6",
-  "net.iakovlev" % "timeshape" % "2018d.6"
+    "org.scalatestplus.play" %% "scalatestplus-play" % "4.0.3" % Test,
+
+    "net.codingwell" %% "scala-guice" % "4.2.6",
+    "net.iakovlev" % "timeshape" % "2018d.6"
 )
 
 // Creates Webpack bundle when compiling, based on
