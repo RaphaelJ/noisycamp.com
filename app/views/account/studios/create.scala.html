@@ -36,8 +36,7 @@
     <div class="panel-section">
         <form
             action="@controllers.account.studios.routes.IndexController.createSubmit"
-            method="post"
-            class="grid-x">
+            method="post">
 
             <studio-create-form
                 csrf-token="@helper.CSRF.getToken.value"

@@ -28,7 +28,7 @@
                 <input
                     type="text"
                     :name="fieldName('name')"
-                    :value="fieldValue('name')"
+                    v-model="nameValue"
                     required>
 
                 <span v-if="fieldHasError('name')" class="error">
@@ -106,7 +106,7 @@
 
                 <textarea
                     :name="fieldName('description')"
-                    :value="fieldValue('description')"
+                    v-model="description"
                     rows="10" required>
                 </textarea>
 
@@ -135,6 +135,9 @@ export default Vue.extend({
     },
     data() {
         let data = {
+            nameValue: this.value.name,
+            description: this.value.description,
+
             usePractice: false,
             useRecording: false,
             useLive: false,

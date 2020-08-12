@@ -19,7 +19,7 @@
 -->
 
 <template>
-    <div class="grid-x grid-margin-x grid-padding-x">
+    <div class="grid-x grid-margin-x">
         <p class="cell small-12">
             Getting your music studio listed on NoisyCamp only takes a few minutes. We will need a
             little bit of information about the place you want to add.
