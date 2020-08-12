@@ -525,6 +525,31 @@ table.plan-comparison-table {
     color: white;
 }
 
+/* Feature presentation list */
+
+.feature-block .feature-image {
+   text-align: center;
+   margin-top: 2rem;
+   margin-bottom: 1rem;
+}
+
+.feature-block .feature-image img {
+   max-height: 6rem;
+}
+
+.feature-block .feature-title {
+   text-align: center;
+   min-height: calc(2 * 1.4em); /* Two lines */
+}
+
+.feature-block .feature-text {
+   text-align: justify;
+
+   color: #666;
+   font-size: 0.95rem;
+}
+
+
 /* Equipment/Instrument list */
 
 .equipment-list {

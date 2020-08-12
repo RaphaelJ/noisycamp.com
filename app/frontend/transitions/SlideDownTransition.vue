@@ -35,8 +35,8 @@ export default Vue.extend({
     },
     computed: {
         duration() {
-            // Duration is 100ms per 100px.
-            return this.maxHeight / 100 * 100;
+            // Duration is 50ms per 100px.
+            return this.maxHeight / 100 * 50;
         }
     },
     methods: {

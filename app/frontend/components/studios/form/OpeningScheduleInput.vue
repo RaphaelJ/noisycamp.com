@@ -19,7 +19,7 @@
 -->
 
 <template>
-    <div class="grid-x grid-margin-x grid-padding-x">
+    <div class="grid-x grid-margin-x">
         <div
             v-for="(weekDay, dayIx) in weekDays"
             class="cell small-12 medium-6 large-4">

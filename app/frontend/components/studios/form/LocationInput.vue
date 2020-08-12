@@ -20,14 +20,14 @@
 
 <template>
     <div class="grid-x grid-margin-x">
-        <div class="cell large-6">
+        <div class="cell small-12">
             <address-input
                 :name="fieldName('address')"
                 v-model="address">
             </address-input>
         </div>
 
-        <div class="cell large-6 address-map-container">
+        <div class="cell small-12 address-map-container">
             <div class="address-map" ref="map"></div>
 
             <div class="address-map-overlay" v-show="hasMarker">

@@ -34,34 +34,16 @@
 
 @views.html.account.layout(Seq("Host a new studio"), head=head, identity=identity) {
     <div class="panel-section">
-
-        <p>
-            We just need a little bit of information about the place
-            you want to list on NoisyCamp. This should only take a few minutes.
-        </p>
-
-        <p>Data: @tags.json(FormUtils.dataAsJson(studioForm))</p>
-
-        <p>Errors: @studioForm.errorsAsJson</p>
-
-        <hr>
-
         <form
             action="@controllers.account.studios.routes.IndexController.createSubmit"
             method="post"
             class="grid-x">
 
-            <studio-form
+            <studio-create-form
                 csrf-token="@helper.CSRF.getToken.value"
                 :value="@tags.json(FormUtils.dataAsJson(studioForm), htmlEscape = true)"
                 :errors='@studioForm.errorsAsJson'>
-            </studio-form>
-
-            <div class="cell text-right">
-                <button type="submit" class="button primary large small-only-expanded">
-                    Save and continue
-                </button>
-            </div>
+            </studio-create-form>
         </form>
     </div>
 }

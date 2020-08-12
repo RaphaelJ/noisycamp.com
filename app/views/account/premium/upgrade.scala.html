@@ -23,20 +23,14 @@
     implicit req: RequestHeader, messagesProvider: MessagesProvider, config: Configuration,
     flash: Flash)
 
-@head = {
-    <link
-        rel="stylesheet"
-        href="@routes.Assets.versioned("stylesheets/account/premium.css")">
-}
-
 @implicitField = @{
     helper.FieldConstructor(utils.forms.foundationFieldConstructor.f)
 }
 
-@views.html.account.layout(Seq("Upgrade to NoisyCamp Premium"), identity=identity, head=head) {
+@views.html.account.layout(Seq("Upgrade to NoisyCamp Premium"), identity=identity) {
 
     <div class="panel-section">
-        <div class="grid-x grid-margin-x grid-padding-x premium-features">
+        <div class="grid-x grid-margin-x grid-padding-x">
             <div class="cell small-12">
                 <h2>NoisyCamp Premium</h2>
 
@@ -47,11 +41,11 @@
             </div>
 
             <div class="cell medium-4 show-for-medium">
-                <div class="grid-y">
+                <div class="grid-y feature-block">
                     <div class="cell shrink feature-image">
                         <img
                             alt="Guitar"
-                            src="@routes.Assets.versioned("images/vendor/feature-icons/guitar.png")">
+                            src="@routes.Assets.versioned("images/vendor/business-bubble-icons/060-guitar-1.svg")">
                     </div>
 
                     <h4 class="cell feature-title">Unlimited rooms</h4>
@@ -63,11 +57,11 @@
             </div>
 
             <div class="cell medium-4 show-for-medium">
-                <div class="grid-y">
+                <div class="grid-y feature-block">
                     <div class="cell shrink feature-image">
                         <img
                             alt="Rocket"
-                            src="@routes.Assets.versioned("images/vendor/feature-icons/rocket.png")">
+                            src="@routes.Assets.versioned("images/vendor/business-bubble-icons/030-rocket.svg")">
                     </div>
 
                     <h4 class="cell feature-title">Enhanced productivity</h4>
@@ -80,11 +74,11 @@
             </div>
 
             <div class="cell medium-4 show-for-medium">
-                <div class="grid-y">
+                <div class="grid-y feature-block">
                     <div class="cell shrink feature-image">
                         <img
                             alt="Discounted rate"
-                            src="@routes.Assets.versioned("images/vendor/feature-icons/discount.png")">
+                            src="@routes.Assets.versioned("images/vendor/business-bubble-icons/027-discount.svg")">
                     </div>
 
                     <h4 class="cell feature-title">Lower online transaction fees</h4>

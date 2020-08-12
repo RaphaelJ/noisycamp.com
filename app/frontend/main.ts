@@ -35,6 +35,7 @@ import BookingTimesForm from './components/studios/show/BookingTimesForm.vue';
 import BookingPricingCalculator from './components/studios/BookingPricingCalculator.vue';
 
 import StudioForm from './components/studios/Form.vue';
+import StudioCreateForm from './components/studios/CreateForm.vue';
 
 import StudiosIndex from './components/studios/Index.vue';
 
@@ -46,6 +47,6 @@ var ncApp = new Vue({
         StripeCheckoutRedirect,
         BookingForm, BookingTimesForm, BookingPricingCalculator,
         SearchForm, FeatureGallery,
-        StudioForm, StudiosIndex,
+        StudioForm, StudioCreateForm, StudiosIndex,
     },
 });
