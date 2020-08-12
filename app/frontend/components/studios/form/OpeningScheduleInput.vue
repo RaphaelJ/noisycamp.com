@@ -19,37 +19,35 @@
 -->
 
 <template>
-    <div class="grid-x grid-margin-x grid-padding-x grid-margin-y">
+    <div class="grid-x grid-margin-x grid-padding-x">
         <div
             v-for="(weekDay, dayIx) in weekDays"
             class="cell small-12 medium-6 large-4">
 
-            <div class="grid-x grid-margin-x">
+            <div class="grid-x grid-margin-x checkbox-group">
                 <div class="cell small-12">
-                    <div class="checkbox-group">
-                        <input
-                            :id="'opening-times-' + weekDay.toLowerCase() + '-is-open'"
-                            :name="fieldName(weekDay.toLowerCase() + '.is-open')"
-                            type="checkbox"
-                            value="true"
-                            v-model="schedule[dayIx].isOpen">
+                    <input
+                        :id="'opening-times-' + weekDay.toLowerCase() + '-is-open'"
+                        :name="fieldName(weekDay.toLowerCase() + '.is-open')"
+                        type="checkbox"
+                        value="true"
+                        v-model="schedule[dayIx].isOpen">
 
-                        <label :for="'opening-times-' + weekDay.toLowerCase() + '-is-open'">
-                            <h5>{{ weekDay }}</h5>
+                    <label :for="'opening-times-' + weekDay.toLowerCase() + '-is-open'">
+                        <h5>{{ weekDay }}</h5>
 
-                            <span
-                                v-if="fieldHasError(weekDay.toLowerCase())"
-                                class="error">
-                                {{ fieldError(weekDay.toLowerCase()) }}
-                            </span>
+                        <span
+                            v-if="fieldHasError(weekDay.toLowerCase())"
+                            class="error">
+                            {{ fieldError(weekDay.toLowerCase()) }}
+                        </span>
 
-                            <span
-                                v-if="fieldHasError(weekDay.toLowerCase() + '.is-open')"
-                                class="error">
-                                {{ fieldError(weekDay.toLowerCase() + '.is-open') }}
-                            </span>
-                        </label>
-                    </div>
+                        <span
+                            v-if="fieldHasError(weekDay.toLowerCase() + '.is-open')"
+                            class="error">
+                            {{ fieldError(weekDay.toLowerCase() + '.is-open') }}
+                        </span>
+                    </label>
                 </div>
 
                 <div class="cell small-6">

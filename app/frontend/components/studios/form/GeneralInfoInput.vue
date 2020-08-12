@@ -43,9 +43,9 @@
         </div>
 
         <fieldset class="cell">
-            <legend>The studio is suitable for</legend>
+            <legend>The studio is suitable for:</legend>
 
-            <div class="grid-x">
+            <div class="grid-x grid-margin-x grid-padding-x">
                 <div class="cell small-12 medium-6 large-4">
                     <div class="checkbox-group">
                         <input

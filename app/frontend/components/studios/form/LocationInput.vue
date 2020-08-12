@@ -287,7 +287,7 @@ export default Vue.extend({
 }
 
 .address-map {
-    height: 350px;
+    height: 370px;
 }
 
 .address-map-overlay {
