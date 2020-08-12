@@ -42,6 +42,64 @@
             </p>
         </div>
 
+        <fieldset class="cell">
+            <legend>The studio is suitable for</legend>
+
+            <div class="grid-x">
+                <div class="cell small-12 medium-6 large-4">
+                    <div class="checkbox-group">
+                        <input
+                            type="checkbox"
+                            :id="fieldName('use-practice')"
+                            :name="fieldName('use-practice')"
+                            v-model="usePractice"
+                            value="true">
+
+                        <label :for="fieldName('use-practice')">Rehearsal/Practice</label>
+                    </div>
+                </div>
+
+                <div class="cell small-12 medium-6 large-4">
+                    <div class="checkbox-group">
+                        <input
+                            type="checkbox"
+                            :id="fieldName('use-recording')"
+                            :name="fieldName('use-recording')"
+                            v-model="useRecording"
+                            value="true">
+
+                        <label :for="fieldName('use-recording')">Recording and/or mastering</label>
+                    </div>
+                </div>
+
+                <div class="cell small-12 medium-6 large-4">
+                    <div class="checkbox-group">
+                        <input
+                            type="checkbox"
+                            :id="fieldName('use-live')"
+                            :name="fieldName('use-live')"
+                            v-model="useLive"
+                            value="true">
+
+                        <label :for="fieldName('use-live')">Live music</label>
+                    </div>
+                </div>
+
+                <div class="cell small-12 medium-6 large-4">
+                    <div class="checkbox-group">
+                        <input
+                            type="checkbox"
+                            :id="fieldName('use-lessons')"
+                            :name="fieldName('use-lessons')"
+                            v-model="useLessons"
+                            value="true">
+
+                        <label :for="fieldName('use-lessons')">Lessons/Learning</label>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+
         <div class="cell">
             <label>
                 Short description
@@ -72,6 +130,35 @@ import VueInput from '../../widgets/VueInput';
 
 export default Vue.extend({
     mixins: [VueInput],
+    props: {
+        value: { type: Object, default() { return {}; } }
+    },
+    data() {
+        let data = {
+            usePractice: false,
+            useRecording: false,
+            useLive: false,
+            useLessons: false,
+        };
+
+        if ('use-practice' in this.value) {
+            data.usePractice = this.value['use-practice'] == 'true';
+        }
+
+        if ('use-recording' in this.value) {
+            data.useRecording = this.value['use-recording'] == 'true';
+        }
+
+        if ('use-live' in this.value) {
+            data.useLive = this.value['use-live'] == 'true';
+        }
+
+        if ('use-lessons' in this.value) {
+            data.useLessons = this.value['use-lessons'] == 'true';
+        }
+
+        return data;
+    },
 });
 </script>
 

@@ -23,22 +23,27 @@ import scala.math.BigDecimal.RoundingMode
 import squants.market.{ Currency, Money }
 
 case class Studio(
-    id:               Studio#Id         = 0L,
-    createdAt:        Instant           = Instant.now(),
+    id:                 Studio#Id       = 0L,
+    createdAt:          Instant         = Instant.now(),
 
-    ownerId:          User#Id,
+    ownerId:            User#Id,
 
-    published:        Boolean           = false,
+    published:          Boolean         = false,
 
-    name:             String,
-    description:      String,
+    name:               String,
+    description:        String,
 
-    location:         Location,
-    timezone:         ZoneId,
-    openingSchedule:  OpeningSchedule,
-    pricingPolicy:    PricingPolicy,
-    bookingPolicy:    BookingPolicy,
-    paymentPolicy:    PaymentPolicy) {
+    usePractice:        Boolean,
+    useRecording:       Boolean,
+    useLive:            Boolean,
+    useLessons:         Boolean,
+
+    location:           Location,
+    timezone:           ZoneId,
+    openingSchedule:    OpeningSchedule,
+    pricingPolicy:      PricingPolicy,
+    bookingPolicy:      BookingPolicy,
+    paymentPolicy:      PaymentPolicy) {
 
     type Id = Long
 

@@ -33,31 +33,41 @@ object StudioForm {
 
     val form = Form(
         mapping(
-            "general-info.name" -> nonEmptyText,
-            "general-info.description" -> nonEmptyText,
+            "general-info.name"              -> nonEmptyText,
+            "general-info.description"       -> nonEmptyText,
 
-            "location" -> forms.components.LocationForm.form.mapping,
-            "opening-schedule" -> forms.components.OpeningScheduleForm.form.mapping,
-            "pricing-policy" -> forms.components.PricingPolicyForm.form.mapping,
-            "booking-policy" -> forms.components.BookingPolicyForm.form.mapping,
-            "payment-policy" -> forms.components.PaymentPolicyForm.form.mapping,
+            "general-info.use-practice"      -> boolean,
+            "general-info.use-recording"     -> boolean,
+            "general-info.use-live"          -> boolean,
+            "general-info.use-lessons"       -> boolean,
 
-            "equipments" -> seq(forms.components.EquipmentForm.form.mapping),
-            "pictures" -> seq(CustomFields.pictureId)
+            "location"              -> forms.components.LocationForm.form.mapping,
+            "opening-schedule"      -> forms.components.OpeningScheduleForm.form.mapping,
+            "pricing-policy"        -> forms.components.PricingPolicyForm.form.mapping,
+            "booking-policy"        -> forms.components.BookingPolicyForm.form.mapping,
+            "payment-policy"        -> forms.components.PaymentPolicyForm.form.mapping,
+
+            "equipments"            -> seq(forms.components.EquipmentForm.form.mapping),
+            "pictures"              -> seq(CustomFields.pictureId)
         )(Data.apply)(Data.unapply))
 
     case class Data(
-        name:             String,
-        description:      String,
+        name:               String,
+        description:        String,
 
-        location:         Location,
-        openingSchedule:  OpeningSchedule,
-        pricingPolicy:    PricingPolicy,
-        bookingPolicy:    BookingPolicy,
-        paymentPolicy:    PaymentPolicyForm.Data,
+        usePractice:        Boolean,
+        useRecording:       Boolean,
+        useLive:            Boolean,
+        useLessons:         Boolean,
 
-        equipments:       Seq[Equipment],
-        pictures:         Seq[Picture#Id]) {
+        location:           Location,
+        openingSchedule:    OpeningSchedule,
+        pricingPolicy:      PricingPolicy,
+        bookingPolicy:      BookingPolicy,
+        paymentPolicy:      PaymentPolicyForm.Data,
+
+        equipments:         Seq[Equipment],
+        pictures:           Seq[Picture#Id]) {
 
         /** Constructs a new studio object from the form data, either with default values or from
          * an existing studio object. */
@@ -80,8 +90,15 @@ object StudioForm {
                 createdAt = createdAt,
                 ownerId = ownerId,
                 published = published,
+
                 name = name,
                 description = description,
+
+                usePractice = usePractice,
+                useRecording = useRecording,
+                useLive = useLive,
+                useLessons = useLessons,
+
                 location = location,
                 timezone = timezone,
                 openingSchedule = openingSchedule,
@@ -99,6 +116,11 @@ object StudioForm {
         form.fill(Data(
             name = studio.name,
             description = studio.description,
+
+            usePractice = studio.usePractice,
+            useRecording = studio.useRecording,
+            useLive = studio.useLive,
+            useLessons = studio.useLessons,
 
             location = studio.location,
             openingSchedule = studio.openingSchedule,

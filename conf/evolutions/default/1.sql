@@ -76,6 +76,11 @@ create table "studio" (
     name                    varchar not null,
     description             varchar not null,
 
+    use_practice            boolean,
+    use_recording           boolean,
+    use_live                boolean,
+    use_lessons             boolean,
+
     -- Address
     address1                varchar not null,
     address2                varchar,
