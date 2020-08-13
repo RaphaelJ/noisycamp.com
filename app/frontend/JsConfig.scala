@@ -1,5 +1,5 @@
 /* Noisycamp is a platform for booking music studios.
- * Copyright (C) 2019  Raphael Javaux <raphaeljavaux@gmail.com>
+ * Copyright (C) 2019 2020  Raphael Javaux <raphael@noisycamp.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,66 +29,67 @@ import misc.{ EquipmentCategory, EquipmentFamily }
  * code. */
 object JsConfig {
 
-  def apply()(implicit config: Configuration, request: RequestHeader)
-    : JsValue = {
+    def apply()(implicit config: Configuration, request: RequestHeader) : JsValue = {
 
-    Json.obj(
-      "csrfToken" -> CSRF.getToken.value,
+        Json.obj(
+            "csrfToken" -> CSRF.getToken.value,
 
-      "currentUri" -> request.uri,
+            "currentUri" -> request.uri,
 
-      "mapboxToken" -> config.get[String]("mapbox.token"),
-      "stripePublicKey" -> config.get[String]("stripe.publicKey"),
+            "mapboxToken" -> config.get[String]("mapbox.token"),
+            "stripePublicKey" -> config.get[String]("stripe.publicKey"),
 
-      // Currencies
+            "cdnHost" -> config.getOptional[String]("noisycamp.cdnHost"),
 
-      "currencies" -> JsObject(
-        for (curr <- Currency.currencies.toSeq)
-        yield curr.code -> Json.obj(
-          "isoCode" -> curr.code,
-          "name" -> curr.name,
-          "symbol" -> curr.symbol,
-          "decimals" -> curr.formatDecimals,
+            // Currencies
+
+            "currencies" -> JsObject(
+                for (curr <- Currency.currencies.toSeq)
+                yield curr.code -> Json.obj(
+                    "isoCode" -> curr.code,
+                    "name" -> curr.name,
+                    "symbol" -> curr.symbol,
+                    "decimals" -> curr.formatDecimals,
+                )
+            ),
+
+            // Lists the name, currency and provinces of every supported country.
+
+            "countries" -> JsObject(
+                for ((code, country) <- Country.byCode)
+                yield code -> Json.obj(
+                    "isoCode" -> code,
+                    "name" -> country.name,
+                    "currency" -> country.currency.code,
+                    "states" -> {
+                        if (country.states.nonEmpty) {
+                            JsObject(
+                                for ((stateCode, stateName) <- country.states)
+                                yield stateCode -> JsString(stateName))
+                        } else {
+                            JsNull
+                        }
+                    },
+                    "hasZipCode" -> country.hasZipCode
+                )
+            ),
+
+            // Equipment and equipment families.
+
+            "equipmentFamilies" -> JsObject(
+                for ((code, family) <- EquipmentFamily.byCode)
+                yield code -> Json.obj(
+                    "code" -> family.code,
+                    "name" -> family.name)
+                ),
+
+            "equipments" -> JsObject(
+                for ((code, equipment) <- EquipmentCategory.byCode)
+                yield code -> Json.obj(
+                    "code" -> equipment.code,
+                    "name" -> equipment.name,
+                    "family" -> equipment.family.code)
+                )
         )
-      ),
-
-      // Lists the name, currency and provinces of every supported country.
-
-      "countries" -> JsObject(
-        for ((code, country) <- Country.byCode)
-        yield code -> Json.obj(
-          "isoCode" -> code,
-          "name" -> country.name,
-          "currency" -> country.currency.code,
-          "states" -> {
-            if (country.states.nonEmpty) {
-              JsObject(
-                for ((stateCode, stateName) <- country.states)
-                yield stateCode -> JsString(stateName))
-            } else {
-              JsNull
-            }
-          },
-          "hasZipCode" -> country.hasZipCode
-        )
-      ),
-
-      // Equipment and equipment families.
-
-      "equipmentFamilies" -> JsObject(
-        for ((code, family) <- EquipmentFamily.byCode)
-        yield code -> Json.obj(
-          "code" -> family.code,
-          "name" -> family.name)
-      ),
-
-      "equipments" -> JsObject(
-        for ((code, equipment) <- EquipmentCategory.byCode)
-        yield code -> Json.obj(
-          "code" -> equipment.code,
-          "name" -> equipment.name,
-          "family" -> equipment.family.code)
-      )
-    )
-  }
+    }
 }

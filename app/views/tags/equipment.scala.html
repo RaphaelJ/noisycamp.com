@@ -15,18 +15,21 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *@
 
+@import play.api.Configuration
+
+@import misc.CDN
 @import models.LocalEquipment
 
 @* Renders an equipment or instrument as a small div. *@
 
-@(equip: LocalEquipment)
+@(equip: LocalEquipment)(implicit config: Configuration)
 
 @equipmentCategoryName = {@equip.category.map(_.name).getOrElse("Other")}
 
-@equipmentCategoryIcon = {@routes.Assets.versioned(
+@equipmentCategoryIcon = {@CDN.fromCDN(routes.Assets.versioned(
     "images/vendor/music-icons/" +
     equip.category.map(_.code).getOrElse("other") +
-    ".svg")}
+    ".svg"))}
 
 @equipmentDetails = {@equip.details.getOrElse("")}
 

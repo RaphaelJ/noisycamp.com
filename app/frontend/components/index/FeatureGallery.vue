@@ -64,6 +64,8 @@
 <script lang="ts">
 import Vue from "vue";
 
+import { fromCDN } from '../../misc/CDN';
+
 declare var NC_ROUTES: any;
 
 export default Vue.extend({
@@ -93,9 +95,8 @@ export default Vue.extend({
     },
     methods: {
         featureImage(featureName: string) {
-            return NC_ROUTES.controllers.Assets.
-                versioned(`images/index/${featureName}.png`).
-                url;
+            return fromCDN(
+                NC_ROUTES.controllers.Assets.versioned(`images/index/${featureName}.png`));
         },
 
         featureClicked(featureName: string) {

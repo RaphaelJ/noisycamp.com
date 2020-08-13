@@ -19,6 +19,7 @@
 @import play.api.Configuration
 
 @import forms.auth.SignUpForm.Data
+@import misc.CDN
 
 @(
     signUpForm: Form[Data], socialProviders: SocialProviderRegistry,
@@ -29,7 +30,7 @@
 @head = {
     <link
         rel="stylesheet"
-        href="@routes.Assets.versioned("stylesheets/auth/sign.css")">
+        href="@CDN.fromCDN(routes.Assets.versioned("stylesheets/auth/sign.css"))">
 }
 
 @implicitField = @{

@@ -174,6 +174,8 @@
 <script lang="ts">
 import Vue from "vue";
 
+import { fromCDN } from '../../../misc/CDN';
+
 import VueInput from '../../widgets/VueInput';
 import MoneyInput from '../../widgets/MoneyInput.vue';
 import SlideDownTransition from '../../../transitions/SlideDownTransition.vue';
@@ -273,7 +275,7 @@ export default Vue.extend({
                 iconName = "images/vendor/music-icons/other.svg";
             }
 
-            return NC_ROUTES.controllers.Assets.versioned(iconName).url;
+            return fromCDN(NC_ROUTES.controllers.Assets.versioned(iconName));
         },
 
         equipmentCategoryName(equipment) {

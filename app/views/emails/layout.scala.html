@@ -17,7 +17,11 @@
 
 @import java.time.Year
 
-@(content: Html)(implicit req: RequestHeader)
+@import play.api.Configuration
+
+@import misc.CDN
+
+@(content: Html)(implicit req: RequestHeader, config: Configuration)
 
 <!doctype html>
 <html lang="en" dir="ltr">
@@ -37,7 +41,7 @@
 
             <a href="@routes.IndexController.index.absoluteURL">
                 <img
-                    src="@routes.Assets.versioned("images/emails/logo_black.png").absoluteURL"
+                    src="@CDN.fromCDN(routes.Assets.versioned("images/emails/logo_black.png"))"
                     alt="NoisyCamp logo"
                     width="175px">
             </a>

@@ -33,6 +33,8 @@
 <script lang="ts">
 import Vue, { PropOptions } from "vue";
 
+import { fromCDN } from '../../misc/CDN';
+
 declare var NC_ROUTES: any;
 
 export default Vue.extend({
@@ -49,9 +51,9 @@ export default Vue.extend({
             let width = Math.round(this.width * screenRatio);
             let height = Math.round(this.height * screenRatio);
 
-            return NC_ROUTES.controllers.PictureController.cover(
+            return fromCDN(NC_ROUTES.controllers.PictureController.cover(
                 this.pictureId, width + 'x' + height
-            ).url;
+            ));
         }
     }
 });

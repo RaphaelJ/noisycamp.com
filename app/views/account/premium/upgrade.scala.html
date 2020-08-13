@@ -18,6 +18,7 @@
 @import play.api.Configuration
 
 @import forms.account.PremiumForm.Data
+@import misc.CDN
 
 @(identity: models.Identity, form: Form[Data])(
     implicit req: RequestHeader, messagesProvider: MessagesProvider, config: Configuration,
@@ -44,8 +45,8 @@
                 <div class="grid-y feature-block">
                     <div class="cell shrink feature-image">
                         <img
-                            alt="Guitar"
-                            src="@routes.Assets.versioned("images/vendor/business-bubble-icons/060-guitar-1.svg")">
+                            alt="Guitar icon"
+                            src="@CDN.fromCDN(routes.Assets.versioned("images/vendor/business-bubble-icons/060-guitar-1.svg"))">
                     </div>
 
                     <h4 class="cell feature-title">Unlimited rooms</h4>
@@ -60,8 +61,8 @@
                 <div class="grid-y feature-block">
                     <div class="cell shrink feature-image">
                         <img
-                            alt="Rocket"
-                            src="@routes.Assets.versioned("images/vendor/business-bubble-icons/030-rocket.svg")">
+                            alt="Rocket icon"
+                            src="@CDN.fromCDN(routes.Assets.versioned("images/vendor/business-bubble-icons/030-rocket.svg"))">
                     </div>
 
                     <h4 class="cell feature-title">Enhanced productivity</h4>
@@ -77,8 +78,8 @@
                 <div class="grid-y feature-block">
                     <div class="cell shrink feature-image">
                         <img
-                            alt="Discounted rate"
-                            src="@routes.Assets.versioned("images/vendor/business-bubble-icons/027-discount.svg")">
+                            alt="Discounted icon"
+                            src="@CDN.fromCDN(routes.Assets.versioned("images/vendor/business-bubble-icons/027-discount.svg"))">
                     </div>
 
                     <h4 class="cell feature-title">Lower online transaction fees</h4>

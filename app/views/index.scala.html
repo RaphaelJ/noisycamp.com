@@ -18,6 +18,7 @@
 @import play.api.Configuration
 
 @import i18n.Country
+@import misc.CDN
 
 @(identity: Option[models.Identity])(
 implicit req: RequestHeader, config: Configuration, flash: Flash)
@@ -25,7 +26,7 @@ implicit req: RequestHeader, config: Configuration, flash: Flash)
 @head = {
     <link
         rel="stylesheet"
-        href="@routes.Assets.versioned("stylesheets/index.css")">
+        href="@CDN.fromCDN(routes.Assets.versioned("stylesheets/index.css"))">
 }
 
 @layout(
@@ -81,7 +82,7 @@ implicit req: RequestHeader, config: Configuration, flash: Flash)
 
             <div class="cell small-12 medium-6 feature-image">
                 <img
-                    src="@routes.Assets.versioned("images/index/room_availabilities.png")"
+                    src="@CDN.fromCDN(routes.Assets.versioned("images/index/room_availabilities.png"))"
                     alt="Real-time online availabilities.">
             </div>
             <div class="cell small-12 medium-6 feature-text">
@@ -99,7 +100,7 @@ implicit req: RequestHeader, config: Configuration, flash: Flash)
 
             <div class="cell small-12 medium-6 show-for-small-only feature-image">
                 <img
-                    src="@routes.Assets.versioned("images/index/online_payment.png")"
+                    src="@CDN.fromCDN(routes.Assets.versioned("images/index/online_payment.png"))"
                     alt="Online booking payments.">
             </div>
             <div class="cell small-12 medium-6 feature-text">
@@ -115,7 +116,7 @@ implicit req: RequestHeader, config: Configuration, flash: Flash)
             </div>
             <div class="cell small-12 medium-6 show-for-medium feature-image">
                 <img
-                    src="@routes.Assets.versioned("images/index/online_payment.png")"
+                    src="@CDN.fromCDN(routes.Assets.versioned("images/index/online_payment.png"))"
                     alt="Online booking payments.">
             </div>
 

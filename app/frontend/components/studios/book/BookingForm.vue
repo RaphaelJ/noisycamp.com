@@ -98,6 +98,8 @@
 <script lang="ts">
 import Vue, { PropOptions } from "vue";
 
+import { fromCDN } from '../../../misc/CDN';
+
 import BookingPricingCalculator from '../BookingPricingCalculator.vue';
 
 declare var NC_ROUTES: any;
@@ -136,9 +138,9 @@ export default Vue.extend({
 
             return cards.map(card => [
                 card[0],
-                NC_ROUTES.controllers.Assets.versioned(
+                fromCDN(NC_ROUTES.controllers.Assets.versioned(
                     "images/vendor/card-icons/" + card[1]
-                ).url
+                ))
             ]);
         }
     },

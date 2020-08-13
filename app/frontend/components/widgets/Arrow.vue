@@ -33,8 +33,6 @@
 <script lang="ts">
 import Vue from "vue";
 
-declare var NC_ROUTES: any;
-
 export default Vue.extend({
     props: {
         direction: { type: String, default: 'bottom' },

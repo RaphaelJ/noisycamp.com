@@ -23,6 +23,7 @@
 @import _root_.auth.DefaultEnv
 @import _root_.frontend.JsConfig
 @import i18n.Currency
+@import misc.CDN
 @import models.Identity
 
 @** Main layout for the NoisyCamp website.
@@ -44,7 +45,7 @@
                 <ul class="menu">
                     <li class="logo">
                         <a href="@routes.IndexController.index()">
-                            <img src="@routes.Assets.versioned("images/logo.svg")">
+                            <img src="@CDN.fromCDN(routes.Assets.versioned("images/logo.svg"))">
                             NoisyCamp
                         </a>
                     </li>
@@ -100,9 +101,9 @@
 
         <link
             rel="shortcut icon" type="image/png"
-            href="@routes.Assets.versioned("images/favicon-32.png")">
+            href="@CDN.fromCDN(routes.Assets.versioned("images/favicon-32.png"))">
 
-        <link rel="manifest" href="@routes.Assets.versioned("manifest.json")">
+        <link rel="manifest" href="@CDN.fromCDN(routes.Assets.versioned("manifest.json"))">
 
         <link
             rel="stylesheet"
@@ -110,14 +111,14 @@
 
         <link
             rel="stylesheet"
-            href="@routes.Assets.versioned("stylesheets/vendor/foundation.min.css")">
+            href="@CDN.fromCDN(routes.Assets.versioned("stylesheets/vendor/foundation.min.css"))">
         <link
             rel="stylesheet"
-            href="@routes.Assets.versioned("fonts/foundation-icons.css")">
+            href="@CDN.fromCDN(routes.Assets.versioned("fonts/foundation-icons.css"))">
 
         <link
             rel="stylesheet"
-            href="@routes.Assets.versioned("stylesheets/main.css")">
+            href="@CDN.fromCDN(routes.Assets.versioned("stylesheets/main.css"))">
 
         @head
     </head>
@@ -212,13 +213,16 @@
             routes.javascript.Assets.versioned,
         )
 
-        <script src="@routes.Assets.versioned("javascripts/vendor/jquery.js")"></script>
-        <script src="@routes.Assets.versioned("javascripts/vendor/what-input.js")"></script>
-        <script src="@routes.Assets.versioned("javascripts/vendor/foundation.min.js")"></script>
+        <script src="@CDN.fromCDN(routes.Assets.versioned("javascripts/vendor/jquery.js"))">
+        </script>
+        <script src="@CDN.fromCDN(routes.Assets.versioned("javascripts/vendor/what-input.js"))">
+        </script>
+        <script src="@CDN.fromCDN(routes.Assets.versioned("javascripts/vendor/foundation.min.js"))">
+        </script>
 
         @javascript
 
-        <script src="@routes.Assets.versioned("javascripts/bundle.js")"></script>
+        <script src="@CDN.fromCDN(routes.Assets.versioned("javascripts/bundle.js"))"></script>
 
         <script>$(document).foundation();</script>
     </body>

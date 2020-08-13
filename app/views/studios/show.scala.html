@@ -22,6 +22,7 @@
 @import play.api.mvc.RequestHeader
 
 @import models.{ LocalEquipment, Picture }
+@import misc.CDN
 @import misc.JsonWrites._
 
 @(
@@ -34,7 +35,7 @@
 @head = {
     <link
         rel="stylesheet"
-        href="@routes.Assets.versioned("stylesheets/studios/show.css")">
+        href="@CDN.fromCDN(routes.Assets.versioned("stylesheets/studios/show.css"))">
 
     <link
         rel="stylesheet"

@@ -64,8 +64,6 @@ import Vue, { PropOptions } from "vue";
 import Arrow from './Arrow.vue';
 import ReactivePicture from './ReactivePicture.vue';
 
-declare var NC_ROUTES: any;
-
 export default Vue.extend({
     props: {
         pictureIds: <PropOptions<Object[]>>{ type: Array, required: true },

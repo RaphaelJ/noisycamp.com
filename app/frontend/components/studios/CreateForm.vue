@@ -29,8 +29,8 @@
             <div class="grid-y feature-block">
                 <div class="cell shrink feature-image">
                     <img
-                        alt="Discounted rate"
-                        :src="routes.controllers.Assets.versioned('images/vendor/business-bubble-icons/063-earth-globe.svg').url">
+                        alt="Globe icon"
+                        :src="assetURL('images/vendor/business-bubble-icons/063-earth-globe.svg')">
                 </div>
 
                 <h4 class="cell feature-title">Increased exposure</h4>
@@ -46,8 +46,8 @@
             <div class="grid-y feature-block">
                 <div class="cell shrink feature-image">
                     <img
-                        alt="Discounted rate"
-                        :src="routes.controllers.Assets.versioned('images/vendor/business-bubble-icons/090-calendar.svg').url">
+                        alt="Calendar icon"
+                        :src="assetURL('images/vendor/business-bubble-icons/090-calendar.svg')">
                 </div>
 
                 <h4 class="cell feature-title">Online bookings</h4>
@@ -65,8 +65,8 @@
             <div class="grid-y feature-block">
                 <div class="cell shrink feature-image">
                     <img
-                        alt="Discounted rate"
-                        :src="routes.controllers.Assets.versioned('images/vendor/business-bubble-icons/041-piggy-bank.svg').url">
+                        alt="Piggy bank icon"
+                        :src="assetURL('images/vendor/business-bubble-icons/041-piggy-bank.svg')">
                 </div>
 
                 <h4 class="cell feature-title">First studio is free</h4>
@@ -85,7 +85,7 @@
                 <div class="cell shrink feature-image">
                     <img
                         alt="Discounted rate"
-                        :src="routes.controllers.Assets.versioned('images/vendor/business-bubble-icons/074-credit-card.svg').url">
+                        :src="assetURL('images/vendor/business-bubble-icons/074-credit-card.svg')">
                 </div>
 
                 <h4 class="cell feature-title">Online payments</h4>
@@ -132,6 +132,8 @@ import Vue from "vue";
 
 import StudioForm from './Form.vue';
 
+import { fromCDN } from '../../misc/CDN';
+
 declare var NC_ROUTES: any;
 
 export default Vue.extend({
@@ -154,10 +156,6 @@ export default Vue.extend({
         };
     },
     computed: {
-        routes() {
-            return NC_ROUTES;
-        },
-
         shownSections() {
             return this.sections.slice(0, this.step);
         },
@@ -186,6 +184,10 @@ export default Vue.extend({
                 event.preventDefault(); // Prevents form submission
             }
         },
+
+        assetURL(assetName: string) {
+            return fromCDN(NC_ROUTES.controllers.Assets.versioned(assetName));
+        }
     },
     components: { StudioForm },
 });

@@ -15,10 +15,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *@
 
+@import play.api.Configuration
+
 @import forms.account.PremiumForm
 @import models.User
 
-@(user: User, formData: PremiumForm.Data, studios: Seq[Studio])(implicit req: RequestHeader)
+@(user: User, formData: PremiumForm.Data, studios: Seq[Studio])(
+    implicit req: RequestHeader, config: Configuration)
 
 @layout {
     @tags.heading() { Premium upgrade request - @user.displayName }
