@@ -85,7 +85,7 @@
                 <div class="cell shrink feature-image">
                     <img
                         alt="Discounted rate"
-                        :src="assetURL('images/vendor/business-bubble-icons/074-credit-card.svg')">
+                        :src="assetURL('images/vendor/business-bubble-icons/074-credit-card.svg').url">
                 </div>
 
                 <h4 class="cell feature-title">Online payments</h4>
