@@ -1,5 +1,5 @@
 /* Noisycamp is a platform for booking music studios.
- * Copyright (C) 2019  Raphael Javaux <raphaeljavaux@gmail.com>
+ * Copyright (C) 2019 2020  Raphael Javaux <raphael@noisycamp.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,26 +28,25 @@ import models.{ BookingTimes, Studio }
 /** A form to place a booking request. */
 object BookingTimesForm {
 
-  type Data = BookingTimes
+    type Data = BookingTimes
 
-  def form(studio: Studio) = Form {
-
-    mapping(
-      "begins-at"       -> CustomFields.localDateTime,
-      "duration"        -> CustomFields.seconds.
-        verifying(
-          "Less than the minimal rental duration set by the studio's manager.",
-          duration =>
-            duration.compareTo(studio.bookingPolicy.minBookingDuration) >= 0
-        ).
-        verifying(
-          "Can't exceed 24 hours.",
-          duration => duration.compareTo(Duration.ofDays(1)) <= 0
-        )
-    )(BookingTimes.apply)(BookingTimes.unapply).
-      verifying(
-        "The studio is not open during the selected booking period.",
-        booking => studio.openingSchedule.validateBooking(studio.pricingPolicy, booking).isDefined
-      )
-  }
+    def form(studio: Studio) = Form {
+        mapping(
+            "begins-at"       -> CustomFields.localDateTime,
+            "duration"        -> CustomFields.seconds.
+                verifying(
+                    "Less than the minimal rental duration set by the studio's manager.",
+                    duration => duration.compareTo(studio.bookingPolicy.minBookingDuration) >= 0
+                ).
+                verifying(
+                    "Can't exceed 24 hours.",
+                    duration => duration.compareTo(Duration.ofDays(1)) <= 0
+                )
+            )(BookingTimes.apply)(BookingTimes.unapply).
+                verifying(
+                    "The studio is not open during the selected booking period.",
+                    booking => studio.openingSchedule.
+                        validateBooking(studio.pricingPolicy, booking).
+                        isDefined)
+    }
 }

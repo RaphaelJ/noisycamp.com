@@ -331,8 +331,16 @@ form label .error {
 /* Flash bar */
 
 .flash-bar {
-    background-color: #639315;
     color: white;
+}
+
+.flash-bar.success {
+    background-color: #639315;
+}
+
+.flash-bar.error {
+    background-color: #cc3232;
+
 }
 
 /* Menus and lists */

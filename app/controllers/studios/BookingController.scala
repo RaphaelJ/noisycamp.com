@@ -25,7 +25,9 @@ import scala.concurrent.Future
 import scala.util.{ Success, Failure }
 
 import com.mohiva.play.silhouette.api.actions.SecuredRequest
+import com.stripe.model.PaymentIntent
 import play.api._
+import play.api.data.Form
 import play.api.mvc._
 
 import auth.DefaultEnv
@@ -33,9 +35,9 @@ import _root_.controllers.{ CustomBaseController, CustomControllerCompoments }
 import daos.CustomColumnTypes
 import forms.studios.{ BookingForm, BookingTimesForm }
 import misc.PaymentCaptureMethod
-import models.{ BookingDurations, BookingTimes, Identity, LocalPricingPolicy, PaymentMethod,
-    Picture, PriceBreakdown, Studio, StudioBooking, StudioBookingPaymentOnline,
-    StudioBookingPaymentOnsite, StudioBookingStatus, User }
+import models.{ BookingDurations, BookingTimes, CancellationPolicy, HasBookingTimes, Identity,
+    LocalPricingPolicy, PaymentMethod, Picture, PriceBreakdown, Studio, StudioBooking,
+    StudioBookingPaymentOnline, StudioBookingPaymentOnsite, StudioBookingStatus, User }
 
 @Singleton
 class BookingController @Inject() (ccc: CustomControllerCompoments)
@@ -48,96 +50,138 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
     def show(id: Studio#Id, beginsAt: String, duration: Int)
         = silhouette.SecuredAction.async { implicit request =>
 
-        withStudio(id, { case (studio, picIds) =>
-            val params = Map(
-                "begins-at"       -> beginsAt,
-                "duration"        -> duration.toString)
+        val params = Map(
+            "begins-at"       -> beginsAt,
+            "duration"        -> duration.toString)
 
-            val summary = BookingTimesForm.form(studio).bind(params).fold(
-                form => Left(form.errors),
-                bookingTimes => {
-                    // Computes the price components based on the booked times.
-                    val pricingPolicy = studio.pricingPolicy
-                    val localPricingPolicy = studio.localPricingPolicy
-                    val bookingDurations = studio.openingSchedule.
-                        validateBooking(pricingPolicy, bookingTimes).
-                        get
-                    val priceBreakdown = PriceBreakdown(
-                        bookingDurations, localPricingPolicy.pricePerHour,
-                        localPricingPolicy.evening.map(_.pricePerHour),
-                        localPricingPolicy.weekend.map(_.pricePerHour), None)
+        withStudioTransaction(id, { case (studio, picIds) =>
+            validateAvailabilities(studio, BookingTimesForm.form(studio).bind(params)).
+                map { form =>
+                    form.fold(
+                        form => Left(form.errors),
+                        bookingTimes => {
+                            // Computes the price components based on the booked times.
+                            val pricingPolicy = studio.pricingPolicy
+                            val localPricingPolicy = studio.localPricingPolicy
+                            val bookingDurations = studio.openingSchedule.
+                                validateBooking(pricingPolicy, bookingTimes).
+                                get
+                            val priceBreakdown = PriceBreakdown(
+                                bookingDurations, localPricingPolicy.pricePerHour,
+                                localPricingPolicy.evening.map(_.pricePerHour),
+                                localPricingPolicy.weekend.map(_.pricePerHour), None)
 
-                    Right((bookingTimes, priceBreakdown))
-                })
-
-            DBIO.successful(Ok(views.html.studios.booking(
-                identity = Some(request.identity),
-                studio, picIds, summary)))
+                            Right((bookingTimes, priceBreakdown))
+                        })
+                }.
+                map { summary =>
+                    Ok(views.html.studios.booking(
+                        identity = request.identity, studio, picIds, summary))
+                }
         })
     }
 
     def submit(id: Studio#Id) = silhouette.SecuredAction.async { implicit request =>
 
-        withStudio(id, { case (studio, picIds) =>
-            BookingForm.form(studio).bindFromRequest.fold(
-                form => DBIO.successful(BadRequest("Invalid booking request.")),
-                data => {
-                    val handler = data.paymentMethod match {
-                        case PaymentMethod.Online => handleOnlinePayment _
-                        case PaymentMethod.Onsite => handleOnsitePayment _
-                    }
+        withStudioTransaction(id, { case (studio, picIds) =>
+            validateAvailabilities(studio, BookingForm.form(studio).bindFromRequest).
+                flatMap { form =>
+                    form.fold(
+                        form => DBIO.successful(Ok(views.html.studios.booking(
+                            identity = request.identity, studio, picIds, Left(form.errors)))),
+                        data => {
+                            val handler = data.paymentMethod match {
+                                case PaymentMethod.Online => handleOnlinePayment _
+                                case PaymentMethod.Onsite => handleOnsitePayment _
+                            }
 
-                    DBIO.from(handler(request.identity, studio, picIds, data.bookingTimes))
+                            handler(request.identity, studio, picIds, data.bookingTimes)
+                        }
+                    )
                 }
-            )
         })
     }
 
-    def paymentSuccess(id: Long, sessionId: String) = silhouette.SecuredAction.async {
+    def paymentSuccess(studioId: Long, sessionId: String) = silhouette.SecuredAction.async {
         implicit request =>
 
         def onPaymentSuccess(booking: StudioBooking) = {
             Redirect(_root_.controllers.account.routes.BookingsController.show(booking.id)).
                 flashing("success" -> "Your session has been successfully booked.")
         }
-        def onPaymentFailure(booking: StudioBooking) = Forbidden("Payment failed.")
+
+        def onPaymentFailure(booking: StudioBooking) = {
+            Redirect(routes.BookingController.show(
+                booking.studioId, booking.times.beginsAt.toString,
+                booking.times.duration.getSeconds.toInt)).
+                flashing("error" ->
+                    "A problem occured during the processing of your payment. Please try  later.")
+        }
+
         lazy val onBookingNotFound = NotFound("Booking not found.")
+
+        def abortCharge(booking: StudioBooking) = {
+            daos.studioBooking.query.
+                filter(_.stripeCheckoutSessionId === sessionId).
+                map(_.status).
+                update(StudioBookingStatus.PaymentFailure).
+                map { _ => onPaymentFailure(booking) }
+        }
+
+        def processCharge(intent: PaymentIntent, studio: Studio, booking: StudioBooking) = {
+            (intent.getStatus match {
+                case "requires_capture" => {
+                    DBIO.from(paymentService.capturePayment(intent)).
+                        map(_ => true)
+                }
+                case "succeeded" => DBIO.successful(true)
+                case _ => DBIO.successful(false)
+            }).
+                flatMap {
+                    case true => {
+                        val newStatus =
+                            if (studio.bookingPolicy.automaticApproval) {
+                                StudioBookingStatus.Valid
+                            } else {
+                                StudioBookingStatus.PendingValidation
+                            }
+
+                        daos.studioBooking.query.
+                            filter(_.stripeCheckoutSessionId === sessionId).
+                            map(_.status).
+                            update(newStatus).
+                            map { _ => onPaymentSuccess(booking) }
+                    }
+                    case false => abortCharge(booking)
+                }
+        }
 
         for {
             session <- paymentService.retreiveSession(sessionId)
             intent <- paymentService.retreiveIntent(session.getPaymentIntent)
 
             res <- db.run({
-                daos.studioBooking.query.
-                    filter(_.stripeCheckoutSessionId === sessionId).
+                daos.studio.query.
+                    filter(_.id === studioId).
+                    join(daos.studioBooking.query).on(_.id === _.studioId).
+                    filter { case (s, b) => b.stripeCheckoutSessionId === sessionId }.
                     result.
                     headOption.
                     flatMap {
-                        case Some(booking) =>
-                            for {
-                                chargedSuccessfully <- intent.getStatus match {
-                                    case "requires_capture" =>
-                                        DBIO.from(paymentService.capturePayment(intent)).
-                                            map(_ => true)
-                                    case "succeeded" => DBIO.successful(true)
-                                    case _ => DBIO.successful(false)
-                                }
+                        case Some((studio, booking)) => {
+                            // Validates the charge and the booking if we can still book the
+                            // requested times.
 
-                                res <-
-                                    if (chargedSuccessfully) {
-                                        daos.studioBooking.query.
-                                            filter(_.stripeCheckoutSessionId === sessionId).
-                                            map(_.status).
-                                            update(StudioBookingStatus.Succeeded).
-                                            map { _ => onPaymentSuccess(booking) }
-                                    } else {
-                                        DBIO.successful(onPaymentFailure(booking))
-                                    }
-                            } yield res
+                            daos.studioBooking.
+                                hasOverlap(studio, booking.times).
+                                flatMap {
+                                    case true => abortCharge(booking)
+                                    case false => processCharge(intent, studio, booking)
+                                }
+                        }
                         case None => DBIO.successful(onBookingNotFound)
                     }
             }.transactionally)
-
         } yield res
     }
 
@@ -146,39 +190,43 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
     }
 
     /** Executes the function within the DBIO monad, or returns a 404 response. */
-    private def withStudio[T](id: Studio#Id,
+    private def withStudioTransaction[T](id: Studio#Id,
         f: ((Studio, Seq[Picture#Id]) => DBIOAction[Result, NoStream, Effect.All]))
         (implicit request: SecuredRequest[DefaultEnv, T]): Future[Result] = {
 
         val user = request.identity.user
 
-        db.run {
+        db.run({
             val dbStudio = daos.studioPicture.getStudioWithPictures(id)
 
             dbStudio.flatMap {
                 case (Some(studio), picIds) if studio.canAccess(Some(user)) => f(studio, picIds)
                 case _ => DBIO.successful(NotFound("Studio not found."))
             }: DBIOAction[Result, NoStream, Effect.All]
+        }.transactionally)
+    }
+
+    /** Validates the booking time of a form. Adds a global FormError if the studio is not
+     * available during the requested times. */
+    private def validateAvailabilities[T <: HasBookingTimes](studio: Studio, form: Form[T])
+        : DBIO[Form[T]] = {
+
+        if (form.hasErrors) {
+            DBIO.successful(form)
+        } else {
+            val times = form.get.bookingTimes
+
+            daos.studioBooking.hasOverlap(studio, times).
+                map {
+                    case true => form.withGlobalError(
+                        "The studio is not available during the selected booking period.")
+                    case false => form
+                }
         }
     }
 
-    private def isBookingPossible(studio: Studio, bookingTimes: BookingTimes): DBIO[Boolean] = {
-
-        DBIO.successful(false)
-        // val schedule =
-        //
-        // if (!studio.openingSchedule.isStudioOpen(bookingTimes)) {
-        //   DBIO.successful(false)
-        // } else {
-        //
-        // }
-        //
-        // daos.studioBooking.query.
-        //   filter()
-    }
-
     private def handleOnlinePayment(identity: Identity, studio: Studio, studioPics: Seq[Picture#Id],
-        bookingTimes: BookingTimes)(implicit request: RequestHeader) : Future[Result] = {
+        bookingTimes: BookingTimes)(implicit request: RequestHeader) : DBIO[Result] = {
 
         val user = identity.user
 
@@ -202,7 +250,7 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
 
         val beginsAt = bookingTimes.beginsAt
         val onCancel = routes.BookingController.show(
-            id = studio.id,
+            studioId = studio.id,
             beginsAt = beginsAt.toString,
             duration = bookingTimes.duration.getSeconds.toInt)
 
@@ -216,33 +264,44 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
             user, total, title, description, statement, studioPics,
             PaymentCaptureMethod.Manual, onSuccess, onCancel)
 
-        stripeSession.flatMap { sess =>
-            val sessionId = sess.getId
-            val intentId = sess.getPaymentIntent
-            val transactionFeeRate = Some(BigDecimal("0.08"))
-            val payment = StudioBookingPaymentOnline(sessionId, intentId)
+        DBIO.from(stripeSession).
+            flatMap { sess =>
+                val sessionId = sess.getId
+                val intentId = sess.getPaymentIntent
+                val transactionFeeRate = Some(BigDecimal("0.08"))
+                val payment = StudioBookingPaymentOnline(sessionId, intentId)
 
-            db.run({
-                daos.studioBooking.insert(StudioBooking(
-                    studio, user, StudioBookingStatus.Processing, bookingTimes, transactionFeeRate,
-                    payment))
-            }.transactionally).
-                map { _ =>
-                    Ok(views.html.studios.bookingCheckout(identity = Some(identity), sess))
-                }
-        }
+                val booking = StudioBooking(
+                    studio, user, StudioBookingStatus.PaymentProcessing,
+                    studio.bookingPolicy.cancellationPolicy, bookingTimes, transactionFeeRate,
+                    payment)
+
+                daos.studioBooking.
+                    insert(booking).
+                    map { _ =>
+                        Ok(views.html.studios.bookingCheckout(identity = Some(identity), sess))
+                    }
+            }
     }
 
     private def handleOnsitePayment(identity: Identity, studio: Studio, studioPics: Seq[Picture#Id],
-        bookingTimes: BookingTimes)(implicit request: RequestHeader) : Future[Result] = {
+        bookingTimes: BookingTimes)(implicit request: RequestHeader) : DBIO[Result] = {
 
         val user = identity.user
 
-        db.run({
-            daos.studioBooking.insert(StudioBooking(
-                studio, user, StudioBookingStatus.Succeeded, bookingTimes, None,
-                StudioBookingPaymentOnsite()))
-        }.transactionally).
+        val status =
+            if (studio.bookingPolicy.automaticApproval) {
+                StudioBookingStatus.Valid
+            } else {
+                StudioBookingStatus.PendingValidation
+            }
+
+        val booking = StudioBooking(
+            studio, user, status, studio.bookingPolicy.cancellationPolicy, bookingTimes, None,
+            StudioBookingPaymentOnsite())
+
+        daos.studioBooking.
+            insert(booking).
             map { booking =>
                 Redirect(_root_.controllers.account.routes.BookingsController.show(booking.id)).
                     flashing("success" -> "Your session has been successfully booked.")

@@ -23,7 +23,7 @@
 @import misc.JsonWrites._
 
 @(
-    identity: Option[models.Identity],
+    identity: models.Identity,
     studio: models.Studio,
     pictures: Seq[models.Picture#Id],
     summary: Either[Seq[FormError], (models.BookingTimes, models.PriceBreakdown)])(
@@ -60,14 +60,22 @@
     @summary match {
         case Left(_) => {
             <div class="cell callout alert">
-                <p>The studio can not be reserved during the selected times.</p>
+                <div class="grid-x grid-margin-x">
+                    <div class="cell shrink text-center">
+                        <i class="fi-alert" style="font-size: 4rem"></i>
+                    </div>
 
-                <p>
-                    <a href="@routes.StudiosController.show(studio.id)">
-                        Click here
-                    </a>
-                    to get back to the studio page.
-                </p>
+                    <div class="cell auto">
+                        <p>The studio cannot be reserved during the selected times.</p>
+
+                        <p>
+                            <a href="@routes.StudiosController.show(studio.id)">
+                                Click here
+                            </a>
+                            to get back to the studio page.
+                        </p>
+                    </div>
+                </div>
             </div>
         }
         case Right((bookingTimes, priceBreakdown)) => {
@@ -113,7 +121,7 @@
     }
 }
 
-@layout(Seq("Book music studio in " + studio.name), identity=identity) {
+@layout(Seq("Book music studio in " + studio.name), identity=Some(identity)) {
 
     <div class="grid-container">
         <div class="grid-x grid-padding-x grid-padding-y">

@@ -26,7 +26,7 @@ import slick.jdbc.JdbcProfile
 import squants.market
 
 import models.{
-    BookingDurations, BookingTimes, Studio, StudioBooking, StudioBookingPayment,
+    BookingDurations, BookingTimes, CancellationPolicy, Studio, StudioBooking, StudioBookingPayment,
     StudioBookingPaymentOnline, StudioBookingPaymentOnsite, StudioBookingStatus, User }
 
 class StudioBookingDAO @Inject()
@@ -39,8 +39,7 @@ class StudioBookingDAO @Inject()
     final class StudioBookingTable(tag: Tag)
         extends Table[StudioBooking](tag, "studio_booking") {
 
-        def id                      = column[StudioBooking#Id](
-        "id", O.PrimaryKey, O.AutoInc)
+        def id                      = column[StudioBooking#Id]("id", O.PrimaryKey, O.AutoInc)
         def createdAt               = column[Instant]("created_at")
 
         def studioId                = column[Studio#Id]("studio_id")
@@ -48,8 +47,15 @@ class StudioBookingDAO @Inject()
 
         def status                  = column[StudioBookingStatus.Value]("status")
 
+        def canCancel               = column[Boolean]("can_cancel")
+        def cancellationNotice      = column[Option[Duration]]("cancellation_notice")
+
+        def cancellationReason      = column[Option[String]]("cancellation_reason")
+
         def beginsAt                = column[LocalDateTime]("begins_at")(localDateTimeType)
         def duration                = column[Duration]("duration")
+
+        def endsAt                  = column[LocalDateTime]("ends_at")(localDateTimeType)
 
         def durationRegular         = column[Duration]("duration_regular")
         def durationEvening         = column[Duration]("duration_evening")
@@ -72,7 +78,7 @@ class StudioBookingDAO @Inject()
         private type StudioBookingTuple = (
             StudioBooking#Id, Instant,
             Studio#Id, User#Id,
-            StudioBookingStatus.Value,
+            StudioBookingStatus.Value, CancellationPolicyTuple, Option[String],
             BookingTimesTuple,
             BookingDurationsTuple,
             market.Currency, BigDecimal,
@@ -80,7 +86,9 @@ class StudioBookingDAO @Inject()
             Option[BigDecimal],
             StudioBookingPaymentTuple)
 
-        private type BookingTimesTuple = (LocalDateTime, Duration)
+        private type CancellationPolicyTuple = (Boolean, Option[Duration])
+
+        private type BookingTimesTuple = (LocalDateTime, Duration, LocalDateTime)
 
         private type BookingDurationsTuple = (Duration, Duration, Duration)
 
@@ -90,26 +98,46 @@ class StudioBookingDAO @Inject()
             StudioBooking(
                 bookingTuple._1, bookingTuple._2,
                 bookingTuple._3, bookingTuple._4,
-                bookingTuple._5,
-                BookingTimes.tupled(bookingTuple._6),
-                BookingDurations.tupled(bookingTuple._7),
-                bookingTuple._8, bookingTuple._9,
-                bookingTuple._10, bookingTuple._11, bookingTuple._12,
-                bookingTuple._13,
-                toStudioBookingPayment(bookingTuple._14))
+                bookingTuple._5, toCancellationPolicy(bookingTuple._6), bookingTuple._7,
+                toBookingTimes(bookingTuple._8),
+                BookingDurations.tupled(bookingTuple._9),
+                bookingTuple._10, bookingTuple._11,
+                bookingTuple._12, bookingTuple._13, bookingTuple._14,
+                bookingTuple._15,
+                toStudioBookingPayment(bookingTuple._16))
         }
 
         private def fromStudioBooking(booking: StudioBooking) = {
             Some((
                 booking.id, booking.createdAt,
                 booking.studioId, booking.customerId,
-                booking.status,
-                BookingTimes.unapply(booking.times).get,
+                booking.status, fromCancellationPolicy(booking.cancellationPolicy),
+                booking.cancellationReason,
+                fromBookingTimes(booking.times),
                 BookingDurations.unapply(booking.durations).get,
                 booking.currency, booking.total,
                 booking.pricePerHour, booking.eveningPricePerHour, booking.weekendPricePerHour,
                 booking.transactionFeeRate,
                 fromStudioBookingPayment(booking.payment)))
+        }
+
+        private def toCancellationPolicy(tuple: CancellationPolicyTuple) = {
+            require(tuple._1 == tuple._2.isDefined)
+            tuple._2.map(CancellationPolicy(_))
+        }
+
+        private def fromCancellationPolicy(policy: Option[CancellationPolicy]) = {
+            (policy.isDefined, policy.map(_.notice))
+        }
+
+        private def toBookingTimes(timesTuple: BookingTimesTuple) = {
+            val times = BookingTimes(timesTuple._1, timesTuple._2)
+            assert(times.endsAt == timesTuple._3)
+            times
+        }
+
+        private def fromBookingTimes(times: BookingTimes) = {
+            (times.beginsAt, times.duration, times.endsAt)
         }
 
         private def toStudioBookingPayment(paymentTuple: StudioBookingPaymentTuple) = {
@@ -132,8 +160,8 @@ class StudioBookingDAO @Inject()
         def * = (
             id, createdAt,
             studioId, customerId,
-            status,
-            (beginsAt, duration),
+            status, (canCancel, cancellationNotice), cancellationReason,
+            (beginsAt, duration, endsAt),
             (durationRegular, durationEvening, durationWeekend),
             currency, total,
             pricePerHour, eveningPricePerHour, weekendPricePerHour,
@@ -145,8 +173,25 @@ class StudioBookingDAO @Inject()
     lazy val query = TableQuery[StudioBookingTable]
 
     /** Inserts a booking and returns the newly created object with its inserted
-    * ID. */
+     * ID. */
     def insert(booking: StudioBooking): DBIO[StudioBooking] = {
         query returning query.map(_.id) into ((b, id) => b.copy(id=id)) += booking
+    }
+
+    /** Return true if there is already a booking that overlaps with the given booking times. */
+    def hasOverlap(studio: Studio, times: BookingTimes): DBIO[Boolean] = {
+        // Forces the use of the `localDateTimeType` mapper instead of Slick's default.
+        val beginsAt = LiteralColumn(times.beginsAt)(localDateTimeType)
+        val endsAt = LiteralColumn(times.endsAt)(localDateTimeType)
+
+        query.
+            filter(_.studioId === studio.id).
+            filter(_.endsAt > beginsAt).
+            filter(_.beginsAt < endsAt).
+            filter(_.status.inSet(Seq(
+                StudioBookingStatus.PendingValidation,
+                StudioBookingStatus.Valid))).
+            exists.
+            result
     }
 }

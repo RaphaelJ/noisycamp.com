@@ -26,10 +26,23 @@ import play.api.Configuration
 import squants.market
 
 object StudioBookingStatus extends Enumeration {
-  val Processing = Value
-  val Succeeded = Value
-  val Failed = Value
-  val Cancelled = Value
+    // The request for the booking has been received, but the payment has not been
+    val PaymentProcessing = Value
+
+    // An error occured during the processing of the payment, the customer cancelled the
+    // processing of the payment, or another overlapping booking occured during the processing of
+    // the payment.
+    val PaymentFailure = Value
+
+    // The booking is valid and the payment has been processed (in the case of an online payment),
+    // but we are still waiting for the studio owner to confirm the times.
+    val PendingValidation = Value
+
+    // Payment and owner validation succeeded.
+    val Valid = Value
+
+    val CancelledByCustomer = Value
+    val CancelledByOwner = Value
 }
 
 sealed trait StudioBookingPayment
@@ -50,6 +63,11 @@ case class StudioBooking(
 
     status:                 StudioBookingStatus.Value,
 
+    // If set, allow the customer to cancel the booking within the specified notice.
+    cancellationPolicy:     Option[CancellationPolicy],
+
+    cancellationReason:     Option[String] = None,
+
     times:                  BookingTimes,
     durations:              BookingDurations,
 
@@ -66,6 +84,15 @@ case class StudioBooking(
     type Id = Long
 
     require(times.duration == durations.total)
+
+    def canCancel: Boolean = cancellationPolicy.isDefined
+
+    /** An active booking is a booking that is supposed to happen and for which we can't book the
+     * booking perdiod again. */
+    def isActive: Boolean = {
+        status == StudioBookingStatus.PendingValidation ||
+        status == StudioBookingStatus.Valid
+    }
 
     def isCustomer(user: User): Boolean = customerId == user.id
 
@@ -107,7 +134,8 @@ object StudioBooking {
 
     /** Constructs a booking object from user selected booking times. */
     def apply(
-        studio: Studio, customer: User, status: StudioBookingStatus.Value, times: BookingTimes,
+        studio: Studio, customer: User, status: StudioBookingStatus.Value,
+        cancellationPolicy: Option[CancellationPolicy], times: BookingTimes,
         transactionFeeRate: Option[BigDecimal], payment: StudioBookingPayment) : StudioBooking = {
 
         val pricingPolicy = studio.pricingPolicy
@@ -125,6 +153,7 @@ object StudioBooking {
             studioId = studio.id,
             customerId = customer.id,
             status = status,
+            cancellationPolicy = cancellationPolicy,
             times = times,
             durations = durations,
             currency = studio.currency,

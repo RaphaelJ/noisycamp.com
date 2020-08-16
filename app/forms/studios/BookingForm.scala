@@ -1,5 +1,5 @@
 /* Noisycamp is a platform for booking music studios.
- * Copyright (C) 2019  Raphael Javaux <raphaeljavaux@gmail.com>
+ * Copyright (C) 2019 2020  Raphael Javaux <raphael@noisycamp.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,24 +21,25 @@ import play.api.data.{ Form, Mapping }
 import play.api.data.Forms._
 
 import forms.CustomFields
-import models.{ BookingTimes, PaymentMethod, Studio }
+import models.{ BookingTimes, HasBookingTimes, PaymentMethod, Studio }
 
 /** A form to place a booking request. */
 object BookingForm {
 
-  private val paymentMethod: Mapping[PaymentMethod.Value] =
-    CustomFields.enumeration(Seq(
-      PaymentMethod.Online  -> "online",
-      PaymentMethod.Onsite  -> "onsite"))
+    private val paymentMethod: Mapping[PaymentMethod.Value] =
+        CustomFields.enumeration(Seq(
+            PaymentMethod.Online  -> "online",
+            PaymentMethod.Onsite  -> "onsite"))
 
-  def form(studio: Studio) = Form(
-    mapping(
-      "booking-times"   -> BookingTimesForm.form(studio).mapping,
+    def form(studio: Studio) = Form(
+        mapping(
+            "booking-times"   -> BookingTimesForm.form(studio).mapping,
 
-      "payment-method"  -> paymentMethod
-    )(Data.apply)(Data.unapply))
+            "payment-method"  -> paymentMethod
+        )(Data.apply)(Data.unapply))
 
-  case class Data(
-    bookingTimes:     BookingTimes,
-    paymentMethod:    PaymentMethod.Value)
+    case class Data(
+        bookingTimes:     BookingTimes,
+        paymentMethod:    PaymentMethod.Value)
+        extends HasBookingTimes
 }

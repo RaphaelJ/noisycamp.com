@@ -223,12 +223,25 @@ create table "studio_booking" (
     customer_id                 integer not null references "user"(id),
 
     status                      varchar not null
-        check (status in ('processing', 'pending-validation', 'succeeded', 'failed', 'cancelled')),
+        check (status in (
+            'payment-processing', 'payment-processing', 'pending-validation', 'valid',
+            'cancelled-by-customer', 'cancelled-by-owner')),
+
+    can_cancel                  boolean not null,
+    cancellation_notice         duration,
+
+    cancellation_reason         varchar
+        check (
+            cancellation_reason is null
+            or status in ('cancelled-by-customer', 'cancelled-by-owner')),
 
     -- Booking time and duration
 
     begins_at                   java_localdatetime not null,
     duration                    duration not null,
+
+    -- Not strictly required, but makes booking time SQL queries easier and more efficient.
+    ends_at                     java_localdatetime not null,
 
     duration_regular            duration not null,
     duration_evening            duration not null,
@@ -258,6 +271,13 @@ create table "studio_booking" (
     check (stripe_checkout_session_id is not null = (payment_method = 'online')),
     check (stripe_payment_intent_id is not null = (payment_method = 'online'))
 );
+
+create index "idx_studio_booking_studio_id_begins_at"
+    on "studio_booking" ("studio_id", "begins_at");
+create index "idx_studio_booking_studio_id_ends_at"
+    on "studio_booking" ("studio_id", "ends_at");
+
+create index "idx_studio_booking_customer_id" on "studio_booking" ("customer_id");
 
 -- Payouts
 

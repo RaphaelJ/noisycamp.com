@@ -1,5 +1,5 @@
 /* Noisycamp is a platform for booking music studios.
- * Copyright (C) 2019  Raphael Javaux <raphaeljavaux@gmail.com>
+ * Copyright (C) 2019 2020  Raphael Javaux <raphael@noisycamp.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,64 +29,60 @@ import i18n.{ Country, Currency }
 import misc.EquipmentCategory
 import models.{ PictureId, StudioBookingStatus }
 
-trait CustomColumnTypes {
-  this: HasDatabaseConfigProvider[JdbcProfile] =>
+trait CustomColumnTypes { this: HasDatabaseConfigProvider[JdbcProfile] =>
 
-  import profile.api._
+    import profile.api._
 
-  /** Maps a hashable value of type `T` (such as `Enumeration.Value`) to as
-   * string. */
-  def enumeration[T: ClassTag](mapper: Seq[(T, String)]) = {
-    val mapperMap = mapper.toMap
-    val reverseMapperMap = mapper.map { case (k, v) => (v, k) }.toMap
+    /** Maps a hashable value of type `T` (such as `Enumeration.Value`) to as
+     * string. */
+    def enumeration[T: ClassTag](mapper: Seq[(T, String)]) = {
+        val mapperMap = mapper.toMap
+        val reverseMapperMap = mapper.map { case (k, v) => (v, k) }.toMap
 
-    MappedColumnType.base[T, String](mapperMap, reverseMapperMap)
-  }
+        MappedColumnType.base[T, String](mapperMap, reverseMapperMap)
+    }
 
-  /** Maps a country value to its ISO code. */
-  implicit val countryValType =
-    MappedColumnType.base[Country.Val, String](_.isoCode, Country.byCode(_))
+    /** Maps a country value to its ISO code. */
+    implicit val countryValType =
+        MappedColumnType.base[Country.Val, String](_.isoCode, Country.byCode(_))
 
-  /** Maps a currency value to its ISO code. */
-  implicit val currencyType =
-    MappedColumnType.base[market.Currency, String](_.code, Currency.byCode(_))
+    /** Maps a currency value to its ISO code. */
+    implicit val currencyType =
+        MappedColumnType.base[market.Currency, String](_.code, Currency.byCode(_))
 
-  /** Stores a java.time.Duration as an amount of milliseconds. */
-  implicit val durationType =
-    MappedColumnType.base[Duration, Long](_.toMillis, Duration.ofMillis)
+    /** Stores a java.time.Duration as an amount of milliseconds. */
+    implicit val durationType = MappedColumnType.base[Duration, Long](_.toMillis, Duration.ofMillis)
 
-  implicit val equipmentCategoryType =
-    MappedColumnType.base[EquipmentCategory.Val, String](
-      _.code, EquipmentCategory.byCode(_))
+    implicit val equipmentCategoryType =
+        MappedColumnType.base[EquipmentCategory.Val, String](_.code, EquipmentCategory.byCode(_))
 
-  /** Alternative implementation of java.time.LocalDateTime that maps to a
-   * string. */
-  implicit val localDateTimeType =
-    MappedColumnType.base[LocalDateTime, String](
-      _.toString, LocalDateTime.parse)
+    /** Alternative implementation of java.time.LocalDateTime that maps to a
+     * string. */
+    implicit val localDateTimeType =
+        MappedColumnType.base[LocalDateTime, String](_.toString, LocalDateTime.parse(_))
 
-  /** Alternative implementation of java.time.LocalTime that maps to a string
-   *
-   * See <https://github.com/tminglei/slick-pg/issues/381> */
-  implicit val localTimeType =
-    MappedColumnType.base[LocalTime, String](_.toString, LocalTime.parse)
+    /** Alternative implementation of java.time.LocalTime that maps to a string
+     *
+     * See <https://github.com/tminglei/slick-pg/issues/381> */
+    implicit val localTimeType =
+        MappedColumnType.base[LocalTime, String](_.toString, LocalTime.parse)
 
-  implicit val pictureIdType =
-    MappedColumnType.base[PictureId, Array[Byte]](_.value, PictureId.apply _)
+    implicit val pictureIdType =
+        MappedColumnType.base[PictureId, Array[Byte]](_.value, PictureId.apply _)
 
-  /** Stores Scrimage image format as text */
-  implicit val scrimageFormatType = enumeration[Format](Seq(
-    Format.PNG -> "png",
-    Format.GIF -> "gif",
-    Format.JPEG -> "jpeg"))
+    /** Stores Scrimage image format as text */
+    implicit val scrimageFormatType = enumeration[Format](Seq(
+        Format.PNG  -> "png",
+        Format.GIF  -> "gif",
+        Format.JPEG -> "jpeg"))
 
-  implicit val studioBookingStatusValueType =
-    enumeration[StudioBookingStatus.Value](Seq(
-      StudioBookingStatus.Processing -> "processing",
-      StudioBookingStatus.Succeeded -> "succeeded",
-      StudioBookingStatus.Failed -> "failed",
-      StudioBookingStatus.Cancelled -> "cancelled"))
+    implicit val studioBookingStatusValueType = enumeration[StudioBookingStatus.Value](Seq(
+        StudioBookingStatus.PaymentProcessing   -> "payment-processing",
+        StudioBookingStatus.PaymentFailure      -> "payment-processing",
+        StudioBookingStatus.PendingValidation   -> "pending-validation",
+        StudioBookingStatus.Valid               -> "valid",
+        StudioBookingStatus.CancelledByCustomer -> "cancelled-by-customer",
+        StudioBookingStatus.CancelledByOwner    -> "cancelled-by-owner"))
 
-  implicit val zoneIdType =
-    MappedColumnType.base[ZoneId, String](_.getId, ZoneId.of)
+    implicit val zoneIdType = MappedColumnType.base[ZoneId, String](_.getId, ZoneId.of)
 }
