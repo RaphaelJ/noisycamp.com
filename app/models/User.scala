@@ -1,5 +1,5 @@
 /* Noisycamp is a platform for booking music studios.
- * Copyright (C) 2019-2020  Raphael Javaux <raphaeljavaux@gmail.com>
+ * Copyright (C) 2019 2020  Raphael Javaux <raphael@noisycamp.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,22 +21,24 @@ import java.time.Instant
 
 /** Stores the information about an user. */
 case class User(
-  id: User#Id = 0L,
-  createdAt: Instant = Instant.now(),
-  firstName: Option[String],
-  lastName: Option[String],
-  email: String,
-  avatarId: Option[Long],
+    id:             User#Id = 0L,
+    createdAt:      Instant = Instant.now(),
+    firstName:      Option[String],
+    lastName:       Option[String],
+    email:          String,
+    avatarId:       Option[Long],
 
-  stripeUserId: Option[String] = None) {
+    plan:           Plan.Value = Plan.Free,
 
-  type Id = Long
+    stripeUserId:   Option[String] = None) {
 
-  def fullName: Option[String] = (firstName, lastName) match {
-    case (Some(fn), Some(ln)) => Some(fn + ' ' + ln)
-    case _ => None
-  }
+    type Id = Long
 
-  /** Returns the full-name if availaible, or else the email. */
-  def displayName: String = fullName.getOrElse(email)
+    def fullName: Option[String] = (firstName, lastName) match {
+        case (Some(fn), Some(ln)) => Some(fn + ' ' + ln)
+        case _ => None
+    }
+
+    /** Returns the full-name if availaible, or else the email. */
+    def displayName: String = fullName.getOrElse(email)
 }

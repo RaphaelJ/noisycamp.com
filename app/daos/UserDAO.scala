@@ -1,5 +1,5 @@
 /* Noisycamp is a platform for booking music studios.
- * Copyright (C) 2019  Raphael Javaux <raphaeljavaux@gmail.com>
+ * Copyright (C) 2019 2020  Raphael Javaux <raphael@noisycamp.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,32 +24,34 @@ import javax.inject.Inject
 import play.api.db.slick.{ DatabaseConfigProvider, HasDatabaseConfigProvider }
 import slick.jdbc.JdbcProfile
 
-import models.User
+import models.{ Plan, User }
 
 class UserDAO @Inject()
-  (protected val dbConfigProvider: DatabaseConfigProvider)
-  (implicit executionContext: ExecutionContext)
-  extends HasDatabaseConfigProvider[JdbcProfile] with CustomColumnTypes {
+    (protected val dbConfigProvider: DatabaseConfigProvider)
+    (implicit executionContext: ExecutionContext)
+    extends HasDatabaseConfigProvider[JdbcProfile] with CustomColumnTypes {
 
-  import profile.api._
+    import profile.api._
 
-  final class UserTable(tag: Tag) extends Table[User](tag, "user") {
+    final class UserTable(tag: Tag) extends Table[User](tag, "user") {
 
-    def id                = column[Long]("id", O.PrimaryKey, O.AutoInc)
-    def createdAt         = column[Instant]("created_at")
-    def firstName         = column[Option[String]]("first_name")
-    def lastName          = column[Option[String]]("last_name")
-    def email             = column[String]("email")
-    def avatarId          = column[Option[Long]]("avatar_id")
+        def id                  = column[Long]("id", O.PrimaryKey, O.AutoInc)
+        def createdAt           = column[Instant]("created_at")
+        def firstName           = column[Option[String]]("first_name")
+        def lastName            = column[Option[String]]("last_name")
+        def email               = column[String]("email")
+        def avatarId            = column[Option[Long]]("avatar_id")
 
-    def stripeUserId      = column[Option[String]]("stripe_user_id")
+        def plan                = column[Plan.Value]("plan")
 
-    def * = (id, createdAt, firstName, lastName, email, avatarId, stripeUserId).
-      mapTo[User]
-  }
+        def stripeUserId        = column[Option[String]]("stripe_user_id")
 
-  lazy val query = TableQuery[UserTable]
+        def * = (id, createdAt, firstName, lastName, email, avatarId, plan, stripeUserId).
+            mapTo[User]
+    }
 
-  lazy val insert = query returning
-    query.map(_.id) into ((user, id) => user.copy(id=id))
+    lazy val query = TableQuery[UserTable]
+
+    lazy val insert = query returning
+        query.map(_.id) into ((user, id) => user.copy(id=id))
 }

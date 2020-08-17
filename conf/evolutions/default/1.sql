@@ -41,6 +41,9 @@ create table "user" (
     email                   varchar not null,
     avatar_id               integer,
 
+    plan                    varchar not null
+        check (plan in ('free', 'premium')),
+
     stripe_user_id          varchar
 );
 

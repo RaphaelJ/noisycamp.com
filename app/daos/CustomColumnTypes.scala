@@ -27,7 +27,7 @@ import squants.market
 
 import i18n.{ Country, Currency }
 import misc.EquipmentCategory
-import models.{ PictureId, StudioBookingStatus }
+import models.{ PictureId, Plan, StudioBookingStatus }
 
 trait CustomColumnTypes { this: HasDatabaseConfigProvider[JdbcProfile] =>
 
@@ -69,6 +69,10 @@ trait CustomColumnTypes { this: HasDatabaseConfigProvider[JdbcProfile] =>
 
     implicit val pictureIdType =
         MappedColumnType.base[PictureId, Array[Byte]](_.value, PictureId.apply _)
+
+    implicit val planType = enumeration[Plan.Value](Seq(
+        Plan.Free       -> "free",
+        Plan.Premium    -> "premium"))
 
     /** Stores Scrimage image format as text */
     implicit val scrimageFormatType = enumeration[Format](Seq(
