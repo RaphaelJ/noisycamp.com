@@ -69,7 +69,7 @@ POST    /studios/:studioId/booking      controllers.studios.BookingController.su
 
 GET     /studios/:studioId/booking/payment/:sessionId/success controllers.studios.BookingController.paymentSuccess(studioId: Long, sessionId: String)
 
-GET     /webhooks/stripe/session-completed controllers.studios.BookingController.stripeCompleted
+POST    /webhooks/stripe/session-completed controllers.studios.BookingController.stripeCompleted
 
 # Pictures
 

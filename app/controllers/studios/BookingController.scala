@@ -24,7 +24,9 @@ import java.time.format.DateTimeFormatter
 import scala.concurrent.Future
 import scala.util.{ Success, Failure }
 
+import akka.util.ByteString
 import com.mohiva.play.silhouette.api.actions.SecuredRequest
+import com.stripe.model.checkout
 import com.stripe.model.PaymentIntent
 import play.api._
 import play.api.data.Form
@@ -81,6 +83,7 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
         })
     }
 
+    /** Processes a reviewed booking. */
     def submit(id: Studio#Id) = silhouette.SecuredAction.async { implicit request =>
 
         withStudioTransaction(id, { case (studio, picIds) =>
@@ -100,129 +103,6 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
                     )
                 }
         })
-    }
-
-    def paymentSuccess(studioId: Long, sessionId: String) = silhouette.SecuredAction.async {
-        implicit request =>
-
-        def onPaymentSuccess(booking: StudioBooking) = {
-            Redirect(_root_.controllers.account.routes.BookingsController.show(booking.id)).
-                flashing("success" -> "Your session has been successfully booked.")
-        }
-
-        def onPaymentFailure(booking: StudioBooking) = {
-            Redirect(routes.BookingController.show(
-                booking.studioId, booking.times.beginsAt.toString,
-                booking.times.duration.getSeconds.toInt)).
-                flashing("error" ->
-                    "A problem occured during the processing of your payment. Please try  later.")
-        }
-
-        lazy val onBookingNotFound = NotFound("Booking not found.")
-
-        def abortCharge(booking: StudioBooking) = {
-            daos.studioBooking.query.
-                filter(_.stripeCheckoutSessionId === sessionId).
-                map(_.status).
-                update(StudioBookingStatus.PaymentFailure).
-                map { _ => onPaymentFailure(booking) }
-        }
-
-        def processCharge(intent: PaymentIntent, studio: Studio, booking: StudioBooking) = {
-            (intent.getStatus match {
-                case "requires_capture" => {
-                    DBIO.from(paymentService.capturePayment(intent)).
-                        map(_ => true)
-                }
-                case "succeeded" => DBIO.successful(true)
-                case _ => DBIO.successful(false)
-            }).
-                flatMap {
-                    case true => {
-                        val newStatus =
-                            if (studio.bookingPolicy.automaticApproval) {
-                                StudioBookingStatus.Valid
-                            } else {
-                                StudioBookingStatus.PendingValidation
-                            }
-
-                        daos.studioBooking.query.
-                            filter(_.stripeCheckoutSessionId === sessionId).
-                            map(_.status).
-                            update(newStatus).
-                            map { _ => onPaymentSuccess(booking) }
-                    }
-                    case false => abortCharge(booking)
-                }
-        }
-
-        for {
-            session <- paymentService.retreiveSession(sessionId)
-            intent <- paymentService.retreiveIntent(session.getPaymentIntent)
-
-            res <- db.run({
-                daos.studio.query.
-                    filter(_.id === studioId).
-                    join(daos.studioBooking.query).on(_.id === _.studioId).
-                    filter { case (s, b) => b.stripeCheckoutSessionId === sessionId }.
-                    result.
-                    headOption.
-                    flatMap {
-                        case Some((studio, booking)) => {
-                            // Validates the charge and the booking if we can still book the
-                            // requested times.
-
-                            daos.studioBooking.
-                                hasOverlap(studio, booking.times).
-                                flatMap {
-                                    case true => abortCharge(booking)
-                                    case false => processCharge(intent, studio, booking)
-                                }
-                        }
-                        case None => DBIO.successful(onBookingNotFound)
-                    }
-            }.transactionally)
-        } yield res
-    }
-
-    def stripeCompleted = silhouette.UserAwareAction {
-        Ok("")
-    }
-
-    /** Executes the function within the DBIO monad, or returns a 404 response. */
-    private def withStudioTransaction[T](id: Studio#Id,
-        f: ((Studio, Seq[Picture#Id]) => DBIOAction[Result, NoStream, Effect.All]))
-        (implicit request: SecuredRequest[DefaultEnv, T]): Future[Result] = {
-
-        val user = request.identity.user
-
-        db.run({
-            val dbStudio = daos.studioPicture.getStudioWithPictures(id)
-
-            dbStudio.flatMap {
-                case (Some(studio), picIds) if studio.canAccess(Some(user)) => f(studio, picIds)
-                case _ => DBIO.successful(NotFound("Studio not found."))
-            }: DBIOAction[Result, NoStream, Effect.All]
-        }.transactionally)
-    }
-
-    /** Validates the booking time of a form. Adds a global FormError if the studio is not
-     * available during the requested times. */
-    private def validateAvailabilities[T <: HasBookingTimes](studio: Studio, form: Form[T])
-        : DBIO[Form[T]] = {
-
-        if (form.hasErrors) {
-            DBIO.successful(form)
-        } else {
-            val times = form.get.bookingTimes
-
-            daos.studioBooking.hasOverlap(studio, times).
-                map {
-                    case true => form.withGlobalError(
-                        "The studio is not available during the selected booking period.")
-                    case false => form
-                }
-        }
     }
 
     private def handleOnlinePayment(identity: Identity, studio: Studio, studioPics: Seq[Picture#Id],
@@ -306,5 +186,207 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
                 Redirect(_root_.controllers.account.routes.BookingsController.show(booking.id)).
                     flashing("success" -> "Your session has been successfully booked.")
             }
+    }
+
+    /** Processes a valid booking payment redirect (from Stripe). */
+    def paymentSuccess(studioId: Long, sessionId: String) = silhouette.SecuredAction.async {
+        implicit request =>
+
+        def onPaymentSuccess(booking: StudioBooking) = {
+            Redirect(_root_.controllers.account.routes.BookingsController.show(booking.id)).
+                flashing("success" -> "Your session has been successfully booked.")
+        }
+
+        def onPaymentFailure(booking: StudioBooking) = {
+            Redirect(routes.BookingController.show(
+                booking.studioId, booking.times.beginsAt.toString,
+                booking.times.duration.getSeconds.toInt)).
+                flashing("error" ->
+                    "A problem occured during the processing of your payment. Please try  later.")
+        }
+
+        lazy val onBookingNotFound = NotFound("Booking not found.")
+
+        db.run {
+            daos.studioBooking.query.
+                filter(_.studioId === studioId).
+                filter(_.stripeCheckoutSessionId === sessionId).
+                result.
+                headOption
+        }.
+            flatMap {
+                case Some(booking) => {
+                    booking.status match {
+                        case StudioBookingStatus.PaymentProcessing => {
+                            // It seems like we didn't receive the webhook notification from Stripe.
+                            // Complete the payment here.
+                            handlePaymentCompleted(Right(sessionId), onPaymentSuccess,
+                                onPaymentFailure, onBookingNotFound)
+                        }
+                        case StudioBookingStatus.PaymentFailure => {
+                            Future.successful(onPaymentFailure(booking))
+                        }
+                        case _ => Future.successful(onPaymentSuccess(booking))
+                    }
+                }
+                case None => Future.successful(onBookingNotFound)
+            }
+    }
+
+    /** Receives a valid payment webhook notification from Stripe. */
+    def stripeCompleted = Action(parse.byteString).async { request: Request[ByteString] =>
+
+        paymentService.withWebhookEvent(request, { event =>
+            if (event.getType == "checkout.session.completed") {
+                val session = event.getDataObjectDeserializer.getObject.
+                    get.
+                    asInstanceOf[checkout.Session]
+
+                val onPaymentSuccess = (_: StudioBooking) => Ok("payment-success")
+                val onPaymentFailure = (_: StudioBooking) => Ok("payment-failure")
+                val onBookingNotFound = NotFound("booking-not-found")
+
+                handlePaymentCompleted(
+                    Left(session), onPaymentSuccess, onPaymentFailure, onBookingNotFound)
+            } else {
+                Future.successful(NotFound("event-type-unknown"))
+            }
+        })
+    }
+
+    /** Processes a finalized Stripe Checkout session, and tries to capture the charge.
+     *
+     * Runs and returns one of the provided result generator function, depending on the validaty
+     * of the payment. */
+    private def handlePaymentCompleted(
+        sessionOrId: /* Session or Session ID */ Either[checkout.Session, String],
+        onPaymentSuccess: StudioBooking => Result,
+        onPaymentFailure: StudioBooking => Result,
+        onBookingNotFound: Result):
+        Future[Result] = {
+
+        // Sets the payment status as failed and uncapture the charge when possible
+        def abortCharge(intent: PaymentIntent, booking: StudioBooking) = {
+            DBIO.from(
+                if (intent.getStatus == "requires_capture") {
+                    paymentService.cancelPayment(intent)
+                } else {
+                    Future.successful(intent)
+                }
+            ).andThen {
+                daos.studioBooking.query.
+                    filter(_.id === booking.id).
+                    map(_.status).
+                    update(StudioBookingStatus.PaymentFailure).
+                    map { _ => onPaymentFailure(booking) }
+            }
+        }
+
+        // Tries to capture the charge and change to booking status to valid or pending-validation.
+        def processCharge(intent: PaymentIntent, studio: Studio, booking: StudioBooking) = {
+            (intent.getStatus match {
+                case "requires_capture" => {
+                    DBIO.from(paymentService.capturePayment(intent)).
+                        map(_ => true)
+                }
+                case "succeeded" => DBIO.successful(true)
+                case _ => DBIO.successful(false)
+            }).
+                flatMap {
+                    case true => {
+                        val newStatus =
+                            if (studio.bookingPolicy.automaticApproval) {
+                                StudioBookingStatus.Valid
+                            } else {
+                                StudioBookingStatus.PendingValidation
+                            }
+
+                        daos.studioBooking.query.
+                            filter(_.id === booking.id).
+                            map(_.status).
+                            update(newStatus).
+                            map { _ => onPaymentSuccess(booking) }
+                    }
+                    case false => abortCharge(intent, booking)
+                }
+        }
+
+        for {
+            session <- sessionOrId match {
+                case Left(session) => Future.successful(session)
+                case Right(sessionId) => paymentService.retreiveSession(sessionId)
+            }
+
+            intent <- paymentService.retreiveIntent(session.getPaymentIntent)
+
+            res <- db.run({
+                daos.studio.query.
+                    join(daos.studioBooking.query).on(_.id === _.studioId).
+                    filter { case (s, b) => b.stripeCheckoutSessionId === session.getId }.
+                    result.
+                    headOption.
+                    flatMap {
+                        case Some((studio, booking)) => {
+                            booking.status match {
+                                case StudioBookingStatus.PaymentProcessing => {
+                                    // Validates the charge and the booking if we can still book the
+                                    // requested times.
+
+                                    daos.studioBooking.
+                                        hasOverlap(studio, booking.times).
+                                        flatMap {
+                                            case true => abortCharge(intent, booking)
+                                            case false => processCharge(intent, studio, booking)
+                                        }
+                                }
+                                case StudioBookingStatus.PaymentFailure => {
+                                    // For some reason, this booking's payment already failed,
+                                    // tries to refund any uncaptured charge if possible.
+                                    abortCharge(intent, booking)
+                                }
+                                case _ => DBIO.successful(onPaymentSuccess(booking))
+
+                            }
+                        }
+                        case None => DBIO.successful(onBookingNotFound)
+                    }
+            }.transactionally)
+        } yield res
+    }
+
+    /** Executes the function within the DBIO monad, or returns a 404 response. */
+    private def withStudioTransaction[T](id: Studio#Id,
+        f: ((Studio, Seq[Picture#Id]) => DBIOAction[Result, NoStream, Effect.All]))
+        (implicit request: SecuredRequest[DefaultEnv, T]): Future[Result] = {
+
+        val user = request.identity.user
+
+        db.run({
+            val dbStudio = daos.studioPicture.getStudioWithPictures(id)
+
+            dbStudio.flatMap {
+                case (Some(studio), picIds) if studio.canAccess(Some(user)) => f(studio, picIds)
+                case _ => DBIO.successful(NotFound("Studio not found."))
+            }: DBIOAction[Result, NoStream, Effect.All]
+        }.transactionally)
+    }
+
+    /** Validates the booking time of a form. Adds a global FormError if the studio is not
+     * available during the requested times. */
+    private def validateAvailabilities[T <: HasBookingTimes](studio: Studio, form: Form[T])
+        : DBIO[Form[T]] = {
+
+        if (form.hasErrors) {
+            DBIO.successful(form)
+        } else {
+            val times = form.get.bookingTimes
+
+            daos.studioBooking.hasOverlap(studio, times).
+                map {
+                    case true => form.withGlobalError(
+                        "The studio is not available during the selected booking period.")
+                    case false => form
+                }
+        }
     }
 }

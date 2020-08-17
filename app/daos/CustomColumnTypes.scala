@@ -78,7 +78,7 @@ trait CustomColumnTypes { this: HasDatabaseConfigProvider[JdbcProfile] =>
 
     implicit val studioBookingStatusValueType = enumeration[StudioBookingStatus.Value](Seq(
         StudioBookingStatus.PaymentProcessing   -> "payment-processing",
-        StudioBookingStatus.PaymentFailure      -> "payment-processing",
+        StudioBookingStatus.PaymentFailure      -> "payment-failure",
         StudioBookingStatus.PendingValidation   -> "pending-validation",
         StudioBookingStatus.Valid               -> "valid",
         StudioBookingStatus.CancelledByCustomer -> "cancelled-by-customer",
