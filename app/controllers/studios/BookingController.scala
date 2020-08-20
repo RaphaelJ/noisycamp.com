@@ -117,10 +117,8 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
         val description = f"Book on $dateStr"
         val statement = f"NoisyCamp booking"
 
-        val pricingPolicy = studio.localPricingPolicy
-
-        // TODO: compute according to booking times and cu
-        val total = pricingPolicy.pricePerHour
+        val pricingPolicy = studio.pricingPolicy
+        val localPricingPolicy = studio.localPricingPolicy
 
         val onSuccessEscaped = routes.BookingController.paymentSuccess(
             studio.id, "{CHECKOUT_SESSION_ID}")
@@ -134,34 +132,31 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
             beginsAt = beginsAt.toString,
             duration = bookingTimes.duration.getSeconds.toInt)
 
-        implicit val bigDecimalLoader: ConfigLoader[BigDecimal] =
-            ConfigLoader(_.getString).map(BigDecimal(_))
-        val transactionFee =
-            (total * config.get[BigDecimal]("noisycamp.defaultTransactionFeeRate")).
-                rounded(total.currency.formatDecimals)
+        for {
+            owner <- daos.user.query.
+                filter(_.id === studio.ownerId).
+                result.
+                head
 
-        val stripeSession = paymentService.initiatePayment(
-            user, total, title, description, statement, studioPics,
-            PaymentCaptureMethod.Manual, onSuccess, onCancel)
+            transactionFeeRate = Some(owner.plan.transactionRate)
+            priceBreakdown = PriceBreakdown(studio, bookingTimes, transactionFeeRate)
 
-        DBIO.from(stripeSession).
-            flatMap { sess =>
-                val sessionId = sess.getId
-                val intentId = sess.getPaymentIntent
-                val transactionFeeRate = Some(BigDecimal("0.08"))
-                val payment = StudioBookingPaymentOnline(sessionId, intentId)
+            session <- DBIO.from(paymentService.initiatePayment(
+                user, priceBreakdown.total, title, description, statement, studioPics,
+                PaymentCaptureMethod.Manual, onSuccess, onCancel))
 
-                val booking = StudioBooking(
+            sessionId = session.getId
+            intentId = session.getPaymentIntent
+            transactionFeeRate = Some(owner.plan.transactionRate)
+            payment = StudioBookingPaymentOnline(sessionId, intentId)
+
+            booking <- daos.studioBooking.
+                insert(StudioBooking(
                     studio, user, StudioBookingStatus.PaymentProcessing,
-                    studio.bookingPolicy.cancellationPolicy, bookingTimes, transactionFeeRate,
-                    payment)
+                    studio.bookingPolicy.cancellationPolicy, bookingTimes, priceBreakdown,
+                    payment))
 
-                daos.studioBooking.
-                    insert(booking).
-                    map { _ =>
-                        Ok(views.html.studios.bookingCheckout(identity = Some(identity), sess))
-                    }
-            }
+        } yield Ok(views.html.studios.bookingCheckout(identity = Some(identity), session))
     }
 
     private def handleOnsitePayment(identity: Identity, studio: Studio, studioPics: Seq[Picture#Id],

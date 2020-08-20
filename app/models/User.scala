@@ -28,7 +28,7 @@ case class User(
     email:          String,
     avatarId:       Option[Long],
 
-    plan:           Plan.Value = Plan.Free,
+    plan:           Plan.Val = Plan.Free,
 
     stripeUserId:   Option[String] = None) {
 

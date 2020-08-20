@@ -136,18 +136,22 @@ object StudioBooking {
     def apply(
         studio: Studio, customer: User, status: StudioBookingStatus.Value,
         cancellationPolicy: Option[CancellationPolicy], times: BookingTimes,
-        transactionFeeRate: Option[BigDecimal], payment: StudioBookingPayment) : StudioBooking = {
+        transactionFeeRate: Option[BigDecimal], payment: StudioBookingPayment): StudioBooking = {
+
+        val priceBreakdown = PriceBreakdown(studio, times, transactionFeeRate)
+
+        StudioBooking(studio, customer, status, cancellationPolicy, times, priceBreakdown, payment)
+    }
+
+    /** Constructs a booking object from user selected booking times and an previously computed
+     * price breakdown. */
+    def apply(
+        studio: Studio, customer: User, status: StudioBookingStatus.Value,
+        cancellationPolicy: Option[CancellationPolicy], times: BookingTimes,
+        priceBreakdown: PriceBreakdown, payment: StudioBookingPayment): StudioBooking = {
 
         val pricingPolicy = studio.pricingPolicy
         val localPricingPolicy = studio.localPricingPolicy
-
-        // Computes the duration and price components of the booking
-
-        val durations = studio.openingSchedule.validateBooking(pricingPolicy, times).get
-
-        val priceBreakdown = PriceBreakdown(durations, localPricingPolicy.pricePerHour,
-            localPricingPolicy.evening.map(_.pricePerHour),
-            localPricingPolicy.weekend.map(_.pricePerHour), transactionFeeRate)
 
         StudioBooking(
             studioId = studio.id,
@@ -155,13 +159,13 @@ object StudioBooking {
             status = status,
             cancellationPolicy = cancellationPolicy,
             times = times,
-            durations = durations,
+            durations = priceBreakdown.durations,
             currency = studio.currency,
             total = priceBreakdown.total.amount,
             pricePerHour = pricingPolicy.pricePerHour,
             eveningPricePerHour = pricingPolicy.evening.map(_.pricePerHour),
             weekendPricePerHour = pricingPolicy.weekend.map(_.pricePerHour),
-            transactionFeeRate = transactionFeeRate,
+            transactionFeeRate = priceBreakdown.transactionFeeRate,
             payment = payment)
     }
 }

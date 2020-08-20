@@ -65,3 +65,20 @@ case class PriceBreakdown(
         BigDecimal(duration.getSeconds) / BigDecimal(3600.0)
     }
 }
+
+object PriceBreakdown {
+
+    /** Computes the duration and price components of the booking */
+    def apply(studio: Studio, times: BookingTimes, transactionFeeRate: Option[BigDecimal]):
+        PriceBreakdown = {
+
+        val pricingPolicy = studio.pricingPolicy
+        val localPricingPolicy = studio.localPricingPolicy
+
+        val durations = studio.openingSchedule.validateBooking(pricingPolicy, times).get
+
+        PriceBreakdown(durations, localPricingPolicy.pricePerHour,
+            localPricingPolicy.evening.map(_.pricePerHour),
+            localPricingPolicy.weekend.map(_.pricePerHour), transactionFeeRate)
+    }
+}

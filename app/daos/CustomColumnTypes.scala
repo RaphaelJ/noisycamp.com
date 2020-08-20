@@ -70,7 +70,7 @@ trait CustomColumnTypes { this: HasDatabaseConfigProvider[JdbcProfile] =>
     implicit val pictureIdType =
         MappedColumnType.base[PictureId, Array[Byte]](_.value, PictureId.apply _)
 
-    implicit val planType = enumeration[Plan.Value](Seq(
+    implicit val planType = enumeration[Plan.Val](Seq(
         Plan.Free       -> "free",
         Plan.Premium    -> "premium"))
 

@@ -42,7 +42,7 @@ class UserDAO @Inject()
         def email               = column[String]("email")
         def avatarId            = column[Option[Long]]("avatar_id")
 
-        def plan                = column[Plan.Value]("plan")
+        def plan                = column[Plan.Val]("plan")
 
         def stripeUserId        = column[Option[String]]("stripe_user_id")
 
