@@ -171,8 +171,10 @@ implicit req: RequestHeader, config: Configuration, flash: Flash)
                     to settle the reservation amount at the time of the booking using a valid credit
                     card.<br>
                     The studio owner will then receive that amount directly on their bank account,
-                    minus the NoisyCamp service fee (8% for <i>Free</i> plan users, 5% for
-                    <i>Premium</i> plan users).<br>
+                    minus the NoisyCamp service fee
+                    (@{(Plan.Free.transactionRate * 100).toIntExact}% for <i>Free</i> plan users,
+                    @{(Plan.Premium.transactionRate * 100).toIntExact}% for <i>Premium</i> plan
+                    users).<br>
                     Payouts to the owner's bank account are done daily for <i>Premium</i> accounts
                     and monthtly for <i>Free</i> accounts (on the 15th day of the month).
                     Payments are released for payout 48 hours after the end of the session. <br>

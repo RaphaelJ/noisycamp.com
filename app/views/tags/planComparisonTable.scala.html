@@ -47,7 +47,10 @@
                     <li>Real-time room availabilities</li>
                     <li>Booking management and calendar</li>
                     <li>Online bookings, inlcuding on mobile</li>
-                    <li>Secure online transaction (8% fee, monthly payouts)</li>
+                    <li>
+                        Secure online transaction
+                        (@{(Plan.Free.transactionRate * 100).toIntExact}% fee, monthly payouts)
+                    </li>
                 </ul>
             </td>
 
@@ -56,7 +59,10 @@
 
                 <ul>
                     <li>Unlimited number of rooms</li>
-                    <li>Reduced online transaction fee (5%)</li>
+                    <li>
+                        Reduced online transaction fee
+                        (@{(Plan.Premium.transactionRate * 100).toIntExact}%)
+                    </li>
                     <li>Daily payouts for online payments</li>
                     <li>Synchronization with external calendar apps</li>
                     <li>Integrate within your website</li>

@@ -85,8 +85,9 @@
                     <h4 class="cell feature-title">Lower online transaction fees</h4>
 
                     <p class="cell feature-text">
-                        <span class="text-serif">Premium</span> users are only charged 5% of the
-                        booking total for online transactions.
+                        <span class="text-serif">Premium</span> users are only charged
+                        @{(Plan.Premium.transactionRate * 100).toIntExact}% of the booking total for
+                        online transactions.
                     </p>
                 </div>
             </div>

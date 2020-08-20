@@ -224,8 +224,8 @@ class AuthController @Inject() (
     }
 
     /** Authenticates the user by redirecting with an authentication cookie.
-    *
-    * If no redirect url provided, redirect to the main page. */
+     *
+     * If no redirect url provided, redirect to the main page. */
     private def authenticate(loginInfo: LoginInfo, redirectTo: Option[String])(
         implicit request: RequestHeader): Future[Result] = {
 
