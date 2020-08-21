@@ -19,7 +19,10 @@
 
 body {
     background-color: #f5f3f2;
-    color: #262626;
+}
+
+body, a.text-style-link {
+    color: #262626; 
 }
 
 body, .text-sans-serif {

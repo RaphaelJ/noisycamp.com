@@ -24,34 +24,96 @@
     implicit request: RequestHeader, messagesProvider: MessagesProvider,
     config: Configuration, flash: Flash)
 
+@withBookingLink(booking: models.StudioBooking)(content: Html) = {
+    <a 
+        class="text-style-link"
+        href="@controllers.account.studios.routes.BookingsController.show(studio.id, booking.id)">
+        @content
+    </a>
+}
+
+@bookingStatus(booking: models.StudioBooking) = {
+    @booking.status match {
+        case StudioBookingStatus.PendingValidation => {
+            <span class="text-alert">
+                <i class="fi-alert"></i>&nbsp;
+                Pending approval
+            </span>
+        }
+        case StudioBookingStatus.Valid => {
+            <i class="fi-check"></i>&nbsp;
+            @if(booking.isCompleted(studio)) {
+                Completed
+            } else {
+                Valid
+            }
+        }
+        case StudioBookingStatus.CancelledByCustomer => {
+            <i class="fi-x"></i>&nbsp;
+            Cancelled by customer
+        }
+        case StudioBookingStatus.CancelledByOwner => {
+            <i class="fi-x"></i>&nbsp;
+            Cancelled by studio owner
+        }
+    }
+}
+
 @views.html.account.layout(Seq("Studio bookings", studio.name), identity=identity) {
     <div class="panel-section">
-        <table class="stack">
-            <thead>
-                <tr>
-                    <th width="25%">Guest name</th>
-                    <th width="15%">Begins on</th>
-                    <th width="10%">Duration</th>
-                    <th width="10%">Total</th>
-                    <th width="20%">Payment status</th>
-                    <th width="20%">Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                @for((booking, customer) <- bookings) {
+        @if(bookings.isEmpty) {
+            <div class="text-center">
+                Your studio does not have any booking yet.<br>
+                Share your 
+                <a href="@routes.StudiosController.show(studio.id)">
+                    studio page
+                </a>
+                on your website and social media accounts to increase your online presence.
+            </div>
+        } else {
+            <table class="stack">
+                <thead>
                     <tr>
-                        <td>@customer.fullName</td>
-                        <td>@booking.times.beginsAt</td>
-                        <td>@tags.duration(booking.times.duration)</td>
-                        <td>@tags.moneyAmount(booking.currency(booking.total))</td>
-                        <td>@tags.moneyAmount(booking.currency(booking.total))</td>
-                        <td class="text-alert">
-                            <i class="fi-alert"></i>&nbsp;
-                            Pending approval
-                        </td>
+                        <th width="25%">Guest name</th>
+                        <th width="25%">Begins on</th>
+                        <th width="25%">Total</th>
+                        <th width="25%">Status</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @for((booking, customer) <- bookings) {
+                        <tr>
+                            <td>
+                                @withBookingLink(booking) {
+                                    @customer.fullName
+                                }
+                            </td>
+                            <td>
+                                @withBookingLink(booking) {
+                                    @tags.localDateTime(booking.times.beginsAt)
+                                }
+                            </td>
+                            <td>
+                                @withBookingLink(booking) {
+                                    @tags.moneyAmount(booking.currency(booking.total))
+
+                                    @booking.payment match {
+                                        case StudioBookingPaymentOnline(_, _) => {
+                                            (paid online)
+                                        }
+                                        case StudioBookingPaymentOnsite() => {
+                                            (<i class="fi-alert"></i>&nbsp; to be collected)
+                                        }
+                                    }
+                                }
+                            </td>
+                            <td>
+                                @withBookingLink(booking) { @bookingStatus(booking) }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
     </div>
 }

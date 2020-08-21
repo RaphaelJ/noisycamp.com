@@ -94,6 +94,11 @@ case class StudioBooking(
         status == StudioBookingStatus.Valid
     }
 
+    /** Returns true of the booking has already started, based on the studio's current time. */
+    def isCompleted(studio: Studio): Boolean = {
+        studio.currentDateTime.isAfter(times.beginsAt)
+    }
+
     def isCustomer(user: User): Boolean = customerId == user.id
 
     def priceBreakdown: PriceBreakdown = {
