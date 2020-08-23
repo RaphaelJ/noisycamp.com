@@ -41,4 +41,6 @@ case class User(
 
     /** Returns the full-name if availaible, or else the email. */
     def displayName: String = fullName.getOrElse(email)
+
+    def isPayoutSetup: Boolean = stripeUserId.isDefined
 }

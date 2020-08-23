@@ -24,7 +24,7 @@
 
 @(
     identity: models.Identity,
-    studio: models.Studio,
+    owner: models.User, studio: models.Studio,
     pictures: Seq[models.Picture#Id],
     summary: Either[Seq[FormError], (models.BookingTimes, models.PriceBreakdown)])(
     implicit req: RequestHeader, config: Configuration, flash: Flash)
@@ -112,7 +112,7 @@
                     :opening-schedule="@tags.json(Json.toJson(studio.openingSchedule), htmlEscape = true)"
                     :pricing-policy="@tags.json(Json.toJson(pricingPolicy), htmlEscape = true)"
                     :booking-times="@tags.json(Json.toJson(bookingTimes), htmlEscape = true)"
-                    :has-online-payment='@studio.paymentPolicy.hasOnlinePayment'
+                    :has-online-payment='@{studio.paymentPolicy.hasOnlinePayment && owner.isPayoutSetup}'
                     :has-onsite-payment='@studio.paymentPolicy.hasOnsitePayment'
                     csrf-token="@helper.CSRF.getToken.value">
                 </booking-form>

@@ -63,7 +63,7 @@
                 <label for="payment-policy-has-onsite-payment">
                     Allow onsite payments
 
-                    <span v-if="fieldHasError('has-onsite-payment')" class="1error">
+                    <span v-if="fieldHasError('has-onsite-payment')" class="error">
                         {{ fieldError('has-onsite-payment') }}
                     </span>
                 </label>
@@ -115,11 +115,11 @@ export default Vue.extend({
         };
 
         if ('has-online-payment' in this.value) {
-            data.hasOnlinePayment = this.value['has-online-payment'];
+            data.hasOnlinePayment = this.value['has-online-payment'] == 'true';
         }
 
         if ('has-onsite-payment' in this.value) {
-            data.hasOnsitePayment = this.value['has-onsite-payment'];
+            data.hasOnsitePayment = this.value['has-onsite-payment'] == 'true';
         }
 
         return data;

@@ -38,8 +38,10 @@
 
         <fieldset>
             <div class="grid-y">
-                <div class="cell">
-                    <div class="radio-group">
+                <div
+                    class="cell"
+                    v-if="hasOnlinePayment">
+                    <div class="radio-group reduced-bottom-margin">
                         <input
                             type="radio"
                             name="payment-method"
@@ -59,7 +61,9 @@
                     </div>
                 </div>
 
-                <div class="cell">
+                <div
+                    class="cell"
+                    v-if="hasOnsitePayment">
                     <div class="radio-group">
                         <input
                             type="radio"
@@ -149,13 +153,17 @@ export default Vue.extend({
 </script>
 
 <style>
-.card-icons {
+.payment-method-form .card-icons {
     margin-left: 1.5rem;
 }
 
-.card-icons img {
+.payment-method-form .card-icons img {
     height: 1.5rem;
     margin-left: 0.3rem;
     margin-right: 0.3rem;
+}
+
+.payment-method-form .radio-group.reduced-bottom-margin {
+    margin-bottom: 1rem;
 }
 </style>

@@ -76,9 +76,15 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
                             Right((bookingTimes, priceBreakdown))
                         })
                 }.
-                map { summary =>
-                    Ok(views.html.studios.booking(
-                        identity = request.identity, studio, picIds, summary))
+                flatMap { summary =>
+                    daos.user.query.
+                        filter(_.id === studio.ownerId).
+                        result.
+                        head.
+                        map { owner => 
+                            Ok(views.html.studios.booking(
+                                identity = request.identity, owner, studio, picIds, summary))
+                        }
                 }
         })
     }
@@ -90,8 +96,16 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
             validateAvailabilities(studio, BookingForm.form(studio).bindFromRequest).
                 flatMap { form =>
                     form.fold(
-                        form => DBIO.successful(Ok(views.html.studios.booking(
-                            identity = request.identity, studio, picIds, Left(form.errors)))),
+                        form => {
+                            daos.user.query.
+                                result.
+                                head.
+                                map { owner => 
+                                    Ok(views.html.studios.booking(
+                                        identity = request.identity, owner, studio, picIds,
+                                        Left(form.errors)))
+                                }
+                        },
                         data => {
                             val handler = data.paymentMethod match {
                                 case PaymentMethod.Online => handleOnlinePayment _
