@@ -37,6 +37,7 @@ import squants.market.Money
 
 import i18n.Currency
 import models.{ Picture, Studio, User }
+import models.PriceBreakdown
 
 object PaymentCaptureMethod extends Enumeration {
     val Automatic = Value
@@ -62,13 +63,15 @@ class PaymentService @Inject() (
 
     /** Initiate a Stripe Checkout transaction. */
     def initiatePayment(
-        customer: User, amount: Money, title: String, description: String,
-        statement: String, pics: Seq[Picture#Id],
-        captureMethod: PaymentCaptureMethod.Value, onSuccess: Call, onCancel: Call)(
+        customer: User, priceBreakdown: PriceBreakdown, title: String, description: String,
+        statement: String, pics: Seq[Picture#Id], captureMethod: PaymentCaptureMethod.Value,
+        onSuccess: Call, onCancel: Call)(
         implicit request: RequestHeader, config: Configuration): Future[Session] = {
 
         require(statement.length <= 22)
+        require(!customer.stripeUserId.isEmpty)
 
+        val amount = priceBreakdown.total
         val (stripeAmount, stripeCurrency) = PaymentService.asStripeAmount(amount)
 
         val picUrls: java.util.List[String] = pics.
@@ -97,7 +100,12 @@ class PaymentService @Inject() (
             } else {
                 Seq("card")
             }
-
+        
+        val transactionFee: Long = priceBreakdown.
+            transactionFee.
+            map(PaymentService.asStripeAmount(_)._1).
+            getOrElse(0L)
+    
         val paymentIntent: java.util.Map[String, Object] = Map(
             "capture_method" -> {
                 captureMethod match {
@@ -106,7 +114,11 @@ class PaymentService @Inject() (
                 }
             }.asInstanceOf[Object],
             "description" -> description,
-            "statement_descriptor" -> statement).asJava
+            "statement_descriptor" -> statement,
+            "transfer_data" -> Map(
+                "destination" -> customer.stripeUserId.get,
+            ).asJava,
+            "application_fee_amount" -> transactionFee.asInstanceOf[AnyRef]).asJava
 
         val params: java.util.Map[String, Object] = Map(
             "client_reference_id" -> customer.id.toString,
@@ -210,7 +222,8 @@ class PaymentService @Inject() (
 }
 
 object PaymentService {
-    /** Constructs a map with two amount and currency codew string values that
+
+    /** Constructs a map with two amount and currency code string values that
      * represents the provided amount as a Stripe API value. */
     def asStripeAmount(value: Money): (Long, String) = {
         val decimals = value.currency.formatDecimals
