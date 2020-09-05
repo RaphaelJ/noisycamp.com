@@ -54,21 +54,23 @@
 
                     <hr>
 
-                    <ul class="vertical menu">
-                        <li>
-                            <a href="@controllers.account.studios.routes.IndexController.index">
-                                Manage my studios
-                            </a>
-                        </li>
+                    @if(identity.isAHost) {
+                        <ul class="vertical menu">
+                            <li>
+                                <a href="@controllers.account.studios.routes.IndexController.index">
+                                    Manage my studios
+                                </a>
+                            </li>
 
-                        <li>
-                            <a href="@controllers.account.routes.PayoutsController.index">
-                                Payout preferences
-                            </a>
-                        </li>
-                    </ul>
+                            <li>
+                                <a href="@controllers.account.routes.PayoutsController.index">
+                                    Payout preferences
+                                </a>
+                            </li>
+                        </ul>
 
-                    <hr>
+                        <hr>
+                    }
 
                     <ul class="vertical menu">
                         <li>
