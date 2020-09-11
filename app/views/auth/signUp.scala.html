@@ -27,17 +27,16 @@
     implicit request: RequestHeader, messagesProvider: MessagesProvider,
     config: Configuration, flash: Flash)
 
-@head = {
-    <link
-        rel="stylesheet"
-        href="@CDN.fromCDN(routes.Assets.versioned("stylesheets/auth/sign.css"))">
-}
-
 @implicitField = @{
     helper.FieldConstructor(utils.forms.foundationFieldConstructor.f)
 }
 
-@layout("Sign up", socialProviders, redirectTo) {
+@bottomText = {
+    Already have an account?
+    <a href="@controllers.routes.AuthController.signIn(redirectTo)">Sign in</a>
+}
+
+@layout("Sign up", socialProviders, redirectTo, bottomText) {
     <div class="cell">
         @helper.form(
             action = controllers.routes.AuthController.signUpSubmit(redirectTo)) {

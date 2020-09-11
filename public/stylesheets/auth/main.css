@@ -56,3 +56,8 @@
 .button.provider.google:hover {
     background-color: #b53327;
 }
+
+.bottom-auth-text {
+    text-align: center;
+    color: #777;
+}

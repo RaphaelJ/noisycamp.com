@@ -22,7 +22,7 @@
 
 @(
     title: String, socialProviders: SocialProviderRegistry,
-    redirectTo: Option[String])(
+    redirectTo: Option[String], bottomText: Html = Html(""))(
     form: Html)(
     implicit request: RequestHeader, config: Configuration, flash: Flash)
 
@@ -57,6 +57,8 @@
                                 </a>
                             </div>
                         }
+
+                        <div class="cell bottom-auth-text">@bottomText</div>
                     </div>
                 </div>
             </div>

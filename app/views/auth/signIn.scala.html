@@ -30,7 +30,12 @@
     helper.FieldConstructor(utils.forms.foundationFieldConstructor.f)
 }
 
-@layout("Sign in", socialProviders, redirectTo) {
+@bottomText = {
+    Don't have an account yet?
+    <a href="@controllers.routes.AuthController.signUp(redirectTo)">Sign up</a>
+}
+
+@layout("Sign in", socialProviders, redirectTo, bottomText) {
     <div class="cell">
         @helper.form(
             action = controllers.routes.AuthController.signInSubmit(redirectTo)) {
