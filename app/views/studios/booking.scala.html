@@ -106,16 +106,22 @@
 
             <hr>
 
-            @defining(studio.localPricingPolicy) { pricingPolicy =>
-                <booking-form
-                    :studio-id='@studio.id'
-                    :opening-schedule="@tags.json(Json.toJson(studio.openingSchedule), htmlEscape = true)"
-                    :pricing-policy="@tags.json(Json.toJson(pricingPolicy), htmlEscape = true)"
-                    :booking-times="@tags.json(Json.toJson(bookingTimes), htmlEscape = true)"
-                    :has-online-payment='@{studio.paymentPolicy.hasOnlinePayment && owner.isPayoutSetup}'
-                    :has-onsite-payment='@studio.paymentPolicy.hasOnsitePayment'
-                    csrf-token="@helper.CSRF.getToken.value">
-                </booking-form>
+            @if(studio.canBeBooked(owner)) {
+                @defining(studio.localPricingPolicy) { pricingPolicy =>
+                    <booking-form
+                        :studio-id='@studio.id'
+                        :opening-schedule="@tags.json(Json.toJson(studio.openingSchedule), htmlEscape = true)"
+                        :pricing-policy="@tags.json(Json.toJson(pricingPolicy), htmlEscape = true)"
+                        :booking-times="@tags.json(Json.toJson(bookingTimes), htmlEscape = true)"
+                        :has-online-payment='@{studio.paymentPolicy.hasOnlinePayment && owner.isPayoutSetup}'
+                        :has-onsite-payment='@studio.paymentPolicy.hasOnsitePayment'
+                        csrf-token="@helper.CSRF.getToken.value">
+                    </booking-form>
+                }
+            } else {
+                <div class="text-center">
+                    This studio cannot be booked online.
+                </div>
             }
         }
     }

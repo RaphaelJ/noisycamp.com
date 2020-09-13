@@ -56,6 +56,11 @@ case class Studio(
     /** Returns true iff the studio is public or owned by the given user. */
     def canAccess(user: Option[User]): Boolean = published || (user.map(isOwner _).getOrElse(false))
 
+    def canBeBooked(owner: User): Boolean = {
+        (paymentPolicy.hasOnlinePayment && owner.isPayoutSetup) ||
+        paymentPolicy.hasOnsitePayment
+    }
+
     /** The current time at the studio's timezone. */
     def currentDateTime: LocalDateTime = Instant.now.atZone(timezone).toLocalDateTime
 }
