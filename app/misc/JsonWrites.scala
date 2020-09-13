@@ -153,6 +153,7 @@ object JsonWrites {
             "id"                -> studio.id,
             "name"              -> studio.name,
             "description"       -> studio.description.take(255),
+            "phone"             -> studio.phone,
 
             "location"          -> studio.location,
             "timezone"          -> studio.timezone.toString,

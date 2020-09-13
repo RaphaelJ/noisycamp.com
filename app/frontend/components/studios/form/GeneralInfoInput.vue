@@ -120,6 +120,26 @@
                 on search engines like Google.
             </p>
         </div>
+
+        <div class="cell">
+            <label>
+                Phone number (optional)
+
+                <input
+                    type="text"
+                    :name="fieldName('phone')"
+                    v-model="phone">
+
+                <span v-if="fieldHasError('phone')" class="error">
+                    {{ fieldError('phone') }}
+                </span>
+            </label>
+
+            <p class="help-text">
+                If specified, the phone number will be shown when the user will try to book a
+                session.
+            </p>
+        </div>
     </div>
 </template>
 
@@ -137,6 +157,7 @@ export default Vue.extend({
         let data = {
             nameValue: this.value.name,
             description: this.value.description,
+            phone: this.value.phone,
 
             usePractice: false,
             useRecording: false,

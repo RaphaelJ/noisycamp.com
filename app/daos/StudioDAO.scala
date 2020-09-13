@@ -46,6 +46,7 @@ class StudioDAO @Inject()
 
         def name                = column[String]("name")
         def description         = column[String]("description")
+        def phone               = column[Option[String]]("phone")
 
         def usePractice         = column[Boolean]("use_practice")
         def useRecording        = column[Boolean]("use_recording")
@@ -128,7 +129,7 @@ class StudioDAO @Inject()
         def hasOnsitePayment    = column[Boolean]("has_onsite_payment")
 
         private type StudioTuple = (
-            Studio#Id, Instant, User#Id, Boolean, String, String,
+            Studio#Id, Instant, User#Id, Boolean, String, String, Option[String],
             Boolean, Boolean, Boolean, Boolean,
             LocationTuple, ZoneId, OpeningScheduleTuple, PricingPolicyTuple,
             BookingPolicyTuple, PaymentPolicyTuple)
@@ -157,7 +158,7 @@ class StudioDAO @Inject()
         private type PaymentPolicyTuple = (Boolean, Boolean)
 
         private val studioShaped = (
-            id, createdAt, ownerId, published, name, description, usePractice, useRecording,
+            id, createdAt, ownerId, published, name, description, phone, usePractice, useRecording,
             useLive, useLessons, (
                 (address1, address2, zipcode, city, stateCode, country),
                 (long, lat)),
@@ -177,17 +178,17 @@ class StudioDAO @Inject()
         private def toStudio(studioTuple: StudioTuple): Studio = {
             Studio(studioTuple._1, studioTuple._2, studioTuple._3, studioTuple._4,
                 studioTuple._5, studioTuple._6, studioTuple._7, studioTuple._8, studioTuple._9,
-                studioTuple._10,
-                toLocation(studioTuple._11), studioTuple._12,
-                toOpeningSchedule(studioTuple._13),
-                toPricingPolicy(studioTuple._14),
-                toBookingPolicy(studioTuple._15), toPaymentPolicy(studioTuple._16))
+                studioTuple._10, studioTuple._11,
+                toLocation(studioTuple._12), studioTuple._13,
+                toOpeningSchedule(studioTuple._14),
+                toPricingPolicy(studioTuple._15),
+                toBookingPolicy(studioTuple._16), toPaymentPolicy(studioTuple._17))
         }
 
         private def fromStudio(studio: Studio): Option[StudioTuple] = {
             Some((studio.id, studio.createdAt, studio.ownerId, studio.published, studio.name,
-                studio.description, studio.usePractice, studio.useRecording, studio.useLive,
-                studio.useLessons, fromLocation(studio.location), studio.timezone,
+                studio.description, studio.phone, studio.usePractice, studio.useRecording,
+                studio.useLive, studio.useLessons, fromLocation(studio.location), studio.timezone,
                 fromOpeningSchedule(studio.openingSchedule),
                 fromPricingPolicy(studio.pricingPolicy),
                 fromBookingPolicy(studio.bookingPolicy),

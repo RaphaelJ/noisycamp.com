@@ -78,6 +78,7 @@ create table "studio" (
 
     name                    varchar not null,
     description             varchar not null,
+    phone                   varchar,
 
     use_practice            boolean,
     use_recording           boolean,

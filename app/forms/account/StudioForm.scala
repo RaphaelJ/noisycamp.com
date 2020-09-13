@@ -35,6 +35,7 @@ object StudioForm {
         mapping(
             "general-info.name"              -> nonEmptyText,
             "general-info.description"       -> nonEmptyText,
+            "general-info.phone"             -> CustomFields.optionalText,
 
             "general-info.use-practice"      -> boolean,
             "general-info.use-recording"     -> boolean,
@@ -54,6 +55,7 @@ object StudioForm {
     case class Data(
         name:               String,
         description:        String,
+        phone:              Option[String],
 
         usePractice:        Boolean,
         useRecording:       Boolean,
@@ -93,7 +95,8 @@ object StudioForm {
 
                 name = name,
                 description = description,
-
+                phone = phone,
+                
                 usePractice = usePractice,
                 useRecording = useRecording,
                 useLive = useLive,
@@ -116,6 +119,7 @@ object StudioForm {
         form.fill(Data(
             name = studio.name,
             description = studio.description,
+            phone = studio.phone,
 
             usePractice = studio.usePractice,
             useRecording = studio.useRecording,

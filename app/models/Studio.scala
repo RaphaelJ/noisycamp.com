@@ -32,6 +32,7 @@ case class Studio(
 
     name:               String,
     description:        String,
+    phone:              Option[String]  = None,
 
     usePractice:        Boolean,
     useRecording:       Boolean,
