@@ -120,7 +120,21 @@
                 }
             } else {
                 <div class="text-center">
-                    This studio cannot be booked online.
+                    <p>
+                        This studio cannot be booked online. Please contact the studio directly.
+                    </p>
+                    
+                    <p>
+                        <strong>Email:</strong>
+                        <a href="mailto:@owner.email">@owner.email</a>
+
+                        @for(phone <- studio.phone) {
+                            <br>
+
+                            <strong>Phone:</strong>
+                            <a href="tel:@phone">@phone</a>
+                        }
+                    </p> 
                 </div>
             }
         }
