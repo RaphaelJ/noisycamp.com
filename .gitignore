@@ -10,3 +10,7 @@ target/
 .metals
 .ensime
 .ensime_cache
+project/metals.sbt
+
+.vscode/
+*.code-workspace
