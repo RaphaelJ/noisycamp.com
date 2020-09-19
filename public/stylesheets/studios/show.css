@@ -14,9 +14,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+ 
+@media print, screen and (min-width: 64em) {
+    .studio-settings-link {
+        margin-top: 1rem;
+    }
+}
 
 /* Makes the right-side booking panel sticky on medium and large. */
-@media print,screen and (min-width:40em) {
+@media print,screen and (min-width: 40em) {
     .booking-panel {
         position: sticky;
         position: -webkit-sticky;

@@ -42,6 +42,13 @@
         href="https://api.mapbox.com/mapbox-gl-js/v1.8.1/mapbox-gl.css">
 }
 
+@studioSettingsLink = {
+    <a href="@controllers.account.studios.routes.IndexController.settings(studio.id)">
+        <i class="fi-widget"></i>&nbsp;
+        Studio settings
+    </a>
+}
+
 @bookingPanel = {
     @defining(studio.localPricingPolicy) { pricingPolicy =>
         <div class="grid-x grid-padding-x">
@@ -164,20 +171,35 @@
             }
 
             <div class="cell small-12">
-                <div class="grid-x">
-                    <div class="cell">
-                        <h1>@studio.name</h1>
-                    </div>
+                <div class="grid-x grid-margin-x">
+                    @defining(identity.map(v => studio.isOwner(v.user)).getOrElse(false)) { isStudioOwner =>
 
-                    <div class="cell studio-city">
-                        <h4>
-                            <small>
-                                <i class="fi-marker"></i>&nbsp;
-                                @studio.location.address.city,
-                                @studio.location.address.country.name
-                            </small>
-                        </h4>
-                    </div>
+                        @if(isStudioOwner) {
+                            <div class="cell small-12 hide-for-large text-center studio-settings-link">
+                                @studioSettingsLink
+                            </div>        
+                        }
+
+                        <div class="cell auto">
+                            <h1>@studio.name</h1>
+                        </div>
+
+                        @if(isStudioOwner) {
+                            <div class="cell shrink show-for-large studio-settings-link">
+                                @studioSettingsLink
+                            </div>
+                        }
+
+                        <div class="cell studio-city">
+                            <h4>
+                                <small>
+                                    <i class="fi-marker"></i>&nbsp;
+                                    @studio.location.address.city,
+                                    @studio.location.address.country.name
+                                </small>
+                            </h4>
+                        </div>
+                    }
                 </div>
             </div>
 

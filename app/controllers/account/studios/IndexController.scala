@@ -128,7 +128,7 @@ class IndexController @Inject() (ccc: CustomControllerCompoments)
                                 data.toStudio(Right(studio))
 
                             val onSuccess = {
-                                Redirect(routes.IndexController.settings(id)).
+                                Redirect(_root_.controllers.routes.StudiosController.show(id)).
                                     flashing("success" -> "Settings have been successfully saved.")
                             }
 
