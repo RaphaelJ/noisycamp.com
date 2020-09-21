@@ -85,6 +85,7 @@ trait CustomColumnTypes { this: HasDatabaseConfigProvider[JdbcProfile] =>
         StudioBookingStatus.PaymentFailure      -> "payment-failure",
         StudioBookingStatus.PendingValidation   -> "pending-validation",
         StudioBookingStatus.Valid               -> "valid",
+        StudioBookingStatus.Rejected            -> "rejected",
         StudioBookingStatus.CancelledByCustomer -> "cancelled-by-customer",
         StudioBookingStatus.CancelledByOwner    -> "cancelled-by-owner"))
 

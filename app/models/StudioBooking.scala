@@ -41,6 +41,9 @@ object StudioBookingStatus extends Enumeration {
     // Payment and owner validation succeeded.
     val Valid = Value
 
+    // Owner rejected the booking.
+    val Rejected = Value
+
     val CancelledByCustomer = Value
     val CancelledByOwner = Value
 }
@@ -100,6 +103,11 @@ case class StudioBooking(
     }
 
     def isCustomer(user: User): Boolean = customerId == user.id
+
+    def isPaidOnline = payment match {
+        case StudioBookingPaymentOnline(_, _) => true
+        case _ => false
+    }
 
     def priceBreakdown: PriceBreakdown = {
         PriceBreakdown(durations, currency(pricePerHour), eveningPricePerHour.map(currency(_)),

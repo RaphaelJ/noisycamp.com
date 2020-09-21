@@ -228,7 +228,7 @@ create table "studio_booking" (
 
     status                      varchar not null
         check (status in (
-            'payment-processing', 'payment-failure', 'pending-validation', 'valid',
+            'payment-processing', 'payment-failure', 'pending-validation', 'valid', 'rejected',
             'cancelled-by-customer', 'cancelled-by-owner')),
 
     can_cancel                  boolean not null,

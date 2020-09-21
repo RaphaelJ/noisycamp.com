@@ -118,19 +118,37 @@ main {
 .button.primary:disabled {
     color: white;
     background-color: #b37216;
+    border: 1px solid transparent;
+}
+
+.button.secondary,
+.button.secondary:visited,
+.button.secondary:disabled {
+    background-color: white;
+    color: #b37216;
+    border: 1px solid #b37216;
 }
 
 .button.primary:hover,
-.button.primary:hover:disabled {
+.button.primary:hover:disabled,
+.button.secondary:hover,
+.button.secondary:hover:disabled,
+.button.primary:active,
+.button.secondary:active { 
+    color: white;
+    border: 1px solid transparent;
+}
+
+.button.primary:hover,
+.button.primary:hover:disabled,
+.button.secondary:hover,
+.button.secondary:hover:disabled {
     background-color: #915c11;
 }
 
-.button.primary:active {
+.button.primary:active,
+.button.secondary:active {
     background-color: #825313;
-}
-
-.button.secondary {
-    border: 1px solid #b37216;
 }
 
 /* Input and forms */

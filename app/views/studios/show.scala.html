@@ -112,60 +112,31 @@
     <div class="grid-container">
         <div class="grid-x grid-padding-x grid-padding-y">
             @if(!studio.published) {
-                <div class="cell small-12">
-                    <div class="panel-section">
-                        <div class="grid-x grid-padding-x grid-padding-y">
-                            <div class="cell small-12 medium-auto">
-                                <h5 class="text-sans-serif">
-                                    <strong>
-                                        <i class="fi-eye"></i>&nbsp;
-                                        This page is only visible to you.</strong>
-                                </h5>
-
-                                Please review the information on this page. Once you're satisfied,
-                                push the publish button to make your studio available to the world.
-                            </div>
-
-                            <div class="cell small-12 medium-shrink text-center">
-                                <a
-                                    href="@controllers.account.studios.routes.IndexController.publish(studio.id)"
-                                    class="button large primary small-only-expanded"
-                                    style="margin-bottom: 0">
-                                    Publish now
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                @tags.callout("This page is only visible to you", Some("fi-eye")) {
+                    Please review the information on this page. Once you're satisfied, push the
+                    publish button to make your studio available to the world.
+                } {
+                    <a
+                        href="@controllers.account.studios.routes.IndexController.publish(studio.id)"
+                        class="button large primary small-only-expanded"
+                        style="margin-bottom: 0">
+                        Publish now
+                    </a>
+                }
             } else if(studio.paymentPolicy.hasOnlinePayment) {
                 @for(user <- identity.map(_.user)) {
                     @if(studio.isOwner(user) && !user.isPayoutSetup) {
-                        <div class="cell small-12">
-                            <div class="panel-section">
-                                <div class="grid-x grid-padding-x grid-padding-y">
-                                    <div class="cell small-12 medium-auto">
-                                        <h5 class="text-sans-serif">
-                                            <strong>
-                                                <i class="fi-alert"></i>&nbsp;
-                                                Online payments disabled
-                                            </strong>
-                                        </h5>
-        
-                                        Please setup your bank account for payouts before receiving
-                                        credit card payments for your online bookings.
-                                    </div>
-        
-                                    <div class="cell small-12 medium-shrink text-center">
-                                        <a
-                                            href="@controllers.account.routes.PayoutsController.index"
-                                            class="button large primary small-only-expanded"
-                                            style="margin-bottom: 0">
-                                            Payout preferences
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        @tags.callout("Online payments disabled", Some("fi-alert")) {
+                            Please setup your bank account for payouts before receiving credit card
+                            payments for your online bookings.
+                        } {
+                            <a
+                                href="@controllers.account.routes.PayoutsController.index"
+                                class="button large primary small-only-expanded"
+                                style="margin-bottom: 0">
+                                Payout preferences
+                            </a>
+                        }
                     }
                 }
             }

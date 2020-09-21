@@ -29,51 +29,97 @@
     Seq(
         customer.displayName + "'s booking",
         studio.name), identity=identity) {
+    
+    <div class="grid-x grid-padding-x grid-padding-y">
 
-    <div class="panel-section">
-        <div class="grid-x grid-padding-x">
-            <div class="cell small-12 medium-6">
-                <h3 class="text-sans-serif">
-                    <small>Reservation code</small><br>
-                    @booking.reservationCode
-                </h3>
+        @booking.status match {
+        case StudioBookingStatus.PendingValidation => {
+            @tags.callout("Booking pending approval", Some("fi-alert")) {
+                If you do not approve this booking before the session starts,
+                the booking will be automatically rejected@if(booking.isPaidOnline) {
+                    and the customer will be entirely refunded}.
+            } {
+                <a
+                    href="@controllers.account.studios.routes.IndexController.publish(studio.id)"
+                    class="button primary small-only-expanded">
+                    Accept booking
+                </a>
 
-                <hr>
+                <a
+                    href="@controllers.account.studios.routes.IndexController.publish(studio.id)"
+                    class="button secondary small-only-expanded">
+                    Reject booking
+                </a>
+            }
+        }
+        case StudioBookingStatus.Rejected => {
+            @tags.callout("Booking rejected", Some("fi-x")) {
+                This booking has not been accepted@if(booking.isPaidOnline) {
+                    and the customer has been entirely refunded}.
+            }()
+        }
+        case StudioBookingStatus.CancelledByCustomer => {
+            @tags.callout("Booking cancelled by customer", Some("fi-x")) {
+                The customer cancelled the booking@if(booking.isPaidOnline) {
+                    and has been entirely refunded}.
+            }()
+        }
+        case StudioBookingStatus.CancelledByOwner => {
+            @tags.callout("Booking cancelled by studio owner", Some("fi-x")) {
+                The studio owner cancelled the booking@if(booking.isPaidOnline) {
+                    and the customer has been entirely refunded}.
+            }()
+        }
+        case _ => {}
+        }
 
-                <p>
-                    @customer.displayName<br>
-                    <a href="mailto:@customer.email">
-                        @customer.email
-                    </a>
-                </p>
+        <div class="cell small-12">
+            <div class="panel-section">
+                <div class="grid-x grid-padding-x">
+                    <div class="cell small-12 medium-6">
+                        <h3 class="text-sans-serif">
+                            <small>Reservation code</small><br>
+                            @booking.reservationCode
+                        </h3>
 
-                <hr class="show-for-small-only">
-            </div>
+                        <hr>
 
-            <div class="cell small-12 medium-6">
-                <p class="text-sans-serif">
-                        <i class="fi-calendar"></i>&nbsp;
-                        @tags.localDateTime(booking.times.beginsAt)<br>
+                        <p>
+                            @customer.displayName<br>
+                            <a href="mailto:@customer.email">
+                                @customer.email
+                            </a>
+                        </p>
+
+                        <hr class="show-for-small-only">
+                    </div>
+
+                    <div class="cell small-12 medium-6">
+                        <p class="text-sans-serif">
+                                <i class="fi-calendar"></i>&nbsp;
+                                @tags.localDateTime(booking.times.beginsAt)<br>
 
 
-                    <i class="fi-clock"></i>&nbsp;
-                    @tags.duration(booking.times.duration)
-                </p>
+                            <i class="fi-clock"></i>&nbsp;
+                            @tags.duration(booking.times.duration)
+                        </p>
 
-                <hr>
+                        <hr>
 
-                @tags.priceBreakdown(booking.priceBreakdown, showTransactionFee = true)
+                        @tags.priceBreakdown(booking.priceBreakdown, showTransactionFee = true)
 
-                <hr>
+                        <hr>
 
-                <div class="text-center">
-                    <p>
-                        <a href="#">Cancel booking</a>
-                    </p>
+                        <div class="text-center">
+                            <p>
+                                <a href="#">Cancel booking</a>
+                            </p>
 
-                    <p class="help-text">
-                        You will not be refunded.
-                    </p>
+                            <p class="help-text">
+                                You will not be refunded.
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

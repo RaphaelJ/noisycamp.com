@@ -48,6 +48,10 @@
                 Valid
             }
         }
+        case StudioBookingStatus.Rejected => {
+            <i class="fi-x"></i>&nbsp;
+            Rejected
+        }
         case StudioBookingStatus.CancelledByCustomer => {
             <i class="fi-x"></i>&nbsp;
             Cancelled by customer
@@ -56,6 +60,7 @@
             <i class="fi-x"></i>&nbsp;
             Cancelled by studio owner
         }
+        case _ => {}
     }
 }
 

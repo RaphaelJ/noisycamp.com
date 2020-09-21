@@ -136,8 +136,7 @@
             </label>
 
             <p class="help-text">
-                If specified, the phone number will be shown when the user will try to book a
-                session.
+                If specified, will only be shown to the user when booking a session.
             </p>
         </div>
     </div>
