@@ -26,7 +26,7 @@ import play.api.Configuration
 import squants.market
 
 object StudioBookingStatus extends Enumeration {
-    // The request for the booking has been received, but the payment has not been
+    // The request for the booking has been received, but the payment has not been validated yet.
     val PaymentProcessing = Value
 
     // An error occured during the processing of the payment, the customer cancelled the

@@ -27,12 +27,15 @@ import play.api._
 import play.api.mvc._
 
 import auth.DefaultEnv
-import models.{ Studio, StudioBooking, User }
+import daos.CustomColumnTypes
+import models.{ Studio, StudioBooking, StudioBookingStatus, User }
 import _root_.controllers.{ CustomBaseController, CustomControllerCompoments }
+import misc.PaymentService
 
 @Singleton
 class BookingsController @Inject() (ccc: CustomControllerCompoments)
-    extends CustomBaseController(ccc) {
+    extends CustomBaseController(ccc)
+    with CustomColumnTypes {
 
     import profile.api._
 
@@ -83,6 +86,55 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
     def show(studioId: Studio#Id, bookingId: StudioBooking#Id) = silhouette.SecuredAction.async {
         implicit request =>
 
+        withStudioBookingTransaction(studioId, bookingId, { case (studio, booking, customer) =>
+            DBIO.successful(Ok(views.html.account.studios.bookings.show(
+                request.identity, studio, booking, customer)))
+        })
+    }
+
+    def accept(studioId: Studio#Id, bookingId: StudioBooking#Id) = silhouette.SecuredAction.async {
+        implicit request =>
+
+        val redirectTo = Redirect(routes.BookingsController.show(studioId, bookingId))
+
+        withStudioBookingTransaction(studioId, bookingId, { case (studio, booking, customer) =>
+            if (booking.status == StudioBookingStatus.PendingValidation) {
+                daos.studioBooking.query.
+                    filter(_.id === bookingId).
+                    map(_.status).
+                    update(StudioBookingStatus.Valid).
+                    map { _ => redirectTo.flashing("success" -> "This booking has been accepted.") }
+            } else {
+                DBIO.successful(redirectTo.flashing("error" -> "Can not accept this booking."))
+            }
+        })
+    }
+
+    def reject(studioId: Studio#Id, bookingId: StudioBooking#Id) = silhouette.SecuredAction.async {
+        implicit request =>
+
+        val redirectTo = Redirect(routes.BookingsController.show(studioId, bookingId))
+
+        withStudioBookingTransaction(studioId, bookingId, { case (studio, booking, customer) =>
+            if (booking.status == StudioBookingStatus.PendingValidation) {
+                // TODO: refund customer on online payment.
+
+                daos.studioBooking.query.
+                    filter(_.id === bookingId).
+                    map(_.status).
+                    update(StudioBookingStatus.Rejected).
+                    map { _ => redirectTo.flashing("success" -> "This booking has been rejected.") }    
+            } else {
+                DBIO.successful(redirectTo.flashing("error" -> "Can not reject this booking."))
+            }
+        })
+    }
+
+    /** Executes the function within the DBIO monad, or returns a 404 response. */
+    private def withStudioBookingTransaction[T](studioId: Studio#Id, bookingId: StudioBooking#Id,
+        f: ((Studio, StudioBooking, User) => DBIOAction[Result, NoStream, Effect.All]))
+        (implicit request: SecuredRequest[DefaultEnv, T]): Future[Result] = {
+
         val user = request.identity.user
 
         db.run({
@@ -93,15 +145,15 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
                     s.id === studioId &&
                     b.id === bookingId
                 }.
-                result.headOption
-        }.transactionally).
-            map {
-                case Some(((studio, booking), customer)) if studio.isOwner(user) => {
-                    Ok(views.html.account.studios.bookings.show(
-                        request.identity, studio, booking, customer))
-                }
-                case Some(_) => Forbidden("Cannot access other customers' bookings.")
-                case None => NotFound("Booking not found.")
-            }
+                result.headOption.
+                flatMap {
+                    case Some(((studio, booking), customer)) if studio.isOwner(user) => {
+                        f(studio, booking, customer)
+                    }
+                    case Some(_) => DBIO.successful(
+                        Forbidden("Cannot access other customers' bookings."))
+                    case None => DBIO.successful(NotFound("Booking not found."))
+                }: DBIOAction[Result, NoStream, Effect.All]
+        }.transactionally)
     }
 }

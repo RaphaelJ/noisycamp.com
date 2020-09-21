@@ -40,13 +40,13 @@
                     and the customer will be entirely refunded}.
             } {
                 <a
-                    href="@controllers.account.studios.routes.IndexController.publish(studio.id)"
+                    href="@controllers.account.studios.routes.BookingsController.accept(studio.id, booking.id)"
                     class="button primary small-only-expanded">
                     Accept booking
                 </a>
 
                 <a
-                    href="@controllers.account.studios.routes.IndexController.publish(studio.id)"
+                    href="@controllers.account.studios.routes.BookingsController.reject(studio.id, booking.id)"
                     class="button secondary small-only-expanded">
                     Reject booking
                 </a>
