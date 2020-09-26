@@ -44,6 +44,8 @@
             <i class="fi-check"></i>&nbsp;
             @if(booking.isCompleted(studio)) {
                 Completed
+            } else if(booking.isOngoing(studio)) {
+                Ongoing
             } else {
                 Valid
             }
@@ -102,12 +104,14 @@
                                 @withBookingLink(booking) {
                                     @tags.moneyAmount(booking.currency(booking.total))
 
-                                    @booking.payment match {
-                                        case StudioBookingPaymentOnline(_, _) => {
-                                            (paid online)
-                                        }
-                                        case StudioBookingPaymentOnsite() => {
-                                            (<i class="fi-alert"></i>&nbsp; to be collected)
+                                    @if(booking.isActive) {
+                                        @booking.payment match {
+                                            case StudioBookingPaymentOnline(_, _) => {
+                                                (paid online)
+                                            }
+                                            case StudioBookingPaymentOnsite() => {
+                                                <strong>(to be paid onsite)</strong>
+                                            }
                                         }
                                     }
                                 }

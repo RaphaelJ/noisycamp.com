@@ -63,5 +63,7 @@ case class Studio(
     }
 
     /** The current time at the studio's timezone. */
-    def currentDateTime: LocalDateTime = Instant.now.atZone(timezone).toLocalDateTime
+    def currentDateTime(now: Instant = Instant.now): LocalDateTime = {
+        now.atZone(timezone).toLocalDateTime
+    }
 }

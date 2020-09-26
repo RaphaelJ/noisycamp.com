@@ -35,7 +35,7 @@
         <div class="grid-x grid-padding-x grid-padding-y">
             <div class="cell small-12">
                 <calendar
-                    current-time="@studio.currentDateTime.toString"
+                    current-time="@studio.currentDateTime().toString"
                     :scrollable="false"
                     :opening-schedule="@tags.json(Json.toJson(studio.openingSchedule), htmlEscape = true)"
                     :events="@{tags.json(
