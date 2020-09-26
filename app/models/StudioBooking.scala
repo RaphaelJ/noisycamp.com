@@ -138,15 +138,7 @@ case class StudioBooking(
 
         val codeBytes = mac.doFinal(id.toString.getBytes)
 
-        toHexString(codeBytes).take(CODE_LEN).toUpperCase
-    }
-
-    private def toHexString(value: Seq[Byte]) = {
-        val formatter = new Formatter()
-        for (b <- value) {
-            formatter.format("%02x", b.asInstanceOf[Object])
-        }
-        formatter.toString
+        StudioBooking.toHexString(codeBytes).take(CODE_LEN).toUpperCase
     }
 
     def toEvent(customer: User): Event = {
@@ -192,5 +184,13 @@ object StudioBooking {
             weekendPricePerHour = pricingPolicy.weekend.map(_.pricePerHour),
             transactionFeeRate = priceBreakdown.transactionFeeRate,
             payment = payment)
+    }
+
+    def toHexString(value: Seq[Byte]) = {
+        val formatter = new Formatter()
+        for (b <- value) {
+            formatter.format("%02x", b.asInstanceOf[Object])
+        }
+        formatter.toString
     }
 }

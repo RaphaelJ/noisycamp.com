@@ -124,4 +124,10 @@ class StudioBookingSpec extends PlaySpec {
                 ) should be (true)
         }
     }
+
+    "StudioBooking.toHexString" must {
+        "returns an hexadecimal representation of a byte sequence" in {
+            StudioBooking.toHexString(Seq(179.toByte, 63.toByte, 58.toByte)) should be ("b33f3a")
+        }
+    }
 }
