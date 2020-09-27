@@ -27,8 +27,9 @@ import com.stripe.Stripe
 import com.stripe.exception.StripeException
 import com.stripe.model.checkout.Session
 import com.stripe.model.oauth.TokenResponse
-import com.stripe.model.{ Event, LoginLink, PaymentIntent }
+import com.stripe.model.{ Event, LoginLink, PaymentIntent, Refund }
 import com.stripe.net.{ OAuth, RequestOptions, Webhook }
+import com.stripe.param.RefundCreateParams
 import play.api.Configuration
 import play.api.mvc.{ Call, Request, RequestHeader, Result, Results }
 import play.filters.csrf.CSRF
@@ -153,10 +154,22 @@ class PaymentService @Inject() (
         Future { blocking { intent.capture(requestOptions) } }
     }
 
+    /** Cancels an uncaptured payment. */
     def cancelPayment(intent: PaymentIntent)(implicit config: Configuration):
         Future[PaymentIntent] = {
 
         Future { blocking { intent.cancel(requestOptions) } }
+    }
+
+    /** Refunds a captured payment. */
+    def refundPayment(intentId: String)(implicit config: Configuration):
+        Future[Refund] = {
+
+        val params = RefundCreateParams.builder().
+            setPaymentIntent(intentId).
+            build()
+
+        Future { blocking { Refund.create(params, requestOptions) } }
     }
 
     /** Returns the URL to the Stripe Express onboarding for the provided user.

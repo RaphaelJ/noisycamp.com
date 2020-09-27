@@ -28,7 +28,8 @@ import play.api.mvc._
 
 import auth.DefaultEnv
 import daos.CustomColumnTypes
-import models.{ Studio, StudioBooking, StudioBookingStatus, User }
+import models.{ Studio, StudioBooking, StudioBookingPaymentOnline, StudioBookingPaymentOnsite,
+    StudioBookingStatus, User }
 import _root_.controllers.{ CustomBaseController, CustomControllerCompoments }
 import misc.PaymentService
 
@@ -98,14 +99,16 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
         val redirectTo = Redirect(routes.BookingsController.show(studioId, bookingId))
 
         withStudioBookingTransaction(studioId, bookingId, { case (studio, booking, customer) =>
-            if (booking.status == StudioBookingStatus.PendingValidation) {
+            if (booking.status == StudioBookingStatus.PendingValidation && 
+                !booking.isStarted(studio)) {
+
                 daos.studioBooking.query.
                     filter(_.id === bookingId).
                     map(_.status).
                     update(StudioBookingStatus.Valid).
                     map { _ => redirectTo.flashing("success" -> "This booking has been accepted.") }
             } else {
-                DBIO.successful(redirectTo.flashing("error" -> "Can not accept this booking."))
+                DBIO.successful(redirectTo.flashing("error" -> "You can not accept this booking."))
             }
         })
     }
@@ -117,13 +120,21 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
 
         withStudioBookingTransaction(studioId, bookingId, { case (studio, booking, customer) =>
             if (booking.status == StudioBookingStatus.PendingValidation) {
-                // TODO: refund customer on online payment.
-
-                daos.studioBooking.query.
-                    filter(_.id === bookingId).
-                    map(_.status).
-                    update(StudioBookingStatus.Rejected).
-                    map { _ => redirectTo.flashing("success" -> "This booking has been rejected.") }    
+            
+                (booking.payment match {
+                    case StudioBookingPaymentOnline(sessionId, intentId) => {
+                        // TODO: Refund fron the connected account.
+                        DBIO.from(paymentService.refundPayment(intentId)).map(Some(_))
+                    }
+                    case StudioBookingPaymentOnsite() => DBIO.successful(None)
+                }).flatMap { _ =>
+                    daos.studioBooking.query.
+                        filter(_.id === bookingId).
+                        map(_.status).
+                        update(StudioBookingStatus.Rejected).
+                        map { _ => 
+                            redirectTo.flashing("success" -> "This booking has been rejected.") }    
+                }
             } else {
                 DBIO.successful(redirectTo.flashing("error" -> "Can not reject this booking."))
             }

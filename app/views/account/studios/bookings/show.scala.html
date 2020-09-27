@@ -34,22 +34,36 @@
 
         @booking.status match {
         case StudioBookingStatus.PendingValidation => {
-            @tags.callout("Booking pending approval", Some("fi-alert")) {
-                If you do not approve this booking before the session starts,
-                the booking will be automatically rejected@if(booking.isPaidOnline) {
-                    and the customer will be entirely refunded}.
-            } {
-                <a
-                    href="@controllers.account.studios.routes.BookingsController.accept(studio.id, booking.id)"
-                    class="button primary small-only-expanded">
-                    Accept booking
-                </a>
-
-                <a
-                    href="@controllers.account.studios.routes.BookingsController.reject(studio.id, booking.id)"
-                    class="button secondary small-only-expanded">
-                    Reject booking
-                </a>
+            @if(!booking.isStarted(studio)) {                
+                @tags.callout("Booking pending approval", Some("fi-alert")) {
+                    If you do not approve this booking before the session starts,
+                    the booking will be automatically rejected@if(booking.isPaidOnline) {
+                        and the customer will be entirely refunded}.
+                    } {
+                    <a
+                        href="@controllers.account.studios.routes.BookingsController.accept(studio.id, booking.id)"
+                        class="button primary small-only-expanded">
+                        Accept booking
+                    </a>
+                        
+                    <a
+                        href="@controllers.account.studios.routes.BookingsController.reject(studio.id, booking.id)"
+                        class="button secondary small-only-expanded">
+                        Reject booking
+                    </a>
+                }
+            } else {
+                @tags.callout("Booking not approved on time", Some("fi-alert")) {
+                    You did not approve the booking before the session started.
+                    The booking will be automatically rejected@if(booking.isPaidOnline) {
+                        and the customer will be entirely refunded}.
+                    } {
+                    <a
+                        href="@controllers.account.studios.routes.BookingsController.reject(studio.id, booking.id)"
+                        class="button secondary small-only-expanded">
+                        Reject booking now
+                    </a>
+                }
             }
         }
         case StudioBookingStatus.Rejected => {
