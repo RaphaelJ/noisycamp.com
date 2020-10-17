@@ -21,16 +21,19 @@ import java.time.Instant
 
 /** Stores the information about an user. */
 case class User(
-    id:             User#Id = 0L,
-    createdAt:      Instant = Instant.now(),
-    firstName:      Option[String],
-    lastName:       Option[String],
-    email:          String,
-    avatarId:       Option[Long],
+    id:                 User#Id = 0L,
+    createdAt:          Instant = Instant.now(),
+    firstName:          Option[String],
+    lastName:           Option[String],
+    email:              String,
+    avatarId:           Option[Long],
 
-    plan:           Plan.Val = Plan.Free,
+    plan:               Plan.Val = Plan.Free,
 
-    stripeUserId:   Option[String] = None) {
+    stripeAccountId:    Option[String] = None,
+    stripeCompleted:    Boolean = false) {
+
+    require(!stripeCompleted || stripeAccountId.isDefined)
 
     type Id = Long
 
@@ -42,5 +45,6 @@ case class User(
     /** Returns the full-name if availaible, or else the email. */
     def displayName: String = fullName.getOrElse(email)
 
-    def isPayoutSetup: Boolean = stripeUserId.isDefined
+    /** True if can do accept online payments. */
+    def isPayoutSetup: Boolean = stripeAccountId.isDefined && stripeCompleted
 }

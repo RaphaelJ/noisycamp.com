@@ -128,8 +128,13 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
 
         val dateStr = bookingTimes.beginsAt.toLocalDate.format(
             DateTimeFormatter.ofPattern("EEE MMM d, yyyy"))
-        val description = f"Book on $dateStr"
-        val statement = f"NoisyCamp booking"
+        val dateStrShort = bookingTimes.beginsAt.toLocalDate.format(
+            DateTimeFormatter.ofPattern("MMM d yyyy"))
+
+        val description = f"Booking on $dateStr"
+
+        val statement = f"NoisyCamp $dateStrShort"
+        assert(statement.length <= 22)
 
         val pricingPolicy = studio.pricingPolicy
         val localPricingPolicy = studio.localPricingPolicy

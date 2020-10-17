@@ -44,10 +44,11 @@ class UserDAO @Inject()
 
         def plan                = column[Plan.Val]("plan")
 
-        def stripeUserId        = column[Option[String]]("stripe_user_id")
+        def stripeAccountId     = column[Option[String]]("stripe_account_id")
+        def stripeCompleted     = column[Boolean]("stripe_completed")
 
-        def * = (id, createdAt, firstName, lastName, email, avatarId, plan, stripeUserId).
-            mapTo[User]
+        def * = (id, createdAt, firstName, lastName, email, avatarId, plan, stripeAccountId,
+            stripeCompleted).mapTo[User]
     }
 
     lazy val query = TableQuery[UserTable]

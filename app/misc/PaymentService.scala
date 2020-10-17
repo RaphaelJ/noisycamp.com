@@ -27,7 +27,7 @@ import com.stripe.Stripe
 import com.stripe.exception.StripeException
 import com.stripe.model.checkout.Session
 import com.stripe.model.oauth.TokenResponse
-import com.stripe.model.{ Event, LoginLink, PaymentIntent, Refund }
+import com.stripe.model.{ Account, AccountLink, Event, LoginLink, PaymentIntent, Refund }
 import com.stripe.net.{ OAuth, RequestOptions, Webhook }
 import com.stripe.param.RefundCreateParams
 import play.api.Configuration
@@ -69,8 +69,10 @@ class PaymentService @Inject() (
         onSuccess: Call, onCancel: Call)(
         implicit request: RequestHeader, config: Configuration): Future[Session] = {
 
+        // Creates a destination charge on the customer account. 
+
         require(statement.length <= 22)
-        require(!customer.stripeUserId.isEmpty)
+        require(!customer.stripeAccountId.isEmpty)
 
         val amount = priceBreakdown.total
         val (stripeAmount, stripeCurrency) = PaymentService.asStripeAmount(amount)
@@ -117,7 +119,7 @@ class PaymentService @Inject() (
             "description" -> description,
             "statement_descriptor" -> statement,
             "transfer_data" -> Map(
-                "destination" -> customer.stripeUserId.get,
+                "destination" -> customer.stripeAccountId.get,
             ).asJava,
             "application_fee_amount" -> transactionFee.asInstanceOf[AnyRef]).asJava
 
@@ -162,31 +164,55 @@ class PaymentService @Inject() (
     }
 
     /** Refunds a captured payment. */
-    def refundPayment(intentId: String)(implicit config: Configuration):
+    def refundPayment(intentId: String, refundApplicationFee: Boolean = true)(
+        implicit config: Configuration) :
         Future[Refund] = {
 
-        val params = RefundCreateParams.builder().
-            setPaymentIntent(intentId).
-            build()
+        val params: java.util.Map[String, Object] = Map(
+            "charge" -> intentId,
+            "reverse_transfer" -> true.asInstanceOf[AnyRef],
+            "refund_application_fee" -> refundApplicationFee.asInstanceOf[AnyRef]).asJava
 
         Future { blocking { Refund.create(params, requestOptions) } }
     }
 
-    /** Returns the URL to the Stripe Express onboarding for the provided user.
-     */
-    def connectOAuthUrl(user: User, redirectUrl: String)(
-        implicit request: RequestHeader, config: Configuration): String = {
+    /** Creates a Stripe Express account for the provided NoisyCamp user. */
+    def createExpressAccount(user: User)(implicit request: RequestHeader, config: Configuration):
+        Future[Account] = {
 
-        val clientID = config.get[String]("stripe.clientID")
-        val csrfToken = CSRF.getToken.get
+        val params: java.util.Map[String, Object] = Map(
+            "type" -> "express",
+            "capabilities" -> Map(
+                "card_payments" -> Map[String, Object](
+                    "requested" -> true.asInstanceOf[Object]).asJava,
+                "transfers" -> Map(
+                    "requested" -> true.asInstanceOf[Object]).asJava).asJava,
+            "email" -> user.email,
+            "metadata" -> Map(
+                "noisycamp_id" -> user.id,
+            ).asJava).asJava
 
-        "https://connect.stripe.com/express/oauth/authorize" +
-            "?redirect_uri=" + redirectUrl +
-            "&client_id=" + clientID +
-            "&state=" + csrfToken.value +
-            "&stripe_user[email]=" + user.email +
-            user.firstName.map("&stripe_user[first_name]=" + _).getOrElse("") +
-            user.lastName.map("&stripe_user[last_name]=" + _).getOrElse("")
+        Future { blocking { Account.create(params, requestOptions) } }
+    }
+
+    def retreiveAccount(stripeAccountId: String)(
+        implicit request: RequestHeader, config: Configuration): Future[Account] = {
+
+        Future { blocking { Account.retrieve(stripeAccountId, requestOptions) } }
+    }
+
+    /** Returns the URL to the Stripe onboarding flow for the provided user. */
+    def connectOAuthUrl(stripeAccountId: String, refreshUrl: String, returnUrl: String)(
+        implicit config: Configuration):
+        Future[String] = {
+
+        val params: java.util.Map[String, Object] = Map[String, AnyRef](
+            "account" -> stripeAccountId,
+            "refresh_url" -> refreshUrl,
+            "return_url" -> returnUrl,
+            "type" -> "account_onboarding").asJava
+
+        Future { blocking { AccountLink.create(params, requestOptions).getUrl } }
     }
 
     /** Completes the Stripe Connect OAuth process.
@@ -199,24 +225,23 @@ class PaymentService @Inject() (
         Future[TokenResponse] = {
 
         val params: java.util.Map[String, Object] = Map(
-          "grant_type" -> "authorization_code",
-          "code" -> code,
-          "assert_capabilities" -> Seq("transfers").asJava).asJava
+            "grant_type" -> "authorization_code",
+            "code" -> code,
+            "assert_capabilities" -> Seq("transfers", "card_payments").asJava).asJava
 
         Future { blocking { OAuth.token(params, requestOptions) } }
     }
 
-    /** Returns the URL to the Stripe Express dashboard associated witht the
+    /** Returns the URL to the Stripe Express dashboard associated with the
      * account. */
-    def connectDashboardUrl(stripeUserId: String)(implicit config: Configuration):
+    def connectDashboardUrl(stripeAccountId: String)(implicit config: Configuration):
         Future[String] = {
 
         val params: java.util.Map[String, Object] = Map.empty.asJava
 
-        Future { blocking { LoginLink.createOnAccount(stripeUserId, params, requestOptions) } }.
+        Future { blocking { LoginLink.createOnAccount(stripeAccountId, params, requestOptions) } }.
             map { _.getUrl }
     }
-
 
     def withWebhookEvent(request: Request[ByteString], handler: Event => Future[Result])(
         implicit config: Configuration):

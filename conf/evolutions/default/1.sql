@@ -44,7 +44,10 @@ create table "user" (
     plan                    varchar not null
         check (plan in ('free', 'premium')),
 
-    stripe_user_id          varchar
+    stripe_account_id       varchar,
+    stripe_completed        boolean not null,
+
+    check (not stripe_completed or stripe_account_id is not null)
 );
 
 -- Multiple login providers could be associated with a single user.

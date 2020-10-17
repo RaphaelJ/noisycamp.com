@@ -32,72 +32,72 @@ import models.{ Identity, User, UserLoginInfo }
 class UserService @Inject() (
     protected val dbConfigProvider: DatabaseConfigProvider,
     val daos: DAOs)
-  (implicit executionContext: ExecutionContext)
-  extends IdentityService[Identity]
-  with HasDatabaseConfigProvider[JdbcProfile]
-  {
+    (implicit executionContext: ExecutionContext)
+    extends IdentityService[Identity]
+    with HasDatabaseConfigProvider[JdbcProfile]
+    {
 
-  import profile.api._
+    import profile.api._
 
-  protected def userQuery(loginInfo: LoginInfo) = {
-    daos.userLoginInfo.
-      get(loginInfo).
-      flatMap { userLoginInfo =>
-        daos.user.query.
-          filter(_.id === userLoginInfo.userID)
-      }
-  }
-
-  def retrieve(loginInfo: LoginInfo): Future[Option[Identity]] = {
-    db.run({
-      userQuery(loginInfo).
-        result.headOption.
-        flatMap {
-          case Some(user) => {
-            daos.studio.query.
-              filter(_.ownerId === user.id).
-              exists.result.
-              map { hasAStudio =>
-                Some(Identity(
-                  user,
-                  isAHost = hasAStudio))
-              }
-          }
-          case None => DBIO.successful(None)
-        }
-    }.transactionally)
-  }
-
-  /**
-   * Saves the social profile for a user.
-   *
-   * If a user exists for this profile then update the user, otherwise create a
-   * new user with the given profile.
-   */
-  def save(profile: CommonSocialProfile): Future[User] = {
-    db.run {
-      for {
-        user <- userQuery(profile.loginInfo).
-          result.
-          headOption.
-          flatMap {
-            case Some(user) => DBIO.successful(user)
-            case None => {
-              // User does not exists.
-              for {
-                user <- daos.user.insert += User(
-                  firstName = profile.firstName,
-                  lastName = profile.lastName,
-                  email = profile.email.get,
-                  avatarId = None)
-                _ <- daos.userLoginInfo.insert += UserLoginInfo(
-                  userId = user.id,
-                  loginProviderId = profile.loginInfo.providerID,
-                  loginProviderKey = profile.loginInfo.providerKey)
-              } yield user
+    protected def userQuery(loginInfo: LoginInfo) = {
+        daos.userLoginInfo.
+            get(loginInfo).
+            flatMap { userLoginInfo =>
+                daos.user.query.
+                filter(_.id === userLoginInfo.userID)
             }
-          }
-      } yield user
     }
-  }
+
+    def retrieve(loginInfo: LoginInfo): Future[Option[Identity]] = {
+        db.run({
+            userQuery(loginInfo).
+                result.headOption.
+                flatMap {
+                    case Some(user) => {
+                        daos.studio.query.
+                            filter(_.ownerId === user.id).
+                            exists.result.
+                            map { hasAStudio =>
+                                Some(Identity(
+                                    user,
+                                    isAHost = hasAStudio))
+                            }
+                    }
+                    case None => DBIO.successful(None)
+                }
+        }.transactionally)
+    }
+
+    /**
+     * Saves the social profile for a user.
+     *
+     * If a user exists for this profile then update the user, otherwise create a
+     * new user with the given profile.
+     */
+    def save(profile: CommonSocialProfile): Future[User] = {
+        db.run {
+            for {
+                user <- userQuery(profile.loginInfo).
+                    result.
+                    headOption.
+                    flatMap {
+                        case Some(user) => DBIO.successful(user)
+                        case None => {
+                            // User does not exists.
+                            for {
+                                user <- daos.user.insert += User(
+                                    firstName = profile.firstName,
+                                    lastName = profile.lastName,
+                                    email = profile.email.get,
+                                    avatarId = None)
+                                _ <- daos.userLoginInfo.insert += UserLoginInfo(
+                                    userId = user.id,
+                                    loginProviderId = profile.loginInfo.providerID,
+                                    loginProviderKey = profile.loginInfo.providerKey)
+                            } yield user
+                        }
+                    }
+            } yield user
+        }
+    }
 }
