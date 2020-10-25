@@ -16,6 +16,7 @@
  *@
 
 @import java.time.Instant
+@import scala.concurrent.duration.Duration
 
 @import play.api.Configuration
 @import play.api.libs.json.Json
@@ -241,11 +242,17 @@
 
                     <h3 id="availability">Availability</h3>
 
-                    <calendar
-                        current-time="@Instant.now.toString"
-                        :opening-schedule="@tags.json(Json.toJson(studio.openingSchedule), htmlEscape = true)"
-                        :events="[]">
-                    </calendar>
+                    @defining(studio.currentDateTime()) { currentDateTime =>
+                    @defining(currentDateTime.toLocalDate) { currentDate =>
+                        <calendar
+                            current-time="@currentDateTime"
+                            begin="@currentDate"
+                            end="@currentDate.plusDays(config.get[Duration]("noisycamp.maxBookingAdvance").toDays)"
+                            :opening-schedule="@tags.json(Json.toJson(studio.openingSchedule), htmlEscape = true)"
+                            :events="[]"
+                            :scrollable="false">
+                        </calendar>
+                    } }
 
                     <hr>
 

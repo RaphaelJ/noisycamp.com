@@ -22,10 +22,15 @@
     <div>
         <div class="calendar">
             <div class="week-nav-buttons clearfix">
-                <button class="week-nav-previous" @click="previousWeek()">
+                <button
+                    :style="{ visibility: hasPreviousWeek ? 'visible' : 'hidden' }"
+                    class="week-nav-previous"
+                    @click="previousWeek()">
                     <arrow direction="left"></arrow>
                 </button>
-                <button class="week-nav-next" @click="nextWeek()">
+                <button
+                    :style="{ visibility: hasNextWeek ? 'visible' : 'hidden' }"
+                    class="week-nav-next" @click="nextWeek()">
                     <arrow direction="right"></arrow>
                 </button>
 
@@ -39,7 +44,10 @@
                 <div class="day-label"></div>
                 <div
                     class="day-label"
-                    :class="{'today': isToday(currentWeekDays[day - 1]) }"
+                    :class="{
+                        'today': isToday(currentWeekDays[day - 1]),
+                        'out-of-range': !isDayInRange(currentWeekDays[day - 1])
+                    }"
                     v-for="day in 7"
                     :key="day">
                     <div class="day-label-name">
@@ -66,6 +74,9 @@
                     <div
                         class="day"
                         v-for="day in 7"
+                        :class="{
+                            'out-of-range': !isDayInRange(currentWeekDays[day - 1]),
+                        }"
                         :key="day">
 
                         <div
@@ -130,17 +141,21 @@ declare var NC_CONFIG: any;
 
 export default Vue.extend({
     props: {
-        // The current calendar time, without timezone.
+        // The current calendar time (as an  ISO 8601 string), without timezone.
         currentTime: { type: String, required: true },
+
+        // The first (inclusive) and last (exclusive) dates (as ISO 8601 strings) of the calendar.
+        begin: { type: String, required: false },
+        end: { type: String, required: false },
 
         // An array of {is-open, opens-at, closes-at} 7 objects. Starts on Monday.
         openingSchedule: <PropOptions<Object[]>>{ type: Array, required: true },
 
-        // The list of events to be displayed in the calendar, with calendar
-        // local dates as ISO 8601 strings.
+        // The list of events ({title, href, classes, starts-at, ends-at, duration}) to be displayed
+        // in the calendar, with calendar local dates as ISO 8601 strings.
         events: <PropOptions<Object[]>>{ type: Array, default() { return []; } },
 
-        // The CSS classes of the event.
+        // The default CSS classes that will be associated with every event.
         classes: <PropOptions<Object[]>>{ type: Array, default: () => [] },
 
         // If true, the calendar will only show 14h and be scrollable.
@@ -148,9 +163,8 @@ export default Vue.extend({
     },
     data() {
         return {
-            // The current position of the calendar, compared to `currentTime`.
-            currentWeekOffset: 0
-        }
+            currentWeekOffset: 0,
+        };
     },
     mounted() {
         if (this.scrollable) {
@@ -159,9 +173,26 @@ export default Vue.extend({
         }
     },
     computed: {
-        // Current server time as a MomentJS object.
+        // Current times and dates as a MomentJS object.
+
         mCurrentTime() {
             return moment(this.currentTime);
+        },
+
+        mBegin() {
+            if (this.begin) {
+                return moment(this.begin);
+            } else {
+                return null;
+            }
+        },
+
+        mEnd() {
+            if (this.end) {
+                return moment(this.end);
+            } else {
+                return null;
+            }
         },
 
         // Calendar events with MomentJS objects.
@@ -213,6 +244,14 @@ export default Vue.extend({
             return dates;
         },
 
+        hasPreviousWeek() {
+            return !this.begin || this.mBegin.isBefore(this.currentWeek, 'day');
+        },
+
+        hasNextWeek() {
+            return !this.end || this.mEnd.isSameOrAfter(this.currentWeekEnd, 'day');
+        },
+
         // Returns the closed hours as event objects.
         openingScheduleEvents() {
             var prevDay = this.openingSchedule[6];
@@ -220,6 +259,12 @@ export default Vue.extend({
             let events = [];
 
             for (var i = 0; i < 7; ++i) {
+                let todayDate = this.currentWeekDays[i];
+
+                if (!this.isDayInRange(todayDate)) { // Skips not in rage day.
+                    continue;
+                }
+
                 // In case of the previous day closing during today's night.
                 var prevDayOverlap;
                 if (
@@ -231,31 +276,30 @@ export default Vue.extend({
                     prevDayOverlap = '00:00';
                 }
 
-                let todaySDate = this.currentWeekDays[i];
-                let tomorrowSDate = todaySDate.clone().add(1, 'day');
+                let tomorrowDate = todayDate.clone().add(1, 'day');
 
                 let today = this.openingSchedule[i];
 
                 if (today['is-open']) {
                     events.push({ // Morning closure
-                        startsAt: withTimeComponent(todaySDate, prevDayOverlap),
+                        startsAt: withTimeComponent(todayDate, prevDayOverlap),
                         endsAt: withTimeComponent(
-                            todaySDate, today['opens-at']
+                            todayDate, today['opens-at']
                         ),
                     });
 
                     if (today['closes-at'] > today['opens-at']) {
                         events.push({ // Evening closure
                             startsAt: withTimeComponent(
-                                todaySDate, today['closes-at']
+                                todayDate, today['closes-at']
                             ),
-                            endsAt: withTimeComponent(tomorrowSDate, '00:00'),
+                            endsAt: withTimeComponent(tomorrowDate, '00:00'),
                         });
                     }
                 } else {
                     events.push({
-                        startsAt: withTimeComponent(todaySDate, prevDayOverlap),
-                        endsAt: withTimeComponent(tomorrowSDate, '00:00'),
+                        startsAt: withTimeComponent(todayDate, prevDayOverlap),
+                        endsAt: withTimeComponent(tomorrowDate, '00:00'),
                     });
                 }
 
@@ -270,7 +314,7 @@ export default Vue.extend({
         // Events of the currently shown week.
         currentWeekEvents() {
             let monday = this.currentWeek;
-            let nextMonday = monday.clone().add(7, 'days');
+            let nextMonday = this.currentWeekEnd;
 
             let events = this.mEvents.filter(event => {
                     return this.datesOverlap(
@@ -285,11 +329,15 @@ export default Vue.extend({
     },
     methods: {
         nextWeek() {
-            ++this.currentWeekOffset;
+            if (this.hasNextWeek) {
+                ++this.currentWeekOffset;
+            }
         },
 
         previousWeek() {
-            --this.currentWeekOffset;
+            if (this.hasPreviousWeek) {
+                --this.currentWeekOffset;
+            }
         },
 
         eventClasses(event) {
@@ -348,6 +396,12 @@ export default Vue.extend({
             }
 
             return styles;
+        },
+
+        // Returns true if the day of the given date is within the calendar [begin..end( range.
+        isDayInRange(date) {
+            return (!this.begin || this.mBegin.isSameOrBefore(date, 'day'))
+                && (!this.end || this.mEnd.isAfter(date, 'day'));
         },
 
         isToday(date) {
@@ -440,6 +494,10 @@ export default Vue.extend({
     font-weight: bold;
 }
 
+.calendar .day-labels .day-label.out-of-range {
+    opacity: 0.3;
+}
+
 /* Schedule */
 
 .calendar .schedule {
@@ -500,10 +558,17 @@ export default Vue.extend({
     box-sizing: border-box;
     border-bottom: 1px solid rgba(0, 0, 0, 0.07);
 }
-
 .calendar .schedule .day {
     box-sizing: border-box;
+}
+
+.calendar .schedule .day:not(.out-of-range),
+.calendar .schedule .day.out-of-range:first-of-type {
     border-left: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.calendar .schedule .day.out-of-range .hour {
+    display: none;
 }
 
 /* Events */
