@@ -26,6 +26,7 @@
                     v-model="date"
                     @change="valueChanged()"
                     :min="mCurrentTime.format('YYYY-MM-DD')"
+                    :max="mEnd.format('YYYY-MM-DD')"
                     pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}"
                     placeholder="yyyy-mm-dd"
                     required>
@@ -97,10 +98,13 @@ export default Vue.extend({
         // The current local time, without timezone.
         currentTime: { type: String, required: true },
 
+        // The last bookable day (as a ISO 8601 date string).
+        end: { type: String, required: false },
+
         // An array of {is-open, opens-at, closes-at} 7 objects. Starts on Monday.
         openingSchedule: <PropOptions<Object[]>>{ type: Array, required: true },
 
-        // A list of {starts-at, ends-at} ISO 8601 local date times that define
+        // A list of {begins-at, ends-at} ISO 8601 local date times that define
         // unavailable time periods.
         occupancies: <PropOptions<Object[]>>{ type: Array, required: true },
 
@@ -139,6 +143,14 @@ export default Vue.extend({
             return moment(this.currentTime);
         },
 
+        mEnd() {
+            if (this.end) {
+                return moment(this.end);
+            } else {
+                return null;
+            }
+        },
+
         mMinBookingDuration() {
             return moment.duration(this.minBookingDuration, 'seconds');
         },
@@ -151,6 +163,7 @@ export default Vue.extend({
             }
         },
 
+        // The opening schedule of the currently selected date.
         dateSchedule() {
             if (!this.mDate) {
                 return null;
@@ -192,7 +205,7 @@ export default Vue.extend({
 
         // List all the selected day's availaible starting times.
         startingTimes() {
-            if (!this.dateSchedule || !this.dateSchedule['is-open']) {
+            if (!this.dateSchedule || this.isClosed) {
                 return null;
             } else {
 
@@ -274,6 +287,7 @@ export default Vue.extend({
         }
     },
     methods: {
+        // Sets the form values to a valid state
         cleanupValues() {
             if (this.mDate && this.mDate.isBefore(this.mCurrentTime, 'day')) {
                 this.date = null;

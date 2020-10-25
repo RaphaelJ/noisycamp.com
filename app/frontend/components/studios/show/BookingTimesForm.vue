@@ -25,6 +25,7 @@
         <div class="cell small-12">
             <booking-times-input
                 :current-time="currentTime"
+                :end="end"
                 :opening-schedule='openingSchedule'
                 :occupancies="occupancies"
                 :min-booking-duration="minBookingDuration"
@@ -70,15 +71,18 @@ declare var NC_ROUTES: any;
 
 export default Vue.extend({
     props: {
-        // The current local time, without timezone.
+        // The current local time, without timezone. This will also be the first bookable date.
         currentTime: { type: String, required: true },
+
+        // The last bookable day (as a ISO 8601 date string).
+        end: { type: String, required: false },
 
         studioId: { type: Number, required: true },
 
         // An array of {is-open, opens-at, closes-at} 7 objects. Starts on Monday.
         openingSchedule: <PropOptions<Object[]>>{ type: Array, required: true },
 
-        // A list of {starts-at, ends-at} ISO 8601 local date times that define
+        // A list of {begins-at, ends-at} ISO 8601 local date times that define
         // unavailable time periods.
         occupancies: <PropOptions<Object[]>>{ type: Array, required: true },
 

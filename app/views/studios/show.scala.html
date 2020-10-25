@@ -15,7 +15,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *@
 
-@import java.time.Instant
 @import scala.concurrent.duration.Duration
 
 @import play.api.Configuration
@@ -32,6 +31,13 @@
     equipments: Seq[LocalEquipment],
     pictures: Seq[models.Picture#Id])(
     implicit req: RequestHeader, config: Configuration, flash: Flash)
+    
+@currentDateTime = @{ studio.currentDateTime() }
+@currentDate = @{ currentDateTime.toLocalDate }
+
+@beginBookingDate = @{ currentDate }
+@endBookingDate = @{
+    beginBookingDate.plusDays(config.get[Duration]("noisycamp.maxBookingAdvance").toDays) }
 
 @head = {
     <link
@@ -84,7 +90,8 @@
 
             <div class="cell small-12">
                 <booking-times-form
-                    current-time="@Instant.now.toString"
+                    current-time="@currentDateTime"
+                    end="@endBookingDate"
                     :studio-id="@studio.id"
                     :opening-schedule="@tags.json(Json.toJson(studio.openingSchedule), htmlEscape = true)"
                     :occupancies="[]"
@@ -241,18 +248,15 @@
                     <hr>
 
                     <h3 id="availability">Availability</h3>
-
-                    @defining(studio.currentDateTime()) { currentDateTime =>
-                    @defining(currentDateTime.toLocalDate) { currentDate =>
-                        <calendar
-                            current-time="@currentDateTime"
-                            begin="@currentDate"
-                            end="@currentDate.plusDays(config.get[Duration]("noisycamp.maxBookingAdvance").toDays)"
-                            :opening-schedule="@tags.json(Json.toJson(studio.openingSchedule), htmlEscape = true)"
-                            :events="[]"
-                            :scrollable="false">
-                        </calendar>
-                    } }
+                
+                    <calendar
+                        current-time="@currentDateTime"
+                        begin="@beginBookingDate"
+                        end="@endBookingDate"
+                        :opening-schedule="@tags.json(Json.toJson(studio.openingSchedule), htmlEscape = true)"
+                        :events="[]"
+                        :scrollable="false">
+                    </calendar>
 
                     <hr>
 
