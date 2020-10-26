@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *@
 
-@import scala.concurrent.duration.Duration
+@import java.time.Instant
 
 @import play.api.Configuration
 @import play.api.libs.json.Json
@@ -32,12 +32,12 @@
     pictures: Seq[models.Picture#Id])(
     implicit req: RequestHeader, config: Configuration, flash: Flash)
     
-@currentDateTime = @{ studio.currentDateTime() }
+@now = @{ Instant.now }
+@currentDateTime = @{ studio.currentDateTime(now) }
 @currentDate = @{ currentDateTime.toLocalDate }
 
-@beginBookingDate = @{ currentDate }
-@endBookingDate = @{
-    beginBookingDate.plusDays(config.get[Duration]("noisycamp.maxBookingAdvance").toDays) }
+@minBookingDate = @{ currentDate }
+@maxBookingDate = @{ studio.maxBookingDate(now) }
 
 @head = {
     <link
@@ -91,7 +91,7 @@
             <div class="cell small-12">
                 <booking-times-form
                     current-time="@currentDateTime"
-                    end="@endBookingDate"
+                    end="@maxBookingDate"
                     :studio-id="@studio.id"
                     :opening-schedule="@tags.json(Json.toJson(studio.openingSchedule), htmlEscape = true)"
                     :occupancies="[]"
@@ -251,8 +251,8 @@
                 
                     <calendar
                         current-time="@currentDateTime"
-                        begin="@beginBookingDate"
-                        end="@endBookingDate"
+                        begin="@minBookingDate"
+                        end="@maxBookingDate"
                         :opening-schedule="@tags.json(Json.toJson(studio.openingSchedule), htmlEscape = true)"
                         :events="[]"
                         :scrollable="false">

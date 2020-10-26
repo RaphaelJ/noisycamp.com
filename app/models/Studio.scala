@@ -17,9 +17,11 @@
 
 package models
 
-import java.time.{ LocalDateTime, Instant, ZoneId }
+import java.time.{ LocalDateTime, LocalDate, Instant, ZoneId }
+import scala.concurrent.duration.Duration
 import scala.math.BigDecimal.RoundingMode
 
+import play.api.Configuration
 import squants.market.{ Currency, Money }
 
 case class Studio(
@@ -65,5 +67,12 @@ case class Studio(
     /** The current time at the studio's timezone. */
     def currentDateTime(now: Instant = Instant.now): LocalDateTime = {
         now.atZone(timezone).toLocalDateTime
+    }
+
+    /** The maximum (exclusive) date for which a booking can be done. */
+    def maxBookingDate(now: Instant = Instant.now)(implicit config: Configuration): LocalDate = {
+        currentDateTime(now).
+            toLocalDate.
+            plusDays(config.get[Duration]("noisycamp.maxBookingAdvance").toDays)
     }
 }

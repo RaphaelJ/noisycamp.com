@@ -17,6 +17,7 @@
 
 package forms.studios
 
+import play.api.Configuration
 import play.api.data.{ Form, Mapping }
 import play.api.data.Forms._
 
@@ -31,7 +32,7 @@ object BookingForm {
             PaymentMethod.Online  -> "online",
             PaymentMethod.Onsite  -> "onsite"))
 
-    def form(studio: Studio) = Form(
+    def form(studio: Studio)(implicit config: Configuration) = Form (
         mapping(
             "booking-times"   -> BookingTimesForm.form(studio).mapping,
 

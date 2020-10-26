@@ -26,7 +26,7 @@
                     v-model="date"
                     @change="valueChanged()"
                     :min="mCurrentTime.format('YYYY-MM-DD')"
-                    :max="mEnd.format('YYYY-MM-DD')"
+                    :max="mMax.format('YYYY-MM-DD')"
                     pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}"
                     placeholder="yyyy-mm-dd"
                     required>
@@ -146,6 +146,15 @@ export default Vue.extend({
         mEnd() {
             if (this.end) {
                 return moment(this.end);
+            } else {
+                return null;
+            }
+        },
+
+        // The max date (inclusive) value to be passed to the `<input type="date">` widget.
+        mMax() {
+            if (this.mEnd) {
+                return this.mEnd.clone().subtract(1, 'days');
             } else {
                 return null;
             }
