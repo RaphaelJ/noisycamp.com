@@ -26,6 +26,10 @@
 }
 
 @media screen and (max-width: 39.9375em) {
+    .hero.auth-hero {
+        background-image: url("/assets/images/auth/hero_small.jpg");
+    }
+
     .hero.auth-hero .middle-content-section {
         width: 100%;
     }
@@ -33,6 +37,18 @@
     .hero.auth-hero .middle-content-section .panel-section {
         border-radius: 0;
         box-shadow: none;
+    }
+}
+
+@media screen and (min-width: 40em) and (max-width: 63.9375em) {
+    .hero.auth-hero {
+        background-image: url("/assets/images/auth/hero_medium.jpg");
+    }
+}
+
+@media screen and (min-width: 64em) {
+    .hero.auth-hero {
+        background-image: url("/assets/images/auth/hero_large.jpg");
     }
 }
 
