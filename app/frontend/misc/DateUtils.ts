@@ -62,3 +62,13 @@ export function timeComponent(datetime) {
 export function withTimeComponent(date, time) {
     return moment(date.format('YYYY-MM-DD') + 'T' + time);
 }
+
+// Returns true if the given date is a Saturday or a Sunday.
+export function isWeekend(date): boolean {
+    if (date != null) {
+        let weekday: number = moment(date).isoWeekday();
+        return weekday == 6 || weekday == 7;
+    } else {
+        return null;
+    }
+}

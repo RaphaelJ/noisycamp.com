@@ -47,6 +47,7 @@
             <studios-index-map
                 ref="map"
                 :studios="studios"
+                :booking-date="availableOn"
                 @studio-hover="onMapStudioHover"
                 @studio-click="onMapStudioClick"
                 @map-view-change="onMapViewChange">

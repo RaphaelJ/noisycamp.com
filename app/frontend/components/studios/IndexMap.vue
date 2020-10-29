@@ -22,13 +22,21 @@
 
 <script lang="ts">
 import * as mapboxgl from 'mapbox-gl';
+import * as moment from 'moment';
 import Vue, { PropOptions } from "vue";
+
+import MoneyAmount from '../widgets/MoneyAmount.vue'
+
+import { startingPrice } from '../../misc/MoneyUtils';
+import { isWeekend } from "../../misc/DateUtils";
 
 declare var NC_CONFIG: any;
 
 export default Vue.extend({
     props: {
         studios: <PropOptions<Object[]>>{ type: Array, required: true },
+
+        bookingDate: { type: String, required: false, default: null },
     },
     data() {
         return {
@@ -93,17 +101,20 @@ export default Vue.extend({
             // Adds the new markers
 
             this.studios.forEach((studio, index) => {
-                let priceStr = "12€"
-                    // new Intl.NumberFormat(
-                    //     navigator.language, {
-                    //         style: 'currency', currency: 'EUR'
-                    //     })
-                    // .format(studio.price / 100)
-
                 // Creates a DOM element for the marker
+
+                let price = new (Vue.extend(MoneyAmount))({
+                    propsData: {
+                        value: startingPrice(
+                            studio['pricing-policy'], isWeekend(this.bookingDate))[0],
+                        showZeroCents: true,
+                    }
+                });
+                price.$mount();
+
                 let elem = $('<div></div>')
                     .addClass('studio-marker')
-                    .text(priceStr)
+                    .append(price.$el)
                     .mouseover(() => this.$emit('studio-hover', index))
                     .mouseout(() => this.$emit('studio-hover', null))
                     .click(() => this.$emit('studio-click', index));

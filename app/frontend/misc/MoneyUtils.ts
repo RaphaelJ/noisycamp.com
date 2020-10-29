@@ -36,3 +36,26 @@ export function asMoney(value, currencyCode) {
         'value': value.value,
     };
 }
+
+// Returns the least expensive price for the given studio and the given day.
+//
+// Also returns a boolean set to true if the studio also has a more expensive pricing.
+export function startingPrice(pricingPolicy, isWeekend: boolean): [currency, boolean] {
+    if (isWeekend && pricingPolicy['weekend'] != null) {
+        return [asCurrency(pricingPolicy['weekend']['price-per-hour']), false];
+    } else {
+        let standardPrice = asCurrency(pricingPolicy['price-per-hour']);
+
+        if (pricingPolicy['evening'] != null) {
+            let eveningPrice = asCurrency(pricingPolicy['evening']['price-per-hour']);
+
+            if (eveningPrice.value < standardPrice.value) {
+                return [eveningPrice, true];
+            } else {
+                return [standardPrice, eveningPrice.value != standardPrice.value];
+            }
+        } else {
+            return [standardPrice, false];
+        }
+    }
+}

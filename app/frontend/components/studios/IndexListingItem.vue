@@ -82,8 +82,8 @@
                     </div>
 
                     <h5 class="cell shrink pricing text-sans-serif">
-                        <small v-if="hasMoreExpensivePricing">Starting at </small>
-                        <money-amount :value="pricing">
+                        <small v-if="pricing[1]">Starting at </small>
+                        <money-amount :value="pricing[0]">
                         </money-amount>
                         <small>per hour</small>
                     </h5>
@@ -101,7 +101,8 @@ import * as moment from 'moment';
 import MoneyAmount from '../widgets/MoneyAmount.vue'
 import ReactivePicture from '../widgets/ReactivePicture.vue';
 
-import { asCurrency } from '../../misc/MoneyUtils';
+import { startingPrice } from '../../misc/MoneyUtils';
+import { isWeekend } from "../../misc/DateUtils";
 
 declare var NC_CONFIG: any;
 declare var NC_ROUTES: any;
@@ -144,50 +145,8 @@ export default Vue.extend({
             return uniques;
         },
 
-        isWeekend(): boolean {
-            if (this.bookingDate != null) {
-                let weekday: number = moment(this.bookingDate).isoWeekday();
-                return weekday == 6 || weekday == 7;
-            } else {
-                return null;
-            }
-        },
-
-        // Price per hour.
-        pricing(): currency {
-            let pricingPolicy = this.studio['pricing-policy'];
-
-            if (this.isWeekend && pricingPolicy['weekend'] != null) {
-                return asCurrency(pricingPolicy['weekend']['price-per-hour']);
-            } else {
-                let standardPrice = asCurrency(pricingPolicy['price-per-hour']);
-
-                if (pricingPolicy['evening'] != null) {
-                    let eveningPrice =
-                        asCurrency(pricingPolicy['evening']['price-per-hour']);
-
-                    if (eveningPrice.value < standardPrice.value) {
-                        return eveningPrice;
-                    } else {
-                        return standardPrice;
-                    }
-                } else {
-                    return standardPrice;
-                }
-            }
-        },
-
-        hasMoreExpensivePricing(): boolean {
-            let pricingPolicy = this.studio['pricing-policy'];
-
-            asCurrency
-            if (this.isWeekend) {
-
-            } else {
-
-            }
-            return this.studio['pricing-policy']['evening'] != null
-                || this.studio['pricing-policy']['weekend'] != null;
+        pricing(): [currency, boolean] {
+            return startingPrice(this.studio['pricing-policy'], isWeekend(this.bookingDate));
         },
     },
     components: { MoneyAmount, ReactivePicture },
