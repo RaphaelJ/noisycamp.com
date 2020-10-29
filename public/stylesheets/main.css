@@ -124,7 +124,7 @@ main {
 .button.secondary,
 .button.secondary:visited,
 .button.secondary:disabled {
-    background-color: white;
+    background-color: transparent;
     color: #b37216;
     border: 1px solid #b37216;
 }
@@ -134,15 +134,19 @@ main {
 .button.secondary:hover,
 .button.secondary:hover:disabled,
 .button.primary:active,
-.button.secondary:active { 
+.button.secondary:active,
+.button.primary:focus,
+.button.secondary:focus { 
     color: white;
     border: 1px solid transparent;
 }
 
 .button.primary:hover,
 .button.primary:hover:disabled,
+.button.primary:focus,
 .button.secondary:hover,
-.button.secondary:hover:disabled {
+.button.secondary:hover:disabled,
+.button.secondary:focus {
     background-color: #915c11;
 }
 

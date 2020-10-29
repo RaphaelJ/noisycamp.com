@@ -50,7 +50,9 @@
 }
 
 @studioSettingsLink = {
-    <a href="@controllers.account.studios.routes.IndexController.settings(studio.id)">
+    <a
+        href="@controllers.account.studios.routes.IndexController.settings(studio.id)"
+        class="button secondary">
         <i class="fi-widget"></i>&nbsp;
         Studio settings
     </a>
@@ -154,7 +156,7 @@
                     @defining(identity.map(v => studio.isOwner(v.user)).getOrElse(false)) { isStudioOwner =>
 
                         @if(isStudioOwner) {
-                            <div class="cell small-12 hide-for-large text-center studio-settings-link">
+                            <div class="cell small-12 show-for-small-only text-center studio-settings-link">
                                 @studioSettingsLink
                             </div>        
                         }
@@ -164,7 +166,7 @@
                         </div>
 
                         @if(isStudioOwner) {
-                            <div class="cell shrink show-for-large studio-settings-link">
+                            <div class="cell shrink show-for-medium studio-settings-link">
                                 @studioSettingsLink
                             </div>
                         }

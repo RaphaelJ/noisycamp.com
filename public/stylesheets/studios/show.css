@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
  
-@media print, screen and (min-width: 64em) {
+@media print, screen and (min-width: 40em) {
     .studio-settings-link {
         margin-top: 1rem;
     }
