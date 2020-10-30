@@ -18,12 +18,6 @@
 
 <template>
     <div class="carousel">
-        <i
-            class="no-picture fi-photo"
-            v-if="pictureIds.length == 0"
-            title="No picture">
-        </i>
-
         <div
             class="picture-container"
             v-for="(picId, i) in pictureIds"
@@ -108,27 +102,11 @@ export default Vue.extend({
     height: 0;
     padding-bottom: calc(9 / 16 * 100%);
 
-    background-color: #e3e3e3;
-
     /* Prevents div selection when double clicking. */
     user-select: none;
     -moz-user-select: none;
     -webkit-user-select: none;
     -ms-user-select: none;
-}
-
-.carousel .no-picture {
-    font-size: 150px;
-    opacity: 0.15;
-
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 250px;
-    margin-left: -125px;
-    margin-top: -100px;
-
-    text-align: center;
 }
 
 .carousel .picture-container {
@@ -159,6 +137,8 @@ export default Vue.extend({
     top: 50%;
     height: 40px;
     margin-top: -20px;
+
+    z-index: 2;
 }
 
 .carousel .left-arrow:hover,

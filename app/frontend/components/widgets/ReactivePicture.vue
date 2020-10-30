@@ -20,14 +20,27 @@
 -->
 
 <template>
-    <img
-        :alt="alt"
-        :srcset="pictureUrl(1) + ' , '  +
-            pictureUrl(1.5) + ' 1.5x, ' +
-            pictureUrl(2) + ' 2x, ' +
-            pictureUrl(2.5) + ' 2.5x'"
-        :src="pictureUrl(1)"
-        :class="classes">
+    <div 
+        class="reactive-picture-container"
+        :style="{
+            'padding-top': (imageRatio * 100) + '%'
+        }">
+
+        <i 
+            class="reactive-picture-placeholder fi-photo"
+            :class="classes">
+        </i>
+
+        <img
+            class="reactive-picture"
+            :alt="alt"
+            :srcset="pictureUrl(1) + ' , '  +
+                pictureUrl(1.5) + ' 1.5x, ' +
+                pictureUrl(2) + ' 2x, ' +
+                pictureUrl(2.5) + ' 2.5x'"
+            :src="pictureUrl(1)"
+            :class="classes">
+    </div>
 </template>
 
 <script lang="ts">
@@ -46,6 +59,11 @@ export default Vue.extend({
         width: { type: Number, required: true },
         height: { type: Number, required: true },
     },
+    computed: {
+        imageRatio() {
+            return this.height / this.width;
+        },
+    },
     methods: {
         pictureUrl(screenRatio) {
             let width = Math.round(this.width * screenRatio);
@@ -60,4 +78,37 @@ export default Vue.extend({
 </script>
 
 <style>
+.reactive-picture-container {
+    position: relative;
+    width: 100%;
+    height: 0;
+
+    background-color: #f5f3f2c2;
+}
+
+.reactive-picture-container .reactive-picture {
+    z-index: 1;
+
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+}
+
+.reactive-picture-container .reactive-picture-placeholder {
+    z-index: 0;
+
+    font-size: 100px;
+    color: black;
+    opacity: 0.15;
+
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 150px;
+    margin-left: -75px;
+    margin-top: -75px;
+
+    text-align: center;
+}
 </style>
