@@ -34,7 +34,9 @@
         <div class="cell text-center hide-for-small-only">
             <reactive-picture
                 alt="@{studio.name} picture"
-                picture-id="@pictures.head.base64"
+                @for(pic <- pictures.headOption) {
+                    picture-id="@pictures.head.base64"
+                }
                 :width="400"
                 :height="225">
             </reactive-picture>

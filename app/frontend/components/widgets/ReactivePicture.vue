@@ -33,6 +33,7 @@
 
         <img
             class="reactive-picture"
+            v-if="pictureId"
             :alt="alt"
             :srcset="pictureUrl(1) + ' , '  +
                 pictureUrl(1.5) + ' 1.5x, ' +
@@ -52,7 +53,9 @@ declare var NC_ROUTES: any;
 
 export default Vue.extend({
     props: {
-        pictureId: { type: String, required: true },
+        // If not defined, will show a placeholder icon.
+        pictureId: { type: String, required: false },
+
         alt: { type: String, required: true },
         classes: { default() { return []; } },
 
@@ -66,12 +69,16 @@ export default Vue.extend({
     },
     methods: {
         pictureUrl(screenRatio) {
-            let width = Math.round(this.width * screenRatio);
-            let height = Math.round(this.height * screenRatio);
+            if (this.pictureId) {
+                let width = Math.round(this.width * screenRatio);
+                let height = Math.round(this.height * screenRatio);
 
-            return fromCDN(NC_ROUTES.controllers.PictureController.cover(
-                this.pictureId, width + 'x' + height
-            ));
+                return fromCDN(NC_ROUTES.controllers.PictureController.cover(
+                    this.pictureId, width + 'x' + height
+                ));
+            } else {
+                return null;
+            }
         }
     }
 });
@@ -87,8 +94,6 @@ export default Vue.extend({
 }
 
 .reactive-picture-container .reactive-picture {
-    z-index: 1;
-
     position: absolute;
     top: 0;
     left: 0;
@@ -96,8 +101,6 @@ export default Vue.extend({
 }
 
 .reactive-picture-container .reactive-picture-placeholder {
-    z-index: 0;
-
     font-size: 100px;
     color: black;
     opacity: 0.15;

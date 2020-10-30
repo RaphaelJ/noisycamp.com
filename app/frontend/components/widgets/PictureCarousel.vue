@@ -18,20 +18,33 @@
 
 <template>
     <div class="carousel">
-        <div
-            class="picture-container"
-            v-for="(picId, i) in pictureIds"
-            :key="picId">
-            <transition name="fade">
+        <div class="picture-container">
+            <div v-if="hasPicture">
+                <div 
+                    v-for="(picId, i) in pictureIds"
+                    :key="picId">
+                    <transition name="fade">
+                        <reactive-picture
+                            v-show="i == selected"
+                            :picture-id="picId"
+                            :alt="alt"
+                            :width="width"
+                            :height="height"
+                            :classes="classes">
+                        </reactive-picture>
+                    </transition>
+                </div>
+            </div>
+
+            <!-- Shows a placeholder icon when there is no picture in the carousel. -->
+            <div v-else>
                 <reactive-picture
-                    v-show="i == selected"
-                    :picture-id="picId"
                     :alt="alt"
                     :width="width"
                     :height="height"
                     :classes="classes">
                 </reactive-picture>
-            </transition>
+            </div>
         </div>
 
         <span
@@ -73,6 +86,10 @@ export default Vue.extend({
         }
     },
     computed: {
+        hasPicture() {
+            return this.pictureIds.length > 0;
+        },
+
         hasNext() {
             return (this.selected + 1) < this.pictureIds.length
         },
@@ -138,7 +155,7 @@ export default Vue.extend({
     height: 40px;
     margin-top: -20px;
 
-    z-index: 2;
+    z-index: 1;
 }
 
 .carousel .left-arrow:hover,
