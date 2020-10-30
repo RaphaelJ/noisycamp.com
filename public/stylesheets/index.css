@@ -41,6 +41,7 @@
     .hero.home-hero {
         background-image: url("/assets/images/index/hero_medium.jpg");
     }
+
     .hero.home-hero .middle-content-section {
         width: 600px;
     }

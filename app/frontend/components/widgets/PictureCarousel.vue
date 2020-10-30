@@ -1,6 +1,6 @@
 <!--
   Noisycamp is a platform for booking music studios.
-  Copyright (C) 2019  Raphael Javaux <raphaeljavaux@gmail.com>
+  Copyright (C) 2019 2020  Raphael Javaux <raphaeljavaux@gmail.com>
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,16 +23,14 @@
                 <div 
                     v-for="(picId, i) in pictureIds"
                     :key="picId">
-                    <transition name="fade">
-                        <reactive-picture
-                            v-show="i == selected"
-                            :picture-id="picId"
-                            :alt="alt"
-                            :width="width"
-                            :height="height"
-                            :classes="classes">
-                        </reactive-picture>
-                    </transition>
+                    <reactive-picture
+                        v-show="i == selected"
+                        :picture-id="picId"
+                        :alt="alt"
+                        :width="width"
+                        :height="height"
+                        :classes="classes">
+                    </reactive-picture>
                 </div>
             </div>
 
@@ -126,23 +124,13 @@ export default Vue.extend({
     -ms-user-select: none;
 }
 
-.carousel .picture-container {
+.carousel .reactive-picture {
     position: absolute;
 
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-}
-
-.carousel .fade-enter-active,
-.carousel .fade-leave-active {
-    transition: opacity .15s;
-}
-
-.carousel .fade-leave-to,
-.carousel .fade-enter {
-    opacity: 0;
 }
 
 .carousel .left-arrow,
