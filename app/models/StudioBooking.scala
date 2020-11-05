@@ -88,8 +88,6 @@ case class StudioBooking(
 
     require(times.duration == durations.total)
 
-    def canCancel: Boolean = cancellationPolicy.isDefined
-
     /** An active booking is a booking that is supposed to happen and for which we can't book the
      * booking perdiod again. */
     def isActive: Boolean = {
@@ -115,6 +113,14 @@ case class StudioBooking(
     }
 
     def isCustomer(user: User): Boolean = customerId == user.id
+
+    def ownerCanCancel: Boolean = {
+        status == StudioBookingStatus.Valid
+    }
+    
+    def customerCanCancel(studio: Studio, now: Instant = Instant.now): Boolean = {
+        !isStarted(studio, now)
+    }
 
     def isPaidOnline = payment match {
         case StudioBookingPaymentOnline(_, _) => true

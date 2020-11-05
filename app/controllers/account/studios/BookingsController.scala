@@ -113,6 +113,7 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
         })
     }
 
+    /** Rejects the booking and refunds the customer if they paid online. */
     def reject(studioId: Studio#Id, bookingId: StudioBooking#Id) = silhouette.SecuredAction.async {
         implicit request =>
 
@@ -120,10 +121,8 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
 
         withStudioBookingTransaction(studioId, bookingId, { case (studio, booking, customer) =>
             if (booking.status == StudioBookingStatus.PendingValidation) {
-            
                 (booking.payment match {
                     case StudioBookingPaymentOnline(sessionId, intentId) => {
-                        // TODO: Refund fron the connected account.
                         DBIO.from(paymentService.refundPayment(intentId)).map(Some(_))
                     }
                     case StudioBookingPaymentOnsite() => DBIO.successful(None)
@@ -137,6 +136,34 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
                 }
             } else {
                 DBIO.successful(redirectTo.flashing("error" -> "Can not reject this booking."))
+            }
+        })
+    }
+
+    /** Cancels the booking and refunds the customer if they paid online. */
+    def cancel(studioId: Studio#Id, bookingId: StudioBooking#Id) = silhouette.SecuredAction.async {
+        implicit request =>
+
+        val redirectTo = Redirect(routes.BookingsController.show(studioId, bookingId))
+
+        withStudioBookingTransaction(studioId, bookingId, { case (studio, booking, customer) =>
+            if (booking.ownerCanCancel) {
+                (booking.payment match {
+                    case StudioBookingPaymentOnline(sessionId, intentId) => {
+                        DBIO.from(paymentService.refundPayment(intentId)).map(Some(_))
+                    }
+                    case StudioBookingPaymentOnsite() => DBIO.successful(None)
+                }).flatMap { _ =>
+                    daos.studioBooking.query.
+                        filter(_.id === bookingId).
+                        map(_.status).
+                        update(StudioBookingStatus.CancelledByOwner).
+                        map { _ => 
+                            redirectTo.flashing(
+                                "success" -> "This booking has been successfuly cancelled.") }    
+                }
+            } else {
+                DBIO.successful(redirectTo.flashing("error" -> "Can not cancel this booking."))
             }
         })
     }

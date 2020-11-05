@@ -110,9 +110,8 @@
 
                     <div class="cell small-12 medium-6">
                         <p class="text-sans-serif">
-                                <i class="fi-calendar"></i>&nbsp;
-                                @tags.localDateTime(booking.times.beginsAt)<br>
-
+                            <i class="fi-calendar"></i>&nbsp;
+                            @tags.localDateTime(booking.times.beginsAt)<br>
 
                             <i class="fi-clock"></i>&nbsp;
                             @tags.duration(booking.times.duration)
@@ -122,17 +121,25 @@
 
                         @tags.priceBreakdown(booking.priceBreakdown, showTransactionFee = true)
 
-                        <hr>
+                        @if(booking.ownerCanCancel) {
+                            <hr>
 
-                        <div class="text-center">
-                            <p>
-                                <a href="#">Cancel booking</a>
-                            </p>
+                            <div class="text-center">
+                                <a
+                                    href="@controllers.account.studios.routes.BookingsController.cancel(studio.id, booking.id)"
+                                    class="button secondary small-only-expanded">
+                                    Cancel booking
+                                </a>
 
-                            <p class="help-text">
-                                You will not be refunded.
-                            </p>
-                        </div>
+                                @if(booking.isPaidOnline) {
+                                    <p class="help-text">
+                                        The customer will be entirely refunded. 
+                                        NoisyCamp reserves the right to charge you the transaction
+                                        fee in case of abuse.
+                                    </p>
+                                }
+                            </div>
+                        }
                     </div>
                 </div>
             </div>
