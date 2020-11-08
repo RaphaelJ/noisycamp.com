@@ -107,7 +107,9 @@
                                             - {{ event.duration.asHours() }} hours
                                         </span>
                                     </div>
-                                    <div class="title" v-if="event.title">{{ event.title }}</div>
+                                    <div
+                                        class="title text-overflow-ellipsis"
+                                        v-if="event.title">{{ event.title }}</div>
                                 </div>
                             </a>
                             <div v-else>
@@ -118,7 +120,9 @@
                                             - {{ event.duration.asHours() }} hours
                                         </span>
                                     </div>
-                                    <div class="title" v-if="event.title">{{ event.title }}</div>
+                                    <div 
+                                        class="title text-overflow-ellipsis"
+                                        v-if="event.title">{{ event.title }}</div>
                                 </div>
                             </div>
                         </div>

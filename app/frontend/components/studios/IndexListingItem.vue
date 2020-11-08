@@ -38,12 +38,12 @@
 
             <div class="cell small-12 medium-8">
                 <div class="grid-y info">
-                    <h5 class="cell shrink text-sans-serif title">
+                    <h5 class="cell shrink text-sans-serif text-overflow-ellipsis title">
                         {{ studio.name }}
                     </h5>
 
                     <div class="cell medium-auto details">
-                        <span class="location">{{ location }}</span>
+                        <span class="location text-overflow-ellipsis">{{ location }}</span>
 
                         <span
                             class="schedule"
@@ -63,7 +63,7 @@
                         </span>
 
                         <span
-                            class="equipments"
+                            class="equipments text-overflow-ellipsis
                             title="Equipments and instruments"
                             v-if="equipmentsNames.length > 0">
 

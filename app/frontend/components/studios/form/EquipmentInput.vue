@@ -70,7 +70,7 @@
                             <div class="grid-x">
                                 <div class="cell small-12 equipment-name">
                                     <h6
-                                        class="text-sans-serif"
+                                        class="text-sans-serif text-overflow-ellipsis"
                                         :title="equipmentCategoryName(equipment)">
                                         {{ equipmentCategoryName(equipment) }}
                                     </h6>
@@ -86,7 +86,7 @@
                                 </div> -->
 
                                 <div
-                                    class="cell small-12 equipment-details"
+                                    class="cell small-12 equipment-details text-overflow-ellipsis"
                                     :title="equipment.details">
                                     <small>{{ equipment.details }}</small>
                                 </div>

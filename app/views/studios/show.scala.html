@@ -162,7 +162,7 @@
                         }
 
                         <div class="cell auto">
-                            <h1>@studio.name</h1>
+                            <h1 class="text-overflow-ellipsis">@studio.name</h1>
                         </div>
 
                         @if(isStudioOwner) {
@@ -172,7 +172,7 @@
                         }
 
                         <div class="cell studio-city">
-                            <h4>
+                            <h4 class="text-overflow-ellipsis">
                                 <small>
                                     <i class="fi-marker"></i>&nbsp;
                                     @studio.location.address.city,

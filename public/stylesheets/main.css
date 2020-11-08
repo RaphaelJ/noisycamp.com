@@ -54,6 +54,12 @@ h1 small, h2 small, h3 small, h4 small, h5 small, h6 small {
     color: #c65050;
 }
 
+.text-overflow-ellipsis {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 /* Overrides Foundation title sizes on large screens. */
 
 @media print, screen and (min-width: 40em) {
@@ -599,13 +605,6 @@ table.plan-comparison-table {
 
 .equipment-list .equipment .equipment-name h6 {
     margin-bottom: 0;
-}
-
-.equipment-list .equipment .equipment-name,
-.equipment-list .equipment .equipment-details {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
 .equipment-list .equipment .equipment-icon {

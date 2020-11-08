@@ -90,7 +90,7 @@
                 <tbody>
                     @for((booking, customer) <- bookings) {
                         <tr>
-                            <td>
+                            <td class="text-overflow-ellipsis">
                                 @withBookingLink(booking) {
                                     @customer.fullName
                                 }
@@ -116,7 +116,7 @@
                                     }
                                 }
                             </td>
-                            <td>
+                            <td class="text-overflow-ellipsis">
                                 @withBookingLink(booking) { @bookingStatus(booking) }
                             </td>
                         </tr>
