@@ -63,7 +63,7 @@
                         </span>
 
                         <span
-                            class="equipments text-overflow-ellipsis
+                            class="equipments text-overflow-ellipsis"
                             title="Equipments and instruments"
                             v-if="equipmentsNames.length > 0">
 
