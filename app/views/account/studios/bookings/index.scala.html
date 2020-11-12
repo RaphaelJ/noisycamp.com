@@ -1,5 +1,5 @@
 @* Noisycamp is a platform for booking music studios.
- * Copyright (C) 2020  Raphael Javaux <raphaeljavaux@gmail.com>
+ * Copyright (C) 2020  Raphael Javaux <raphael@noisycamp.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +14,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *@
+
+@import java.time.Instant
 
 @import play.api.Configuration
 
@@ -32,40 +34,6 @@
     </a>
 }
 
-@bookingStatus(booking: models.StudioBooking) = {
-    @booking.status match {
-        case StudioBookingStatus.PendingValidation => {
-            <span class="text-alert">
-                <i class="fi-alert"></i>&nbsp;
-                Pending approval
-            </span>
-        }
-        case StudioBookingStatus.Valid => {
-            <i class="fi-check"></i>&nbsp;
-            @if(booking.isCompleted(studio)) {
-                Completed
-            } else if(booking.isOngoing(studio)) {
-                Ongoing
-            } else {
-                Valid
-            }
-        }
-        case StudioBookingStatus.Rejected => {
-            <i class="fi-x"></i>&nbsp;
-            Rejected
-        }
-        case StudioBookingStatus.CancelledByCustomer => {
-            <i class="fi-x"></i>&nbsp;
-            Cancelled by customer
-        }
-        case StudioBookingStatus.CancelledByOwner => {
-            <i class="fi-x"></i>&nbsp;
-            Cancelled by studio owner
-        }
-        case _ => {}
-    }
-}
-
 @views.html.account.layout(Seq("Studio bookings", studio.name), identity=identity) {
     <div class="panel-section">
         @if(bookings.isEmpty) {
@@ -78,7 +46,7 @@
                 on your website and social media accounts to increase your online presence.
             </div>
         } else {
-            <table class="stack">
+            <table class="stack fixed">
                 <thead>
                     <tr>
                         <th width="25%">Guest name</th>
@@ -88,6 +56,7 @@
                     </tr>
                 </thead>
                 <tbody>
+                    @defining(Instant.now) { now =>
                     @for((booking, customer) <- bookings) {
                         <tr>
                             <td class="text-overflow-ellipsis">
@@ -117,9 +86,12 @@
                                 }
                             </td>
                             <td class="text-overflow-ellipsis">
-                                @withBookingLink(booking) { @bookingStatus(booking) }
+                                @withBookingLink(booking) {
+                                    @tags.bookingStatus(booking, studio, now)
+                                }
                             </td>
                         </tr>
+                    }
                     }
                 </tbody>
             </table>

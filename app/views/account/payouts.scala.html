@@ -1,36 +1,35 @@
 @* Noisycamp is a platform for booking music studios.
-* Copyright (C) 2020 Raphael Javaux <raphaeljavaux@gmail.com>
-    *
-    * This program is free software: you can redistribute it and/or modify
-    * it under the terms of the GNU General Public License as published by
-    * the Free Software Foundation, either version 3 of the License, or
-    * (at your option) any later version.
-    *
-    * This program is distributed in the hope that it will be useful,
-    * but WITHOUT ANY WARRANTY; without even the implied warranty of
-    * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-    * GNU General Public License for more details.
-    *
-    * You should have received a copy of the GNU General Public License
-    * along with this program. If not, see
-    <https: //www.gnu.org/licenses />.
-    *@
+ * Copyright (C) 2020  Raphael Javaux <raphael@noisycamp.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *@
 
-    @import java.time.LocalDate
+@import java.time.LocalDate
 
-    @import play.api.Configuration
-    @import squants.market.Money
+@import play.api.Configuration
+@import squants.market.Money
 
-    @import models.Payout
+@import models.Payout
 
-    @(
+@(
     identity: models.Identity,
     balances: Seq[Money],
     nextPayout: LocalDate,
     payouts: Seq[Payout])(
     implicit req: RequestHeader, config: Configuration, flash: Flash)
 
-    @connectStripeAccount = {
+@connectStripeAccount = {
     <div class="grid-x grid-padding-y grid-padding-x">
         <div class="cell small-12">
             <div class="grid-x grid-margin-y grid-margin-x callout warning">
@@ -55,52 +54,50 @@
             </a>
         </div>
     </div>
-    }
+}
 
-    @layout(Seq("Payout preferences"), identity=identity) {
-
+@layout(Seq("Payout preferences"), identity=identity) {
     <div class="grid-x grid-margin-y grid-padding-x">
         @if(identity.user.isPayoutSetup) {
             <div class="cell medium-4">
                 <div class="panel-section">
                     <h4>Current balance</h4>
 
-                    @if(balances.isEmpty) {
-                    No pending balance.
-                    }
+                    @if(balances.isEmpty) { No pending balance. }
 
-                    @for(balance <- balances) { @tags.moneyAmount(balance) &nbsp; } </div>
+                    @for(balance <- balances) { @tags.moneyAmount(balance) &nbsp; }
                 </div>
+            </div>
 
-                <div class="cell medium-4">
-                    <div class="panel-section">
-                        <h4>Next payout</h4>
+            <div class="cell medium-4">
+                <div class="panel-section">
+                    <h4>Next payout</h4>
 
-                        @tags.localDate(nextPayout)
-                    </div>
+                    @tags.localDate(nextPayout)
                 </div>
+            </div>
 
-                <div class="cell medium-4">
-                    <div class="panel-section">
-                        <h4>Payout settings</h4>
+            <div class="cell medium-4">
+                <div class="panel-section">
+                    <h4>Payout settings</h4>
 
-                        <a href="@controllers.account.routes.PayoutsController.stripeDashboard" target="_blank">
-                            &#x29C9;
-                            Open Stripe dashboard
-                        </a>
-                    </div>
+                    <a href="@controllers.account.routes.PayoutsController.stripeDashboard" target="_blank">
+                        &#x29C9;
+                        Open Stripe dashboard
+                    </a>
                 </div>
+            </div>
 
-                <div class="cell medium-12">
-                    <div class="panel-section">
-                        <div class="grid-x grid-padding-y">
-                            <h4 class="cell small-12">Payout history</h4>
+            <div class="cell medium-12">
+                <div class="panel-section">
+                    <div class="grid-x grid-padding-y">
+                        <h4 class="cell small-12">Payout history</h4>
 
-                            @if(payouts.isEmpty) {
+                        @if(payouts.isEmpty) {
                             <p class="cell small-12 text-center">
                                 Payouts to your bank account will appear here.
                             </p>
-                            } else {
+                        } else {
                             <table class="cell small-12">
                                 <thead>
                                     <tr>
@@ -118,16 +115,16 @@
                                         }
                                 </tbody>
                             </table>
-                            }
-                        </div>
+                        }
                     </div>
                 </div>
-            } else {
-                <div class="cell small-12">
-                    <div class="panel-section">
-                        @connectStripeAccount
-                    </div>
+            </div>
+        } else {
+            <div class="cell small-12">
+                <div class="panel-section">
+                    @connectStripeAccount
                 </div>
-            }
-        </div>
+            </div>
         }
+    </div>
+}

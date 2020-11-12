@@ -95,10 +95,15 @@ case class StudioBooking(
         status == StudioBookingStatus.Valid
     }
 
+    /** Returns true if the booking will start in the future, based on the studio's current time. */
+    def isUpcoming(studio: Studio, now: Instant = Instant.now): Boolean = {
+        times.beginsAt.isAfter(studio.currentDateTime(now))
+    }
+
     /** Returns true if the booking already started (and might be completed), based on the studio's
      * current time. */
     def isStarted(studio: Studio, now: Instant = Instant.now): Boolean = {
-        !times.beginsAt.isAfter(studio.currentDateTime(now))
+        !isUpcoming(studio, now)
     }
 
     /** Returns true if the booking is currently going, based on the studio's current time. */
@@ -107,7 +112,7 @@ case class StudioBooking(
         !times.beginsAt.isAfter(currentTime) && currentTime.isBefore(times.endsAt)
     }
 
-    /** Returns true of the booking has already started, based on the studio's current time. */
+    /** Returns true of the booking has already ended, based on the studio's current time. */
     def isCompleted(studio: Studio, now: Instant = Instant.now): Boolean = {
         !studio.currentDateTime(now).isBefore(times.endsAt)
     }

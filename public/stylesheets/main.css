@@ -275,6 +275,10 @@ form label .error {
     color: #cc4b37;
 }
 
+table.fixed {
+    table-layout: fixed;
+}
+
 /* Top bar */
 
 .top-bar-container,

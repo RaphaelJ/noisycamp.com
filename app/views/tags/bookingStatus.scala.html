@@ -1,0 +1,52 @@
+@* Noisycamp is a platform for booking music studios.
+ * Copyright (C) 2019  Raphael Javaux <raphaeljavaux@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *@
+
+@import java.time.Instant
+
+@(booking: models.StudioBooking, studio: models.Studio, now: Instant = Instant.now)
+
+@booking.status match {
+    case StudioBookingStatus.PendingValidation => {
+        <span class="text-alert">
+            <i class="fi-alert"></i>&nbsp;
+            Pending approval
+        </span>
+    }
+    case StudioBookingStatus.Valid => {
+        <i class="fi-check"></i>&nbsp;
+        @if(booking.isCompleted(studio, now)) {
+            Completed
+        } else if(booking.isOngoing(studio, now)) {
+            Ongoing
+        } else {
+            Valid
+        }
+    }
+    case StudioBookingStatus.Rejected => {
+        <i class="fi-x"></i>&nbsp;
+        Rejected
+    }
+    case StudioBookingStatus.CancelledByCustomer => {
+        <i class="fi-x"></i>&nbsp;
+        Cancelled by customer
+    }
+    case StudioBookingStatus.CancelledByOwner => {
+        <i class="fi-x"></i>&nbsp;
+        Cancelled by studio owner
+    }
+    case _ => {}
+}

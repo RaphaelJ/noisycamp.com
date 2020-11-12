@@ -33,6 +33,20 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
 
     import profile.api._
 
+    /** Lists the bookings of the current user. */
+    def index = silhouette.SecuredAction.async { implicit request =>
+        val user = request.identity.user
+
+        db.run({
+            daos.studioBooking.query.
+                join(daos.studio.query).on(_.studioId === _.id).
+                filter { case (booking, _) => booking.customerId === user.id }.
+                result
+        }).map { bookings =>
+            Ok(views.html.account.bookings.index(request.identity, bookings))
+        }
+    }
+
     def show(id: StudioBooking#Id) = silhouette.SecuredAction.async { implicit request =>
         val user = request.identity.user
 

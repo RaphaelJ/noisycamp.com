@@ -32,6 +32,7 @@ GET     /social/authenticate/:provider  controllers.AuthController.oauth2Authent
 
 GET     /account                        controllers.account.IndexController.index
 
+GET     /account/bookings               controllers.account.BookingsController.index
 GET     /account/bookings/:id           controllers.account.BookingsController.show(id: Long)
 
 GET     /account/studios                controllers.account.studios.IndexController.index

@@ -65,6 +65,26 @@ class StudioBookingSpec extends PlaySpec {
         date.toInstant(offset)
     }
 
+    "StudioBooking.isUpcoming" must {
+        "returns true before a booking" in {
+            studioBooking.isUpcoming(
+                studio, getInstantAtStudioTimeZone(LocalDateTime.of(2020, 10, 1, 10, 29))
+                ) should be (true)
+        }
+
+        "returns false during a booking" in {
+            studioBooking.isUpcoming(
+                studio, getInstantAtStudioTimeZone(LocalDateTime.of(2020, 10, 1, 10, 31))
+                ) should be (false)
+        }
+
+        "returns false after a booking" in {
+            studioBooking.isUpcoming(
+                studio, getInstantAtStudioTimeZone(LocalDateTime.of(2021, 12, 24, 23, 59))
+                ) should be (false)
+        }
+    }
+
     "StudioBooking.isStarted" must {
         "returns false before a booking" in {
             studioBooking.isStarted(
