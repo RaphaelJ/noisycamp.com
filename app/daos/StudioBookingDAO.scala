@@ -178,19 +178,24 @@ class StudioBookingDAO @Inject()
         query returning query.map(_.id) into ((b, id) => b.copy(id=id)) += booking
     }
 
+    /** Creates a query with all the active (i.e. not cancelled) bookings */
+    def activeBookings = {
+        query.
+            filter(_.status.inSet(Seq(
+                StudioBookingStatus.PendingValidation,
+                StudioBookingStatus.Valid)))
+    }
+
     /** Return true if there is already a booking that overlaps with the given booking times. */
     def hasOverlap(studio: Studio, times: BookingTimes): DBIO[Boolean] = {
         // Forces the use of the `localDateTimeType` mapper instead of Slick's default.
         val beginsAt = LiteralColumn(times.beginsAt)(localDateTimeType)
         val endsAt = LiteralColumn(times.endsAt)(localDateTimeType)
 
-        query.
+        activeBookings.
             filter(_.studioId === studio.id).
             filter(_.endsAt > beginsAt).
             filter(_.beginsAt < endsAt).
-            filter(_.status.inSet(Seq(
-                StudioBookingStatus.PendingValidation,
-                StudioBookingStatus.Valid))).
             exists.
             result
     }

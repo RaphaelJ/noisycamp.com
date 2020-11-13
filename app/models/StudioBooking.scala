@@ -152,9 +152,9 @@ case class StudioBooking(
         StudioBooking.toHexString(codeBytes).take(CODE_LEN).toUpperCase
     }
 
-    def toEvent(customer: User): Event = {
+    def toEvent(customer: Option[User] = None, classes: Seq[String] = Seq.empty): Event = {
         val href = Some(controllers.account.studios.routes.BookingsController.show(studioId, id))
-        Event(times.beginsAt, times.duration, Some(customer.displayName), href, Seq("booking"))
+        Event(times.beginsAt, times.duration, customer.map(_.displayName), href, classes)
     }
 }
 

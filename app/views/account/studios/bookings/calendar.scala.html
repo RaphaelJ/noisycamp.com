@@ -25,7 +25,7 @@
 @(
     identity: models.Identity,
     studio: models.Studio,
-    bookings: Seq[(models.StudioBooking, models.User)])(
+    bookingEvents: Seq[models.Event])(
     implicit request: RequestHeader, messagesProvider: MessagesProvider,
     config: Configuration, flash: Flash)
 
@@ -38,9 +38,7 @@
                     current-time="@studio.currentDateTime().toString"
                     :scrollable="false"
                     :opening-schedule="@tags.json(Json.toJson(studio.openingSchedule), htmlEscape = true)"
-                    :events="@{tags.json(
-                        Json.toJson(bookings.map { case (booking, user) => booking.toEvent(user) }),
-                        htmlEscape = true)}">
+                    :events="@{tags.json(Json.toJson(bookingEvents), htmlEscape = true)}">
                 </calendar>
             </div>
 

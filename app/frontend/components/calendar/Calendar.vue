@@ -100,29 +100,29 @@
                                 v-if="event.href"
                                 class="event-link-container"
                                 :href="event.href">
-                                <div v-if="styleIndex == 0">
-                                    <div class="times" v-if="!event.isOpeningScheduleEvent">
+                                <div v-if="styleIndex == 0 && event.title">
+                                    <div class="times">
                                         {{ event.startsAt.format('HH:mm') }}
                                         <span v-if="event.duration" class="show-for-large-only">
                                             - {{ event.duration.asHours() }} hours
                                         </span>
                                     </div>
-                                    <div
-                                        class="title text-overflow-ellipsis"
-                                        v-if="event.title">{{ event.title }}</div>
+                                    <div class="title text-overflow-ellipsis">
+                                        {{ event.title }}
+                                    </div>
                                 </div>
                             </a>
                             <div v-else>
-                                <div v-if="styleIndex == 0">
-                                    <div class="times" v-if="!event.isOpeningScheduleEvent">
+                                <div v-if="styleIndex == 0 && event.title">
+                                    <div class="times">
                                         {{ event.startsAt.format('HH:mm') }}
                                         <span v-if="event.duration" class="show-for-large-only">
                                             - {{ event.duration.asHours() }} hours
                                         </span>
                                     </div>
-                                    <div 
-                                        class="title text-overflow-ellipsis"
-                                        v-if="event.title">{{ event.title }}</div>
+                                    <div class="title text-overflow-ellipsis">
+                                        {{ event.title }}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -592,7 +592,8 @@ export default Vue.extend({
 }
 
 .calendar .schedule .event.striped,
-.calendar .schedule .event.closed {
+.calendar .schedule .event.closed,
+.calendar .schedule .event.occupied {
     background: repeating-linear-gradient(
         -45deg, #f5f3f2c2, #f5f3f2c2 5px, #dfdcdbc2 5px, #dfdcdbc2 10px
     );

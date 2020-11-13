@@ -48,7 +48,11 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
 
     def calendar(id: Studio#Id) = silhouette.SecuredAction.async { implicit request =>
         withStudioBookings(id, { case (studio, bookings) =>
-            Ok(views.html.account.studios.bookings.calendar(request.identity, studio, bookings))
+            val bookingEvents = bookings.map { 
+                case (booking, user) => booking.toEvent(Some(user), Seq("booking")) }
+
+            Ok(views.html.account.studios.bookings.calendar(
+                request.identity, studio, bookingEvents))
         })
     }
 

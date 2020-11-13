@@ -17,7 +17,7 @@
 
 package controllers
 
-import java.time.DayOfWeek
+import java.time.{ DayOfWeek, Instant }
 import javax.inject._
 import scala.concurrent.Future
 
@@ -127,20 +127,41 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
     def show(id: Studio#Id) = silhouette.UserAwareAction.async { implicit request =>
         val user: Option[User] = request.identity.map(_.user)
 
+        val now = Instant.now
+
         db.run {
             for {
-                studio <- daos.studio.query.
+                studioOpt <- daos.studio.query.
                     filter(_.id === id).
                     result.headOption
-
+                    
                 equips <- daos.studioEquipment.withStudioEquipment(id).result
                 picIds <- daos.studioPicture.withStudioPictureIds(id).result
-            } yield (studio, equips, picIds)
+                    
+                bookings <- studioOpt match {
+                    case Some(studio) => {
+                        val localDate = studio.currentDateTime(now).toLocalDate
+                        daos.studioBooking.activeBookings.
+                            filter(_.studioId === studio.id).
+                            filter(_.beginsAt >= localDate.atStartOfDay).
+                            sortBy(_.beginsAt).
+                            result
+                    }
+                    case None => DBIO.successful(Seq.empty)
+                }
+            } yield (studioOpt, equips, picIds, bookings)
         }.map {
-            case (Some(studio), equips, picIds) if studio.canAccess(user) => {
+            case (Some(studio), equips, picIds, bookings) if studio.canAccess(user) => {
+                // Converts bookings into anonymous events.
+                val bookingEvents = bookings.
+                    map { booking => 
+                        booking.
+                            toEvent(classes = Seq("occupied")).
+                            copy(title = None, href = None) }
+
                 Ok(views.html.studios.show(
-                    identity = request.identity,
-                    studio, equips.map(_.localEquipment(studio)), picIds))
+                    identity = request.identity, now,
+                    studio, equips.map(_.localEquipment(studio)), picIds, bookingEvents))
             }
             case _ => NotFound("Studio not found.")
         }

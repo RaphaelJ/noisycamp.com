@@ -27,12 +27,13 @@
 
 @(
     identity: Option[models.Identity],
+    now: Instant,
     studio: models.Studio,
     equipments: Seq[LocalEquipment],
-    pictures: Seq[models.Picture#Id])(
+    pictures: Seq[models.Picture#Id],
+    bookingEvents: Seq[models.Event])(
     implicit req: RequestHeader, config: Configuration, flash: Flash)
     
-@now = @{ Instant.now }
 @currentDateTime = @{ studio.currentDateTime(now) }
 @currentDate = @{ currentDateTime.toLocalDate }
 
@@ -256,7 +257,7 @@
                         begin="@minBookingDate"
                         end="@maxBookingDate"
                         :opening-schedule="@tags.json(Json.toJson(studio.openingSchedule), htmlEscape = true)"
-                        :events="[]"
+                        :events="@{tags.json(Json.toJson(bookingEvents), htmlEscape = true)}"
                         :scrollable="false">
                     </calendar>
 
