@@ -23,7 +23,7 @@ import play.api.mvc.Call
 
 /** A generic event that will be displayed in the calendar. */
 case class Event(
-    startsAt:       LocalDateTime,
+    beginsAt:       LocalDateTime,
     duration:       Duration,
 
     title:          Option[String] = None,

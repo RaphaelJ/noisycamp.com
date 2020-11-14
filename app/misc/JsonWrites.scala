@@ -67,7 +67,7 @@ object JsonWrites {
 
     implicit object EventWrites extends Writes[Event] {
         def writes(event: Event): JsValue = Json.obj(
-            "starts-at"          -> event.startsAt,
+            "begins-at"          -> event.beginsAt,
             "duration"          -> event.duration,
 
             "title"             -> event.title,

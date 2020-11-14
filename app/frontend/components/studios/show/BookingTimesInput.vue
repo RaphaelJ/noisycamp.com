@@ -90,7 +90,7 @@ import Vue, { PropOptions } from "vue";
 import * as moment from 'moment';
 
 import {
-    dateComponent, renderDuration, timeComponent, withTimeComponent
+    dateComponent, eventsOverlap, renderDuration, timeComponent, withTimeComponent
 } from '../../../misc/DateUtils';
 
 export default Vue.extend({
@@ -104,8 +104,8 @@ export default Vue.extend({
         // An array of {is-open, opens-at, closes-at} 7 objects. Starts on Monday.
         openingSchedule: <PropOptions<Object[]>>{ type: Array, required: true },
 
-        // A list of {begins-at, ends-at} ISO 8601 local date times that define
-        // unavailable time periods.
+        // A list of {starts-at, duration} ISO 8601 local date time and durations that define
+        // unavailable time periods for which the studio cannot be booked.
         occupancies: <PropOptions<Object[]>>{ type: Array, required: true },
 
         // The minimum duration of a booking, in seconds.
@@ -151,6 +151,18 @@ export default Vue.extend({
             }
         },
 
+        mOccupencies() {
+            return this.occupancies.map(o => {
+                let beginsAt = moment(o['begins-at']);
+                let duration = moment.duration(o['duration']);
+
+                return {
+                    beginsAt: beginsAt,
+                    endsAt: beginsAt.clone().add(duration),
+                };
+            });
+        },
+
         // The max date (inclusive) value to be passed to the `<input type="date">` widget.
         mMax() {
             if (this.mEnd) {
@@ -182,8 +194,7 @@ export default Vue.extend({
             }
         },
 
-        // When date is set, return the MomentJS date-time at which the studio
-        // opens.
+        // When date is set, return the MomentJS date-time at which the studio opens.
         dateOpensAt() {
             if (!this.mDate) {
                 return null;
@@ -194,8 +205,7 @@ export default Vue.extend({
             return withTimeComponent(this.mDate, opensAtTime);
         },
 
-        // When date is set, return the MomentJS date-time at which the studio
-        // closes.
+        // When date is set, return the MomentJS date-time at which the studio closes.
         dateClosesAt() {
             let opensAtTime = this.dateSchedule['opens-at'];
             let closesAtTime = this.dateSchedule['closes-at'];
@@ -212,12 +222,35 @@ export default Vue.extend({
             return this.dateSchedule && !this.dateSchedule['is-open'];
         },
 
+        // Returns the occupency events of the currently select date.
+        dateOccupencies() {
+            if (!this.mDate) {
+                return null;
+            }
+
+            return this.mOccupencies.
+                filter(o => {
+                    // Occupency events overlapping with the currently select date.
+                    return eventsOverlap(this.dateOpensAt, this.dateClosesAt, o.beginsAt, o.endsAt);
+                }).
+                map(o => {
+                    // Occupency events should be truncated to the day's opening and closing
+                    // times.
+
+                    let beginsAt = moment.max(o.beginsAt, this.dateOpensAt);
+                    let endsAt = moment.min(o.endsAt, this.dateClosesAt);
+                    return {
+                        beginsAt: beginsAt,
+                        endsAt: endsAt,
+                    };
+                });
+        },
+
         // List all the selected day's availaible starting times.
         startingTimes() {
             if (!this.dateSchedule || this.isClosed) {
                 return null;
             } else {
-
                 // The last time a session can start, considering the minimal
                 // booking duration.
                 let lastSession = this.dateClosesAt
@@ -237,11 +270,18 @@ export default Vue.extend({
                 }
 
                 let times = [];
-                while (iTime.isSameOrBefore(lastSession)) {
-                    times.push({
-                        value: iTime.format('HH:mm'),
-                        disabled: false
-                    });
+                while (iTime.isSameOrBefore(lastSession)) {                    
+                    // Skips start times which will always overlap with an occupency event.
+                    let earliestEnd = iTime.clone().add(this.minBookingDuration, 'seconds');
+                    // TODO: directly iterate to the next availaible slot.
+
+                    if (!this.dateOccupencyOverlap(iTime, earliestEnd)) {
+                        times.push({
+                            value: iTime.format('HH:mm'),
+                            disabled: false
+                        });
+                    }
+
                     iTime.add(15, 'minutes');
                 }
 
@@ -285,6 +325,12 @@ export default Vue.extend({
             let durations = [];
             var iDuration = this.mMinBookingDuration.clone();
             while (iDuration.asMilliseconds() <= maxDurationMillis) {
+                // Stops when it starts to overlap with one event of the selected day.
+                let endsAt = this.beginsAt.clone().add(iDuration);
+                if (this.dateOccupencyOverlap(this.beginsAt, endsAt)) {
+                    break;
+                }
+
                 durations.push({
                     value: iDuration.asSeconds(),
                     title: renderDuration(iDuration, 'minutes'),
@@ -329,6 +375,17 @@ export default Vue.extend({
                 'begins-at': beginsAt,
                 'duration': this.duration,
             });
+        },    
+        
+        // Finds the a possible overlap to the provided [beginAt; endsAt[ event from one of the
+        // occupencies of the selected day. Returns undefined if no event is found.
+        dateOccupencyOverlap(beginsAt, endsAt): boolean { 
+            if (!this.dateOccupencies) {
+                return null;
+            }
+
+            return this.dateOccupencies.
+                find(o => eventsOverlap(beginsAt, endsAt, o.beginsAt, o.endsAt));
         }
     },
 });

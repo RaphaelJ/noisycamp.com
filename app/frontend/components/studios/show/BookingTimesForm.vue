@@ -82,8 +82,8 @@ export default Vue.extend({
         // An array of {is-open, opens-at, closes-at} 7 objects. Starts on Monday.
         openingSchedule: <PropOptions<Object[]>>{ type: Array, required: true },
 
-        // A list of {begins-at, ends-at} ISO 8601 local date times that define
-        // unavailable time periods.
+        // A list of {starts-at, duration} ISO 8601 local date time and durations that define
+        // unavailable time periods for which the studio cannot be booked.
         occupancies: <PropOptions<Object[]>>{ type: Array, required: true },
 
         // The minimum duration of a booking, in seconds.

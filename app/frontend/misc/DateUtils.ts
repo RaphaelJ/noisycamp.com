@@ -72,3 +72,9 @@ export function isWeekend(date): boolean {
         return null;
     }
 }
+
+// Returns true if there is an overlap between the two events defined by their [begin; end[ MomentJS
+// intervals.
+export function eventsOverlap(beginsAt1, endsAt1, beginsAt2, endsAt2): boolean {
+    return endsAt1.isAfter(beginsAt2) && beginsAt1.isBefore(endsAt2);
+}

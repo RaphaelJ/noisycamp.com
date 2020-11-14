@@ -40,6 +40,12 @@
 @minBookingDate = @{ currentDate }
 @maxBookingDate = @{ studio.maxBookingDate(now) }
 
+@pricingPolicy = @{ studio.localPricingPolicy }
+
+@openingScheduleJson = @{ tags.json(Json.toJson(studio.openingSchedule), htmlEscape = true) }
+@bookingEventsJson = @{ tags.json(Json.toJson(bookingEvents), htmlEscape = true) }
+@pricingPolicyJson = @{ tags.json(Json.toJson(pricingPolicy), htmlEscape = true) }
+
 @head = {
     <link
         rel="stylesheet"
@@ -60,60 +66,58 @@
 }
 
 @bookingPanel = {
-    @defining(studio.localPricingPolicy) { pricingPolicy =>
-        <div class="grid-x grid-padding-x">
-            <div class="cell small-12 text-center">
-                <h2>
-                    @tags.moneyAmount(pricingPolicy.pricePerHour)
-                    <small>per hour</small>
-                </h2>
-            </div>
-
-            @for(eveningPolicy <- pricingPolicy.evening) {
-                <div class="cell small-6 text-left specific-pricing">
-                    After @eveningPolicy.beginsAt
-                </div>
-                <div class="cell small-6 text-right specific-pricing">
-                    @tags.moneyAmount(eveningPolicy.pricePerHour)
-                    <small>per hour</small>
-                </div>
-            }
-
-            @for(weekendPolicy <- pricingPolicy.weekend) {
-                <div class="cell small-6 text-left specific-pricing">
-                    Weekend
-                </div>
-                <div class="cell small-6 text-right specific-pricing">
-                    @tags.moneyAmount(weekendPolicy.pricePerHour)
-                    <small>per hour</small>
-                </div>
-            }
-
-            <div class="cell small-12"><hr></div>
-
-            <div class="cell small-12">
-                <booking-times-form
-                    current-time="@currentDateTime"
-                    end="@maxBookingDate"
-                    :studio-id="@studio.id"
-                    :opening-schedule="@tags.json(Json.toJson(studio.openingSchedule), htmlEscape = true)"
-                    :occupancies="[]"
-                    :min-booking-duration="@studio.bookingPolicy.minBookingDuration.getSeconds()"
-                    :pricing-policy="@tags.json(Json.toJson(pricingPolicy), htmlEscape = true)">
-                </booking-times-form>
-            </div>
-
-            <div class="cell small-12 text-center">
-                <a
-                    href="#availability"
-                    onclick="$('html, body').animate({
-                        scrollTop: $('#availability').offset().top
-                    }, 500); return false">
-                    Show availabilities
-                </a>
-            </div>
+    <div class="grid-x grid-padding-x">
+        <div class="cell small-12 text-center">
+            <h2>
+                @tags.moneyAmount(pricingPolicy.pricePerHour)
+                <small>per hour</small>
+            </h2>
         </div>
-    }
+
+        @for(eveningPolicy <- pricingPolicy.evening) {
+            <div class="cell small-6 text-left specific-pricing">
+                After @eveningPolicy.beginsAt
+            </div>
+            <div class="cell small-6 text-right specific-pricing">
+                @tags.moneyAmount(eveningPolicy.pricePerHour)
+                <small>per hour</small>
+            </div>
+        }
+
+        @for(weekendPolicy <- pricingPolicy.weekend) {
+            <div class="cell small-6 text-left specific-pricing">
+                Weekend
+            </div>
+            <div class="cell small-6 text-right specific-pricing">
+                @tags.moneyAmount(weekendPolicy.pricePerHour)
+                <small>per hour</small>
+            </div>
+        }
+
+        <div class="cell small-12"><hr></div>
+
+        <div class="cell small-12">
+            <booking-times-form
+                current-time="@currentDateTime"
+                end="@maxBookingDate"
+                :studio-id="@studio.id"
+                :opening-schedule="@openingScheduleJson"
+                :occupancies="@bookingEventsJson"
+                :min-booking-duration="@studio.bookingPolicy.minBookingDuration.getSeconds()"
+                :pricing-policy="@pricingPolicyJson">
+            </booking-times-form>
+        </div>
+
+        <div class="cell small-12 text-center">
+            <a
+                href="#availability"
+                onclick="$('html, body').animate({
+                    scrollTop: $('#availability').offset().top
+                }, 500); return false">
+                Show availabilities
+            </a>
+        </div>
+    </div>
 }
 
 @layout(
@@ -256,8 +260,8 @@
                         current-time="@currentDateTime"
                         begin="@minBookingDate"
                         end="@maxBookingDate"
-                        :opening-schedule="@tags.json(Json.toJson(studio.openingSchedule), htmlEscape = true)"
-                        :events="@{tags.json(Json.toJson(bookingEvents), htmlEscape = true)}"
+                        :opening-schedule="@openingScheduleJson"
+                        :events="@bookingEventsJson"
                         :scrollable="false">
                     </calendar>
 

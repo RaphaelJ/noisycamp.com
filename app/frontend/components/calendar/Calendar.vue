@@ -102,7 +102,7 @@
                                 :href="event.href">
                                 <div v-if="styleIndex == 0 && event.title">
                                     <div class="times">
-                                        {{ event.startsAt.format('HH:mm') }}
+                                        {{ event.beginsAt.format('HH:mm') }}
                                         <span v-if="event.duration" class="show-for-large-only">
                                             - {{ event.duration.asHours() }} hours
                                         </span>
@@ -115,7 +115,7 @@
                             <div v-else>
                                 <div v-if="styleIndex == 0 && event.title">
                                     <div class="times">
-                                        {{ event.startsAt.format('HH:mm') }}
+                                        {{ event.beginsAt.format('HH:mm') }}
                                         <span v-if="event.duration" class="show-for-large-only">
                                             - {{ event.duration.asHours() }} hours
                                         </span>
@@ -139,7 +139,7 @@ import Vue, { PropOptions } from "vue";
 import * as moment from 'moment';
 
 import Arrow from '../widgets/Arrow.vue';
-import { withTimeComponent } from '../../misc/DateUtils';
+import { eventsOverlap, withTimeComponent } from '../../misc/DateUtils';
 
 declare var NC_CONFIG: any;
 
@@ -155,7 +155,7 @@ export default Vue.extend({
         // An array of {is-open, opens-at, closes-at} 7 objects. Starts on Monday.
         openingSchedule: <PropOptions<Object[]>>{ type: Array, required: true },
 
-        // The list of events ({title, href, classes, starts-at, ends-at, duration}) to be displayed
+        // The list of events ({title, href, classes, begins-at, ends-at, duration}) to be displayed
         // in the calendar, with calendar local dates as ISO 8601 strings.
         events: <PropOptions<Object[]>>{ type: Array, default() { return []; } },
 
@@ -203,21 +203,21 @@ export default Vue.extend({
         mEvents() {
             return this.events
                 .map(event => {
-                    let startsAt = moment(event['starts-at']);
+                    let beginsAt = moment(event['begins-at']);
 
                     var endsAt, duration;
 
                     // Either `duration` or `ends-at` should be provided.
                     if ('ends-at' in event) {
                         endsAt = moment(event['ends-at']);
-                        duration =  moment.duration(endsAt.diff(startsAt));
+                        duration =  moment.duration(endsAt.diff(beginsAt));
                     } else {
                         duration = moment.duration(event['duration']);
-                        endsAt = startsAt.clone().add(duration);
+                        endsAt = beginsAt.clone().add(duration);
                     }
 
                     return {
-                        startsAt: startsAt,
+                        beginsAt: beginsAt,
                         endsAt: endsAt,
                         duration: duration,
                         classes: event['classes'],
@@ -286,7 +286,7 @@ export default Vue.extend({
 
                 if (today['is-open']) {
                     events.push({ // Morning closure
-                        startsAt: withTimeComponent(todayDate, prevDayOverlap),
+                        beginsAt: withTimeComponent(todayDate, prevDayOverlap),
                         endsAt: withTimeComponent(
                             todayDate, today['opens-at']
                         ),
@@ -294,7 +294,7 @@ export default Vue.extend({
 
                     if (today['closes-at'] > today['opens-at']) {
                         events.push({ // Evening closure
-                            startsAt: withTimeComponent(
+                            beginsAt: withTimeComponent(
                                 todayDate, today['closes-at']
                             ),
                             endsAt: withTimeComponent(tomorrowDate, '00:00'),
@@ -302,7 +302,7 @@ export default Vue.extend({
                     }
                 } else {
                     events.push({
-                        startsAt: withTimeComponent(todayDate, prevDayOverlap),
+                        beginsAt: withTimeComponent(todayDate, prevDayOverlap),
                         endsAt: withTimeComponent(tomorrowDate, '00:00'),
                     });
                 }
@@ -321,8 +321,8 @@ export default Vue.extend({
             let nextMonday = this.currentWeekEnd;
 
             let events = this.mEvents.filter(event => {
-                    return this.datesOverlap(
-                        monday, nextMonday, event.startsAt, event.endsAt
+                    return eventsOverlap(
+                        monday, nextMonday, event.beginsAt, event.endsAt
                     );
                 })
 
@@ -348,14 +348,6 @@ export default Vue.extend({
             return ['event'].concat(event.classes);
         },
 
-        // Returns true if the two date spans overlap.
-        //
-        // End values are non-inclusive.
-        datesOverlap(start1, end1, start2, end2) {
-            return (start1.isSameOrBefore(start2) && start2.isBefore(end1))
-                || (start2.isSameOrBefore(start1) && start1.isBefore(end2));
-        },
-
         // Returns a list of CSS positioning parameters for event (one for each day the event
         // applies).
         eventStyles(event) {
@@ -367,23 +359,23 @@ export default Vue.extend({
                     + datetime.second() / 3600.0;
             }
 
-            // Limits the startsAt and endsAt values to this week's dates.
-            let startsAt = moment.max(event.startsAt, this.currentWeek);
+            // Limits the beginsAt and endsAt values to this week's dates.
+            let beginsAt = moment.max(event.beginsAt, this.currentWeek);
             let endsAt = moment.min(event.endsAt, this.currentWeekEnd);
 
-            let startDay = startsAt.clone().startOf('day');
+            let beginDay = beginsAt.clone().startOf('day');
             let endsDay = endsAt.clone().startOf('day');
 
             // Loops over the days the event is applied on.
-            let nDays = endsDay.diff(startDay, 'days') + 1;
+            let nDays = endsDay.diff(beginDay, 'days') + 1;
             let styles = Array(nDays);
             for (var i = 0; i < nDays; ++i) {
-                let day = startDay.clone().add(i, 'days');
+                let day = beginDay.clone().add(i, 'days');
 
                 // Does the event starts during the day?
-                let startTimeDec =
+                let beginTimeDec =
                     i == 0
-                    ? timeDecimal(startsAt)
+                    ? timeDecimal(beginsAt)
                     : 0;
 
                 // Does the event stops during the day?
@@ -393,9 +385,9 @@ export default Vue.extend({
                     : 24;
 
                 styles[i] = {
-                    top: `calc(${startTimeDec} / 24 * 100%)`,
+                    top: `calc(${beginTimeDec} / 24 * 100%)`,
                     left: `calc(${day.isoWeekday()} / 8 * 100%)`,
-                    height: `calc(${endTimeDec - startTimeDec} / 24 * 100%)`
+                    height: `calc(${endTimeDec - beginTimeDec} / 24 * 100%)`
                 };
             }
 
