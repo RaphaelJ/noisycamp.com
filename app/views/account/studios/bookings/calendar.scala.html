@@ -29,13 +29,17 @@
     implicit request: RequestHeader, messagesProvider: MessagesProvider,
     config: Configuration, flash: Flash)
 
+@currentDateTime = @{ studio.currentDateTime() }
+@studioCreatedAt = @{ studio.currentDateTime(studio.createdAt) }
+
 @views.html.account.layout(Seq("Studio calendar", studio.name), identity=identity) {
 
     <div class="panel-section">
         <div class="grid-x grid-padding-x grid-padding-y">
             <div class="cell small-12">
                 <calendar
-                    current-time="@studio.currentDateTime().toString"
+                    current-time="@currentDateTime"
+                    begin="@studioCreatedAt.toLocalDate"
                     :scrollable="false"
                     :opening-schedule="@tags.json(Json.toJson(studio.openingSchedule), htmlEscape = true)"
                     :events="@{tags.json(Json.toJson(bookingEvents), htmlEscape = true)}">
