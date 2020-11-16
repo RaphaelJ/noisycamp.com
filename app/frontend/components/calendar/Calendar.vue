@@ -573,6 +573,8 @@ export default Vue.extend({
     position: absolute;
 
     width: calc(100% / 8);
+
+    overflow-y: auto;
 }
 
 .calendar .schedule .event .event-link-container {
