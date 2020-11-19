@@ -1,0 +1,166 @@
+@* Noisycamp is a platform for booking music studios.
+ * Copyright (C) 2020  Raphael Javaux <raphael@noisycamp.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *@
+
+@import play.api.Configuration
+
+@(identity: Option[models.Identity])(
+implicit req: RequestHeader, config: Configuration, flash: Flash)
+
+@terms = {    
+    <p>NoisyCamp (&quot;us&quot; or &quot;we&quot;) is providing an online booking management service (the “website” or the
+        &quot;service&quot;) for music studios (&quot;studios&quot;), such as rehearsal or recording studios. NoisyCamp is
+        operated by Raphael Javaux in Belgium whose company and VAT number is BE 749.513.654.</p>
+    <p>The sole fact of using the website is subject to the conditions stated in this document (&quot;terms&quot; or
+        &quot;terms of service&quot;). Please read this document carefully before using the website.</p>
+    <p>NoisyCamp reserves the right to revise the content of this document at any time and without notice. It is the
+        responsibility of the users (&quot;customers&quot;) to review these terms to keep themselves up to date with any
+        modification of these terms.</p>
+    
+    <h2 id="applicable-law">Applicable Law</h2>
+    
+    <p>By using this website, you agree that the laws of the Kingdom of Belgium and the European Union will govern these
+        terms of service, or any dispute of any sort that might come between NoisyCamp and you, or its business partners and
+        associates.</p>
+    
+    <h2 id="allowed-content-and-behavior">Allowed content and behavior</h2>
+    
+    <p>NoisyCamp reserves the right to prohibit access to the service, without notice, to any person or entity:</p>
+    
+    <ul>
+        <li>who violates the laws of the Kingdom of Belgium or the European Union.</li>
+        <li>who violates any of these terms of service.</li>
+        <li>who uses the service in the context of a fraud or scam.</li>
+        <li>who uses the service in the context of unsolicited promotional activity (&quot;spam&quot;).</li>
+        <li>who carries out credit card fraud.</li>
+        <li>who publishes or shares any content subject to copyright laws.</li>
+        <li>who publishes or shares false, forged or incorrect content.</li>
+        <li>who publishes harmful content.</li>
+        <li>who disrupts the integrity of the website and its availability.</li>
+        <li>who forges or impersonates any legal identity.</li>
+        <li>who uses the service to fraudulently extract financial income from NoisyCamp.</li>
+        <li>who uses the service to harm any of the business partners of NoisyCamp, including listed music studios.</li>
+    </ul>
+    
+    <h2 id="intellectual-property-rights">Intellectual property rights</h2>
+    
+    <p>The website content, name and Internet domain are all property of NoisyCamp, while the source code of the website is
+        available under a free software license <a href="https://github.com/RaphaelJ/noisycamp.com">on GitHub</a>.</p>
+    <p>By transmitting any user created content to the website, you acknowledge that the say content can be freely used by
+        NoisyCamp in the context of the standard operation of the website and its associated services.</p>
+    
+    <h2 id="booking">Booking</h2>
+    
+    <p>NoisyCamp provides online services to facilitate the booking of sessions from music studios (&quot;studios&quot;).
+    </p>
+    <p>NoisyCamp acts as a proxy between the studio and its customers. NoisyCamp, its affiliates or employees disclaim all
+        liability for any harm or damage that could occur before, during or after a session. Harm and damage include (but
+        are not limited to):</p>
+    
+    <ul>
+        <li>damage to any equipment.</li>
+        <li>damage to the studio premises.</li>
+        <li>harm incurred to the studio business and its profits.</li>
+        <li>harm incurred to the physical integrity of the people involved. </li>
+    </ul>
+    
+    <h3 id="studio-registration">Studio registration</h3>
+    
+    <p>Studio owners can freely register their music studios through the website. Studio owners are required to provide
+        valid and up to date information about their studios (e.g. location, opening times, pricing).</p>
+    <p>NoisyCamp reserves the right to remove, without notice, any studio that would not respect the terms of service, or
+        that would fail to deliver a quality service to its customers.</p>
+    
+    <h3 id="online-bookings">Online bookings</h3>
+    
+    <p>Only registered NoisyCamp users can book studios sessions through the website.</p>
+    <p>All bookings will be attributed a unique booking number that will be shared between the customer and the studio
+        owner.</p>
+    <p>Studio owners will be notified of new booking requests by email, and through the website interface for studio owners.
+    </p>
+    <p>If the studio owner chooses to not automatically accept bookings, the booking will have to be accepted or rejected
+        before the session starts. A booking will be automatically rejected if not accepted before the session starts. Any
+        online payment associated with a rejected booking will be automatically refunded.</p>
+    
+    <h3 id="online-card-payments">Online card payments</h3>
+    
+    <p>Studio owners can choose to accept online card payments for the bookings placed on their respective studios.</p>
+    <p>Online card payments are processed by Stripe Payments Europe, Ltd (&quot;Stripe&quot;), our third-party payment
+        partner.</p>
+    <p>Studio owners who wish to accept online card payments have to go through the Stripe Connect onboarding process for
+        Express accounts. This might include providing some information and documents to verify the studio owner&#39;s
+        identity and place of residence.</p>
+    <p>The use of online card payments is subject to the <a href="https://stripe.com/en-be/connect-account/legal">Stripe
+            Connect terms of service</a>.</p>
+    <p>The currency used to complete the payment is determined by the location of the studio. The customer&#39;s bank might
+        choose to apply additional currency conversion fee if their bank account does not match the payment currency.</p>
+    <p>A transaction fee will be collected on online payments, and subtracted to the studio&#39;s original price. The
+        transaction fee equals (@{(Plan.Free.transactionRate * 100).toIntExact}% of the booking total for <em>Free</em>
+        accounts, and @{(Plan.Premium.transactionRate * 100).toIntExact}% for <em>Premium</em> accounts. The
+        transaction fee is directly charged to the customer by NoisyCamp, and NoisyCamp will take care of any fiscal
+        obligations on this transaction fee (e.g. VAT or sale tax). The transaction fee should not appear in studio
+        owners&#39; bookkeeping records.</p>
+    <p>As an example, a <em>Premium</em> studio owner would observe a $3 transaction fee on a $50 online paid booking, and
+        would thus receive a $47 transfer on their bank account. The studio owner would only be responsible of fiscal
+        obligations on the received $47 income.</p>
+    
+    <h4 id="payment-payouts">Payment payouts</h4>
+    
+    <p>Payments collected through online card payments (minus transaction fees) are accumulated on the studio owner&#39;s
+        Stripe account before being transferred to the desired bank account (&quot;payout&quot;). Stripe and the studio
+        owner&#39;s bank might apply some additional fees if the bank account&#39;s currency does not match the studio&#39;s
+        currency.</p>
+    <p>Payouts are scheduled monthly for <em>Free</em> accounts (on the 15th day of the month), while <em>Premium</em>
+        accounts enjoy daily scheduled payouts. In both cases, payments are released for payout 48 hours after the end of
+        the session. For example, a payment for a session on July 5 will be transferred on July 7 for <em>Premium</em>
+        accounts, and July 15 for <em>Free</em> accounts. Additional bank transfer delays might apply.</p>
+    <p>Studio owners are responsible of their own fiscal and accounting obligations regarding the income they receive from
+        online payments. </p>
+    <p>If you have additional questions about payouts and/or online payments, please reach us at <a
+            href="mailto:support@@noisycamp.com">support@@noisycamp.com</a>.</p>
+    
+    <h3 id="cancellations">Cancellations</h3>
+    
+    <p>Bookings are cancellable by customers at any time before the session starts. Customers&#39; online payments will be
+        refunded depending on the cancellation policy at the time of booking, as fixed by the studio owner.</p>
+    <p>Bookings are cancellable by studio owners at any time. Customers&#39; online payments will be entirely refunded.
+        NoisyCamp reserves the right to charge the applicable transaction fees to the studio owner in case of excessive
+        cancellations of bookings with online payments.</p>
+    
+    <h3 id="disputes">Disputes</h3>
+    
+    <p>Customers and studio owners can notify us about a possibly fraudulent studio, booking or online payment at <a
+            href="mailto:dispute@@noisycamp.com">dispute@@noisycamp.com</a>. NoisyCamp reserves the right to temporary
+        freeze
+        the payout of any associated booking payment. The team at NoisyCamp agrees to do its best to resolve the dispute
+        while taking into consideration testimonies from all involved parties.</p>
+}
+
+@layout(Seq("Terms of Service"), identity=identity) {
+    <div class="grid-container">
+        <div class="grid-x grid-padding-x grid-padding-y">
+            <div class="cell">
+                <h1 id="terms-of-service">Terms of Service</h1>
+            </div>
+
+            <div class="cell">
+                <div class="panel-section">
+                    @terms
+                </div>
+            </div>
+        </div>
+    </div>
+}

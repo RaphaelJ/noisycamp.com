@@ -53,8 +53,8 @@
 }
 
 .hero.auth-hero .button.sign-in,
-.hero.auth-hero .button.sign-up {
-    /* Cancels bottom border as there is already one for <hr>. */
+.hero.auth-hero .help-text.agree-with-terms {
+    /* Cancels bottom margin as there is already one for <hr>. */
     margin-bottom: 0;
 }
 

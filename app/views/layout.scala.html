@@ -44,7 +44,7 @@
             <div class="top-bar-left">
                 <ul class="menu">
                     <li class="logo">
-                        <a href="@routes.IndexController.index()">
+                        <a href="@routes.IndexController.index">
                             <img src="@CDN.fromCDN(routes.Assets.versioned("images/logo.svg"))">
                             NoisyCamp
                         </a>
@@ -161,19 +161,17 @@
                         <h5>Company</h5>
 
                         <ul>
-                            <li>Terms of Service</li>
-                            <li>Privacy</li>
-                            <li>
-                                <a href="https://github.com/RaphaelJ/noisycamp.com">
-                                    Sources
-                                </a>
-                            </li>
                             <li>About us</li>
                             <li>
-                                Icons by
-                                <a href="https://www.flaticon.com/authors/smashicons" title="Smashicons">Smashicons</a>
-                                and
-                                <a href="https://www.flaticon.com/authors/pixel-buddha" title="Pixel Buddha">Pixel Buddha</a>
+                                <a href="@routes.IndexController.terms">
+                                    Terms of Service
+                                </a>
+                            </li>
+                            <li>Privacy Policy</li>
+                            <li>
+                                <a href="https://github.com/RaphaelJ/noisycamp.com">
+                                    Source code
+                                </a>
                             </li>
                         </ul>
                     </div>
@@ -184,8 +182,14 @@
                     <div class="cell small-12 medium-3">
                         <ul>
                             <li><h6>© @Year.now NoisyCamp</h6></li>
-                            <li>Made in Belgium</li>
-                            <li>BE 749.513.654</li>
+                            <li><small>Made in Belgium</small></li>
+                            <li><small>BE 749.513.654</small></li>
+                            <li><small>
+                                Icons by
+                                <a href="https://www.flaticon.com/authors/smashicons" title="Smashicons">Smashicons</a>
+                                and
+                                <a href="https://www.flaticon.com/authors/pixel-buddha" title="Pixel Buddha">Pixel Buddha</a>
+                            </small></li>
                         </ul>
                     </div>
                 </div>

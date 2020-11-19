@@ -16,6 +16,8 @@
 
 GET     /                               controllers.IndexController.index
 
+GET     /terms                          controllers.IndexController.terms
+
 # Authentication
 
 GET     /sign-in                        controllers.AuthController.signIn(redirectTo: Option[String] ?= None)

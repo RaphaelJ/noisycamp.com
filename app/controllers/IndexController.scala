@@ -1,5 +1,5 @@
 /* Noisycamp is a platform for booking music studios.
- * Copyright (C) 2019  Raphael Javaux <raphaeljavaux@gmail.com>
+ * Copyright (C) 2019 2020  Raphael Javaux <raphael@noisycamp.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,10 +23,14 @@ import play.api._
 import play.api.mvc._
 
 @Singleton
-class IndexController @Inject() (ccc: CustomControllerCompoments)
-  extends CustomBaseController(ccc) {
+class IndexController @Inject() (ccc: CustomControllerCompoments) 
+    extends CustomBaseController(ccc) {
 
-  def index = silhouette.UserAwareAction { implicit request =>
-    Ok(views.html.index(identity=request.identity))
-  }
+    def index = silhouette.UserAwareAction { implicit request =>
+        Ok(views.html.index(identity=request.identity))
+    }
+
+    def terms = silhouette.UserAwareAction { implicit request =>
+        Ok(views.html.terms(identity=request.identity))
+    }
 }
