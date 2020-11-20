@@ -1,0 +1,111 @@
+@* Noisycamp is a platform for booking music studios.
+ * Copyright (C) 2020  Raphael Javaux <raphael@noisycamp.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *@
+
+@import play.api.Configuration
+
+@(identity: Option[models.Identity])(
+    implicit req: RequestHeader, config: Configuration, flash: Flash)
+
+@policy = {
+    <p>At NoisyCamp, we care deeply about the data privacy of our users and studios. We promote full transparency in
+        relation to how we collect, handle, secure and store personal data.</p>
+
+    <hr>
+
+    <h2>Collected personal information</h2>
+
+    <p>To operate as expected, our services collect some information about our users. We only collect the information
+        required for our services to work as expected.</p>
+    <p>We collect the following information about our users:</p>
+
+    <ul>
+        <li>email addresses.</li>
+        <li>first and last names.</li>
+        <li>Google or Facebook account IDs for users that use Single Sign-On (SSO) methods.</li>
+        <li>dates, durations and payment information about bookings.</li>
+        <li>Stripe online transaction IDs associated with online payments.</li>
+    </ul>
+
+    <p>We don't store passwords but use cryptographic techniques to securely authenticate our users.</p>
+    <p>In addition, we collect the following information about studios and their owners:</p>
+
+    <ul>
+        <li>studio names, locations, phone numbers, opening times, pricing policies, equipments and pictures.</li>
+        <li>Stripe account IDs, transaction and payout information if online payments are enabled.</li>
+    </ul>
+
+    <p>As a company located in the European Union, we comply with the General Data Protection Regulation. Users wishing to
+        obtain a personal data dump or to exercise their right to be forgotten can reach us at <a
+            href="mailto:support@@noisycamp.com">support@@noisycamp.com</a>.</p>
+
+    <hr>
+
+    <h2>Cookie policy</h2>
+
+    <p>We do not use cookies for tracking purpose. We only rely on cookies to keep our user logged in, which is part of the
+        correct operation of our website. We don't store personal information in cookies. Every cooking is enciphered using
+        strong cryptographic techniques.</p>
+
+    <hr>
+    
+    <h2>Security policy</h2>
+
+    <p>We do not store user passwords. Every password is processed using cryptographic techniques before being stored in our
+        databases.</p>
+    <p>We rely on Stripe to handle credit card related information. Stripe is a PCI compliant online payment provider. We do
+        not store credit card numbers within our systems.</p>
+    <p>All communications between our user systems and our servers use a secure HTTPS connection.</p>
+
+    <hr>
+
+    <h2>Third-party personal data sharing</h2>
+
+    <p>Our operations rely on several third-party providers. We are careful in selecting these and transparent in relation
+        to the data we share with them.</p>
+
+    <h3>Heroku</h3>
+
+    <p>Our website and databases are hosted by Heroku. Heroku is a cloud provider that helps us making the website available
+        worldwide with a minimum amount of downtime.</p>
+
+    <h3>Stripe</h3>
+
+    <p>Stripe takes care of handling credit card payments and bank transfers. Stripe complies with standard payment card
+        security standards (PCI DSS) and is used by thousands of businesses worldwide. We share some of our customers' email
+        addresses with Stripe.</p>
+
+    <h3>SendGrid</h3>
+
+    <p>We rely on SendGrid to deliver emails to our customers. We share some personal information of our users, including
+        email addresses, first and last names, and some information related to our users' bookings.</p>
+}
+
+@layout(Seq("Privacy Policy"), identity=identity) {
+    <div class="grid-container">
+        <div class="grid-x grid-padding-x grid-padding-y">
+            <div class="cell">
+                <h1 id="privacy-policy">Privacy Policy</h1>
+            </div>
+
+            <div class="cell">
+                <div class="panel-section">
+                    @policy
+                </div>
+            </div>
+        </div>
+    </div>
+}

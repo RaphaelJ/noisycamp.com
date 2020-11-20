@@ -17,6 +17,7 @@
 GET     /                               controllers.IndexController.index
 
 GET     /terms                          controllers.IndexController.terms
+GET     /privacy                        controllers.IndexController.privacy
 
 # Authentication
 

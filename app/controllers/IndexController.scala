@@ -33,4 +33,8 @@ class IndexController @Inject() (ccc: CustomControllerCompoments)
     def terms = silhouette.UserAwareAction { implicit request =>
         Ok(views.html.terms(identity=request.identity))
     }
+
+    def privacy = silhouette.UserAwareAction { implicit request =>
+        Ok(views.html.privacy(identity=request.identity))
+    }
 }
