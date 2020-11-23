@@ -24,9 +24,11 @@
     implicit req: RequestHeader, config: Configuration)
 
 @layout {
-    @tags.heading() { Premium upgrade request - @user.displayName }
+    @tags.heading("h3") { Premium upgrade request - @user.displayName }
 
-    @tags.heading("h3") { User info }
+    @emails.tags.hr()
+
+    @tags.heading("h4") { User info }
     <dl>
         <dt>Name</dt>
         <dd>@user.displayName</dd>
@@ -35,7 +37,9 @@
         <dd><a href="mailto:@user.email">@user.email</a></dd>
     </dl>
 
-    @tags.heading("h3") { Form answers }
+    @emails.tags.hr()
+
+    @tags.heading("h4") { Form answers }
 
     <dl>
         @for(website <- formData.website) {
@@ -72,7 +76,9 @@
     </dl>
 
     @if(!studios.isEmpty) {
-        @tags.heading("h3") { Existing studios }
+        @emails.tags.hr()
+
+        @tags.heading("h4") { Existing studios }
 
         @for(studio <- studios) {
             <ul>
