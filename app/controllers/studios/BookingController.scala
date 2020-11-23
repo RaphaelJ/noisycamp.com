@@ -26,6 +26,7 @@ import scala.util.{ Success, Failure }
 
 import akka.util.ByteString
 import com.mohiva.play.silhouette.api.actions.SecuredRequest
+import com.sendgrid.Response
 import com.stripe.model.checkout
 import com.stripe.model.PaymentIntent
 import play.api._
@@ -119,7 +120,7 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
         })
     }
 
-    private def handleOnlinePayment(identity: Identity, studio: Studio, studioPics: Seq[Picture#Id],
+    private def handleOnlinePayment(identity: Identity, studio: Studio, pictures: Seq[Picture#Id],
         bookingTimes: BookingTimes)(implicit request: RequestHeader) : DBIO[Result] = {
 
         val user = identity.user
@@ -161,7 +162,7 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
             priceBreakdown = PriceBreakdown(studio, bookingTimes, transactionFeeRate)
 
             session <- DBIO.from(paymentService.initiatePayment(
-                user, priceBreakdown, title, description, statement, studioPics,
+                user, priceBreakdown, title, description, statement, pictures,
                 PaymentCaptureMethod.Manual, onSuccess, onCancel))
 
             sessionId = session.getId
@@ -178,7 +179,7 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
         } yield Ok(views.html.studios.bookingCheckout(identity = Some(identity), session))
     }
 
-    private def handleOnsitePayment(identity: Identity, studio: Studio, studioPics: Seq[Picture#Id],
+    private def handleOnsitePayment(identity: Identity, studio: Studio, pictures: Seq[Picture#Id],
         bookingTimes: BookingTimes)(implicit request: RequestHeader) : DBIO[Result] = {
 
         val user = identity.user
@@ -194,11 +195,25 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
             studio, user, status, studio.bookingPolicy.cancellationPolicy, bookingTimes, None,
             StudioBookingPaymentOnsite())
 
+        def onSuccess(booking: StudioBooking, owner: User) = {
+            sendBookingEmails(booking, user, studio, pictures, owner).
+                map { _ =>
+                    Redirect(_root_.controllers.account.routes.BookingsController.show(booking.id)).
+                        flashing("success" -> "Your session has been successfully booked.")
+                }
+        }
+
         daos.studioBooking.
             insert(booking).
-            map { booking =>
-                Redirect(_root_.controllers.account.routes.BookingsController.show(booking.id)).
-                    flashing("success" -> "Your session has been successfully booked.")
+            flatMap { booking =>
+                daos.user.query.
+                    filter(_.id === studio.ownerId).
+                    result.
+                    head.
+                    flatMap { owner => 
+                        // TODO: Do not send the email within the DB transaction.
+                        DBIO.from { onSuccess(booking, owner)  }
+                    }
             }
     }
 
@@ -216,7 +231,8 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
                 booking.studioId, booking.times.beginsAt.toString,
                 booking.times.duration.getSeconds.toInt)).
                 flashing("error" ->
-                    "A problem occured during the processing of your payment. Please try  later.")
+                    ("A problem occured during the processing of your payment. Please try again " +
+                    "later."))
         }
 
         lazy val onBookingNotFound = NotFound("Booking not found.")
@@ -248,7 +264,8 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
     }
 
     /** Receives a valid payment webhook notification from Stripe. */
-    def stripeCompleted = Action(parse.byteString).async { request: Request[ByteString] =>
+    def stripeCompleted = Action(parse.byteString).async {
+        implicit request: Request[ByteString] =>
 
         paymentService.withWebhookEvent(request, { event =>
             if (event.getType == "checkout.session.completed") {
@@ -276,7 +293,8 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
         sessionOrId: /* Session or Session ID */ Either[checkout.Session, String],
         onPaymentSuccess: StudioBooking => Result,
         onPaymentFailure: StudioBooking => Result,
-        onBookingNotFound: Result):
+        onBookingNotFound: Result)(
+        implicit request: RequestHeader):
         Future[Result] = {
 
         // Sets the payment status as failed and uncapture the charge when possible
@@ -314,12 +332,31 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
                             } else {
                                 StudioBookingStatus.PendingValidation
                             }
+                        val newBooking = booking.copy(status = newStatus)
 
-                        daos.studioBooking.query.
-                            filter(_.id === booking.id).
-                            map(_.status).
-                            update(newStatus).
-                            map { _ => onPaymentSuccess(booking) }
+                        for {
+                            _ <- daos.studioBooking.query.
+                                filter(_.id === newBooking.id).
+                                map(_.status).
+                                update(newStatus)
+
+                            customer <- daos.user.query.
+                                filter(_.id === newBooking.customerId).
+                                result.
+                                head
+
+                            owner <- daos.user.query.
+                                filter(_.id === studio.ownerId).
+                                result.
+                                head
+
+                            pictures <- daos.studioPicture.
+                                withStudioPictureIds(studio.id).
+                                result
+
+                            _ <- DBIO.from(
+                                sendBookingEmails(newBooking, customer, studio, pictures, owner))
+                        } yield onPaymentSuccess(newBooking)
                     }
                     case false => abortCharge(intent, booking)
                 }
@@ -401,6 +438,24 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
                         "The studio is not available during the selected booking period.")
                     case false => form
                 }
+        }
+    }
+
+    private def sendBookingEmails(
+        booking: StudioBooking, customer: User, studio: Studio, pictures: Seq[Picture#Id],
+        owner: User)(
+        implicit request: RequestHeader, config: Configuration):
+        Future[(Response, Response)] = {
+
+        if (booking.isAccepted) {
+            // Automatically accepted. Confirm the booking to both actors.
+            emailService.sendBookingAccepted(booking, customer, studio, pictures, owner).
+                zip(emailService.sendBookingReceived(booking, customer, studio, owner))
+        } else {
+            // Booking required review. Notifies the customer and sends the request to the
+            // owner.
+            emailService.sendBookingRequestInReview(booking, customer, studio).
+                zip(emailService.sendBookingRequest(booking, customer, studio, owner))
         }
     }
 }

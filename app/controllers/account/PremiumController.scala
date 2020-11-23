@@ -44,15 +44,10 @@ class PremiumController @Inject() (ccc: CustomControllerCompoments)
             data => {
                 val user = request.identity.user
 
+                
                 db.run(daos.studio.query.filter(_.ownerId === user.id).result).
-                    flatMap { studios =>
-                        // Submits the the form data to noisycamp.emailReplyTo
-                        val subject = f"Premium upgrade request - ${user.displayName}"
-                        val content = views.html.emails.premiumRequest(user, data, studios)
-                        val destEmail = emailService.replyToEmail.getEmail
-
-                        emailService.send(subject, content, destEmail)
-                    }.map { _ =>
+                    flatMap { studios => emailService.sendPremiumRequest(user, data, studios) }.
+                    map { _ =>
                         Redirect(controllers.account.routes.IndexController.index).
                             flashing("success" ->
                                 ("Your Premium access request has been received, we will get " +

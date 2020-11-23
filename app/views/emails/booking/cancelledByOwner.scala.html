@@ -1,0 +1,74 @@
+@* Noisycamp is a platform for booking music studios.
+ * Copyright (C) 2020  Raphael Javaux <raphael@noisycamp.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *@
+
+@import play.api.Configuration
+
+@import misc.CDN
+@import models.{ Studio, StudioBooking, User }
+
+@(
+    booking: StudioBooking, customer: User, studio: Studio)(
+    implicit req: RequestHeader, config: Configuration)
+
+@emails.layout {
+    @emails.tags.heading("h3") {
+        Your booking in @studio.location.address.city on
+        @views.html.tags.localDate(booking.times.beginsAt.toLocalDate) has been cancelled
+    }
+
+    @emails.tags.hr()
+
+    @emails.tags.heading("h4") { Hi@for(firstName <- customer.firstName) { @firstName}, }
+
+    <p>
+        We are sorry to inform you that <strong>your booking request for
+        @emails.tags.a(routes.StudiosController.show(studio.id).absoluteURL) { @studio.name }
+        has been cancelled</strong> by the studio manager.
+    </p>
+    
+    @for(reason <- booking.cancellationReason) {
+        <p>The booking got cancelled for the following reason:</p>
+
+        <blockquote>@reason</blockquote>
+    }
+
+    @if(booking.isPaidOnline) {
+        <p>
+            You payment will be entirely refunded on the mean of payment chosen during the checkout
+            process. This might take a few days to show up on your bank balance.
+        </p>
+    }
+
+    <p>Thank you for using NoisyCamp.</p>
+
+    @emails.tags.hr()
+
+    @emails.tags.heading("h4") { <small>Booking summary</small> }
+    
+    <p>
+        @views.html.tags.localDateTime(booking.times.beginsAt)<br>
+        @views.html.tags.duration(booking.durations.total)<br>
+        <strong>Total: @tags.moneyAmount(booking.priceBreakdown.total)</strong>
+    </p>
+
+    @emails.tags.hr()
+
+    @emails.tags.button(
+        controllers.account.routes.BookingsController.show(booking.id).absoluteURL) {
+        Manage booking
+    }
+}

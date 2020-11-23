@@ -64,9 +64,11 @@
                 </p>
 
                 <p>
-                    <a href="mailto:@studioOwner.email">
-                        @studioOwner.email
-                    </a>
+                    <a href="mailto:@studioOwner.email">@studioOwner.email</a>
+                    @for(phone <- studio.phone) { 
+                        <br>
+                        <a href="tel:@phone">@phone</a>
+                    }
                 </p>
 
                 <hr class="show-for-small-only">
@@ -74,9 +76,8 @@
 
             <div class="cell small-12 medium-6">
                 <p class="text-sans-serif">
-                        <i class="fi-calendar"></i>&nbsp;
-                        @tags.localDateTime(booking.times.beginsAt)<br>
-
+                    <i class="fi-calendar"></i>&nbsp;
+                    @tags.localDateTime(booking.times.beginsAt)<br>
 
                     <i class="fi-clock"></i>&nbsp;
                     @tags.duration(booking.durations.total)

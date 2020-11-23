@@ -22,7 +22,7 @@
 
 @* Renders an equipment or instrument as a small div. *@
 
-@(equip: LocalEquipment)(implicit config: Configuration)
+@(equip: LocalEquipment)(implicit req: RequestHeader, config: Configuration)
 
 @equipmentCategoryName = {@equip.category.map(_.name).getOrElse("Other")}
 

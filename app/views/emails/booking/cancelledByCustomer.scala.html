@@ -1,0 +1,78 @@
+@* Noisycamp is a platform for booking music studios.
+ * Copyright (C) 2020  Raphael Javaux <raphael@noisycamp.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *@
+
+@import play.api.Configuration
+
+@import misc.CDN
+@import models.{ Studio, StudioBooking, User }
+
+@(
+    booking: StudioBooking, customer: User, studio: Studio, owner: User)(
+    implicit req: RequestHeader, config: Configuration)
+
+@emails.layout {
+    @emails.tags.heading("h3") { A booking in @studio.location.address.city has been cancelled }
+
+    @emails.tags.hr()
+
+    @emails.tags.heading("h4") { Hi@for(firstName <- owner.firstName) { @firstName}, }
+
+    <p>
+        We are sorry to inform you that
+        <strong>@emails.tags.a("mailto:" + customer.email){ @customer.displayName }</strong>
+        cancelled their booking for
+        @emails.tags.a(routes.StudiosController.show(studio.id).absoluteURL) { @studio.name }.
+    </p>
+    
+    @for(reason <- booking.cancellationReason) {
+        <p>The booking got cancelled for the following reason:</p>
+
+        <blockquote>@reason</blockquote>
+    }
+
+    @if(booking.isPaidOnline) {
+        <p>Based on the cancellation policy, the customer might be entirely refunded.</p>
+    }
+
+    <p>Thank you for using NoisyCamp.</p>
+
+    @emails.tags.hr()
+    
+    @emails.tags.heading("h4") { <small>Booking summary</small> }
+
+    <p>
+        @if(customer.fullName) {
+            @customer.fullName (@emails.tags.a("mailto:" + customer.email){customer.email})
+        } else {
+            @emails.tags.a("mailto:" + customer.email){customer.email}
+        }
+    </p>
+    
+    <p>
+        @views.html.tags.localDateTime(booking.times.beginsAt)<br>
+        @views.html.tags.duration(booking.durations.total)<br>
+        <strong>Total: @tags.moneyAmount(booking.priceBreakdown.total)</strong>
+    </p>
+
+    @emails.tags.hr()
+
+    @emails.tags.button(
+        controllers.account.studios.routes.BookingsController.show(studio.id, booking.id).
+            absoluteURL) {
+        Manage booking
+    }
+}

@@ -22,11 +22,15 @@ import javax.inject._
 import scala.concurrent.{ Future, blocking }
 
 import play.api.Configuration
+import play.api.mvc.RequestHeader
 import play.twirl.api.Html
 
 import com.sendgrid.{ SendGrid, Method, Request, Response }
 import com.sendgrid.helpers.mail.Mail
 import com.sendgrid.helpers.mail.objects.{ Content, Email }
+
+import forms.account.PremiumForm
+import models.{ Picture, Studio, StudioBooking, User }
 
 /** Provides an helper to send emails through SendGrid. */
 @Singleton
@@ -38,6 +42,10 @@ class EmailService @Inject() (
 
     val fromEmail: Email = new Email(config.get[String]("noisycamp.fromEmail"), "NoisyCamp")
     val replyToEmail: Email = new Email(config.get[String]("noisycamp.replyToEmail"), "NoisyCamp")
+
+    def send(subject: String, content: play.twirl.api.Content, dest: User): Future[Response] = {
+        send(subject, content, dest.email, dest.fullName)
+    }
 
     def send(subject: String, content: play.twirl.api.Content, destEmail: String,
         destName: Option[String] = None): Future[Response] = {
@@ -55,16 +63,77 @@ class EmailService @Inject() (
         request.setEndpoint("mail/send")
         request.setBody(mail.build())
 
-        println(request.getBody)
+        Future { blocking { sendGridInstance.api(request) } }
+    }
 
-        Future {
-            blocking {
-                val response = sendGridInstance.api(request)
-                println(response.getStatusCode())
-                println(response.getBody())
+    def sendPremiumRequest(user: User, data: PremiumForm.Data, studios: Seq[Studio])(
+        implicit request: RequestHeader, config: Configuration): Future[Response] = {
 
-                response
-            }
-        }
+        // Submits the the form data to noisycamp.emailReplyTo
+        val subject = f"Premium upgrade request - ${user.displayName}"
+        val content = views.html.emails.premiumRequest(user, data, studios)
+        val destEmail = replyToEmail.getEmail
+
+        send(subject, content, destEmail)
+    }
+
+    /** Sends an email to the studio owner notifying them of an (automatically) accepted booking
+     * request. */
+    def sendBookingReceived(booking: StudioBooking, customer: User, studio: Studio, owner: User)(
+        implicit request: RequestHeader, config: Configuration): Future[Response] = {
+
+        val content = views.html.emails.booking.received(booking, customer, studio, owner)
+        send("Your studio has been booked", content, owner)
+    }
+        
+    /** Sends an email to the studio owner notifying them of a new booking request. */ 
+    def sendBookingRequest(booking: StudioBooking, customer: User, studio: Studio, owner: User)(
+        implicit request: RequestHeader, config: Configuration): Future[Response] = {
+
+        val content = views.html.emails.booking.request(booking, customer, studio, owner)
+        send("[Action required] Your studio received a new booking request", content, owner)
+    }
+    
+    /** Sends an email to the customer notifying them that their booking request has been correctly
+     * received and is currently in review. */ 
+    def sendBookingRequestInReview(
+        booking: StudioBooking, customer: User, studio: Studio)(
+        implicit request: RequestHeader, config: Configuration): Future[Response] = {
+            
+        val content = views.html.emails.booking.requestInReview(booking, customer, studio)
+        send("Your booking request is in review", content, customer)
+    }
+
+    def sendBookingAccepted(
+        booking: StudioBooking, customer: User, studio: Studio, pictures: Seq[Picture#Id], 
+        owner: User)(
+        implicit request: RequestHeader, config: Configuration): Future[Response] = {
+
+        val content = views.html.emails.booking.accepted(booking, customer, studio, pictures, owner)
+        send("Your booking has been accepted", content, customer)
+    }
+
+    def sendBookingRejected(
+        booking: StudioBooking, customer: User, studio: Studio)(
+        implicit request: RequestHeader, config: Configuration): Future[Response] = {
+
+        val content = views.html.emails.booking.rejected(booking, customer, studio)
+        send("Your booking has been rejected", content, customer)
+    }
+
+    def sendBookingCancelledByCustomer(
+        booking: StudioBooking, customer: User, studio: Studio, owner: User)(
+        implicit request: RequestHeader, config: Configuration): Future[Response] = {
+
+        val content = views.html.emails.booking.cancelledByCustomer(
+            booking, customer, studio, owner)
+        send(f"A booking has been cancelled", content, owner)
+    }
+    
+    def sendBookingCancelledByOwner(booking: StudioBooking, customer: User, studio: Studio)(
+        implicit request: RequestHeader, config: Configuration): Future[Response] = {
+
+        val content = views.html.emails.booking.cancelledByOwner(booking, customer, studio)
+        send(f"Your booking has been cancelled", content, customer)
     }
 }

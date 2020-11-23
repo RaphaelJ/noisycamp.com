@@ -1,0 +1,62 @@
+@* Noisycamp is a platform for booking music studios.
+ * Copyright (C) 2020  Raphael Javaux <raphael@noisycamp.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *@
+
+@import play.api.Configuration
+
+@import misc.CDN
+@import models.{ Studio, StudioBooking, User }
+
+@(
+    booking: StudioBooking, customer: User, studio: Studio)(
+    implicit req: RequestHeader, config: Configuration)
+
+@emails.layout {
+    @emails.tags.heading("h3") {
+        Your booking in @studio.location.address.city on
+        @views.html.tags.localDate(booking.times.beginsAt.toLocalDate) is in review
+    }
+
+    @emails.tags.hr()
+
+    @emails.tags.heading("h4") { Hi@for(firstName <- customer.firstName) { @firstName}, }
+
+    <p>
+        We have received your booking request for
+        @emails.tags.a(routes.StudiosController.show(studio.id).absoluteURL) { @studio.name }
+        on @views.html.tags.localDate(booking.times.beginsAt.toLocalDate).
+    </p>
+
+    <p>
+        <strong>Your request has to be reviewed by the studio manager first</strong>. You will
+        receive an email when your request get either accepted or rejected.
+    </p>
+
+    <p>You can also cancel your request without additional charge before it being accepted.</p>
+
+    @if(booking.isPaidOnline) {
+        <p>You will be entirely refunded if your request get rejected.</p>
+    }
+
+    <p>Thank you for using NoisyCamp.</p>
+
+    @emails.tags.hr()
+
+    @emails.tags.button(
+        controllers.account.routes.BookingsController.show(booking.id).absoluteURL) {
+        Manage my booking
+    }
+}

@@ -71,7 +71,7 @@
                             v-model="paymentMethod"
                             value="onsite"
                             id="payment-method-onsite">
-                        <label for="payment-method-onsite">Onsite</label>
+                        <label for="payment-method-onsite">On site</label>
                     </div>
                     <p class="help-text">
                         Payment will be requested by the studio's manager before or after you begin

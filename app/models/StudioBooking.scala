@@ -88,6 +88,12 @@ case class StudioBooking(
 
     require(times.duration == durations.total)
 
+    /** True if the booking has been accepted by the studio owner. */
+    def isAccepted: Boolean = {
+        assert(status != StudioBookingStatus.PaymentProcessing)
+        status != StudioBookingStatus.PendingValidation
+    }
+
     /** An active booking is a booking that is supposed to happen and for which we can't book the
      * booking perdiod again. */
     def isActive: Boolean = {

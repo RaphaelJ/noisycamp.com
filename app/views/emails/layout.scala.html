@@ -37,11 +37,12 @@
 
         <div style="
             text-align: center;
-            padding: 20px 0;">
+            padding: 30px 0;">
 
             <a href="@routes.IndexController.index.absoluteURL">
                 <img
-                    src="@CDN.fromCDN(routes.Assets.versioned("images/emails/logo_black.png"))"
+                    src="@CDN.fromCDN(
+                        routes.Assets.versioned("images/emails/logo_black.png"), true)"
                     alt="NoisyCamp logo"
                     width="175px">
             </a>
@@ -51,7 +52,7 @@
             background-color: rgba(255, 255, 255, 1);
             border-radius: 4px;
             border: 1px solid rgba(0, 0, 0, 0.06);
-            padding: 12px 18px;
+            padding: 15px 20px;
             max-width: 600px;
             margin: auto;">
 
@@ -66,7 +67,7 @@
                 style="
                     color: grey;
                     text-decoration: none;
-                    font-size: 0.9rem;">
+                    font-size: 13px;">
                 © @Year.now NoisyCamp
             </a>
         </div>

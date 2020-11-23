@@ -21,11 +21,22 @@ import play.api.Configuration
 import play.api.mvc.{ Call, RequestHeader }
 
 object CDN {
-    // Returns the URL to a call from the CDN, or a relative path if there is no CDN.
-    def fromCDN(call: Call)(implicit config: Configuration): String = {
+    /** Returns the URL to a call from the CDN, or a relative path if there is no CDN.
+     * 
+     * @param absoluteURL if true, will return an absolute URL if there is no CDN.
+     */
+    def fromCDN(call: Call, absoluteURL: Boolean = false)(
+        implicit req: RequestHeader, config: Configuration): String = {
+
         config.getOptional[String]("noisycamp.cdnHost") match {
             case Some(cdnHost) => cdnHost + call.canonical
-            case None => call.canonical
+            case None => {
+                if (absoluteURL) {
+                    call.absoluteURL
+                } else {
+                    call.canonical
+                }
+            }
         }
     }
 }
