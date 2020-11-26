@@ -120,6 +120,15 @@
             rel="stylesheet"
             href="@CDN.fromCDN(routes.Assets.versioned("stylesheets/main.css"))">
 
+        @for(siteID <- config.getOptional[String]("panelbear.siteID")) { 
+            <!-- Panelbear Analytics -->
+            <script async src="https://cdn.panelbear.com/analytics.js?site=@siteID"></script>
+            <script>
+                window.panelbear = window.panelbear || function(){ window.panelbearQ = window.panelbearQ || []; panelbearQ.push(arguments); };
+                panelbear('config', { site: '@siteID', honorDNT: true });
+            </script>
+        }
+
         @head
     </head>
 
