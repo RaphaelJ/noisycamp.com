@@ -40,13 +40,13 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
 
     import profile.api._
 
-    def index(id: Studio#Id) = silhouette.SecuredAction.async { implicit request =>
+    def index(id: Studio#Id) = SecuredAction.async { implicit request =>
         withStudioBookings(id, { case (studio, bookings) =>
             Ok(views.html.account.studios.bookings.index(request.identity, studio, bookings))
         })
     }
 
-    def calendar(id: Studio#Id) = silhouette.SecuredAction.async { implicit request =>
+    def calendar(id: Studio#Id) = SecuredAction.async { implicit request =>
         withStudioBookings(id, { case (studio, bookings) =>
             val bookingEvents = bookings.map { 
                 case (booking, user) => booking.toEvent(Some(user), Seq("booking")) }
@@ -88,7 +88,7 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
             }
     }
 
-    def show(studioId: Studio#Id, bookingId: StudioBooking#Id) = silhouette.SecuredAction.async {
+    def show(studioId: Studio#Id, bookingId: StudioBooking#Id) = SecuredAction.async {
         implicit request =>
 
         withStudioBookingTransaction(studioId, bookingId, { case (studio, booking, customer) =>
@@ -97,7 +97,7 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
         })
     }
 
-    def accept(studioId: Studio#Id, bookingId: StudioBooking#Id) = silhouette.SecuredAction.async {
+    def accept(studioId: Studio#Id, bookingId: StudioBooking#Id) = SecuredAction.async {
         implicit request =>
 
         val user = request.identity.user
@@ -120,7 +120,7 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
     }
 
     /** Rejects the booking and refunds the customer if they paid online. */
-    def reject(studioId: Studio#Id, bookingId: StudioBooking#Id) = silhouette.SecuredAction.async {
+    def reject(studioId: Studio#Id, bookingId: StudioBooking#Id) = SecuredAction.async {
         implicit request =>
 
         updateBookingStatus(
@@ -135,7 +135,7 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
     }
 
     /** Cancels the booking and refunds the customer if they paid online. */
-    def cancel(studioId: Studio#Id, bookingId: StudioBooking#Id) = silhouette.SecuredAction.async {
+    def cancel(studioId: Studio#Id, bookingId: StudioBooking#Id) = SecuredAction.async {
         implicit request =>
 
         updateBookingStatus(

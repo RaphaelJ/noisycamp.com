@@ -21,7 +21,10 @@ import javax.inject._
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.reflect.ClassTag
 
-import com.mohiva.play.silhouette.api.Silhouette
+import com.mohiva.play.silhouette.api.{ Env, Silhouette }
+import com.mohiva.play.silhouette.api.actions.{
+    SecuredActionBuilder, SecuredRequest, UnsecuredActionBuilder, UserAwareActionBuilder,
+    UserAwareRequest }
 import play.api.Configuration
 import play.api.db.slick.{ DatabaseConfigProvider, HasDatabaseConfigProvider }
 import play.api.i18n.I18nSupport
@@ -75,6 +78,46 @@ abstract class CustomBaseController @Inject () (
     val daos = ccc.daos
 
     val silhouette = ccc.silhouette
+
+    /** Composes with the provided `composeWith` action builder to enforce the NoisyCamp SSL policy
+     * when the user uses HTTP instead of HTTPS. */
+    case class EnforceHttpsActionBuilder[P, R[_], A <: ActionBuilder[R, P]](
+        composeWith: A,
+        executionContext: ExecutionContext
+        ) extends ActionBuilder[R, P] {
+
+        override def invokeBlock[B](request: Request[B], block: R[B] => Future[Result]) = {
+            if (request.secure || !config.get[Boolean]("noisycamp.forceHttps")) {
+                composeWith.invokeBlock(request, block)
+            } else {
+                var queryString =
+                    if (request.queryString.isEmpty) { "" }
+                    else { f"?${request.rawQueryString}" }
+
+                Future.successful(PermanentRedirect(
+                    f"https://${request.host}${request.path}${queryString}"))
+            }
+        }
+
+        override def parser = composeWith.parser
+    }
+
+    /** Requires the user to be signed in for the action to execute. */ 
+    def SecuredAction = EnforceHttpsActionBuilder[
+        AnyContent, ({ type R[B] = SecuredRequest[DefaultEnv, B] })#R,
+        SecuredActionBuilder[DefaultEnv, AnyContent]](
+        silhouette.SecuredAction, silhouette.SecuredAction.requestHandler.executionContext)
+    
+    /** Requires the user to not be signed in for the action to execute. */ 
+    def UnsecuredAction = EnforceHttpsActionBuilder[
+        AnyContent, Request, UnsecuredActionBuilder[DefaultEnv, AnyContent]](
+        silhouette.UnsecuredAction, silhouette.UnsecuredAction.requestHandler.executionContext)
+
+    /** Provides user information to the action. */ 
+    def UserAwareAction = EnforceHttpsActionBuilder[
+        AnyContent, ({ type R[B] = UserAwareRequest[DefaultEnv, B] })#R,
+        UserAwareActionBuilder[DefaultEnv, AnyContent]](
+        silhouette.UserAwareAction, silhouette.UserAwareAction.requestHandler.executionContext)
 
     val emailService = ccc.emailService
     implicit val exchangeRatesService = ccc.exchangeRatesService

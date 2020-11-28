@@ -26,15 +26,15 @@ import play.api.mvc._
 class IndexController @Inject() (ccc: CustomControllerCompoments) 
     extends CustomBaseController(ccc) {
 
-    def index = silhouette.UserAwareAction { implicit request =>
+    def index = UserAwareAction { implicit request =>
         Ok(views.html.index(identity=request.identity))
     }
 
-    def terms = silhouette.UserAwareAction { implicit request =>
+    def terms = UserAwareAction { implicit request =>
         Ok(views.html.terms(identity=request.identity))
     }
 
-    def privacy = silhouette.UserAwareAction { implicit request =>
+    def privacy = UserAwareAction { implicit request =>
         Ok(views.html.privacy(identity=request.identity))
     }
 }

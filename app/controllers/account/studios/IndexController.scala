@@ -35,7 +35,7 @@ class IndexController @Inject() (ccc: CustomControllerCompoments)
     import profile.api._
 
     /** Lists all studios from a single host. */
-    def index = silhouette.SecuredAction.async { implicit request =>
+    def index = SecuredAction.async { implicit request =>
         val user = request.identity.user
 
         db.run({ for {
@@ -57,11 +57,11 @@ class IndexController @Inject() (ccc: CustomControllerCompoments)
     }
 
     /** Shows a form to list a new studio. */
-    def create = silhouette.SecuredAction { implicit request =>
+    def create = SecuredAction { implicit request =>
         Ok(views.html.account.studios.create(request.identity, StudioForm.form))
     }
 
-    def createSubmit = silhouette.SecuredAction.async { implicit request =>
+    def createSubmit = SecuredAction.async { implicit request =>
 
         StudioForm.form.bindFromRequest.fold(
             form => Future.successful(BadRequest(views.html.account.studios.create(
@@ -86,7 +86,7 @@ class IndexController @Inject() (ccc: CustomControllerCompoments)
     }
 
     /** Shows the form with the studio settings. */
-    def settings(id: Studio#Id) = silhouette.SecuredAction.async { implicit request =>
+    def settings(id: Studio#Id) = SecuredAction.async { implicit request =>
         val user = request.identity.user
 
         db.run {
@@ -110,7 +110,7 @@ class IndexController @Inject() (ccc: CustomControllerCompoments)
     }
 
     /** Validates and saves the new studio's settings. */
-    def settingsSubmit(id: Studio#Id) = silhouette.SecuredAction.async { implicit request =>
+    def settingsSubmit(id: Studio#Id) = SecuredAction.async { implicit request =>
         val user = request.identity.user
 
         db.run({
@@ -148,7 +148,7 @@ class IndexController @Inject() (ccc: CustomControllerCompoments)
         }.transactionally)
     }
 
-    def publish(id: Studio#Id) = silhouette.SecuredAction.async { implicit request =>
+    def publish(id: Studio#Id) = SecuredAction.async { implicit request =>
         val user = request.identity.user
 
         db.run({

@@ -48,7 +48,7 @@ class PayoutsController @Inject() (
 
     import profile.api._
 
-    def index = silhouette.SecuredAction.async { implicit request =>
+    def index = SecuredAction.async { implicit request =>
         val user = request.identity.user
 
         db.run((for {
@@ -100,7 +100,7 @@ class PayoutsController @Inject() (
     }
 
     /** Redirects the user to the Stripe OAuth onboarding flow. */
-    def stripeOAuth = silhouette.SecuredAction.async { implicit request =>
+    def stripeOAuth = SecuredAction.async { implicit request =>
         val user = request.identity.user
 
         user.stripeAccountId.
@@ -128,7 +128,7 @@ class PayoutsController @Inject() (
     }
 
     /** Processes the Stripe Connect OAuth response. */
-    def stripeOAuthComplete = silhouette.SecuredAction.async {
+    def stripeOAuthComplete = SecuredAction.async {
         implicit request =>
 
         val user = request.identity.user
@@ -170,7 +170,7 @@ class PayoutsController @Inject() (
     }
 
     /** Redirects the user to the Stripe Express dashboard. */
-    def stripeDashboard = silhouette.SecuredAction.async { implicit request =>
+    def stripeDashboard = SecuredAction.async { implicit request =>
         val user = request.identity.user
 
         user.stripeAccountId match {

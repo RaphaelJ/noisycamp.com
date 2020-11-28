@@ -34,7 +34,7 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
     import profile.api._
 
     /** Lists the bookings of the current user. */
-    def index = silhouette.SecuredAction.async { implicit request =>
+    def index = SecuredAction.async { implicit request =>
         val user = request.identity.user
 
         db.run({
@@ -47,7 +47,7 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
         }
     }
 
-    def show(id: StudioBooking#Id) = silhouette.SecuredAction.async { implicit request =>
+    def show(id: StudioBooking#Id) = SecuredAction.async { implicit request =>
         val user = request.identity.user
 
         db.run({

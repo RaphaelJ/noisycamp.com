@@ -51,7 +51,7 @@ class AuthController @Inject() (
     implicit val userService: UserService)
     extends CustomBaseController(ccc) {
 
-    def signIn(redirectTo: Option[String] = None) = silhouette.UserAwareAction {
+    def signIn(redirectTo: Option[String] = None) = UserAwareAction {
         implicit request =>
 
         request.identity match {
@@ -61,8 +61,8 @@ class AuthController @Inject() (
         }
     }
 
-    def signInSubmit(redirectTo: Option[String] = None) =
-        silhouette.UserAwareAction.async { implicit request =>
+    def signInSubmit(redirectTo: Option[String] = None) = UserAwareAction.async {
+        implicit request =>
 
         request.identity match {
             case Some(_) => Future.successful(redirectToResult(redirectTo))
@@ -105,7 +105,7 @@ class AuthController @Inject() (
         }
     }
 
-    def signUp(redirectTo: Option[String] = None) = silhouette.UserAwareAction {
+    def signUp(redirectTo: Option[String] = None) = UserAwareAction {
         implicit request =>
 
         request.identity match {
@@ -115,8 +115,8 @@ class AuthController @Inject() (
         }
     }
 
-    def signUpSubmit(redirectTo: Option[String] = None) =
-        silhouette.UserAwareAction.async { implicit request =>
+    def signUpSubmit(redirectTo: Option[String] = None) = UserAwareAction.async {
+        implicit request =>
 
         request.identity match {
             case Some(_) => Future.successful(redirectToResult(redirectTo))
@@ -163,7 +163,7 @@ class AuthController @Inject() (
         }
     }
 
-    def signOut = silhouette.UserAwareAction.async { implicit request =>
+    def signOut = UserAwareAction.async { implicit request =>
 
         val onSuccess = Redirect(routes.IndexController.index)
 
@@ -176,7 +176,7 @@ class AuthController @Inject() (
     }
 
     def oauth2Authenticate(provider: String, redirectTo: Option[String] = None) =
-        Action.async { implicit request: Request[AnyContent] =>
+        UserAwareAction.async { implicit request =>
 
         socialProviderRegistry.get[OAuth2Provider](provider) match {
             case Some(p: OAuth2Provider with CommonSocialProfileBuilder) => {

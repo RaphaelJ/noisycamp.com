@@ -41,7 +41,7 @@ class PictureController @Inject() (
   import profile.api._
 
   /** Receives a new picture and stores it in the database. */
-  def upload = silhouette.SecuredAction(parse.multipartFormData).async {
+  def upload = SecuredAction(parse.multipartFormData).async {
     implicit request =>
 
     request.body

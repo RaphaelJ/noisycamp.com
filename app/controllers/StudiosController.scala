@@ -38,11 +38,11 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
 
     import profile.api._
 
-    def index = silhouette.UserAwareAction { implicit request =>
+    def index = UserAwareAction { implicit request =>
         Ok(views.html.studios.index(identity=request.identity))
     }
 
-    def search = silhouette.UserAwareAction.async { implicit request =>
+    def search = UserAwareAction.async { implicit request =>
         SearchForm.form.bindFromRequest.fold(
             form => Future.successful(BadRequest("Invalid search parameters.")),
             data => {
@@ -124,7 +124,7 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
         )
     }
 
-    def show(id: Studio#Id) = silhouette.UserAwareAction.async { implicit request =>
+    def show(id: Studio#Id) = UserAwareAction.async { implicit request =>
         val user: Option[User] = request.identity.map(_.user)
 
         val now = Instant.now

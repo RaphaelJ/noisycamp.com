@@ -32,11 +32,11 @@ class PremiumController @Inject() (ccc: CustomControllerCompoments)
 
     import profile.api._
 
-    def upgrade = silhouette.SecuredAction { implicit request =>
+    def upgrade = SecuredAction { implicit request =>
         Ok(views.html.account.premium.upgrade(request.identity, PremiumForm.form))
     }
 
-    def upgradeSubmit = silhouette.SecuredAction.async { implicit request =>
+    def upgradeSubmit = SecuredAction.async { implicit request =>
 
         PremiumForm.form.bindFromRequest.fold(
             form => Future.successful(

@@ -50,8 +50,8 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
     import profile.api._
 
     /** Shows a booking review page. */
-    def show(id: Studio#Id, beginsAt: String, duration: Int)
-        = silhouette.SecuredAction.async { implicit request =>
+    def show(id: Studio#Id, beginsAt: String, duration: Int) = SecuredAction.async {
+        implicit request =>
 
         val params = Map(
             "begins-at"       -> beginsAt,
@@ -91,7 +91,7 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
     }
 
     /** Processes a reviewed booking. */
-    def submit(id: Studio#Id) = silhouette.SecuredAction.async { implicit request =>
+    def submit(id: Studio#Id) = SecuredAction.async { implicit request =>
 
         withStudioTransaction(id, { case (studio, picIds) =>
             validateAvailabilities(studio, BookingForm.form(studio).bindFromRequest).
@@ -218,7 +218,7 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
     }
 
     /** Processes a valid booking payment redirect (from Stripe). */
-    def paymentSuccess(studioId: Long, sessionId: String) = silhouette.SecuredAction.async {
+    def paymentSuccess(studioId: Long, sessionId: String) = SecuredAction.async {
         implicit request =>
 
         def onPaymentSuccess(booking: StudioBooking) = {
