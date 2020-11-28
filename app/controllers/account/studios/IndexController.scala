@@ -21,9 +21,11 @@ import javax.inject._
 
 import scala.concurrent.Future
 
+import com.mohiva.play.silhouette.api.actions.SecuredRequest
 import play.api._
 import play.api.mvc._
 
+import auth.DefaultEnv
 import forms.account.StudioForm
 import models.{ PaymentPolicy, Studio, User }
 import _root_.controllers.{ CustomBaseController, CustomControllerCompoments }
@@ -57,32 +59,61 @@ class IndexController @Inject() (ccc: CustomControllerCompoments)
     }
 
     /** Shows a form to list a new studio. */
-    def create = SecuredAction { implicit request =>
-        Ok(views.html.account.studios.create(request.identity, StudioForm.form))
+    def create = SecuredAction.async { implicit request =>
+        ifUserCanCreateStudio(
+            DBIO.successful(
+                Ok(views.html.account.studios.create(request.identity, StudioForm.form))))
     }
 
     def createSubmit = SecuredAction.async { implicit request =>
+        ifUserCanCreateStudio {
+            StudioForm.form.bindFromRequest.fold(
+                form => DBIO.successful(BadRequest(views.html.account.studios.create(
+                    request.identity, form))),
+                data => {
+                    val (studio, equipments, pictures) = data.toStudio(Left(request.identity.user.id))
 
-        StudioForm.form.bindFromRequest.fold(
-            form => Future.successful(BadRequest(views.html.account.studios.create(
-                request.identity, form))),
-            data => {
-                val (studio, equipments, pictures) = data.toStudio(Left(request.identity.user.id))
-
-                db.run({
                     for {
-                        dbStudio <- daos.studio.insert(studio)
-                        _ <- daos.studioEquipment.setStudioEquipments(
-                          dbStudio.id, equipments)
-                        _ <- daos.studioPicture.setStudioPics(dbStudio.id, pictures)
-                    } yield dbStudio
-                }.transactionally).map { studio =>
-                    Redirect(_root_.controllers.routes.StudiosController.show(studio.id)).
-                        flashing("success" ->
-                            ("Your studio page is ready. " +
-                             "You can now review it before making it available to the public."))
+                        studioId <- daos.studio.insert(studio).map(_.id)
+                        _ <- daos.studioEquipment.setStudioEquipments(studioId, equipments)
+                        _ <- daos.studioPicture.setStudioPics(studioId, pictures)
+                    } yield 
+                        Redirect(_root_.controllers.routes.StudiosController.show(studioId)).
+                            flashing("success" ->
+                                ("Your studio page is ready. " +
+                                "You can now review it before making it available to the public."))
                 }
-            })
+            )
+        }
+    }
+
+    /** Executes the provided action if the user is allow to create one additional studio (based on
+     * on their plan), or redirect to the plan upgrade page. */
+    private def ifUserCanCreateStudio[B](
+        f: => DBIOAction[Result, NoStream, Effect.All])(
+        implicit request: SecuredRequest[DefaultEnv, B]) = {
+
+        val user = request.identity.user
+
+        val redirectTo = _root_.controllers.account.routes.PremiumController.upgrade
+
+        db.run({
+            daos.studio.query.
+                filter(_.ownerId === user.id).
+                length.
+                result.
+                flatMap { nStudios =>
+                    user.plan.studioLimit match {
+                        case Some(studioLimit) if (studioLimit <= nStudios) => {
+                            val result = Redirect(redirectTo).
+                                flashing("error" -> 
+                                    "Please upgrade to NoisyCamp Premium to host more studios.")
+                            DBIO.successful(result)
+                        }
+                        case _ => f
+                    }
+                }
+        }.transactionally)
     }
 
     /** Shows the form with the studio settings. */

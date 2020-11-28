@@ -37,6 +37,6 @@ object Plan extends Enumeration {
         val manualBookings:     Boolean)
         extends super.Val
 
-    val Free = Val("Free", BigDecimal(0.08), Some(1), PayoutSchedule.Monthly, false, false, false)
+    val Free = Val("Free", BigDecimal(0.09), Some(1), PayoutSchedule.Monthly, false, false, false)
     val Premium = Val("Free", BigDecimal(0.06), None, PayoutSchedule.Daily, true, true, true)
 }
