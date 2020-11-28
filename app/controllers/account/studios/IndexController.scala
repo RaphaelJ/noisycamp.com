@@ -107,13 +107,25 @@ class IndexController @Inject() (ccc: CustomControllerCompoments)
                         case Some(studioLimit) if (studioLimit <= nStudios) => {
                             val result = Redirect(redirectTo).
                                 flashing("error" -> 
-                                    "Please upgrade to NoisyCamp Premium to host more studios.")
+                                    "Upgrade to NoisyCamp Premium to host more studios.")
                             DBIO.successful(result)
                         }
                         case _ => f
                     }
                 }
         }.transactionally)
+    }
+
+    def websiteIntegration(id: Studio#Id) = SecuredAction { implicit request =>
+        val user = request.identity.user
+
+        if (user.plan.websiteIntegration) {
+            Ok("Feature not yet implemented.")
+        } else {
+            Redirect(_root_.controllers.account.routes.PremiumController.upgrade).
+                flashing("error" -> 
+                    ("Upgrade to NoisyCamp Premium to integrate NoisyCamp into your website."))
+        }
     }
 
     /** Shows the form with the studio settings. */

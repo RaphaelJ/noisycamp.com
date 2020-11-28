@@ -43,13 +43,20 @@ GET     /account/studios                controllers.account.studios.IndexControl
 GET     /account/studios/create         controllers.account.studios.IndexController.create
 POST    /account/studios/create         controllers.account.studios.IndexController.createSubmit
 
+GET    /account/studios/:id/website-integration    controllers.account.studios.IndexController.websiteIntegration(id: Long)
+
 GET     /account/studios/:id/settings   controllers.account.studios.IndexController.settings(id: Long)
 POST    /account/studios/:id/settings   controllers.account.studios.IndexController.settingsSubmit(id: Long)
 
 GET     /account/studios/:id/bookings           controllers.account.studios.BookingsController.index(id: Long)
+
 GET     /account/studios/:id/bookings/calendar  controllers.account.studios.BookingsController.calendar(id: Long)
+GET     /account/studios/:id/bookings/calendar/sync  controllers.account.studios.BookingsController.calendarSync(id: Long)
+
+GET     /account/studios/:id/bookings/create  controllers.account.studios.BookingsController.create(id: Long)
 
 GET     /account/studios/:id/bookings/:booking  controllers.account.studios.BookingsController.show(id: Long, booking: Long)
+
 GET     /account/studios/:id/bookings/:booking/accept  controllers.account.studios.BookingsController.accept(id: Long, booking: Long)
 GET     /account/studios/:id/bookings/:booking/reject  controllers.account.studios.BookingsController.reject(id: Long, booking: Long)
 GET     /account/studios/:id/bookings/:booking/cancel  controllers.account.studios.BookingsController.cancel(id: Long, booking: Long)

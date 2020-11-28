@@ -56,6 +56,31 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
         })
     }
 
+    def calendarSync(id: Studio#Id) = SecuredAction { implicit request =>
+        val user = request.identity.user
+
+        if (user.plan.calendarSync) {
+            Ok("Feature not yet implemented.")
+        } else {
+            Redirect(_root_.controllers.account.routes.PremiumController.upgrade).
+                flashing("error" -> 
+                    ("Upgrade to NoisyCamp Premium to synchronize NoisyCamp with your favorite " +
+                    "calendar app."))
+        }
+    }
+
+    def create(id: Studio#Id) = SecuredAction { implicit request =>
+        val user = request.identity.user
+
+        if (user.plan.manualBookings) {
+            Ok("Feature not yet implemented.")
+        } else {
+            Redirect(_root_.controllers.account.routes.PremiumController.upgrade).
+                flashing("error" ->
+                    "Upgrade to NoisyCamp Premium to create your own booking events.")
+        }
+    }
+
     private def withStudioBookings[T](id: Studio#Id,
         f: ((Studio, Seq[(StudioBooking, User)]) => Result))
         (implicit request: SecuredRequest[DefaultEnv, T]): Future[Result] = {
