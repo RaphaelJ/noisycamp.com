@@ -87,7 +87,9 @@ abstract class CustomBaseController @Inject () (
         ) extends ActionBuilder[R, P] {
 
         override def invokeBlock[B](request: Request[B], block: R[B] => Future[Result]) = {
-            if (request.secure || !config.get[Boolean]("noisycamp.forceHttps")) {
+            val isSecure = request.secure || request.headers.get(X_FORWARDED_PROTO) == Some("https")
+
+            if (isSecure || !config.get[Boolean]("noisycamp.forceHttps")) {
                 composeWith.invokeBlock(request, block)
             } else {
                 var queryString =
