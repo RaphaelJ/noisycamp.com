@@ -68,7 +68,8 @@ case class StudioBooking(
 
     // If set, allow the customer to cancel the booking within the specified notice.
     cancellationPolicy:     Option[CancellationPolicy],
-
+    
+    cancelledAt:            Option[Instant] = None,
     cancellationReason:     Option[String] = None,
 
     times:                  BookingTimes,
@@ -87,18 +88,26 @@ case class StudioBooking(
     type Id = Long
 
     require(times.duration == durations.total)
+    require(cancelledAt.isDefined == isCancelled)
+    require(isCancelled || cancellationReason.isEmpty)
 
-    /** True if the booking has been accepted by the studio owner. */
+    /** True if the booking has been accepted by the studio owner. The booking might have been later
+     * cancelled. */
     def isAccepted: Boolean = {
         assert(status != StudioBookingStatus.PaymentProcessing)
-        status != StudioBookingStatus.PendingValidation
+        status != StudioBookingStatus.PendingValidation && status != StudioBookingStatus.Rejected
     }
 
     /** An active booking is a booking that is supposed to happen and for which we can't book the
-     * booking perdiod again. */
+     * booking perdiod against. */
     def isActive: Boolean = {
         status == StudioBookingStatus.PendingValidation ||
         status == StudioBookingStatus.Valid
+    }
+
+    def isCancelled: Boolean = {
+        status == StudioBookingStatus.CancelledByCustomer ||
+        status == StudioBookingStatus.CancelledByOwner
     }
 
     /** Returns true if the booking will start in the future, based on the studio's current time. */
@@ -124,6 +133,12 @@ case class StudioBooking(
     }
 
     def isCustomer(user: User): Boolean = customerId == user.id
+
+    def canAccept(studio: Studio, now: Instant = Instant.now): Boolean = {
+        status == StudioBookingStatus.PendingValidation && !isStarted(studio)
+    }
+
+    def canReject: Boolean = status == StudioBookingStatus.PendingValidation
 
     def ownerCanCancel: Boolean = {
         status == StudioBookingStatus.Valid

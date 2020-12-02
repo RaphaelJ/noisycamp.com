@@ -17,7 +17,7 @@
 
 package controllers.account.studios
 
-import java.time.ZoneId
+import java.time.{ Instant, ZoneId }
 import javax.inject._
 
 import scala.concurrent.Future
@@ -27,7 +27,7 @@ import play.api._
 import play.api.mvc._
 
 import auth.DefaultEnv
-import daos.CustomColumnTypes
+import daos.{ CustomColumnTypes, StudioBookingDAO }
 import models.{ Studio, StudioBooking, StudioBookingPaymentOnline, StudioBookingPaymentOnsite,
     StudioBookingStatus, User }
 import _root_.controllers.{ CustomBaseController, CustomControllerCompoments }
@@ -127,100 +127,122 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
 
         val user = request.identity.user
 
-        updateBookingStatus(
+        updateBooking(
             studioId, bookingId,
-            StudioBookingStatus.Valid, 
-            (studio, booking) => {
-                booking.status == StudioBookingStatus.PendingValidation && 
-                !booking.isStarted(studio)
-            }, false,
-            "This booking has been accepted.", "You can not accept this booking.",
-            (studio, booking, customer) => {
-                daos.studioPicture.withStudioPictureIds(studioId).result.
-                    flatMap { pictures =>
-                        DBIO.from(emailService.sendBookingAccepted(
+            "This booking has been accepted.", "You can not accept this booking.") {
+            case (studio, booking, customer, query) =>
+
+            if (booking.canAccept(studio)) {
+                Some (
+                    for {
+                        _ <- query.map(_.status).
+                            update(StudioBookingStatus.Valid)
+                        pictures <- daos.studioPicture.withStudioPictureIds(studioId).result
+                        _ <- DBIO.from(emailService.sendBookingAccepted(
                             booking, customer, studio, pictures, user))
-                    }
-            })
+                    }  yield Unit
+                )
+            } else {
+                None
+            }
+        }
     }
 
     /** Rejects the booking and refunds the customer if they paid online. */
     def reject(studioId: Studio#Id, bookingId: StudioBooking#Id) = SecuredAction.async {
         implicit request =>
 
-        updateBookingStatus(
+         updateBooking(
             studioId, bookingId,
-            StudioBookingStatus.Rejected,
-            (_, booking) => { booking.status == StudioBookingStatus.PendingValidation },
-            true,
-            "This booking has been rejected.", "Can not reject this booking.",
-            (studio, booking, customer) => {
-                DBIO.from(emailService.sendBookingRejected(booking, customer, studio))
-            })
+            "This booking has been rejected.", "Can not reject this booking.") {
+            case (studio, booking, customer, query) =>
+
+            if (booking.canReject) {
+                Some (
+                    for {
+                        _ <- query.map(_.status).
+                            update(StudioBookingStatus.Rejected)
+                        _ <- DBIO.from(refundBooking(booking))
+                        _ <- DBIO.from(emailService.sendBookingRejected(booking, customer, studio))
+                    }  yield Unit
+                )
+            } else {
+                None
+            }
+        }
     }
 
     /** Cancels the booking and refunds the customer if they paid online. */
     def cancel(studioId: Studio#Id, bookingId: StudioBooking#Id) = SecuredAction.async {
         implicit request =>
 
-        updateBookingStatus(
+        updateBooking(
             studioId, bookingId,
-            StudioBookingStatus.CancelledByOwner,
-            (_, booking) => { booking.ownerCanCancel },
-            true,
-            "This booking has been successfuly cancelled.", "Can not cancel this booking.",
-            (studio, booking, customer) => {
-                DBIO.from(emailService.sendBookingCancelledByOwner(booking, customer, studio))
-            })
+            "This booking has been successfuly cancelled.", "Can not cancel this booking.") {
+            case (studio, booking, customer, query) =>
+
+            if (booking.ownerCanCancel) {
+                Some (
+                    for {
+                        _ <- query.map(b => (b.status, b.cancelledAt)).
+                            update((StudioBookingStatus.CancelledByOwner, Some(Instant.now)))
+                        _ <- DBIO.from(refundBooking(booking))
+                        _ <- DBIO.from(emailService.sendBookingCancelledByOwner(
+                            booking, customer, studio))
+                    }  yield Unit
+                )
+            } else {
+                None
+            }
+        }
     }
 
-    /** Tries to update the status of the booking. 
+    /** Runs the provided booking updating DB action and redirect to the booking page.
      * 
-     * @param canChangeStatus verifies if the booking status can be updated.
-     * @param refundPayment if true, will refund any online payment associated with the booking
-     *  on success.
-     * @param onSuccess an additional DBIO action to execute on success.
+     * @param onSuccessMessage the flash message to show on update success.
+     * @param onFailureMessage the flash message to show on update failure (i.e. if `updateAction`
+     *        returns `None`).
+     * @param updateAction the DB action to run. If `None`, the update fails.
      */
-    private def updateBookingStatus[T, U](
+    private def updateBooking[T, P](
         studioId: Studio#Id, bookingId: StudioBooking#Id,
-        newStatus: StudioBookingStatus.Value, canChangeStatus: (Studio, StudioBooking) => Boolean,
-        refundPayment: Boolean,
-        onSuccessMessage: String, onFailureMessage: String,
-        onSuccess: ((Studio, StudioBooking, User) => DBIOAction[T, NoStream, Effect.All]))(
-        implicit request: SecuredRequest[DefaultEnv, U]): Future[Result] = {
-        
+        onSuccessMessage: String, onFailureMessage: String)(
+        updateAction: (
+            (Studio, StudioBooking, User,
+            Query[StudioBookingDAO#StudioBookingTable, StudioBooking, Seq]) 
+            => Option[DBIOAction[T, NoStream, Effect.All]])
+        )(
+        implicit request: SecuredRequest[DefaultEnv, P]): Future[Result] = {
+    
         val redirectTo = Redirect(routes.BookingsController.show(studioId, bookingId))
 
-        withStudioBookingTransaction(studioId, bookingId, { case (studio, booking, customer) =>
-            if (canChangeStatus(studio, booking)) {
-                val newBooking = booking.copy(status = newStatus)
-
-                for {
-                    _ <- newBooking.payment match {
-                        case StudioBookingPaymentOnline(sessionId, intentId) if refundPayment => {
-                            DBIO.from(paymentService.refundPayment(intentId)).map(Some(_))
-                        }
-                        case _ => DBIO.successful(None)
-                    }
-
-                    _ <- daos.studioBooking.query.
-                        filter(_.id === newBooking.id).
-                        map(_.status).
-                        update(newStatus)
-
-                    _ <- onSuccess(studio, newBooking, customer)
+        withStudioBookingTransaction(studioId, bookingId, { 
+            case (studio, booking, customer) =>
+            
+            val query = daos.studioBooking.query.filter(_.id === booking.id)
+            
+            updateAction(studio, booking, customer, query) match {
+                case Some(action) => for { 
+                    _ <- action.map { _ => true }
                 } yield redirectTo.flashing("success" -> onSuccessMessage)
-            } else {
-                DBIO.successful(redirectTo.flashing("error" -> onFailureMessage))
+                case None => DBIO.successful(redirectTo.flashing("error" -> onFailureMessage))
             }
         })
     }
 
+    private def refundBooking(booking: StudioBooking): Future[Unit] = {
+        booking.payment match {
+            case StudioBookingPaymentOnline(sessionId, intentId) => {
+                paymentService.refundPayment(intentId).map(_ => Unit)
+            }
+            case _ => Future.successful(Unit)
+        }
+    }
 
     /** Executes the function within the DBIO monad, or returns a 404 response. */
-    private def withStudioBookingTransaction[T](studioId: Studio#Id, bookingId: StudioBooking#Id,
+    private def withStudioBookingTransaction[P](studioId: Studio#Id, bookingId: StudioBooking#Id,
         f: ((Studio, StudioBooking, User) => DBIOAction[Result, NoStream, Effect.All]))
-        (implicit request: SecuredRequest[DefaultEnv, T]): Future[Result] = {
+        (implicit request: SecuredRequest[DefaultEnv, P]): Future[Result] = {
 
         val user = request.identity.user
 

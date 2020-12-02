@@ -50,6 +50,7 @@ class StudioBookingDAO @Inject()
         def canCancel               = column[Boolean]("can_cancel")
         def cancellationNotice      = column[Option[Duration]]("cancellation_notice")
 
+        def cancelledAt             = column[Option[Instant]]("cancelled_at")
         def cancellationReason      = column[Option[String]]("cancellation_reason")
 
         def beginsAt                = column[LocalDateTime]("begins_at")(localDateTimeType)
@@ -78,7 +79,7 @@ class StudioBookingDAO @Inject()
         private type StudioBookingTuple = (
             StudioBooking#Id, Instant,
             Studio#Id, User#Id,
-            StudioBookingStatus.Value, CancellationPolicyTuple, Option[String],
+            StudioBookingStatus.Value, CancellationPolicyTuple, Option[Instant], Option[String],
             BookingTimesTuple,
             BookingDurationsTuple,
             market.Currency, BigDecimal,
@@ -99,12 +100,13 @@ class StudioBookingDAO @Inject()
                 bookingTuple._1, bookingTuple._2,
                 bookingTuple._3, bookingTuple._4,
                 bookingTuple._5, toCancellationPolicy(bookingTuple._6), bookingTuple._7,
-                toBookingTimes(bookingTuple._8),
-                BookingDurations.tupled(bookingTuple._9),
-                bookingTuple._10, bookingTuple._11,
-                bookingTuple._12, bookingTuple._13, bookingTuple._14,
-                bookingTuple._15,
-                toStudioBookingPayment(bookingTuple._16))
+                bookingTuple._8,
+                toBookingTimes(bookingTuple._9),
+                BookingDurations.tupled(bookingTuple._10),
+                bookingTuple._11, bookingTuple._12,
+                bookingTuple._13, bookingTuple._14, bookingTuple._15,
+                bookingTuple._16,
+                toStudioBookingPayment(bookingTuple._17))
         }
 
         private def fromStudioBooking(booking: StudioBooking) = {
@@ -112,7 +114,7 @@ class StudioBookingDAO @Inject()
                 booking.id, booking.createdAt,
                 booking.studioId, booking.customerId,
                 booking.status, fromCancellationPolicy(booking.cancellationPolicy),
-                booking.cancellationReason,
+                booking.cancelledAt, booking.cancellationReason,
                 fromBookingTimes(booking.times),
                 BookingDurations.unapply(booking.durations).get,
                 booking.currency, booking.total,
@@ -160,7 +162,7 @@ class StudioBookingDAO @Inject()
         def * = (
             id, createdAt,
             studioId, customerId,
-            status, (canCancel, cancellationNotice), cancellationReason,
+            status, (canCancel, cancellationNotice), cancelledAt, cancellationReason,
             (beginsAt, duration, endsAt),
             (durationRegular, durationEvening, durationWeekend),
             currency, total,

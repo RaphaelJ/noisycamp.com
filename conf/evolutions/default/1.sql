@@ -237,6 +237,10 @@ create table "studio_booking" (
     can_cancel                  boolean not null,
     cancellation_notice         duration,
 
+    cancelled_at                timestamp
+        check (
+            (status in ('cancelled-by-customer', 'cancelled-by-owner')) =
+            (cancelled_at is not null)),
     cancellation_reason         varchar
         check (
             cancellation_reason is null
