@@ -162,8 +162,9 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
                     for {
                         _ <- query.map(_.status).
                             update(StudioBookingStatus.Rejected)
-                        _ <- DBIO.from(refundBooking(booking))
-                        _ <- DBIO.from(emailService.sendBookingRejected(booking, customer, studio))
+                        refundedBooking <- refundBooking(booking)
+                        _ <- DBIO.from(emailService.sendBookingRejected(
+                            refundedBooking, customer, studio))
                     }  yield Unit
                 )
             } else {
@@ -186,9 +187,9 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
                     for {
                         _ <- query.map(b => (b.status, b.cancelledAt)).
                             update((StudioBookingStatus.CancelledByOwner, Some(Instant.now)))
-                        _ <- DBIO.from(refundBooking(booking))
+                        refundedBooking <- refundBooking(booking)
                         _ <- DBIO.from(emailService.sendBookingCancelledByOwner(
-                            booking, customer, studio))
+                            refundedBooking, customer, studio))
                     }  yield Unit
                 )
             } else {
@@ -230,12 +231,27 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
         })
     }
 
-    private def refundBooking(booking: StudioBooking): Future[Unit] = {
+    /** Tries to refund the booking if there is an online payment.
+     * 
+     * Saves the result in the database and returns the updated `StudioBooking` object.
+     */
+    private def refundBooking(booking: StudioBooking):
+        DBIOAction[StudioBooking, NoStream, Effect.All] = {
+
         booking.payment match {
-            case StudioBookingPaymentOnline(sessionId, intentId) => {
-                paymentService.refundPayment(intentId).map(_ => Unit)
+            case payment @ StudioBookingPaymentOnline(sessionId, intentId, _) 
+                if !payment.isRefunded  => {
+                
+                for {
+                    refund <- DBIO.from(paymentService.refundPayment(intentId))
+
+                    _ <- daos.studioBooking.query.
+                        filter(_.id === booking.id).
+                        map(_.stripeRefundId).
+                        update(Some(refund.getId))
+                } yield booking.copy(payment=payment.copy(stripeRefundId = Some(refund.getId)))
             }
-            case _ => Future.successful(Unit)
+            case _ => DBIO.successful(booking)
         }
     }
 

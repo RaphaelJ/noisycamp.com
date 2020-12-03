@@ -75,6 +75,7 @@ class StudioBookingDAO @Inject()
 
         def stripeCheckoutSessionId = column[Option[String]]("stripe_checkout_session_id")
         def stripePaymentIntentId   = column[Option[String]]("stripe_payment_intent_id")
+        def stripeRefundId          = column[Option[String]]("stripe_refund_id")
 
         private type StudioBookingTuple = (
             StudioBooking#Id, Instant,
@@ -93,7 +94,8 @@ class StudioBookingDAO @Inject()
 
         private type BookingDurationsTuple = (Duration, Duration, Duration)
 
-        private type StudioBookingPaymentTuple = (String, Option[String], Option[String])
+        private type StudioBookingPaymentTuple = (
+            String, Option[String], Option[String], Option[String])
 
         private def toStudioBooking(bookingTuple: StudioBookingTuple) = {
             StudioBooking(
@@ -144,18 +146,18 @@ class StudioBookingDAO @Inject()
 
         private def toStudioBookingPayment(paymentTuple: StudioBookingPaymentTuple) = {
             paymentTuple match {
-                case ("online", Some(sessionId), Some(paymentId)) =>
-                    StudioBookingPaymentOnline(sessionId, paymentId)
-                case ("onsite", _, _) => StudioBookingPaymentOnsite()
-                case (value, _, _) => throw new Exception(s"Invalid operator value: $value")
+                case ("online", Some(sessionId), Some(paymentId), refundId) =>
+                    StudioBookingPaymentOnline(sessionId, paymentId, refundId)
+                case ("onsite", _, _, _) => StudioBookingPaymentOnsite()
+                case (value, _, _, _) => throw new Exception(s"Invalid operator value: $value")
             }
         }
 
         private def fromStudioBookingPayment(payment: StudioBookingPayment) = {
             payment match {
-                case StudioBookingPaymentOnline(sessionId, paymentId) => (
-                    "online", Some(sessionId), Some(paymentId))
-                case StudioBookingPaymentOnsite() => ("onsite", None, None)
+                case StudioBookingPaymentOnline(sessionId, paymentId, refundId) => (
+                    "online", Some(sessionId), Some(paymentId), refundId)
+                case StudioBookingPaymentOnsite() => ("onsite", None, None, None)
             }
         }
 
@@ -168,7 +170,7 @@ class StudioBookingDAO @Inject()
             currency, total,
             pricePerHour, eveningPricePerHour, weekendPricePerHour,
             transactionFeeRate,
-            (paymentMethod, stripeCheckoutSessionId, stripePaymentIntentId)
+            (paymentMethod, stripeCheckoutSessionId, stripePaymentIntentId, stripeRefundId)
             ) <> (toStudioBooking, fromStudioBooking)
     }
 

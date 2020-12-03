@@ -277,10 +277,12 @@ create table "studio_booking" (
 
     stripe_checkout_session_id  varchar unique,
     stripe_payment_intent_id    varchar unique,
+    stripe_refund_id            varchar unique,
 
     check (duration = (duration_regular + duration_evening + duration_weekend)),
     check (stripe_checkout_session_id is not null = (payment_method = 'online')),
-    check (stripe_payment_intent_id is not null = (payment_method = 'online'))
+    check (stripe_payment_intent_id is not null = (payment_method = 'online')),
+    check (stripe_refund_id is null or (payment_method = 'online'))
 );
 
 create index "idx_studio_booking_studio_id_begins_at"

@@ -169,7 +169,7 @@ class PaymentService @Inject() (
         Future[Refund] = {
 
         val params: java.util.Map[String, Object] = Map(
-            "charge" -> intentId,
+            "payment_intent" -> intentId,
             "reverse_transfer" -> true.asInstanceOf[AnyRef],
             "refund_application_fee" -> refundApplicationFee.asInstanceOf[AnyRef]).asJava
 

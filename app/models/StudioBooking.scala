@@ -51,9 +51,13 @@ object StudioBookingStatus extends Enumeration {
 sealed trait StudioBookingPayment
 
 final case class StudioBookingPaymentOnline(
-    stripeCheckoutSessionId:  String,
-    stripePaymentIntentId:    String
-    ) extends StudioBookingPayment
+    stripeCheckoutSessionId:    String,
+    stripePaymentIntentId:      String,
+    stripeRefundId:             Option[String] = None
+    ) extends StudioBookingPayment {
+
+    def isRefunded: Boolean = stripeRefundId.isDefined
+}
 
 final case class StudioBookingPaymentOnsite() extends StudioBookingPayment
 
@@ -149,7 +153,7 @@ case class StudioBooking(
     }
 
     def isPaidOnline = payment match {
-        case StudioBookingPaymentOnline(_, _) => true
+        case StudioBookingPaymentOnline(_, _, _) => true
         case _ => false
     }
 
