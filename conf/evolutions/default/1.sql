@@ -38,7 +38,7 @@ create table "user" (
     created_at              timestamp not null,
     first_name              varchar,
     last_name               varchar,
-    email                   varchar not null,
+    email                   varchar not null unique,
     avatar_id               integer,
 
     plan                    varchar not null
@@ -49,6 +49,8 @@ create table "user" (
 
     check (not stripe_completed or stripe_account_id is not null)
 );
+
+create index "idx_user_stripe_account_id" on "user" ("stripe_account_id");
 
 -- Multiple login providers could be associated with a single user.
 create table "user_login_info" (
@@ -180,6 +182,18 @@ create table "studio" (
 
     check (cancellation_notice is not null = can_cancel)
 );
+
+create index "idx_studio_owner_id" on "studio" ("owner_id");
+create index "idx_studio_long" on "studio" ("long");
+create index "idx_studio_lat" on "studio" ("lat");
+
+create index "idx_studio_monday_is_open" on "studio" using hash ("monday_is_open");
+create index "idx_studio_tuesday_is_open" on "studio" using hash ("tuesday_is_open");
+create index "idx_studio_wednesday_is_open" on "studio" using hash ("wednesday_is_open");
+create index "idx_studio_thursday_is_open" on "studio" using hash ("thursday_is_open");
+create index "idx_studio_friday_is_open" on "studio" using hash ("friday_is_open");
+create index "idx_studio_saturday_is_open" on "studio" using hash ("saturday_is_open");
+create index "idx_studio_sunday_is_open" on "studio" using hash ("sunday_is_open");
 
 -- Pictures and uploads
 
