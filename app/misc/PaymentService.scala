@@ -35,7 +35,6 @@ import play.api.mvc.{ Call, Request, RequestHeader, Result, Results }
 import play.filters.csrf.CSRF
 import squants.market.Money
 
-
 import i18n.Currency
 import models.{ Picture, Studio, User }
 import models.PriceBreakdown
@@ -64,15 +63,15 @@ class PaymentService @Inject() (
 
     /** Initiate a Stripe Checkout transaction. */
     def initiatePayment(
-        customer: User, priceBreakdown: PriceBreakdown, title: String, description: String,
-        statement: String, pics: Seq[Picture#Id], captureMethod: PaymentCaptureMethod.Value,
-        onSuccess: Call, onCancel: Call)(
+        from: User, to: User, priceBreakdown: PriceBreakdown, 
+        title: String, description: String, statement: String, pics: Seq[Picture#Id],
+        captureMethod: PaymentCaptureMethod.Value, onSuccess: Call, onCancel: Call)(
         implicit request: RequestHeader, config: Configuration): Future[Session] = {
 
-        // Creates a destination charge on the customer account. 
+        // Creates a destination charge on the destination account. 
 
         require(statement.length <= 22)
-        require(!customer.stripeAccountId.isEmpty)
+        require(!to.stripeAccountId.isEmpty)
 
         val amount = priceBreakdown.total
         val (stripeAmount, stripeCurrency) = PaymentService.asStripeAmount(amount)
@@ -104,10 +103,7 @@ class PaymentService @Inject() (
                 Seq("card")
             }
         
-        val transactionFee: Long = priceBreakdown.
-            transactionFee.
-            map(PaymentService.asStripeAmount(_)._1).
-            getOrElse(0L)
+        val transferAmount: Long = PaymentService.asStripeAmount(priceBreakdown.netTotal)._1
     
         val paymentIntent: java.util.Map[String, Object] = Map(
             "capture_method" -> {
@@ -119,13 +115,13 @@ class PaymentService @Inject() (
             "description" -> description,
             "statement_descriptor" -> statement,
             "transfer_data" -> Map(
-                "destination" -> customer.stripeAccountId.get,
-            ).asJava,
-            "application_fee_amount" -> transactionFee.asInstanceOf[AnyRef]).asJava
+                "destination" -> to.stripeAccountId.get,
+                "amount" -> transferAmount.asInstanceOf[AnyRef],
+            ).asJava).asJava
 
         val params: java.util.Map[String, Object] = Map(
-            "client_reference_id" -> customer.id.toString,
-            "customer_email" -> customer.email,
+            "client_reference_id" -> from.id.toString,
+            "customer_email" -> from.email,
 
             "success_url" -> onSuccess.absoluteURL,
             "cancel_url" -> onCancel.absoluteURL,

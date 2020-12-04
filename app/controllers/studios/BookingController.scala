@@ -162,7 +162,7 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
             priceBreakdown = PriceBreakdown(studio, bookingTimes, transactionFeeRate)
 
             session <- DBIO.from(paymentService.initiatePayment(
-                user, priceBreakdown, title, description, statement, pictures,
+                user, owner, priceBreakdown, title, description, statement, pictures,
                 PaymentCaptureMethod.Manual, onSuccess, onCancel))
 
             sessionId = session.getId
