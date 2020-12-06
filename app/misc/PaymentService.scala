@@ -39,7 +39,17 @@ import i18n.Currency
 import models.{ Picture, Studio, User }
 import models.PriceBreakdown
 
-object PaymentCaptureMethod extends Enumeration {
+object StripeAccountType extends Enumeration {
+    val Express = Value
+    val Custom = Value
+}
+
+object StripeCapability extends Enumeration {
+    val Transfers = Value
+    val CardPayments = Value
+}
+
+object StripePaymentCaptureMethod extends Enumeration {
     val Automatic = Value
 
     /** Funds will only be authorized but not captured immediately. */
@@ -61,137 +71,38 @@ class PaymentService @Inject() (
             build
     }
 
-    /** Initiate a Stripe Checkout transaction. */
-    def initiatePayment(
-        from: User, to: User, priceBreakdown: PriceBreakdown, 
-        title: String, description: String, statement: String, pics: Seq[Picture#Id],
-        captureMethod: PaymentCaptureMethod.Value, onSuccess: Call, onCancel: Call)(
-        implicit request: RequestHeader, config: Configuration): Future[Session] = {
-
-        // Creates a destination charge on the destination account. 
-
-        require(statement.length <= 22)
-        require(!to.stripeAccountId.isEmpty)
-
-        val amount = priceBreakdown.total
-        val (stripeAmount, stripeCurrency) = PaymentService.asStripeAmount(amount)
-
-        val picUrls: java.util.List[String] = pics.
-            take(8).
-            map(_.base64).
-            map { id => controllers.routes.PictureController.cover(id, "500x500") }.
-            map(_.absoluteURL).
-            asJava
-
-        val items: java.util.List[java.util.Map[String, AnyRef]] = Seq(
-            Map(
-                "name" -> title,
-                "description" -> description,
-                "amount" -> stripeAmount.asInstanceOf[AnyRef],
-                "currency" -> stripeCurrency,
-                "quantity" -> 1.asInstanceOf[AnyRef],
-                "images" -> picUrls).asJava
-            ).asJava
-
-        val paymentMethods =
-            if (
-                amount.currency == Currency.EUR
-                && captureMethod == PaymentCaptureMethod.Automatic
-            ) {
-                Seq("card", "ideal") // iDEAL only supports some transactions
-            } else {
-                Seq("card")
-            }
-        
-        val transferAmount: Long = PaymentService.asStripeAmount(priceBreakdown.netTotal)._1
-    
-        val paymentIntent: java.util.Map[String, Object] = Map(
-            "capture_method" -> {
-                captureMethod match {
-                    case PaymentCaptureMethod.Automatic => "automatic"
-                    case PaymentCaptureMethod.Manual => "manual"
-                }
-            }.asInstanceOf[Object],
-            "description" -> description,
-            "statement_descriptor" -> statement,
-            "transfer_data" -> Map(
-                "destination" -> to.stripeAccountId.get,
-                "amount" -> transferAmount.asInstanceOf[AnyRef],
-            ).asJava).asJava
-
-        val params: java.util.Map[String, Object] = Map(
-            "client_reference_id" -> from.id.toString,
-            "customer_email" -> from.email,
-
-            "success_url" -> onSuccess.absoluteURL,
-            "cancel_url" -> onCancel.absoluteURL,
-            "mode" -> "payment",
-            "submit_type" -> "book",
-            "payment_method_types" -> paymentMethods.asJava,
-            "payment_intent_data" -> paymentIntent,
-
-            "line_items" -> items).asJava
-
-        Future { blocking { Session.create(params, requestOptions) } }
-    }
-
-    def retreiveSession(sessionId: String)(implicit config: Configuration): Future[Session] = {
-
-        Future { blocking { Session.retrieve(sessionId, requestOptions) } }
-    }
-
-    def retreiveIntent(intentId: String)(implicit config: Configuration):
-        Future[PaymentIntent] = {
-
-        Future { blocking { PaymentIntent.retrieve(intentId, requestOptions) } }
-    }
-
-    def capturePayment(intent: PaymentIntent)(implicit config: Configuration):
-        Future[PaymentIntent] = {
-
-        Future { blocking { intent.capture(requestOptions) } }
-    }
-
-    /** Cancels an uncaptured payment. */
-    def cancelPayment(intent: PaymentIntent)(implicit config: Configuration):
-        Future[PaymentIntent] = {
-
-        Future { blocking { intent.cancel(requestOptions) } }
-    }
-
-    /** Refunds a captured payment. */
-    def refundPayment(intentId: String, refundApplicationFee: Boolean = true)(
-        implicit config: Configuration) :
-        Future[Refund] = {
-
-        val params: java.util.Map[String, Object] = Map(
-            "payment_intent" -> intentId,
-            "reverse_transfer" -> true.asInstanceOf[AnyRef],
-            "refund_application_fee" -> refundApplicationFee.asInstanceOf[AnyRef]).asJava
-
-        Future { blocking { Refund.create(params, requestOptions) } }
-    }
-
     /** Creates a Stripe Express account for the provided NoisyCamp user. */
-    def createExpressAccount(user: User)(implicit request: RequestHeader, config: Configuration):
+    def createAccount(
+        user: User, accountType: StripeAccountType.Value = StripeAccountType.Express,
+        capabilities: Seq[StripeCapability.Value] = Seq(StripeCapability.Transfers),
+        extraParams: Map[String, Object] = Map.empty)(
+        implicit config: Configuration):
         Future[Account] = {
 
-        val params: java.util.Map[String, Object] = Map(
-            "type" -> "express",
-            "capabilities" -> Map(
-                "card_payments" -> Map[String, Object](
-                    "requested" -> true.asInstanceOf[Object]).asJava,
-                "transfers" -> Map(
-                    "requested" -> true.asInstanceOf[Object]).asJava).asJava,
+        val params: java.util.Map[String, Object] = (Map(
+            "type" -> (accountType match {
+                case StripeAccountType.Express => "express"
+                case StripeAccountType.Custom => "custom"
+            }),
+            "capabilities" -> (
+                capabilities.
+                    map {
+                        case StripeCapability.Transfers => "transfers"
+                        case StripeCapability.CardPayments => "card_payments"
+                    }.
+                    map { _ -> Map("requested" -> true.asInstanceOf[Object]).asJava }.
+                    toMap
+            ).asJava,
             "email" -> user.email,
             "metadata" -> Map(
                 "noisycamp_id" -> user.id,
-            ).asJava).asJava
+            ).asJava) ++
+            extraParams).asJava
 
         Future { blocking { Account.create(params, requestOptions) } }
     }
 
-    def retreiveAccount(stripeAccountId: String)(
+    def retrieveAccount(stripeAccountId: String)(
         implicit request: RequestHeader, config: Configuration): Future[Account] = {
 
         Future { blocking { Account.retrieve(stripeAccountId, requestOptions) } }
@@ -239,6 +150,120 @@ class PaymentService @Inject() (
             map { _.getUrl }
     }
 
+    def createPaymentIntent(
+        from: User, to: User, priceBreakdown: PriceBreakdown,
+        description: String, statement: String,
+        captureMethod: StripePaymentCaptureMethod.Value, paymentMethod: Option[String] = None)(
+        implicit config: Configuration): Future[PaymentIntent] = {
+
+        val params = paymentIntentParams(
+            from, to, priceBreakdown, description, statement, captureMethod, paymentMethod)
+
+        Future { blocking { PaymentIntent.create(params, requestOptions) } }
+    }
+
+    /** Initiate a Stripe Checkout transaction. */
+    def createSession(
+        from: User, to: User, priceBreakdown: PriceBreakdown, 
+        title: String, description: String, statement: String, pics: Seq[Picture#Id],
+        captureMethod: StripePaymentCaptureMethod.Value, onSuccess: Call, onCancel: Call)(
+        implicit request: RequestHeader, config: Configuration): Future[Session] = {
+
+        val picUrls: java.util.List[String] = pics.
+            take(8).
+            map(_.base64).
+            map { id => controllers.routes.PictureController.cover(id, "500x500") }.
+            map(_.absoluteURL).
+            asJava
+
+        val paymentIntent = paymentIntentParams(
+            from, to, priceBreakdown, description, statement, captureMethod)
+
+        val items: java.util.List[java.util.Map[String, AnyRef]] = Seq(
+            Map(
+                "name" -> title,
+                "description" -> description,
+                "amount" -> paymentIntent.get("amount"),
+                "currency" -> paymentIntent.get("currency"),
+                "quantity" -> 1.asInstanceOf[AnyRef],
+                "images" -> picUrls).asJava
+            ).asJava
+
+        val paymentMethodTypes =
+            if (
+                priceBreakdown.total.currency == Currency.EUR &&
+                captureMethod == StripePaymentCaptureMethod.Automatic) {
+
+                Seq("card", "ideal") // iDEAL only supports some transactions
+            } else {
+                Seq("card")
+            }
+        
+
+        val params: java.util.Map[String, Object] = Map(
+            "client_reference_id" -> from.id.toString,
+            "customer_email" -> from.email,
+
+            "success_url" -> onSuccess.absoluteURL,
+            "cancel_url" -> onCancel.absoluteURL,
+            "mode" -> "payment",
+            "submit_type" -> "book",
+            "payment_method_types" -> paymentMethodTypes.asJava,
+            "payment_intent_data" -> paymentIntent,
+            "line_items" -> items).asJava
+
+        Future { blocking { Session.create(params, requestOptions) } }
+    }
+
+    def retrieveSession(sessionId: String)(implicit config: Configuration): Future[Session] = {
+        Future { blocking { Session.retrieve(sessionId, requestOptions) } }
+    }
+
+    def retrievePaymentIntent(intentId: String)(implicit config: Configuration):
+        Future[PaymentIntent] = {
+
+        Future { blocking { PaymentIntent.retrieve(intentId, requestOptions) } }
+    }
+
+    def confirmPaymentIntent(intent: PaymentIntent, paymentMethod: Option[String] = None)(
+        implicit config: Configuration):
+        Future[PaymentIntent] = {
+
+        val params: java.util.Map[String, Object] = 
+            paymentMethod.
+                map { m => Map("payment_method" -> m.asInstanceOf[AnyRef]) }.
+                getOrElse(Map.empty).
+                asJava
+
+        Future { blocking { intent.confirm(params, requestOptions) } }
+    }
+
+    def capturePaymentIntent(intent: PaymentIntent)(implicit config: Configuration):
+        Future[PaymentIntent] = {
+
+        Future { blocking { intent.capture(requestOptions) } }
+    }
+
+    /** Cancels an uncaptured payment. */
+    def cancelPaymentIntent(intent: PaymentIntent)(implicit config: Configuration):
+        Future[PaymentIntent] = {
+
+        Future { blocking { intent.cancel(requestOptions) } }
+    }
+
+    /** Refunds a captured payment. */
+    def refundPaymentIntent(intentId: String, refundApplicationFee: Boolean = true)(
+        implicit config: Configuration) :
+        Future[Refund] = {
+
+        val params: java.util.Map[String, Object] = Map(
+            "payment_intent" -> intentId,
+            "reverse_transfer" -> true.asInstanceOf[AnyRef],
+            "refund_application_fee" -> refundApplicationFee.asInstanceOf[AnyRef]).asJava
+
+        Future { blocking { Refund.create(params, requestOptions) } }
+    }
+
     def withWebhookEvent(request: Request[ByteString], handler: Event => Future[Result])(
         implicit config: Configuration):
         Future[Result] = {
@@ -252,6 +277,41 @@ class PaymentService @Inject() (
         } catch {
             case e: Exception => Future.successful(Results.BadRequest(e.toString))
         }
+    }
+
+    private def paymentIntentParams(
+        from: User, to: User, priceBreakdown: PriceBreakdown,
+        description: String, statement: String,
+        captureMethod: StripePaymentCaptureMethod.Value, paymentMethod: Option[String] = None):
+        java.util.Map[String, Object] = {
+
+        // Creates a destination charge on the destination account. 
+
+        require(statement.length <= 22)
+        require(!to.stripeAccountId.isEmpty)
+
+        val amount = priceBreakdown.total
+        val (stripeAmount, stripeCurrency) = PaymentService.asStripeAmount(amount)
+
+        val transferAmount: Long = PaymentService.asStripeAmount(priceBreakdown.netTotal)._1
+    
+        (Map(
+            "capture_method" -> {
+                captureMethod match {
+                    case StripePaymentCaptureMethod.Automatic => "automatic"
+                    case StripePaymentCaptureMethod.Manual => "manual"
+                }
+            }.asInstanceOf[Object],
+            "statement_descriptor" -> statement,
+            "description" -> description,
+            "amount" -> stripeAmount.asInstanceOf[AnyRef],
+            "currency" -> stripeCurrency,
+            "transfer_data" -> Map(
+                "destination" -> to.stripeAccountId.get,
+                "amount" -> transferAmount.asInstanceOf[AnyRef],
+            ).asJava) ++
+            paymentMethod.map { m => Map("payment_method" -> m) }.getOrElse(Map.empty)
+        ).asJava
     }
 }
 

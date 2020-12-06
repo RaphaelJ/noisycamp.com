@@ -37,7 +37,7 @@ import auth.DefaultEnv
 import _root_.controllers.{ CustomBaseController, CustomControllerCompoments }
 import daos.CustomColumnTypes
 import forms.studios.{ BookingForm, BookingTimesForm }
-import misc.PaymentCaptureMethod
+import misc.StripePaymentCaptureMethod
 import models.{ BookingDurations, BookingTimes, CancellationPolicy, HasBookingTimes, Identity,
     LocalPricingPolicy, PaymentMethod, Picture, PriceBreakdown, Studio, StudioBooking,
     StudioBookingPaymentOnline, StudioBookingPaymentOnsite, StudioBookingStatus, User }
@@ -161,9 +161,9 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
             transactionFeeRate = Some(owner.plan.transactionRate)
             priceBreakdown = PriceBreakdown(studio, bookingTimes, transactionFeeRate)
 
-            session <- DBIO.from(paymentService.initiatePayment(
+            session <- DBIO.from(paymentService.createSession(
                 user, owner, priceBreakdown, title, description, statement, pictures,
-                PaymentCaptureMethod.Manual, onSuccess, onCancel))
+                StripePaymentCaptureMethod.Manual, onSuccess, onCancel))
 
             sessionId = session.getId
             intentId = session.getPaymentIntent
@@ -301,7 +301,7 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
         def abortCharge(intent: PaymentIntent, booking: StudioBooking) = {
             DBIO.from(
                 if (intent.getStatus == "requires_capture") {
-                    paymentService.cancelPayment(intent)
+                    paymentService.cancelPaymentIntent(intent)
                 } else {
                     Future.successful(intent)
                 }
@@ -318,7 +318,7 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
         def processCharge(intent: PaymentIntent, studio: Studio, booking: StudioBooking) = {
             (intent.getStatus match {
                 case "requires_capture" => {
-                    DBIO.from(paymentService.capturePayment(intent)).
+                    DBIO.from(paymentService.capturePaymentIntent(intent)).
                         map(_ => true)
                 }
                 case "succeeded" => DBIO.successful(true)
@@ -365,10 +365,10 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
         for {
             session <- sessionOrId match {
                 case Left(session) => Future.successful(session)
-                case Right(sessionId) => paymentService.retreiveSession(sessionId)
+                case Right(sessionId) => paymentService.retrieveSession(sessionId)
             }
 
-            intent <- paymentService.retreiveIntent(session.getPaymentIntent)
+            intent <- paymentService.retrievePaymentIntent(session.getPaymentIntent)
 
             res <- db.run({
                 daos.studio.query.

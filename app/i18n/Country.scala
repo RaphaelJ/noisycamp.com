@@ -72,7 +72,7 @@ object Country extends Enumeration {
     // val Iceland = Val("Iceland", Currency.ISK, "IS", Some(24), AddressFormat.European)
     // val Norway = Val("Norway", Currency.NOK, "NO", Some(25), AddressFormat.European)
     // val Switzerland = Val("Switzerland", Currency.CHF , "CH", Some(7.7), AddressFormat.European)
-    val UnitedKingdom = Val("United Kingdom", Currency.GBP, "UK", Some(20), AddressFormat.British,
+    val UnitedKingdom = Val("United Kingdom", Currency.GBP, "GB", Some(20), AddressFormat.British,
         namePrefix = Some("The"))
 
     /* Other */

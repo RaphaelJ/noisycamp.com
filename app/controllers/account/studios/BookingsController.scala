@@ -243,7 +243,7 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
                 if !payment.isRefunded  => {
                 
                 for {
-                    refund <- DBIO.from(paymentService.refundPayment(intentId))
+                    refund <- DBIO.from(paymentService.refundPaymentIntent(intentId))
 
                     _ <- daos.studioBooking.query.
                         filter(_.id === booking.id).

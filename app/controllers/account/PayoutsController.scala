@@ -107,7 +107,7 @@ class PayoutsController @Inject() (
             map { Future.successful _ }.
             getOrElse {
                 // Creates a Stripe Express account if it does not exists.
-                paymentService.createExpressAccount(user).
+                paymentService.createAccount(user).
                     flatMap { account =>
                         val stripeAccountId = account.getId
                         db.run {
@@ -141,7 +141,7 @@ class PayoutsController @Inject() (
         (user.stripeAccountId match {
             case Some(stripeAccountId) => {
                 (paymentService.
-                    retreiveAccount(stripeAccountId).
+                    retrieveAccount(stripeAccountId).
                     map { account => account.getDetailsSubmitted: Boolean })
             }
             case None => Future.successful(false)
