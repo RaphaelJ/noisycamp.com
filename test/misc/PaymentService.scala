@@ -20,28 +20,31 @@ package test.misc
 import collection.JavaConverters._
 import java.time.Duration
 import javax.inject._
-import scala.concurrent.{ Await, duration }
+import scala.concurrent.{ Await, Future, duration }
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import org.scalatest.Matchers._
 import org.scalatestplus.play._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Configuration
+import play.api.test.FakeRequest
 
 import i18n.{ Country, Currency }
-import misc.{ PaymentService, StripeAccountType, StripeCapability, StripePaymentCaptureMethod }
+import misc.{ PaymentService, StripeAccountType, StripePaymentCaptureMethod }
 import models.{ BookingDurations, Plan, PriceBreakdown, User }
 import views.html.tags.priceBreakdown
-import akka.compat.Future
+import controllers.routes
 
 class PaymentServiceSpec extends PlaySpec with GuiceOneAppPerSuite {
 
     implicit val configuration = app.injector.instanceOf(classOf[Configuration]) 
+    implicit val request = FakeRequest()
     val paymentService = app.injector.instanceOf(classOf[PaymentService]) 
 
     val timeout = duration.Duration(1, duration.MINUTES)
 
     // Tries the whole payment flow for a booking with all the supported currencies.
+    
     "PaymenService" must {
         val customer = User(
             id = 1,
@@ -54,32 +57,44 @@ class PaymentServiceSpec extends PlaySpec with GuiceOneAppPerSuite {
                 firstName = Some("Bob"), lastName = Some("Testman"),
                 email = "bob@testman.com", avatarId = None)
 
+            val country = Country.Belgium
+
             val params = Map(
-                "country" -> Country.Belgium.isoCode,
                 "business_type" -> "individual",
                 "individual" -> (Map(
                     "first_name" -> "Bob",
                     "last_name" -> "Testman",
                     "dob" -> Map(
-                        "day" -> "6".asInstanceOf[Object],
+                        "day" -> "6".asInstanceOf[AnyRef],
                         "month" -> "3",
                         "year" -> "1991"
-                    ).asJava)
+                    ).asJava,
+                    "address" -> Map(
+                        "line1" -> "Place du marché",
+                        "postal_code" -> "4000",
+                        "city" -> "Liège",
+                        "country" -> country.isoCode
+                    ).asJava,
+                    "email" -> "bob@testman.com",
+                    "phone" -> "+32412345678")
+                ).asJava,
+                "business_profile" -> Map(
+                    "mcc" -> 5734.asInstanceOf[AnyRef],
+                    "url" -> "https://noisycamp.com"
                 ).asJava,
                 "tos_acceptance" -> Map(
                     "date" -> 1607130427.asInstanceOf[Object],
                     "ip" -> "83.134.216.114").asJava)
 
             paymentService.
-                createAccount(user, StripeAccountType.Custom, Seq(StripeCapability.Transfers),
-                params).
+                createAccount(user, country, StripeAccountType.Custom, params).
                 map { account => user.copy(stripeAccountId = Some(account.getId)) }
         }
 
         val currencies = Country.values.map(_.asInstanceOf[Country.Val].currency)
 
         for (currency <- currencies) {
-            (f"supports payments in $currency") in {
+            (f"support payments and refunds in $currency") in {
                 val description = f"Booking flow test ${currency.name}"
                 val statement = currency.name
 
@@ -90,9 +105,11 @@ class PaymentServiceSpec extends PlaySpec with GuiceOneAppPerSuite {
                 val intent = Await.result({
                     for {
                         owner <- owner
-                        intent <- paymentService.createPaymentIntent(    
-                            customer, owner, priceBreakdown,
-                            description, statement, StripePaymentCaptureMethod.Manual)
+                        intent <- paymentService.createPaymentIntent(
+                            customer, owner, priceBreakdown, description, statement,
+                            StripePaymentCaptureMethod.Manual
+                        )
+                        intent <- paymentService.retrievePaymentIntent(intent.getId)
                         intent <- paymentService.confirmPaymentIntent(
                             intent, Some("pm_card_mastercard_prepaid"))
                         intent <- paymentService.capturePaymentIntent(intent)

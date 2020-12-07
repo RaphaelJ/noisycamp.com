@@ -35,6 +35,7 @@ import squants.market
 import auth.DefaultEnv
 import _root_.controllers.{ CustomBaseController, CustomControllerCompoments }
 import daos.CustomColumnTypes
+import _root_.i18n.Country
 
 @Singleton
 class PayoutsController @Inject() (
@@ -107,7 +108,7 @@ class PayoutsController @Inject() (
             map { Future.successful _ }.
             getOrElse {
                 // Creates a Stripe Express account if it does not exists.
-                paymentService.createAccount(user).
+                paymentService.createAccount(user, Country.Belgium).
                     flatMap { account =>
                         val stripeAccountId = account.getId
                         db.run {

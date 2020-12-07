@@ -58,20 +58,20 @@ object Country extends Enumeration {
     val Spain = Val("Spain", Currency.EUR, "ES", Some(21), AddressFormat.European)
 
     /* Rest of EU */
-    //val Bulgaria = Val("Bulgaria", Currency.BGN, "BG", Some(20), AddressFormat.European)
-    // val Denmark = Val("Denmark", Currency.DKK, "DK", Some(25), AddressFormat.European)
+    val Bulgaria = Val("Bulgaria", Currency.BGN, "BG", Some(20), AddressFormat.European)
     // val Croatia = Val("Croatia", Currency.HRK, "HR", Some(25), AddressFormat.European)
-    // val CzechRepublic = Val("Czech Republic", Currency.CZK, "CZ", Some(21),
-    //    AddressFormat.European, namePrefix = Some("The"))
-    // val Hungary = Val("Hungary", Currency.HUF, "HU", Some(27), AddressFormat.Hungarian)
+    val CzechRepublic = Val("Czech Republic", Currency.CZK, "CZ", Some(21),
+        AddressFormat.European, namePrefix = Some("The"))
+    val Denmark = Val("Denmark", Currency.DKK, "DK", Some(25), AddressFormat.European)
+    val Hungary = Val("Hungary", Currency.HUF, "HU", Some(27), AddressFormat.Hungarian)
     val Poland = Val("Poland", Currency.PLN, "PL", Some(23), AddressFormat.European)
     val Romania = Val("Romania", Currency.RON, "RO", Some(19), AddressFormat.European)
-    // val Sweden = Val("Sweden", Currency.SEK, "SE", Some(25), AddressFormat.European)
+    val Sweden = Val("Sweden", Currency.SEK, "SE", Some(25), AddressFormat.European)
   
     /* Europe, non EU */
     // val Iceland = Val("Iceland", Currency.ISK, "IS", Some(24), AddressFormat.European)
-    // val Norway = Val("Norway", Currency.NOK, "NO", Some(25), AddressFormat.European)
-    // val Switzerland = Val("Switzerland", Currency.CHF , "CH", Some(7.7), AddressFormat.European)
+    val Norway = Val("Norway", Currency.NOK, "NO", Some(25), AddressFormat.European)
+    val Switzerland = Val("Switzerland", Currency.CHF , "CH", Some(7.7), AddressFormat.European)
     val UnitedKingdom = Val("United Kingdom", Currency.GBP, "GB", Some(20), AddressFormat.British,
         namePrefix = Some("The"))
 
@@ -86,23 +86,23 @@ object Country extends Enumeration {
             "TAS" -> "Tasmania",
             "VIC" -> "Victoria",
             "WA" -> "Western Australia"))
-    // val Canada = Val("Canada", Currency.CAD, "CA", None, AddressFormat.English,
-    //     Map(
-    //         "AB" -> "Alberta",
-    //         "BC" -> "British Columbia",
-    //         "MB" -> "Manitoba",
-    //         "NB" -> "New Brunswick",
-    //         "NL" -> "Newfoundland and Labrador",
-    //         "NT" -> "Northwest Territories",
-    //         "NS" -> "Nova Scotia",
-    //         "NU" -> "Nunavut",
-    //         "ON" -> "Ontario",
-    //         "PE" -> "Prince Edward Island",
-    //         "QC" -> "Québec",
-    //         "SK" -> "Saskatchewan",
-    //         "YT" -> "Yulon"))
-    // val HongKong = Val("Hong Kong", Currency.HKD, "HK", None, AddressFormat.HongKong,
-    //     hasZipCode = false)
+    val Canada = Val("Canada", Currency.CAD, "CA", None, AddressFormat.English,
+        Map(
+            "AB" -> "Alberta",
+            "BC" -> "British Columbia",
+            "MB" -> "Manitoba",
+            "NB" -> "New Brunswick",
+            "NL" -> "Newfoundland and Labrador",
+            "NT" -> "Northwest Territories",
+            "NS" -> "Nova Scotia",
+            "NU" -> "Nunavut",
+            "ON" -> "Ontario",
+            "PE" -> "Prince Edward Island",
+            "QC" -> "Québec",
+            "SK" -> "Saskatchewan",
+            "YT" -> "Yulon"))
+    val HongKong = Val("Hong Kong", Currency.HKD, "HK", None, AddressFormat.HongKong,
+        hasZipCode = false)
     val NewZealand = Val("New Zealand", Currency.NZD, "NZ", Some(15), AddressFormat.English)
     val Singapore = Val("Singapore", Currency.SGD, "SG", Some(7), AddressFormat.English)
     val UnitedStates = Val("United States", Currency.USD, "US", None, AddressFormat.American, 
