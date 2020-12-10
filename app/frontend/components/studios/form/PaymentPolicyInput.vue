@@ -1,7 +1,6 @@
-
 <!--
   Noisycamp is a platform for booking music studios.
-  Copyright (C) 2019  Raphael Javaux <raphaeljavaux@gmail.com>
+  Copyright (C) 2019 2020  Raphael Javaux <raphael@noisycamp.com>
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -43,11 +42,10 @@
             </div>
 
             <p class="help-text">
-                Payment of booking fees will be securely collected online at the
-                time the customer books his/her session.<br>
+                Payment of booking fees will be securely collected online at the time the customer
+                books their session.<br>
                 To allow secure online payments, we will ask you for a valid bank account and we
                 will verify your identity.
-                <a href="#" target="_blank">Learn more about online payments</a>.
             </p>
         </div>
 
@@ -76,20 +74,21 @@
 
             <slide-down-transition :max-height="100">
                 <div
-                    class="grid-x grid-margin-y grid-margin-x callout warning"
+                    class="grid-x grid-margin-y grid-margin-x callout secondary"
                     v-if="hasOnsitePayment && canCancelAnytime === false">
 
-                    <div class="cell shrink text-center">
-                        <i class="fi-alert" style="font-size: 4rem"></i>
-                    </div>
-
-                    <div class="cell auto">
-                        We will not be able to enforce your booking cancellation policy on onsite
-                        payments.<br>
-                        If you wish your customers to comply with your cancellation
-                        policy,
-                        or adapt your cancellation policy.
-                    </div>
+                    <h5 class="text-sans-serif">
+                        <strong>
+                            <i class="fi-alert"></i>&nbsp;
+                            We will not be able to enforce your booking cancellation policy on onsite
+                            payments. 
+                        </strong>
+                    </h5>
+                    
+                    <p>
+                        If you wish your customers to always comply with your cancellation policy,
+                        disable onsite payments, or adapt your cancellation policy.
+                    </p>
                 </div>
             </slide-down-transition>
         </div>
