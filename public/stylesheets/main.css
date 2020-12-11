@@ -423,6 +423,13 @@ table.fixed {
     padding: 1rem 1.3rem;
 }
 
+.panel-section > :last-child {
+    margin-top: 0;
+}
+.panel-section > :last-child {
+    margin-bottom: 0;
+}
+
 /* Slightly larger padding on medium and large screens. */
 @media screen and (min-width: 40em) {
     .panel-section {

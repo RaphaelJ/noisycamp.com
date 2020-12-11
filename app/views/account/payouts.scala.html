@@ -30,30 +30,22 @@
     implicit req: RequestHeader, config: Configuration, flash: Flash)
 
 @connectStripeAccount = {
-    <div class="grid-x grid-padding-y grid-padding-x">
-        <div class="cell small-12">
-            <div class="grid-x grid-margin-y grid-margin-x callout warning">
-                <div class="cell shrink text-center">
-                    <i class="fi-lock" style="font-size: 4rem"></i>
-                </div>
-
-                <div class="cell auto">
-                    NoisyCamp uses Stripe to get you paid quickly and keep your personal and
-                    payment information secure. Thousands of companies around the world trust
-                    Stripe to process payments for their users. Set up a Stripe account to get
-                    paid with NoisyCamp.
-                </div>
-            </div>
-        </div>
+        @tags.callout(
+            "NoisyCamp uses Stripe to get you paid quickly and keep your personal and payment information secure",
+            Some("fi-lock")) {
+            Thousands of companies around the world trust Stripe to process payments for their
+            users. Set up a Stripe account to get paid with NoisyCamp.
+        }()
 
         <div class="cell small-12 text-center">
-            <a 
-                href="@controllers.account.routes.PayoutsController.stripeOAuth"
-                class="button large primary">
-                Setup payouts on Stripe
-            </a>
+            <div class="panel-section">
+                <a 
+                    href="@controllers.account.routes.PayoutsController.stripeOAuth"
+                    class="button large primary">
+                    Setup payouts on Stripe
+                </a>
+            </div>
         </div>
-    </div>
 }
 
 @layout(Seq("Payout preferences"), identity=identity) {
@@ -120,11 +112,7 @@
                 </div>
             </div>
         } else {
-            <div class="cell small-12">
-                <div class="panel-section">
-                    @connectStripeAccount
-                </div>
-            </div>
+            @connectStripeAccount
         }
     </div>
 }

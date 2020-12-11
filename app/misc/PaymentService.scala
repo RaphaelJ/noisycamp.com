@@ -80,6 +80,7 @@ class PaymentService @Inject() (
         Future[Account] = {
 
         val params: java.util.Map[String, Object] = (Map(
+            "country" -> country.isoCode,
             "type" -> (accountType match {
                 case StripeAccountType.Express => "express"
                 case StripeAccountType.Custom => "custom"

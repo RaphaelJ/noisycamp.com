@@ -108,7 +108,7 @@ class PayoutsController @Inject() (
             map { Future.successful _ }.
             getOrElse {
                 // Creates a Stripe Express account if it does not exists.
-                paymentService.createAccount(user, Country.Belgium).
+                paymentService.createAccount(user, Country.HongKong).
                     flatMap { account =>
                         val stripeAccountId = account.getId
                         db.run {
