@@ -57,14 +57,14 @@ GET     /account/studios/:id/bookings/create  controllers.account.studios.Bookin
 
 GET     /account/studios/:id/bookings/:booking  controllers.account.studios.BookingsController.show(id: Long, booking: Long)
 
-GET     /account/studios/:id/bookings/:booking/accept  controllers.account.studios.BookingsController.accept(id: Long, booking: Long)
-GET     /account/studios/:id/bookings/:booking/reject  controllers.account.studios.BookingsController.reject(id: Long, booking: Long)
-GET     /account/studios/:id/bookings/:booking/cancel  controllers.account.studios.BookingsController.cancel(id: Long, booking: Long)
+GET     /account/studios/:id/bookings/:booking/accept   controllers.account.studios.BookingsController.accept(id: Long, booking: Long)
+GET     /account/studios/:id/bookings/:booking/reject   controllers.account.studios.BookingsController.reject(id: Long, booking: Long)
+GET     /account/studios/:id/bookings/:booking/cancel   controllers.account.studios.BookingsController.cancel(id: Long, booking: Long)
 
 GET     /account/studios/:id/publish    controllers.account.studios.IndexController.publish(id: Long)
 
 GET     /account/payouts                controllers.account.PayoutsController.index
-GET     /account/payouts/stripe-oauth   controllers.account.PayoutsController.stripeOAuth
+POST    /account/payouts/stripe-oauth/  controllers.account.PayoutsController.stripeOAuth
 GET     /account/payouts/stripe-oauth-complete  controllers.account.PayoutsController.stripeOAuthComplete
 GET     /account/payouts/stripe-dashboard   controllers.account.PayoutsController.stripeDashboard
 

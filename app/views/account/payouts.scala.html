@@ -20,30 +20,70 @@
 @import play.api.Configuration
 @import squants.market.Money
 
+@import forms.components.CountryForm
 @import models.Payout
+@import i18n.Country
 
 @(
     identity: models.Identity,
     balances: Seq[Money],
     nextPayout: LocalDate,
     payouts: Seq[Payout])(
-    implicit req: RequestHeader, config: Configuration, flash: Flash)
+    implicit req: RequestHeader,
+    messagesProvider: MessagesProvider,
+    config: Configuration,
+    flash: Flash)
+
+@implicitField = @{
+    helper.FieldConstructor(utils.forms.foundationFieldConstructor.f)
+}
+
+@countries = @{ Country.values.toSeq.map(_.asInstanceOf[Country.Val]).sortBy(_.name) }
+@countryForm = @{ CountryForm.form }
 
 @connectStripeAccount = {
         @tags.callout(
-            "NoisyCamp uses Stripe to get you paid quickly and keep your personal and payment information secure",
+            "Setup your payment information to enable online payments",
             Some("fi-lock")) {
+            NoisyCamp uses Stripe to get you paid quickly and keep your personal and payment
+            information secure.</br>
             Thousands of companies around the world trust Stripe to process payments for their
             users. Set up a Stripe account to get paid with NoisyCamp.
         }()
 
-        <div class="cell small-12 text-center">
+        <div class="cell small-12">
             <div class="panel-section">
-                <a 
-                    href="@controllers.account.routes.PayoutsController.stripeOAuth"
-                    class="button large primary">
-                    Setup payouts on Stripe
-                </a>
+                @helper.form(action = controllers.account.routes.PayoutsController.stripeOAuth) {
+
+                    @helper.CSRF.formField
+
+                    <div class="grid-x grid-margin-x">
+                        <div class="cell small-12 medium-auto large-4 large-offset-2">
+                            <label>
+                                Your business location
+                                <select name="@countryForm("country").name">
+                                    @for(country <- countries) {
+                                        <option value="@country.isoCode">
+                                            @country.name
+                                        </option>
+                                    }
+                                </select>
+                            </label>
+                        </div>
+                            
+                        <div class="cell small-12 medium-shrink large-4">
+                            <label class="hide-for-small-only">
+                                &nbsp;<!-- Force button alignment with input -->
+                            </label>
+
+                            <button
+                                type="submit"
+                                class="button primary large small-only-expanded">
+                                Setup payouts
+                            </button>
+                        </div>
+                    </div>
+                }
             </div>
         </div>
 }

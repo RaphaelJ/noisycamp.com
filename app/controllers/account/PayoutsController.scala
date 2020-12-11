@@ -35,6 +35,7 @@ import squants.market
 import auth.DefaultEnv
 import _root_.controllers.{ CustomBaseController, CustomControllerCompoments }
 import daos.CustomColumnTypes
+import forms.components.CountryForm
 import _root_.i18n.Country
 
 @Singleton
@@ -100,32 +101,42 @@ class PayoutsController @Inject() (
             }
     }
 
-    /** Redirects the user to the Stripe OAuth onboarding flow. */
+    /** Redirects the user to the Stripe OAuth onboarding flow.
+     * 
+     * @param country the country ISO code.
+     */
     def stripeOAuth = SecuredAction.async { implicit request =>
         val user = request.identity.user
 
-        user.stripeAccountId.
-            map { Future.successful _ }.
-            getOrElse {
-                // Creates a Stripe Express account if it does not exists.
-                paymentService.createAccount(user, Country.HongKong).
-                    flatMap { account =>
-                        val stripeAccountId = account.getId
-                        db.run {
-                            daos.user.query.
-                                filter(_.id === user.id).
-                                map(_.stripeAccountId).
-                                update(Some(stripeAccountId))
-                        }.map { _ => stripeAccountId }
-                    }
-            }.
-            flatMap { stripeAccountId =>
-                val refreshUrl = routes.PayoutsController.stripeOAuth.absoluteURL
-                var returnUrl = routes.PayoutsController.stripeOAuthComplete.absoluteURL
+        CountryForm.form.bindFromRequest.fold(
+            form => Future.successful(
+                Redirect(routes.PayoutsController.index()).
+                    flashing("error" -> form.error("country").get.message)),
+            country => {
+                user.stripeAccountId.
+                    map { Future.successful _ }.
+                    getOrElse {
+                        // Creates a Stripe Express account if it does not exists.
+                        paymentService.createAccount(user, country).
+                            flatMap { account =>
+                                val stripeAccountId = account.getId
+                                db.run {
+                                    daos.user.query.
+                                        filter(_.id === user.id).
+                                        map(_.stripeAccountId).
+                                        update(Some(stripeAccountId))
+                                }.map { _ => stripeAccountId }
+                            }
+                    }.
+                    flatMap { stripeAccountId =>
+                        val refreshUrl = routes.PayoutsController.index.absoluteURL
+                        var returnUrl = routes.PayoutsController.stripeOAuthComplete.absoluteURL
 
-                paymentService.connectOAuthUrl(stripeAccountId, refreshUrl, returnUrl)
-            }.
-            map { url => Redirect(url) }
+                        paymentService.connectOAuthUrl(stripeAccountId, refreshUrl, returnUrl)
+                    }.
+                    map { url => Redirect(url) }
+            }
+        )
     }
 
     /** Processes the Stripe Connect OAuth response. */
