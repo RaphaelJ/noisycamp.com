@@ -41,7 +41,6 @@ import _root_.i18n.Country
 @Singleton
 class PayoutsController @Inject() (
     ccc: CustomControllerCompoments,
-
     csrfConfig: CSRFConfig,
     csrfTokenSigner: CSRFTokenSigner,
     sessionConfig: SessionConfiguration)
@@ -53,70 +52,29 @@ class PayoutsController @Inject() (
     def index = SecuredAction.async { implicit request =>
         val user = request.identity.user
 
-        db.run((for {
-            // Sums the total received bookings per currency, minus the payouts already received in
-            // these currencies.
-            balances <- {
-                def orZero(nullable: Rep[Option[BigDecimal]]) = {
-                    val coalesce = SimpleFunction.binary[
-                        Option[BigDecimal], BigDecimal, BigDecimal]("coalesce")
-
-                    coalesce(nullable, BigDecimal(0))
-                }
-
-                daos.studioBooking.query.
-                    join(daos.studio.query).on(_.studioId === _.id).
-                    filter { case (_, studio) => studio.ownerId === user.id }.
-                    groupBy { case (booking, _) => booking.currency }.
-                    map { case (currency, group) =>
-                        val bookingTotal = group.
-                            map { case (booking, _) => booking.total }.
-                            sum
-
-                        (orZero(bookingTotal), currency)
-                    }.
-                    map { case (total, currency) =>
-                        val payoutTotal = daos.payout.query.
-                            filter(_.customerId === user.id).
-                            filter(_.currency === currency).
-                            map { payout => payout.amount }.
-                            sum
-
-                        (total - orZero(payoutTotal), currency)
-                    }.
-                    result
+        user.stripeAccountId match {
+            case Some(stripeAccountId) if user.isPayoutSetup => {
+                stripeDashboardRedirect(stripeAccountId)
             }
-
-            payouts <- daos.payout.query.
-                filter(_.customerId === user.id).
-                result
-        } yield (balances, payouts)).transactionally).
-            map { case (balances, payouts) =>
-
-                Ok(views.html.account.payouts(
-                    identity=request.identity,
-                    balances=balances.map { case (total, currency) => currency(total) },
-                    nextPayout=LocalDate.now(),
-                    payouts=payouts))
-            }
+            case Some(stripeAccountId) => stripeOAuthRedirect(stripeAccountId)
+            case None => Future.successful(Redirect(routes.PayoutsController.setup))
+        }
     }
 
-    /** Redirects the user to the Stripe OAuth onboarding flow.
-     * 
-     * @param country the country ISO code.
-     */
-    def stripeOAuth = SecuredAction.async { implicit request =>
+    def setup = SecuredAction.async { implicit request =>
+
         val user = request.identity.user
 
-        CountryForm.form.bindFromRequest.fold(
-            form => Future.successful(
-                Redirect(routes.PayoutsController.index()).
-                    flashing("error" -> form.error("country").get.message)),
-            country => {
-                user.stripeAccountId.
-                    map { Future.successful _ }.
-                    getOrElse {
-                        // Creates a Stripe Express account if it does not exists.
+        user.stripeAccountId match {
+            case Some(accountId) => Future.successful(Redirect(routes.PayoutsController.index))
+            case None => {
+                CountryForm.form.bindFromRequest.fold(
+                    form => Future.successful(
+                        Ok(views.html.account.payouts.setup(
+                            identity=request.identity, countryForm=form))),
+                    country => {
+                        // Creates a Stripe Express account and redirects the use to the Stripe
+                        // onboarding flow for the selected country.
                         paymentService.createAccount(user, country).
                             flatMap { account =>
                                 val stripeAccountId = account.getId
@@ -126,35 +84,28 @@ class PayoutsController @Inject() (
                                         map(_.stripeAccountId).
                                         update(Some(stripeAccountId))
                                 }.map { _ => stripeAccountId }
-                            }
-                    }.
-                    flatMap { stripeAccountId =>
-                        val refreshUrl = routes.PayoutsController.index.absoluteURL
-                        var returnUrl = routes.PayoutsController.stripeOAuthComplete.absoluteURL
-
-                        paymentService.connectOAuthUrl(stripeAccountId, refreshUrl, returnUrl)
-                    }.
-                    map { url => Redirect(url) }
+                            }.
+                            flatMap { stripeOAuthRedirect _ }
+                    }
+                )
             }
-        )
+        }
     }
 
     /** Processes the Stripe Connect OAuth response. */
-    def stripeOAuthComplete = SecuredAction.async {
-        implicit request =>
+    def setupComplete = SecuredAction.async { implicit request =>
 
         val user = request.identity.user
-
-        val redirectTo = routes.PayoutsController.index
+        val redirectTo = Redirect(routes.IndexController.index)
 
         // Sets `user.stripeCompleted` to true if the `details_submitted` value of the associated
         // Stripe account is true.
 
         (user.stripeAccountId match {
             case Some(stripeAccountId) => {
-                (paymentService.
+                paymentService.
                     retrieveAccount(stripeAccountId).
-                    map { account => account.getDetailsSubmitted: Boolean })
+                    map { account => account.getDetailsSubmitted: Boolean }
             }
             case None => Future.successful(false)
         }).
@@ -167,13 +118,13 @@ class PayoutsController @Inject() (
                             update(true)
                     }.
                         map { _ => 
-                            Redirect(redirectTo).
+                            redirectTo.
                                 flashing("success" -> (
                                     "Your account has been successfully setup. " + 
                                     "You can now receive online payments."))
                         }
                 } else {
-                    Future.successful(Redirect(redirectTo).
+                    Future.successful(redirectTo.
                         flashing("error" -> (
                             "Your account has not been correctly setup for online payments. " + 
                             "Please try again.")))
@@ -181,17 +132,22 @@ class PayoutsController @Inject() (
             }
     }
 
-    /** Redirects the user to the Stripe Express dashboard. */
-    def stripeDashboard = SecuredAction.async { implicit request =>
-        val user = request.identity.user
+    private def stripeOAuthRedirect(stripeAccountId: String)(implicit req: RequestHeader):
+        Future[Result] = {
 
-        user.stripeAccountId match {
-            case Some(stripeAccountId) if user.stripeCompleted => {
-                paymentService.
-                connectDashboardUrl(stripeAccountId).
-                map { TemporaryRedirect _ }
-            }
-            case _ => Future { BadRequest("No Stripe account connected.") }
-        }
+        val refreshUrl = routes.PayoutsController.index.absoluteURL
+        var returnUrl = routes.PayoutsController.setupComplete.absoluteURL
+
+        paymentService.
+            connectOAuthUrl(stripeAccountId, refreshUrl, returnUrl).
+            map { TemporaryRedirect _ }
+    }
+
+    private def stripeDashboardRedirect(stripeAccountId: String)(implicit req: RequestHeader):
+        Future[Result] = {
+            
+        paymentService.
+            connectDashboardUrl(stripeAccountId).
+            map { TemporaryRedirect _ }
     }
 }

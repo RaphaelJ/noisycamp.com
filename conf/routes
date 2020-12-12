@@ -64,9 +64,10 @@ GET     /account/studios/:id/bookings/:booking/cancel   controllers.account.stud
 GET     /account/studios/:id/publish    controllers.account.studios.IndexController.publish(id: Long)
 
 GET     /account/payouts                controllers.account.PayoutsController.index
-POST    /account/payouts/stripe-oauth/  controllers.account.PayoutsController.stripeOAuth
-GET     /account/payouts/stripe-oauth-complete  controllers.account.PayoutsController.stripeOAuthComplete
-GET     /account/payouts/stripe-dashboard   controllers.account.PayoutsController.stripeDashboard
+
+GET     /account/payouts/setup          controllers.account.PayoutsController.setup
+POST    /account/payouts/setup          controllers.account.PayoutsController.setup
+GET     /account/payouts/setup-complete controllers.account.PayoutsController.setupComplete
 
 GET     /account/premium/upgrade        controllers.account.PremiumController.upgrade
 POST    /account/premium/upgrade        controllers.account.PremiumController.upgradeSubmit
