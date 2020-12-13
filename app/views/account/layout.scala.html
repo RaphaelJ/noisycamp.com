@@ -75,9 +75,17 @@
                             </li>
 
                             <li>
-                                <a href="@controllers.account.routes.PayoutsController.index">
-                                    Payout preferences
-                                </a>
+                                @if(identity.user.isPayoutSetup) {
+                                    <a 
+                                        href="@controllers.account.routes.PayoutsController.index"
+                                        target="_blank">
+                                        Payouts
+                                    </a>
+                                } else {
+                                    <a href="@controllers.account.routes.PayoutsController.setup">
+                                        Setup payouts
+                                    </a>
+                                }
                             </li>
                         </ul>
 

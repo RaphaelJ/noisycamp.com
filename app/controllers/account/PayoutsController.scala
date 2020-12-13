@@ -62,7 +62,6 @@ class PayoutsController @Inject() (
     }
 
     def setup = SecuredAction.async { implicit request =>
-
         val user = request.identity.user
 
         user.stripeAccountId match {
@@ -94,7 +93,6 @@ class PayoutsController @Inject() (
 
     /** Processes the Stripe Connect OAuth response. */
     def setupComplete = SecuredAction.async { implicit request =>
-
         val user = request.identity.user
         val redirectTo = Redirect(routes.IndexController.index)
 
