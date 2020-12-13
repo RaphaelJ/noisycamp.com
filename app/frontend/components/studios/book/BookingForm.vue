@@ -34,7 +34,7 @@
             name="booking-times.duration"
             :value="bookingTimes['duration']">
 
-        <h3>Please choose your payment method</h3>
+        <h3 class="text-sans-serif"><small>Please choose your payment method</small></h3>
 
         <fieldset>
             <div class="grid-y">

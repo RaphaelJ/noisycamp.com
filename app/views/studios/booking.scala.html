@@ -81,7 +81,7 @@
             </div>
         }
         case Right((bookingTimes, priceBreakdown)) => {
-            <h3>Summary</h3>
+            <h3 class="text-sans-serif"><small>Summary</small></h3>
 
             <div class="grid-y">
                 <div class="cell">
@@ -102,7 +102,7 @@
 
             <hr>
 
-            <h3>Price breakdown</h3>
+            <h3 class="text-sans-serif"><small>Price breakdown</small></h3>
 
             @tags.priceBreakdown(priceBreakdown)
 
