@@ -41,19 +41,19 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
     import profile.api._
 
     def index(id: Studio#Id) = SecuredAction.async { implicit request =>
-        withStudioBookings(id, { case (studio, bookings) =>
+        withStudioBookings(id) { case (studio, bookings) =>
             Ok(views.html.account.studios.bookings.index(request.identity, studio, bookings))
-        })
+        }
     }
 
     def calendar(id: Studio#Id) = SecuredAction.async { implicit request =>
-        withStudioBookings(id, { case (studio, bookings) =>
+        withStudioBookings(id, onlyActive=true) { case (studio, bookings) =>
             val bookingEvents = bookings.map { 
                 case (booking, user) => booking.toEvent(Some(user), Seq("booking")) }
 
             Ok(views.html.account.studios.bookings.calendar(
                 request.identity, studio, bookingEvents))
-        })
+        }
     }
 
     def calendarSync(id: Studio#Id) = SecuredAction { implicit request =>
@@ -81,7 +81,8 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
         }
     }
 
-    private def withStudioBookings[T](id: Studio#Id,
+    private def withStudioBookings[T](
+        id: Studio#Id, onlyActive: Boolean = false)(
         f: ((Studio, Seq[(StudioBooking, User)]) => Result))
         (implicit request: SecuredRequest[DefaultEnv, T]): Future[Result] = {
 
@@ -94,14 +95,16 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
 
             dbStudio.flatMap {
                 case Some(studio) => {
-                    daos.studioBooking.query.
+                    val baseQuery =
+                        if (onlyActive) { daos.studioBooking.activeBookings }
+                        else {daos.studioBooking.query }
+
+                    baseQuery.
                         filter(_.studioId === id).
                         join(daos.user.query).on(_.customerId === _.id).
                         sortBy(_._1.beginsAt.desc).
                         result.
-                        map { bookings =>
-                            Some((studio, bookings))
-                        }
+                        map { bookings => Some((studio, bookings)) }
                 }
                 case None => DBIO.successful(None)
             }
