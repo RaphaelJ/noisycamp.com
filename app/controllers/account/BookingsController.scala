@@ -38,9 +38,9 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
         val user = request.identity.user
 
         db.run({
-            daos.studioBooking.query.
+            daos.studioBooking.bookings.
+                filter(_.customerId === user.id).
                 join(daos.studio.query).on(_.studioId === _.id).
-                filter { case (booking, _) => booking.customerId === user.id }.
                 result
         }).map { bookings =>
             Ok(views.html.account.bookings.index(request.identity, bookings))
@@ -51,33 +51,18 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
         val user = request.identity.user
 
         db.run({
-            val dbBooking = daos.studioBooking.query.
+            daos.studioBooking.query.
                 filter(_.id === id).
+                filter(_.customerId === user.id).
+                join(daos.studio.query).on(_.studioId === _.id).
+                join(daos.user.query).on(_._2.ownerId === _.id).
                 result.headOption
-
-            dbBooking.flatMap {
-                case Some(booking) => {
-                    for {
-                        studio <- daos.studio.query.
-                            filter(_.id === booking.studioId).
-                            result.head
-
-                        studioOwner <- daos.user.query.
-                            filter(_.id === studio.ownerId).
-                            result.head
-
-                    } yield Some((studio, studioOwner, booking))
-                }
-                case None => DBIO.successful(None)
-            }
         }.transactionally).
             map {
-                case Some((studio, studioOwner, booking)) if booking.isCustomer(user) => Ok(
+                case Some(((booking, studio), studioOwner)) => Ok(
                     views.html.account.bookings.show(
                         request.identity, studio, studioOwner, booking))
-                case Some(_) => Forbidden("Cannot access other customers' bookings.")
                 case None => NotFound("Booking not found.")
             }
-
     }
 }

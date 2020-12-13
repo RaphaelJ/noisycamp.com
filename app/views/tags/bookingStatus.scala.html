@@ -20,6 +20,14 @@
 @(booking: models.StudioBooking, studio: models.Studio, now: Instant = Instant.now)
 
 @booking.status match {
+    case StudioBookingStatus.PaymentProcessing => {
+        <i class="fi-clock"></i>&nbsp;
+        Processing payment
+    }
+    case StudioBookingStatus.PaymentFailure => {
+        <i class="fi-x"></i>&nbsp;
+        Payment failed
+    }
     case StudioBookingStatus.PendingValidation => {
         <span class="text-alert">
             <i class="fi-alert"></i>&nbsp;

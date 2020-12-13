@@ -97,7 +97,7 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
                 case Some(studio) => {
                     val baseQuery =
                         if (onlyActive) { daos.studioBooking.activeBookings }
-                        else {daos.studioBooking.query }
+                        else {daos.studioBooking.bookings }
 
                     baseQuery.
                         filter(_.studioId === id).

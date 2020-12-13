@@ -182,6 +182,14 @@ class StudioBookingDAO @Inject()
         query returning query.map(_.id) into ((b, id) => b.copy(id=id)) += booking
     }
 
+    /** Creates a query with all submitted bookings (i.e. with a valid payment) */
+    def bookings = {
+        query.
+            filter(!_.status.inSet(Seq(
+                StudioBookingStatus.PaymentProcessing,
+                StudioBookingStatus.PaymentFailure)))
+    }
+
     /** Creates a query with all the active (i.e. not cancelled) bookings */
     def activeBookings = {
         query.
