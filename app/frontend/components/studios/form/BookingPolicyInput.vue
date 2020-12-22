@@ -29,7 +29,6 @@
                     v-model="minBookingDuration"
                     required>
                     <option value="" disabled>Please select a value</option>
-                    <option value="1800">30 minutes</option>
                     <option value="3600">1 hour</option>
                     <option value="7200">2 hours</option>
                     <option value="14400">4 hours</option>

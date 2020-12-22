@@ -17,8 +17,10 @@
 
 package frontend
 
+import scala.concurrent.duration.Duration
+
 import play.api.Configuration
-import play.api.libs.json.{ JsNull, JsObject, Json, JsString, JsValue }
+import play.api.libs.json.{ JsNull, JsObject, Json, JsString, JsValue, Writes }
 import play.api.mvc.RequestHeader
 import views.html.helper.CSRF
 
@@ -40,6 +42,11 @@ object JsConfig {
             "stripePublicKey" -> config.get[String]("stripe.publicKey"),
 
             "cdnHost" -> config.getOptional[String]("noisycamp.cdnHost"),
+
+            "bookingBeginsRoundingTime" -> 
+                config.get[Duration]("noisycamp.bookingBeginsRoundingTime").toSeconds,
+            "bookingDurationRoundingTime" -> 
+                config.get[Duration]("noisycamp.bookingDurationRoundingTime").toSeconds,
 
             // Currencies
 

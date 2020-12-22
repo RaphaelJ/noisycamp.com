@@ -93,6 +93,8 @@ import {
     dateComponent, eventsOverlap, renderDuration, timeComponent, withTimeComponent
 } from '../../../misc/DateUtils';
 
+declare var NC_CONFIG: any;
+
 export default Vue.extend({
     props: {
         // The current local time, without timezone.
@@ -248,6 +250,7 @@ export default Vue.extend({
 
         // List all the selected day's availaible starting times.
         startingTimes() {
+
             if (!this.dateSchedule || this.isClosed) {
                 return null;
             } else {
@@ -263,10 +266,13 @@ export default Vue.extend({
                     iTime = this.mCurrentTime;
                 }
 
-                // Rounds the opening time to the next upcoming 15-minutes.
+                // Rounds the opening time to the next multiple of `bookingRoundingTime`.
+
+                let rounding_time = NC_CONFIG.bookingBeginsRoundingTime / 60;
+
                 let minutes = iTime.minutes();
-                if (minutes % 15) {
-                    iTime.add(15 - (minutes % 15), 'minutes');
+                if (minutes % rounding_time) {
+                    iTime.add(rounding_time - (minutes % rounding_time), 'minutes');
                 }
 
                 let times = [];
@@ -282,7 +288,7 @@ export default Vue.extend({
                         });
                     }
 
-                    iTime.add(15, 'minutes');
+                    iTime.add(rounding_time, 'minutes');
                 }
 
                 return times;
@@ -335,7 +341,7 @@ export default Vue.extend({
                     value: iDuration.asSeconds(),
                     title: renderDuration(iDuration, 'minutes'),
                 });
-                iDuration.add(15, 'minutes');
+                iDuration.add(NC_CONFIG.bookingDurationRoundingTime, 'seconds');
             }
 
             return durations;

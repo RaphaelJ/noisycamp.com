@@ -18,6 +18,7 @@
 package forms.studios
 
 import java.time.{ Duration, Instant, LocalDate, LocalTime }
+import scala.concurrent.duration
 
 import play.api.Configuration
 import play.api.data.Form
@@ -39,12 +40,28 @@ object BookingTimesForm {
         mapping(
             "begins-at"       -> CustomFields.localDateTime.
                 verifying(
+                    "Invalid booking start time.",
+                    beginsAt => {
+                        val bookingBeginsRoundingTime = 
+                            config.get[duration.Duration]("noisycamp.bookingBeginsRoundingTime")
+
+                        (beginsAt.getMinute % bookingBeginsRoundingTime.toMinutes) == 0
+                    }).
+                verifying(
                     "A booking cannot start in the past.",
                     beginsAt => !minBookingDateTime.isAfter(beginsAt)).
                 verifying(
                     "A booking cannot be too far in the future.",
                     beginsAt => beginsAt.toLocalDate.isBefore(maxBookingDate)),
             "duration"        -> CustomFields.seconds.
+                verifying(
+                    "Invalid duration.",
+                    duration => {
+                        val bookingDurationRoundingTime = config.get[concurrent.duration.Duration](
+                            "noisycamp.bookingDurationRoundingTime")
+
+                        (duration.getSeconds % bookingDurationRoundingTime.toSeconds) == 0
+                    }).
                 verifying(
                     "Less than the minimal rental duration set by the studio's manager.",
                     duration => duration.compareTo(studio.bookingPolicy.minBookingDuration) >= 0).
