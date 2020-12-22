@@ -29,10 +29,15 @@
         Payment failed
     }
     case StudioBookingStatus.PendingValidation => {
-        <span class="text-alert">
-            <i class="fi-alert"></i>&nbsp;
-            Pending approval
-        </span>
+        @if(!booking.isStarted(studio, now)) {
+            <span class="text-alert">
+                <i class="fi-alert"></i>&nbsp;
+                Pending approval
+            </span>
+        } else {
+            <i class="fi-x"></i>&nbsp;
+            Not approved on time
+        }
     }
     case StudioBookingStatus.Valid => {
         <i class="fi-check"></i>&nbsp;

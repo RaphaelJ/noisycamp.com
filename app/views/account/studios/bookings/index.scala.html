@@ -34,67 +34,84 @@
     </a>
 }
 
-@views.html.account.layout(Seq("Studio bookings", studio.name), identity=identity) {
-    <div class="panel-section">
-        @if(bookings.isEmpty) {
-            <div class="text-center">
-                Your studio does not have any booking yet.<br>
-                Share your 
-                <a href="@routes.StudiosController.show(studio.id)">
-                    studio page
-                </a>
-                on your website and social media accounts to increase your online presence.
-            </div>
-        } else {
-            <table class="stack fixed">
-                <thead>
-                    <tr>
-                        <th width="25%">Guest name</th>
-                        <th width="25%">Begins on</th>
-                        <th width="25%">Total</th>
-                        <th width="25%">Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @defining(Instant.now) { now =>
-                    @for((booking, customer) <- bookings) {
-                        <tr>
-                            <td class="text-overflow-ellipsis">
-                                @withBookingLink(booking) {
-                                    @customer.fullName
-                                }
-                            </td>
-                            <td>
-                                @withBookingLink(booking) {
-                                    @tags.localDateTime(booking.times.beginsAt)
-                                }
-                            </td>
-                            <td>
-                                @withBookingLink(booking) {
-                                    @tags.moneyAmount(booking.currency(booking.total))
+@bookingTable(bookings: Seq[(models.StudioBooking, models.User)], now: Instant) = {
+    <table class="stack fixed">
+        <thead>
+            <tr>
+                <th width="25%">Guest name</th>
+                <th width="25%">Begins on</th>
+                <th width="25%">Total</th>
+                <th width="25%">Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for((booking, customer) <- bookings) {
+                <tr>
+                    <td class="text-overflow-ellipsis">
+                        @withBookingLink(booking) { @customer.fullName }
+                    </td>
+                    <td>
+                        @withBookingLink(booking) { @tags.localDateTime(booking.times.beginsAt) }
+                    </td>
+                    <td>
+                        @withBookingLink(booking) {
+                            @tags.moneyAmount(booking.currency(booking.total))
 
-                                    @if(booking.isActive) {
-                                        @booking.payment match {
-                                            case StudioBookingPaymentOnline(_, _) => {
-                                                (paid online)
-                                            }
-                                            case StudioBookingPaymentOnsite() => {
-                                                <strong>(to be paid on site)</strong>
-                                            }
-                                        }
-                                    }
+                            @booking.payment match {
+                                case StudioBookingPaymentOnline(_, _, None) => { (paid online) }
+                                case StudioBookingPaymentOnline(_, _, Some(_)) => { (refunded) }
+                                case StudioBookingPaymentOnsite() if booking.isActive => {
+                                    <strong>(to be paid on site)</strong>
                                 }
-                            </td>
-                            <td class="text-overflow-ellipsis">
-                                @withBookingLink(booking) {
-                                    @tags.bookingStatus(booking, studio, now)
-                                }
-                            </td>
-                        </tr>
-                    }
-                    }
-                </tbody>
-            </table>
-        }
+                                case _ => {}
+                            }
+                        }
+                    </td>
+                    <td class="text-overflow-ellipsis">
+                        @withBookingLink(booking) { @tags.bookingStatus(booking, studio, now) }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@views.html.account.layout(Seq("Studio bookings", studio.name), identity=identity) {
+
+@defining(Instant.now) { now =>
+@defining(bookings.partition { case (b, _) => b.isActive && b.isUpcoming(studio, now) } 
+    ) { case (upcoming, past) =>
+
+    <div class="grid-y grid-padding-y">
+        <div class="cell">
+            <div class="panel-section">
+                <h3 class="text-sans-serif"><small>Upcoming bookings</small></h3>
+                    
+                @if(upcoming.isEmpty) {
+                    <div class="text-center">
+                        Your studio does not have any upcoming booking.
+                        Share your 
+                        <a href="@routes.StudiosController.show(studio.id)">studio page</a>
+                        to increase your online exposure.
+                    </div>
+                } else {
+                    @bookingTable(upcoming, now)
+                }
+            </div>
+        </div>
+
+        <div class="cell">
+            <div class="panel-section">
+                <h3 class="text-sans-serif"><small>Past and cancelled bookings</small></h3>
+                    
+                @if(past.isEmpty) {
+                    <div class="text-center">Your studio does not have any past booking.</div>
+                } else {
+                    @bookingTable(past, now)
+                }
+            </div>
+        </div>
     </div>
+
+} }
 }
