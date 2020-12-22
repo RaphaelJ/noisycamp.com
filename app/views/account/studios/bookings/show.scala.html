@@ -133,7 +133,10 @@
                             <small>Price breakdown</small>
                         </h3>
 
-                        @tags.priceBreakdown(booking.priceBreakdown, showTransactionFee = true)
+                        @tags.priceBreakdown(
+                            booking.priceBreakdown,
+                            ownerView = true,
+                            isRefunded = booking.payment.isRefunded)
 
                         @if(booking.ownerCanCancel) {
                             <hr>

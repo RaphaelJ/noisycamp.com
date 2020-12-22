@@ -60,7 +60,7 @@
                 @tags.callout("Booking rejected", Some("fi-x")) {
                     The booking has not been accepted. 
                     @if(booking.payment.isRefunded) {
-                        You payment has been be entirely refunded on the mean of payment chosen
+                        Your payment has been be entirely refunded on the mean of payment chosen
                         during the checkout process. This might take a few days to show up on
                         your bank balance. 
                     }
@@ -70,7 +70,7 @@
                 @tags.callout("Booking cancelled by customer", Some("fi-x")) {
                     You cancelled the booking.
                     @if(booking.payment.isRefunded) {
-                        You payment has been be entirely refunded on the mean of payment chosen
+                        Your payment has been be entirely refunded on the mean of payment chosen
                         during the checkout process. This might take a few days to show up on
                         your bank balance.
                     }
@@ -80,7 +80,7 @@
                 @tags.callout("Booking cancelled by studio owner", Some("fi-x")) {
                     The studio owner cancelled the booking.
                     @if(booking.payment.isRefunded) {
-                        You payment has been be entirely refunded on the mean of payment chosen
+                        Your payment has been be entirely refunded on the mean of payment chosen
                         during the checkout process. This might take a few days to show up on
                         your bank balance.
                     }
@@ -151,7 +151,9 @@
                                 <small>Price breakdown</small>
                             </h3>
 
-                            @tags.priceBreakdown(booking.priceBreakdown)
+                            @tags.priceBreakdown(
+                                booking.priceBreakdown,
+                                isRefunded = booking.payment.isRefunded)
 
                             @if(booking.customerCanCancel(studio, now)) {
                                 <hr>

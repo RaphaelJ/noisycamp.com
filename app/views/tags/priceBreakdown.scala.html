@@ -15,7 +15,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *@
 
-@(breakdown: models.PriceBreakdown, showTransactionFee: Boolean = false)
+@(
+    breakdown: models.PriceBreakdown,
+    ownerView: Boolean = false,
+    isRefunded: Boolean = false)
+
+@currency = @{ breakdown.total.currency }
 
 @if(!breakdown.durations.regular.isZero) {
     <div class="grid-x grid-margin-x">
@@ -67,7 +72,16 @@
     </div>
 </div>
 
-@if(showTransactionFee) {
+@if(isRefunded) {
+    <div class="grid-x grid-margin-x">
+        <div class="cell shrink" style="padding-left: 1rem;">
+            <em>Refunded</em>
+        </div>
+        <div class="cell auto text-right">
+            <em>-@tags.moneyAmount(breakdown.total)</em>
+        </div>
+    </div>
+} else if(ownerView) {
     @for(transactionFee <- breakdown.transactionFee) {
         <div class="grid-x grid-margin-x">
             <div class="cell shrink" style="padding-left: 1rem;">
@@ -77,14 +91,18 @@
                 <em>-@tags.moneyAmount(transactionFee)</em>
             </div>
         </div>
-
-        <div class="grid-x grid-margin-x">
-            <div class="cell shrink">
-                <strong>You will receive</strong>
-            </div>
-            <div class="cell auto text-right">
-                <strong>@tags.moneyAmount(breakdown.netTotal)</strong>
-            </div>
-        </div>
     }
+}
+
+@if(ownerView) {
+    <div class="grid-x grid-margin-x">
+        <div class="cell shrink">
+            <strong>You will receive</strong>
+        </div>
+        <div class="cell auto text-right">
+            <strong>
+                @tags.moneyAmount(if (isRefunded) { currency(0) } else { breakdown.netTotal })
+            </strong>
+        </div>
+    </div>
 }
