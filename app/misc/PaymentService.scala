@@ -27,9 +27,9 @@ import com.stripe.Stripe
 import com.stripe.exception.StripeException
 import com.stripe.model.checkout.Session
 import com.stripe.model.oauth.TokenResponse
-import com.stripe.model.{ Account, AccountLink, Event, LoginLink, PaymentIntent, Refund }
+import com.stripe.model.{ Account, AccountLink, Event, File, LoginLink, PaymentIntent, Refund }
 import com.stripe.net.{ OAuth, RequestOptions, Webhook }
-import com.stripe.param.RefundCreateParams
+import com.stripe.param.{ FileCreateParams, RefundCreateParams }
 import play.api.Configuration
 import play.api.mvc.{ Call, Request, RequestHeader, Result, Results }
 import play.filters.csrf.CSRF
@@ -79,23 +79,35 @@ class PaymentService @Inject() (
         implicit config: Configuration):
         Future[Account] = {
 
-        val params: java.util.Map[String, Object] = (Map(
-            "country" -> country.isoCode,
-            "type" -> (accountType match {
-                case StripeAccountType.Express => "express"
-                case StripeAccountType.Custom => "custom"
-            }),
-            "capabilities" -> Map(
-                "transfers" -> Map("requested" -> true.asInstanceOf[Object]).asJava,
-                "card_payments" -> Map("requested" -> true.asInstanceOf[Object]).asJava
-            ).asJava,
-            "email" -> user.email,
-            "metadata" -> Map(
-                "noisycamp_id" -> user.id,
-            ).asJava) ++
-            extraParams).asJava
+        for {
+            icon <- fileUpload(
+                "public/images/app-icon-180.png", FileCreateParams.Purpose.BUSINESS_ICON)
 
-        Future { blocking { Account.create(params, requestOptions) } }
+            params: java.util.Map[String, Object] = (Map(
+                "country" -> country.isoCode,
+                "type" -> (accountType match {
+                    case StripeAccountType.Express => "express"
+                    case StripeAccountType.Custom => "custom"
+                }),
+                "capabilities" -> Map(
+                    "transfers" -> Map("requested" -> true.asInstanceOf[Object]).asJava,
+                    "card_payments" -> Map("requested" -> true.asInstanceOf[Object]).asJava
+                ).asJava,
+                "email" -> user.email,
+                "metadata" -> Map(
+                    "noisycamp_id" -> user.id,
+                ).asJava,
+                "settings" -> Map(
+                    "branding" -> Map(
+                        "icon" -> icon.getId,
+                        "primary_color" -> "#2c210f".asInstanceOf[Object],
+                        "secondary_color" -> "#b37216"
+                    ).asJava
+                ).asJava) ++
+                extraParams).asJava
+
+            account <- Future { blocking { Account.create(params, requestOptions) } }
+        } yield account
     }
 
     def retrieveAccount(stripeAccountId: String)(
@@ -304,6 +316,18 @@ class PaymentService @Inject() (
             "refund_application_fee" -> refundApplicationFee.asInstanceOf[AnyRef]).asJava
 
         Future { blocking { Refund.create(params, requestOptions) } }
+    }
+
+    /** Creates a Stripe file by uploading the provided file. */
+    def fileUpload(path: String, purpose: FileCreateParams.Purpose)(
+        implicit config: Configuration): Future[File] = {
+            
+        val params = FileCreateParams.builder().
+            setFile(new java.io.File(path)).
+            setPurpose(purpose).
+            build()
+
+        Future { blocking { File.create(params, requestOptions) } }
     }
 
     def withWebhookEvent(request: Request[ByteString], handler: Event => Future[Result])(
