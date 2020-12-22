@@ -31,7 +31,6 @@
         studio.name), identity=identity) {
     
     <div class="grid-x grid-padding-x grid-padding-y">
-
         @booking.status match {
         case StudioBookingStatus.PendingValidation => {
             @if(!booking.isStarted(studio)) {                
@@ -68,19 +67,19 @@
         }
         case StudioBookingStatus.Rejected => {
             @tags.callout("Booking rejected", Some("fi-x")) {
-                This booking has not been accepted@if(booking.isPaidOnline) {
+                This booking has not been accepted@if(booking.payment.isRefunded) {
                     and the customer has been entirely refunded}.
             }()
         }
         case StudioBookingStatus.CancelledByCustomer => {
             @tags.callout("Booking cancelled by customer", Some("fi-x")) {
-                The customer cancelled the booking@if(booking.isPaidOnline) {
+                The customer cancelled the booking@if(booking.payment.isRefunded) {
                     and has been entirely refunded}.
             }()
         }
         case StudioBookingStatus.CancelledByOwner => {
             @tags.callout("Booking cancelled by studio owner", Some("fi-x")) {
-                The studio owner cancelled the booking@if(booking.isPaidOnline) {
+                The studio owner cancelled the booking@if(booking.payment.isRefunded) {
                     and the customer has been entirely refunded}.
             }()
         }

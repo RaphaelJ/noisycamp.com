@@ -119,10 +119,10 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
     def show(studioId: Studio#Id, bookingId: StudioBooking#Id) = SecuredAction.async {
         implicit request =>
 
-        withStudioBookingTransaction(studioId, bookingId, { case (studio, booking, customer) =>
+        withStudioBookingTransaction(studioId, bookingId) { case (studio, booking, customer) =>
             DBIO.successful(Ok(views.html.account.studios.bookings.show(
                 request.identity, studio, booking, customer)))
-        })
+        }
     }
 
     def accept(studioId: Studio#Id, bookingId: StudioBooking#Id) = SecuredAction.async {
@@ -186,7 +186,7 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
             case (studio, booking, customer, query) =>
 
             if (booking.ownerCanCancel) {
-                Some (
+                Some(
                     for {
                         _ <- query.map(b => (b.status, b.cancelledAt)).
                             update((StudioBookingStatus.CancelledByOwner, Some(Instant.now)))
@@ -220,9 +220,7 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
     
         val redirectTo = Redirect(routes.BookingsController.show(studioId, bookingId))
 
-        withStudioBookingTransaction(studioId, bookingId, { 
-            case (studio, booking, customer) =>
-            
+        withStudioBookingTransaction(studioId, bookingId) { (studio, booking, customer) =>
             val query = daos.studioBooking.query.filter(_.id === booking.id)
             
             updateAction(studio, booking, customer, query) match {
@@ -231,12 +229,12 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
                 } yield redirectTo.flashing("success" -> onSuccessMessage)
                 case None => DBIO.successful(redirectTo.flashing("error" -> onFailureMessage))
             }
-        })
+        }
     }
 
     /** Tries to refund the booking if there is an online payment.
      * 
-     * Saves the result in the database and returns the updated `StudioBooking` object.
+     * Saves the result in the database and returns the possibly updated `StudioBooking` object.
      */
     private def refundBooking(booking: StudioBooking):
         DBIOAction[StudioBooking, NoStream, Effect.All] = {
@@ -259,8 +257,8 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
     }
 
     /** Executes the function within the DBIO monad, or returns a 404 response. */
-    private def withStudioBookingTransaction[P](studioId: Studio#Id, bookingId: StudioBooking#Id,
-        f: ((Studio, StudioBooking, User) => DBIOAction[Result, NoStream, Effect.All]))
+    private def withStudioBookingTransaction[P](studioId: Studio#Id, bookingId: StudioBooking#Id)
+        (f: ((Studio, StudioBooking, User) => DBIOAction[Result, NoStream, Effect.All]))
         (implicit request: SecuredRequest[DefaultEnv, P]): Future[Result] = {
 
         val user = request.identity.user

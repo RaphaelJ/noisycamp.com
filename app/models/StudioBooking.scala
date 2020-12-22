@@ -24,6 +24,7 @@ import javax.crypto.spec.SecretKeySpec
 
 import play.api.Configuration
 import squants.market
+import java.time.LocalDate
 
 object StudioBookingStatus extends Enumeration {
     // The request for the booking has been received, but the payment has not been validated yet.
@@ -48,7 +49,9 @@ object StudioBookingStatus extends Enumeration {
     val CancelledByOwner = Value
 }
 
-sealed trait StudioBookingPayment
+sealed trait StudioBookingPayment {
+    def isRefunded: Boolean
+}
 
 final case class StudioBookingPaymentOnline(
     stripeCheckoutSessionId:    String,
@@ -59,7 +62,9 @@ final case class StudioBookingPaymentOnline(
     def isRefunded: Boolean = stripeRefundId.isDefined
 }
 
-final case class StudioBookingPaymentOnsite() extends StudioBookingPayment
+final case class StudioBookingPaymentOnsite() extends StudioBookingPayment {
+    def isRefunded: Boolean = false
+}
 
 case class StudioBooking(
     id:                     StudioBooking#Id = 0L,
@@ -70,7 +75,7 @@ case class StudioBooking(
 
     status:                 StudioBookingStatus.Value,
 
-    // If set, allow the customer to cancel the booking within the specified notice.
+    // If set, refunds the customer of the booking is cancelled within the specified notice.
     cancellationPolicy:     Option[CancellationPolicy],
     
     cancelledAt:            Option[Instant] = None,
@@ -149,12 +154,21 @@ case class StudioBooking(
     }
     
     def customerCanCancel(studio: Studio, now: Instant = Instant.now): Boolean = {
-        !isStarted(studio, now)
+        isActive && !isStarted(studio, now)
     }
 
     def isPaidOnline = payment match {
         case StudioBookingPaymentOnline(_, _, _) => true
         case _ => false
+    }
+
+    /** The last (inclusive) date and time at which the online payment will be refunded if cancelled
+     * by the customer.
+     * 
+     * Returns `None` if the studio does not refund cancelled bookings.
+     */
+    def maxRefundDate: Option[LocalDateTime] = {
+        cancellationPolicy.map { case CancellationPolicy(notice) => times.beginsAt minus notice }
     }
 
     def priceBreakdown: PriceBreakdown = {

@@ -167,15 +167,11 @@ main {
     color: #666;
     font-size: 0.85rem;
 
-    margin-top: -1.4rem;
+    margin-top: -0.75rem;
 }
 
-[type="color"], [type="date"], [type="datetime-local"], [type="datetime"],
-[type="email"], [type="month"], [type="number"], [type="password"],
-[type="search"], [type="tel"], [type="text"], [type="time"], [type="url"],
-[type="week"], textarea, select,
-.input-group, .checkbox-group, .radio-group, .help-text, .button.large {
-    margin-bottom: 1.5rem;
+.checkbox-group, .radio-group {
+    margin-bottom: 1rem;
 }
 
 .input-group-button, .input-group-button a, .input-group-button button, .input-group-button input,

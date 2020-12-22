@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *@
 
-@import java.time.LocalDate
+@import java.time.{ Instant, LocalDate }
 @import java.time.format.DateTimeFormatter
 
 @import play.api.Configuration
@@ -30,7 +30,8 @@
     identity: models.Identity,
     studio: models.Studio,
     studioOwner: models.User,
-    booking: models.StudioBooking)(
+    booking: models.StudioBooking,
+    now: Instant = Instant.now)(
     implicit req: RequestHeader, config: Configuration, flash: Flash)
 
 @views.html.account.layout(
@@ -39,64 +40,144 @@
         tags.localDate(booking.times.beginsAt.toLocalDate).toString.trim),
     identity=identity) {
 
-    <div class="panel-section">
-        <div class="grid-x grid-padding-x">
-            <div class="cell small-12">
-                <h2>
-                    <a
-                        href="@routes.StudiosController.show(studio.id)"
-                        target="_blank">
-                        @studio.name
-                    </a>
-                </h2>
-            </div>
-
-            <div class="cell small-12 medium-6">
-                <h3 class="text-sans-serif">
-                    <small>Reservation code</small><br>
-                    @booking.reservationCode
-                </h3>
-
-                <hr>
-
-                <p class="address">
-                    @tags.location(studio.location, showDirections = true)
-                </p>
-
-                <p>
-                    <a href="mailto:@studioOwner.email">@studioOwner.email</a>
-                    @for(phone <- studio.phone) { 
-                        <br>
-                        <a href="tel:@phone">@phone</a>
+    <div class="grid-x grid-padding-x grid-padding-y">
+        @booking.status match {
+            case StudioBookingStatus.PendingValidation => {
+                @if(!booking.isStarted(studio)) {                
+                    @tags.callout("Booking pending approval", Some("fi-alert")) {
+                        Your request has to be reviewed by the studio manager first. You will
+                        receive an email when your request get either accepted or rejected.
+                    }()
+                } else {
+                    @tags.callout("Booking not approved on time", Some("fi-alert")) {
+                        The booking request has not been approved before the session started.
+                        The booking will be automatically rejected@if(booking.isPaidOnline) {
+                            and you will be entirely refunded}.
+                    }()
+                }
+            }
+            case StudioBookingStatus.Rejected => {
+                @tags.callout("Booking rejected", Some("fi-x")) {
+                    The booking has not been accepted. 
+                    @if(booking.payment.isRefunded) {
+                        You payment has been be entirely refunded on the mean of payment chosen
+                        during the checkout process. This might take a few days to show up on
+                        your bank balance. 
                     }
-                </p>
+                }()
+            }
+            case StudioBookingStatus.CancelledByCustomer => {
+                @tags.callout("Booking cancelled by customer", Some("fi-x")) {
+                    You cancelled the booking.
+                    @if(booking.payment.isRefunded) {
+                        You payment has been be entirely refunded on the mean of payment chosen
+                        during the checkout process. This might take a few days to show up on
+                        your bank balance.
+                    }
+                }()
+            }
+            case StudioBookingStatus.CancelledByOwner => {
+                @tags.callout("Booking cancelled by studio owner", Some("fi-x")) {
+                    The studio owner cancelled the booking.
+                    @if(booking.payment.isRefunded) {
+                        You payment has been be entirely refunded on the mean of payment chosen
+                        during the checkout process. This might take a few days to show up on
+                        your bank balance.
+                    }
+                }()
+            }
+            case _ => {}
+            }
 
-                <hr class="show-for-small-only">
-            </div>
+            <div class="cell small-12">
+                <div class="panel-section">
+                    <div class="grid-x grid-padding-x">
+                        <div class="cell small-12">
+                            <h2>
+                                <a
+                                    href="@routes.StudiosController.show(studio.id)"
+                                    target="_blank">
+                                    @studio.name
+                                </a>
+                            </h2>
+                        </div>
 
-            <div class="cell small-12 medium-6">
-                <p class="text-sans-serif">
-                    <i class="fi-calendar"></i>&nbsp;
-                    @tags.localDateTime(booking.times.beginsAt)<br>
+                        <div class="cell small-12 medium-6">
+                            <h3 class="text-sans-serif">
+                                <small>Reservation code</small>
+                            </h3>
 
-                    <i class="fi-clock"></i>&nbsp;
-                    @tags.duration(booking.durations.total)
-                </p>
+                            <h3 class="text-sans-serif">
+                                @booking.reservationCode
+                            </h3>
 
-                <hr>
+                            <hr>
 
-                @tags.priceBreakdown(booking.priceBreakdown)
+                            <h3 class="text-sans-serif">
+                                <small>Location & contact info</small>
+                            </h3>
 
-                <hr>
+                            <p class="address">
+                                @tags.location(studio.location, showDirections = true)
+                            </p>
 
-                <div class="text-center">
-                    <p>
-                        <a href="#">Cancel booking</a>
-                    </p>
+                            <p>
+                                <a href="mailto:@studioOwner.email">@studioOwner.email</a>
+                                @for(phone <- studio.phone) { 
+                                    <br>
+                                    <a href="tel:@phone">@phone</a>
+                                }
+                            </p>
 
-                    <p class="help-text">
-                        You will not be refunded.
-                    </p>
+                            <hr class="show-for-small-only">
+                        </div>
+
+                        <div class="cell small-12 medium-6">
+                            <h3 class="text-sans-serif">
+                                <small>Booking details</small>
+                            </h3>
+
+                            <p class="text-sans-serif">
+                                <i class="fi-calendar"></i>&nbsp;
+                                @tags.localDateTime(booking.times.beginsAt)<br>
+
+                                <i class="fi-clock"></i>&nbsp;
+                                @tags.duration(booking.durations.total)
+                            </p>
+
+                            <hr>
+
+                            <h3 class="text-sans-serif">
+                                <small>Price breakdown</small>
+                            </h3>
+
+                            @tags.priceBreakdown(booking.priceBreakdown)
+
+                            @if(booking.customerCanCancel(studio, now)) {
+                                <hr>
+
+                                <div class="text-center">
+                                    <a
+                                        href="@controllers.account.routes.BookingsController.cancel(booking.id)"
+                                        class="button secondary small-only-expanded">
+                                        Cancel booking
+                                    </a>
+
+                                    @if(booking.isPaidOnline) {
+                                        <p class="help-text">
+                                            @booking.maxRefundDate match {
+                                                case Some(maxRefundDate) => {
+                                                    Your booking will be entirely refunded if cancelled before
+                                                    @tags.localDateTime(maxRefundDate).
+                                                }
+                                                case None => { Your booking will not be refunded. }
+                                            }
+                                        </p>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

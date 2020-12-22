@@ -167,7 +167,6 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
 
             sessionId = session.getId
             intentId = session.getPaymentIntent
-            transactionFeeRate = Some(owner.plan.transactionRate)
             payment = StudioBookingPaymentOnline(sessionId, intentId)
 
             booking <- daos.studioBooking.

@@ -37,6 +37,7 @@ GET     /account                        controllers.account.IndexController.inde
 
 GET     /account/bookings               controllers.account.BookingsController.index
 GET     /account/bookings/:id           controllers.account.BookingsController.show(id: Long)
+GET     /account/bookings/:id/cancel    controllers.account.BookingsController.cancel(id: Long)
 
 GET     /account/studios                controllers.account.studios.IndexController.index
 

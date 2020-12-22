@@ -26,6 +26,7 @@ import models.{ Address, BookingPolicy, BookingTimes, Coordinates, Location, Ope
     OpeningTimes, PaymentPolicy, PricingPolicy, Studio, StudioBooking, StudioBookingPaymentOnsite,
     StudioBookingStatus, User }
 import i18n.Country
+import models.CancellationPolicy
 
 class StudioBookingSpec extends PlaySpec {
 
@@ -142,6 +143,24 @@ class StudioBookingSpec extends PlaySpec {
             studioBooking.isCompleted(
                 studio, getInstantAtStudioTimeZone(LocalDateTime.of(2020, 10, 1, 12, 0))
                 ) should be (true)
+        }
+    }
+
+    "StudioBooking.maxRefundDate" must {
+        "returns the `None` with no cancellation policy" in {
+            studioBooking.maxRefundDate should be (None)
+        }
+
+        "returns the session start date with a no notice cancellation policy" in {
+            val policy = CancellationPolicy(Duration.ZERO)
+            val maxRefundDate = Just(studioBooking.times.beginsAt)
+            studioBooking.copy(cancellationPolicy=policy).maxRefundDate should be (maxRefundDate)
+        }
+
+        "returns one day before the session with a 24h cancellation policy" in {
+            val policy = CancellationPolicy(Duration.ofHours(24))
+            val maxRefundDate = Just(LocalDateTime.of(2020, 9, 31, 10, 30))
+            studioBooking.copy(cancellationPolicy=policy).maxRefundDate should be (maxRefundDate)
         }
     }
 

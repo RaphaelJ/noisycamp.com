@@ -44,8 +44,11 @@
         <blockquote>@reason</blockquote>
     }
 
-    @if(booking.isPaidOnline) {
-        <p>Based on the cancellation policy, the customer might be entirely refunded.</p>
+    @if(booking.payment.isRefunded) {
+        <p>
+            In accordance with the cancellation policy at the time of booking, the customer has been
+            entirely refunded.
+        </p>
     }
 
     <p>Thank you for using NoisyCamp.</p>
