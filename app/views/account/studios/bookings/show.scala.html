@@ -105,7 +105,9 @@
                         </h3>
 
                         <p>
-                            @customer.displayName<br>
+                            @for(fullName <- customer.fullName) {
+                                @fullName<br>
+                            }
                             <a href="mailto:@customer.email">
                                 @customer.email
                             </a>

@@ -48,7 +48,7 @@
             @for((booking, customer) <- bookings) {
                 <tr>
                     <td class="text-overflow-ellipsis">
-                        @withBookingLink(booking) { @customer.fullName }
+                        @withBookingLink(booking) { @customer.displayName }
                     </td>
                     <td>
                         @withBookingLink(booking) { @tags.localDateTime(booking.times.beginsAt) }

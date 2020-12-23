@@ -44,7 +44,7 @@ class UserService @Inject() (
             get(loginInfo).
             flatMap { userLoginInfo =>
                 daos.user.query.
-                filter(_.id === userLoginInfo.userID)
+                    filter(_.id === userLoginInfo.userID)
             }
     }
 
@@ -83,13 +83,19 @@ class UserService @Inject() (
                     flatMap {
                         case Some(user) => DBIO.successful(user)
                         case None => {
-                            // User does not exists.
+                            // User login info does not exists for this provider.
+                            //
+                            // If an user with the same email exists, associates it, else creates a
+                            // new user.
                             for {
-                                user <- daos.user.insert += User(
-                                    firstName = profile.firstName,
-                                    lastName = profile.lastName,
-                                    email = profile.email.get,
-                                    avatarId = None)
+                                user <- daos.user.query.
+                                    filter(_.email === profile.email.get).
+                                    result.headOption.
+                                    flatMap { 
+                                        case Some(user) => userUpdate(user, profile)
+                                        case None => userCreate(profile)
+                                    }
+                                
                                 _ <- daos.userLoginInfo.insert += UserLoginInfo(
                                     userId = user.id,
                                     loginProviderId = profile.loginInfo.providerID,
@@ -99,5 +105,29 @@ class UserService @Inject() (
                     }
             } yield user
         }
+    }
+
+    /** Uses the profile to complete any missing user information. */
+    private def userUpdate(user: User, profile: CommonSocialProfile) = {
+        if (user.firstName.isDefined && user.lastName.isDefined) {
+            DBIO.successful(user)
+        } else {
+            val newUser = user.copy(
+                firstName = user.firstName.orElse(profile.firstName),
+                lastName =  user.lastName.orElse(profile.lastName))
+
+            daos.user.query.
+                filter(_.id === user.id).
+                update(newUser).
+                map { _ => newUser }
+        }
+    }
+
+    private def userCreate(profile: CommonSocialProfile) = {
+        daos.user.insert += User(
+            firstName = profile.firstName,
+            lastName = profile.lastName,
+            email = profile.email.get,
+            avatarId = None)
     }
 }
