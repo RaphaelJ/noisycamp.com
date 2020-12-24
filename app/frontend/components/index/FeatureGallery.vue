@@ -31,15 +31,13 @@
             class="cell medium-6 feature-gallery-text"
             :class="{ 'active': currentFeature == 'online_presence' }"
             @click="featureClicked('online_presence')">
-            <h3>Build an online presence</h3>
+            <h3>Reach new musicians</h3>
 
-            <h5>Reach 1,000s of musicians around the world</h5>
+            <h5>A modern online presence for your studio</h5>
 
             <p>
-                NoisyCamp is a build on top of a global community of thousands
-                of musicians.<br>
-                By listing your studio, you will reach new customers, including traveling
-                musicians.<br>
+                NoisyCamp is a build on top of a global community of 1,000s of musicians.<br>
+                By listing your studio, you will reach new customers, and increase your revenue.<br>
                 NoisyCamp is available on desktop and mobile devices.
             </p>
         </div>
