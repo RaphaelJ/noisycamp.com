@@ -25,49 +25,6 @@
     implicit request: RequestHeader, messagesProvider: MessagesProvider,
     config: Configuration, flash: Flash)
 
-@withBookingLink(booking: models.StudioBooking)(content: Html) = {
-    <a 
-        class="text-style-link"
-        href="@controllers.account.routes.BookingsController.show(booking.id)">
-        @content
-    </a>
-}
-
-@bookingTable(bookings: Seq[(models.StudioBooking, models.Studio)], now: Instant) = {
-    <table class="stack fixed">
-        <thead>
-            <tr>
-                <th width="30%">Studio</th>
-                <th width="25%">Begins on</th>
-                <th width="20%">Duration</th>
-                <th width="25%">Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            @for((booking, studio) <- bookings) {
-                <tr>
-                    <td class="text-overflow-ellipsis">
-                        @withBookingLink(booking) { @studio.name }
-                    </td>
-                    <td>
-                        @withBookingLink(booking) {
-                            @tags.localDateTime(booking.times.beginsAt)
-                        }
-                    </td>
-                    <td>
-                        @withBookingLink(booking) {
-                            @tags.duration(booking.durations.total)
-                        }
-                    </td>
-                    <td class="text-overflow-ellipsis">
-                        @withBookingLink(booking) { @tags.bookingStatus(booking, studio, now) }
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
-
 @views.html.account.layout(Seq("My bookings"), identity=identity) {
 
 @defining(Instant.now) { now =>
@@ -86,7 +43,7 @@
                         around you now.
                     </div>
                 } else {
-                    @bookingTable(upcoming, now)
+                    @tags.bookingTable(Left(upcoming), now)
                 }
             </div>
         </div>
@@ -98,7 +55,7 @@
                 @if(past.isEmpty) {
                     <div class="text-center">You don't have any past booking.</div>
                 } else {
-                    @bookingTable(past, now)
+                    @tags.bookingTable(Left(past), now)
                 }
             </div>
         </div>

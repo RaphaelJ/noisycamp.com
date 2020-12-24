@@ -165,14 +165,23 @@ implicit req: RequestHeader, config: Configuration, flash: Flash)
                     }
                 </dd>
 
+                <dt>Who can host a studio on NoisyCamp?</dt>
+                <dd>
+                    NoisyCamp allows professionnal and independently-owned studios to be listed.<br>
+                    <a
+                        href="@controllers.account.studios.routes.IndexController.create"></a>
+                        Become a studio host on NoisyCamp</a>
+                    to reach new customers and get extra revenues from your premises.
+                </dd>
+
                 <dt>How do online transactions work?</dt>
                 <dd>
                     If the studio owner wishes to accept online payments, musicians will be allowed
-                    to settle the reservation amount at the time of the booking using a valid credit
+                    to settle the reservation amount at the time of booking using a valid credit
                     card.<br>
                     The studio owner will then receive that amount directly on their bank account,
                     minus the NoisyCamp service fee
-                    @{(Plan.Free.transactionRate * 100).toIntExact}% for <i>Free</i> plan users,
+                    (@{(Plan.Free.transactionRate * 100).toIntExact}% for <i>Free</i> plan users,
                     @{(Plan.Premium.transactionRate * 100).toIntExact}% for <i>Premium</i> plan
                     users).<br>
                     Payouts to the owner's bank account are done daily for <i>Premium</i> accounts

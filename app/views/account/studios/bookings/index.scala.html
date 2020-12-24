@@ -26,60 +26,13 @@
     implicit request: RequestHeader, messagesProvider: MessagesProvider,
     config: Configuration, flash: Flash)
 
-@withBookingLink(booking: models.StudioBooking)(content: Html) = {
-    <a 
-        class="text-style-link"
-        href="@controllers.account.studios.routes.BookingsController.show(studio.id, booking.id)">
-        @content
-    </a>
-}
-
-@bookingTable(bookings: Seq[(models.StudioBooking, models.User)], now: Instant) = {
-    <table class="stack fixed">
-        <thead>
-            <tr>
-                <th width="25%">Guest name</th>
-                <th width="25%">Begins on</th>
-                <th width="25%">Total</th>
-                <th width="25%">Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            @for((booking, customer) <- bookings) {
-                <tr>
-                    <td class="text-overflow-ellipsis">
-                        @withBookingLink(booking) { @customer.displayName }
-                    </td>
-                    <td>
-                        @withBookingLink(booking) { @tags.localDateTime(booking.times.beginsAt) }
-                    </td>
-                    <td>
-                        @withBookingLink(booking) {
-                            @tags.moneyAmount(booking.currency(booking.total))
-
-                            @booking.payment match {
-                                case StudioBookingPaymentOnline(_, _, None) => { (paid online) }
-                                case StudioBookingPaymentOnline(_, _, Some(_)) => { (refunded) }
-                                case StudioBookingPaymentOnsite() if booking.isActive => {
-                                    <strong>(to be paid on site)</strong>
-                                }
-                                case _ => {}
-                            }
-                        }
-                    </td>
-                    <td class="text-overflow-ellipsis">
-                        @withBookingLink(booking) { @tags.bookingStatus(booking, studio, now) }
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
-
 @views.html.account.layout(Seq("Studio bookings", studio.name), identity=identity) {
 
 @defining(Instant.now) { now =>
-@defining(bookings.partition { case (b, _) => b.isActive && b.isUpcoming(studio, now) } 
+@defining(
+    bookings.
+        map { case (b, u) => (b, studio, u) }
+        partition { case (b, _, _) => b.isActive && b.isUpcoming(studio, now) } 
     ) { case (upcoming, past) =>
 
     <div class="grid-y grid-padding-y">
@@ -95,7 +48,7 @@
                         to increase your online exposure.
                     </div>
                 } else {
-                    @bookingTable(upcoming, now)
+                    @tags.bookingTable(Right(upcoming), now)
                 }
             </div>
         </div>
@@ -107,7 +60,7 @@
                 @if(past.isEmpty) {
                     <div class="text-center">Your studio does not have any past booking.</div>
                 } else {
-                    @bookingTable(past, now)
+                    @tags.bookingTable(Right(past), now)
                 }
             </div>
         </div>

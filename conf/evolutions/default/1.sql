@@ -304,7 +304,8 @@ create index "idx_studio_booking_studio_id_begins_at"
 create index "idx_studio_booking_studio_id_ends_at"
     on "studio_booking" ("studio_id", "ends_at");
 
-create index "idx_studio_booking_customer_id" on "studio_booking" ("customer_id");
+create index "idx_studio_booking_customer_id_begins_at"
+    on "studio_booking" ("customer_id", "begins_at");
 
 -- Payouts
 

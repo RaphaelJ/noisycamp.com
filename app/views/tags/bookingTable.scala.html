@@ -1,0 +1,131 @@
+@* Noisycamp is a platform for booking music studios.
+ * Copyright (C) 2020  Raphael Javaux <raphael@noisycamp.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *@
+
+@import java.time.Instant
+
+@(
+    // The bookings to list. Use `Left` for the guest view, `Right` for the studio's owner view.
+    bookings: Either[
+        Seq[(models.StudioBooking, models.Studio)],
+        Seq[(models.StudioBooking, models.Studio, models.User)]],
+    now: Instant)
+
+@view = @{ 
+    bookings match {
+        case Left(_) => "guest"
+        case Right(_) => "studio"
+    }
+}
+
+@** Creates a link to the booking for the studio's owner. *@
+@withStudioBookingLink(studio: Studio, booking: models.StudioBooking)(content: Html) = {
+    <a 
+        class="text-style-link"
+        href="@controllers.account.studios.routes.BookingsController.show(studio.id, booking.id)">
+        @content
+    </a>
+}
+
+@** Creates a link to the booking for the guest. *@
+@withBookingLink(booking: models.StudioBooking)(content: Html) = {
+    <a 
+        class="text-style-link"
+        href="@controllers.account.routes.BookingsController.show(booking.id)">
+        @content
+    </a>
+}
+
+<table class="stack fixed">
+    <thead>
+        <tr>
+            @if(view == "guest") {
+                <th width="30%">Studio</th>
+            } else {
+                <th width="25%">Guest name</th>
+            }
+
+            <th width="25%">Begins on</th>
+
+            @if(view == "guest") {
+                <th width="20%">Duration</th>
+            } else {
+                <th width="25%">Total</th>
+            }
+
+            <th width="25%">Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        @bookings match {
+            case Left(guestBookings) => {
+                @for((booking, studio) <- guestBookings) {
+                    <tr>
+                        <td class="text-overflow-ellipsis">
+                            @withBookingLink(booking) { @studio.name }
+                        </td>
+                        <td>
+                            @withBookingLink(booking) {
+                                @tags.localDateTime(booking.times.beginsAt)
+                            }
+                        </td>
+                        <td>
+                            @withBookingLink(booking) {
+                                @tags.duration(booking.durations.total)
+                            }
+                        </td>
+                        <td class="text-overflow-ellipsis">
+                            @withBookingLink(booking) { @tags.bookingStatus(booking, studio, now) }
+                        </td>
+                    </tr>
+                }
+            }
+            case Right(studioBookings) => {
+                @for((booking, studio, guest) <- studioBookings) {
+                    <tr>
+                        <td class="text-overflow-ellipsis">
+                            @withStudioBookingLink(studio, booking) { @guest.displayName }
+                        </td>
+                        <td>
+                            @withStudioBookingLink(studio, booking) { 
+                                @tags.localDateTime(booking.times.beginsAt) 
+                            }
+                        </td>
+                        <td>
+                            @withStudioBookingLink(studio, booking) {
+                                @tags.moneyAmount(booking.currency(booking.total))
+    
+                                @booking.payment match {
+                                    case StudioBookingPaymentOnline(_, _, None) => { (paid online) }
+                                    case StudioBookingPaymentOnline(_, _, Some(_)) => { (refunded) }
+                                    case StudioBookingPaymentOnsite() if booking.isActive => {
+                                        <strong>(to be paid on site)</strong>
+                                    }
+                                    case _ => {}
+                                }
+                            }
+                        </td>
+                        <td class="text-overflow-ellipsis">
+                            @withStudioBookingLink(studio, booking) {
+                                @tags.bookingStatus(booking, studio, now)
+                            }
+                        </td>
+                    </tr>
+                }
+            }
+        }
+    </tbody>
+</table>

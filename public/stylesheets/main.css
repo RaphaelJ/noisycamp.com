@@ -551,6 +551,19 @@ table.plan-comparison-table {
     border-top: none;
 }
 
+.plan-comparison-table tr td li {
+    margin-top: 0.25rem;
+    margin-bottom: 0.25rem;
+}
+
+.plan-comparison-table tr td abbr {
+    opacity: 0.5;
+}
+
+.plan-comparison-table tr td abbr:hover {
+    opacity: 0.5;
+}
+
 .plan-comparison-table th {
     position: relative;
 }

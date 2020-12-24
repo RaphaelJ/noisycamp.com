@@ -15,37 +15,59 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *@
 
+@import java.time.Instant
+
 @import play.api.Configuration
 
-@(identity: models.Identity)(implicit req: RequestHeader, config: Configuration, flash: Flash)
+@(
+    identity: models.Identity,
+    upcomingGuestBookings: Seq[(models.StudioBooking, models.Studio)],
+    upcomingStudioBookings: Seq[(models.StudioBooking, models.Studio, models.User)]
+    )(implicit req: RequestHeader, config: Configuration, flash: Flash)
 
 @layout(Seq("My account"), identity=identity) {
+
+@defining(Instant.now) { now =>
 
     <div class="grid-y grid-padding-y">
         <div class="cell">
             <div class="panel-section">
                 <h3 class="text-sans-serif"><small>My upcoming bookings</small></h3>
 
-                <div class="text-center">
-                    You don't have any upcoming booking.
-                    Are you
-                    <a href="@routes.StudiosController.index">
-                        looking for a studio</a>?
-                </div>
+                @if(upcomingGuestBookings.isEmpty) {
+                    <div class="text-center">
+                        You don't have any upcoming booking.
+                        Are you
+                        <a href="@routes.StudiosController.index">looking for a studio</a>?
+                    </div>
+                } else {
+                    @tags.bookingTable(Left(upcomingGuestBookings), now)
+                }
             </div>
         </div>
 
         <div class="cell">
             <div class="panel-section">
-                <h3 class="text-sans-serif"><small>My top listed places</small></h3>
+                <h3 class="text-sans-serif"><small>Upcoming bookings in my studios</small></h3>
 
-                <div class="text-center">
-                    No studio associated with this account.
-                    Do you want to
-                    <a href="@routes.IndexController.index">
-                        host a studio</a>?
-                </div>
+                @if(upcomingStudioBookings.isEmpty) {
+                    <div class="text-center">
+                        @if(identity.isAHost) {
+                            Your studios do not have any upcoming booking. 
+                        } else {
+                            No studio associated with this account.
+                            Do you want to
+                            <a href="@controllers.account.studios.routes.IndexController.create">
+                                host a studio</a>?
+                        }
+                    </div>
+                } else {
+                    @tags.bookingTable(Right(upcomingStudioBookings), now)
+                }
             </div>
         </div>
     </div>
+
+}
+
 }
