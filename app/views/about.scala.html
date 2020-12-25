@@ -1,0 +1,80 @@
+@* Noisycamp is a platform for booking music studios.
+ * Copyright (C) 2020  Raphael Javaux <raphael@noisycamp.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *@
+
+@import play.api.Configuration
+
+@(identity: Option[models.Identity])(
+    implicit req: RequestHeader, config: Configuration, flash: Flash)
+
+@head = {
+    <link
+        rel="stylesheet"
+        href="https://api.mapbox.com/mapbox-gl-js/v1.8.1/mapbox-gl.css">
+}
+
+@content = {
+    <div class="grid-x grid-margin-x">
+        <div class="cell small-12">
+            <h2>We remove barriers between musicians and creative spaces.</h2>
+
+            <p>
+                We build NoisyCamp to make it easier for musicians and music studios to find and
+                book venues for practice, teaching, recording and mastering.<br>
+                NoisyCamp enables musicians and hosts to spend less time on paperwork and focus on
+                creative activies.
+            </p>
+        </div>
+
+        <div class="cell small-12 medium-7">
+            <h3>Contact us</h3>
+
+            <p>
+                NoisyCamp<br>
+                <a href="mailto:hello@@noisycamp.com">hello@@noisycamp.com</a><br>
+                European VAT: BE 749.513.654
+            </p>
+
+            <p class="address">
+                Rue de la Légia 50<br>
+                4000 Liège<br>
+                Belgium
+            </p>
+        </div>
+
+        <div class="cell small-12 medium-5">
+            <location-map
+                :lat="50.64848708566746"
+                :long="5.556699558114405"
+                :zoom="3">
+            </location-map>
+        </div>
+    </div>
+}
+
+@layout(Seq("About us"), identity=identity, head=head) {
+    <div class="grid-container">
+        <div class="grid-x grid-padding-x grid-padding-y">
+            <div class="cell">
+                <h1 id="about-us">About us</h1>
+            </div>
+
+            <div class="cell">
+                <div class="panel-section">@content</div>
+            </div>
+        </div>
+    </div>
+}

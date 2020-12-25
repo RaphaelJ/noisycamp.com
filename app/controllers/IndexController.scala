@@ -30,6 +30,10 @@ class IndexController @Inject() (ccc: CustomControllerCompoments)
         Ok(views.html.index(identity=request.identity))
     }
 
+    def about = UserAwareAction { implicit request =>
+        Ok(views.html.about(identity=request.identity))
+    }
+
     def terms = UserAwareAction { implicit request =>
         Ok(views.html.terms(identity=request.identity))
     }
