@@ -102,6 +102,11 @@ class PaymentService @Inject() (
                         "icon" -> icon.getId,
                         "primary_color" -> "#2c210f".asInstanceOf[Object],
                         "secondary_color" -> "#b37216"
+                    ).asJava,
+                    "payouts" -> Map(
+                        "schedule" -> Map(
+                            "interval" -> "manual".asInstanceOf[Object]
+                        ).asJava
                     ).asJava
                 ).asJava) ++
                 extraParams).asJava
@@ -321,7 +326,7 @@ class PaymentService @Inject() (
     /** Creates a Stripe file by uploading the provided file. */
     def fileUpload(path: String, purpose: FileCreateParams.Purpose)(
         implicit config: Configuration): Future[File] = {
-            
+
         val params = FileCreateParams.builder().
             setFile(new java.io.File(path)).
             setPurpose(purpose).
