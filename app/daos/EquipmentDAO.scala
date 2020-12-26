@@ -1,5 +1,5 @@
 /* Noisycamp is a platform for booking music studios.
- * Copyright (C) 2019  Raphael Javaux <raphaeljavaux@gmail.com>
+ * Copyright (C) 2019 2020  Raphael Javaux <raphaeljavaux@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,29 +24,54 @@ import play.api.db.slick.{ DatabaseConfigProvider, HasDatabaseConfigProvider }
 import slick.jdbc.JdbcProfile
 
 import misc.EquipmentCategory
-import models.Equipment
+import models.{ Equipment, EquipmentPricePerHour, EquipmentPricePerSession }
 
 class EquipmentDAO @Inject() (
-  protected val dbConfigProvider: DatabaseConfigProvider)
-  (implicit executionContext: ExecutionContext)
-  extends HasDatabaseConfigProvider[JdbcProfile] with CustomColumnTypes {
+    protected val dbConfigProvider: DatabaseConfigProvider)
+    (implicit executionContext: ExecutionContext)
+    extends HasDatabaseConfigProvider[JdbcProfile] with CustomColumnTypes {
 
-  import profile.api._
+    import profile.api._
 
-  final class EquipmentTable(tag: Tag)
-    extends Table[Equipment](tag, "equipment") {
+    final class EquipmentTable(tag: Tag)
+        extends Table[Equipment](tag, "equipment") {
 
-    def id            = column[Equipment#Id]("id", O.PrimaryKey, O.AutoInc)
+        def id              = column[Equipment#Id]("id", O.PrimaryKey, O.AutoInc)
 
-    def category      = column[Option[EquipmentCategory.Val]]("category")
-    def details       = column[Option[String]]("details")
-    def pricePerHour  = column[Option[BigDecimal]]("price_per_hour")
+        def category        = column[Option[EquipmentCategory.Val]]("category")
+        def details         = column[Option[String]]("details")
 
-    def * = (id, category, details, pricePerHour).mapTo[Equipment]
-  }
+        def priceType       = column[Option[String]]("price_type")
+        def price           = column[Option[BigDecimal]]("price")
 
-  lazy val query = TableQuery[EquipmentTable]
+        private type EquipmentTuple = (
+            Equipment#Id, Option[EquipmentCategory.Val], Option[String],
+            Option[String], Option[BigDecimal])
 
-  lazy val insert = query returning
-    query.map(_.id) into ((equip, id) => equip.copy(id=id))
+        private def toEquipment(equipTuple: EquipmentTuple) = {
+            val price = equipTuple._4.map {
+                case "per-hour" => EquipmentPricePerHour(equipTuple._5.get)
+                case "per-session" => EquipmentPricePerSession(equipTuple._5.get)
+            }
+
+            Equipment(equipTuple._1, equipTuple._2, equipTuple._3, price)
+        }
+
+        private def fromEquipment(equip: Equipment) = {
+            val (priceType, price) = equip.price match {
+                    case Some(EquipmentPricePerHour(value)) => (Some("per-hour"), Some(value))
+                    case Some(EquipmentPricePerSession(value)) => (Some("per-session"), Some(value)) 
+                    case None => (None, None) 
+                }
+
+            Some((equip.id, equip.category, equip.details, priceType, price))
+        }
+
+        def * = (id, category, details, priceType, price) <> (toEquipment, fromEquipment)
+    }
+
+    lazy val query = TableQuery[EquipmentTable]
+
+    lazy val insert = query returning
+        query.map(_.id) into ((equip, id) => equip.copy(id=id))
 }

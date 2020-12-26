@@ -222,7 +222,12 @@ create table "equipment" (
 
     category            varchar,
     details             varchar,
-    price_per_hour      amount
+
+    price_type          varchar -- null if free/included in the session price
+        check (price_type in ('per-hour', 'per-session')),
+    price               amount,
+
+    check ((price is not null) = (price_type is not null))
 );
 
 create table "studio_equipment" (

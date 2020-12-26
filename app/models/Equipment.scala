@@ -1,5 +1,5 @@
 /* Noisycamp is a platform for booking music studios.
- * Copyright (C) 2019  Raphael Javaux <raphaeljavaux@gmail.com>
+ * Copyright (C) 2019 2020  Raphael Javaux <raphael@noisycamp.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,26 +21,45 @@ import squants.market.{ Currency, CurrencyExchangeRate, Money }
 
 import misc.EquipmentCategory
 
+sealed trait EquipmentPrice
+final case class EquipmentPricePerSession(val value: BigDecimal) extends EquipmentPrice
+final case class EquipmentPricePerHour(val value: BigDecimal) extends EquipmentPrice
+
 /** A equipment associated with a studio. */
 case class Equipment(
-  id:             Equipment#Id = 0L,
+    id:             Equipment#Id = 0L,
 
-  category:       Option[EquipmentCategory.Val],
-  details:        Option[String],
-  pricePerHour:   Option[BigDecimal]) {
+    category:       Option[EquipmentCategory.Val],
+    details:        Option[String],
 
-  type Id = Long
+    price:          Option[EquipmentPrice]) {
 
-  def localEquipment(studio: Studio) = {
-    val currency = studio.location.address.country.currency
-    LocalEquipment(id, category, details, pricePerHour.map(currency(_)))
-  }
+    type Id = Long
+
+    def localEquipment(studio: Studio) = {
+        val currency = studio.location.address.country.currency
+        LocalEquipment(id, category, details, price.map(LocalEquipmentPrice(_, currency)))
+    }
 }
+
+sealed trait LocalEquipmentPrice
+final case class LocalEquipmentPricePerHour(val value: Money) extends LocalEquipmentPrice
+final case class LocalEquipmentPricePerSession(val value: Money) extends LocalEquipmentPrice
 
 /** Same as `PricingPolicy` but with `Money` objects. */
 case class LocalEquipment(
-  id:             Equipment#Id = 0L,
+    id:             Equipment#Id = 0L,
 
-  category:       Option[EquipmentCategory.Val],
-  details:        Option[String],
-  pricePerHour:   Option[Money])
+    category:       Option[EquipmentCategory.Val],
+    details:        Option[String],
+    
+    price:          Option[LocalEquipmentPrice])
+
+object LocalEquipmentPrice {
+    def apply(price: EquipmentPrice, currency: Currency) = {
+        price match {
+            case EquipmentPricePerHour(value) => LocalEquipmentPricePerHour(currency(value))
+            case EquipmentPricePerSession(value) => LocalEquipmentPricePerSession(currency(value))
+        }
+    }
+}

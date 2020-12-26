@@ -23,6 +23,7 @@ import squants.market.Money
 
 import models.{
     Address, BookingPolicy, BookingTimes, CancellationPolicy, Coordinates, Event, LocalEquipment,
+    LocalEquipmentPrice, LocalEquipmentPricePerHour, LocalEquipmentPricePerSession, 
     LocalPricingPolicy, LocalEveningPricingPolicy, LocalWeekendPricingPolicy, Location,
     OpeningSchedule, OpeningTimes, PaymentPolicy, PictureId, Studio, StudioWithPicture,
     StudioWithPictureAndEquipments }
@@ -83,22 +84,33 @@ object JsonWrites {
     }
 
     implicit object LocalEveningPricingPolicyWrites extends Writes[LocalEveningPricingPolicy] {
-
         def writes(policy: LocalEveningPricingPolicy): JsValue = Json.obj(
             "begins-at"       -> policy.beginsAt,
             "price-per-hour"  -> policy.pricePerHour)
     }
+    
+    implicit object LocalEquipmentPriceWrites extends Writes[LocalEquipmentPrice] {
+        def writes(price: LocalEquipmentPrice): JsValue = {
+            val (priceType, value) = price match {
+                case LocalEquipmentPricePerHour(value) => ("per-hour", value)
+                case LocalEquipmentPricePerSession(value) => ("per-session", value)
+            }
+
+            Json.obj(
+                "price-type"    -> priceType,
+                "value"         -> value)
+        }
+    }
 
     implicit object LocalEquipmentWrites extends Writes[LocalEquipment] {
         def writes(equip: LocalEquipment): JsValue = Json.obj(
-            "id"              -> equip.id,
-            "category"        -> equip.category.map(_.code),
-            "details"         -> equip.details,
-            "price-per-hour"  -> equip.pricePerHour)
+            "id"                -> equip.id,
+            "category"          -> equip.category.map(_.code),
+            "details"           -> equip.details,
+            "price"             -> equip.price)
     }
 
     implicit object LocalWeekendPricingPolicyWrites extends Writes[LocalWeekendPricingPolicy] {
-
         def writes(policy: LocalWeekendPricingPolicy): JsValue = Json.obj(
             "price-per-hour" -> policy.pricePerHour)
     }
