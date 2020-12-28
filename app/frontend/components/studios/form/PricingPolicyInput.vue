@@ -66,7 +66,7 @@
 
         <slide-down-transition :max-height="85">
             <div
-                class="cell grid-x grid-margin-x"
+                class="cell grid-x"
                 v-if="hasEveningPricing">
                 <div class="cell small-12 medium-4 medium-offset-1 large-3">
                     <label>

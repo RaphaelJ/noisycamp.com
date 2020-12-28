@@ -234,6 +234,11 @@ select:focus
     display: inline;
 }
 
+[type="checkbox"]:disabled + label, [type="radio"]:disabled + label {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
 /* Adds additional padding on select fields, required by the right arrow. */
 select {
     padding-right: 1.5rem;
@@ -569,10 +574,9 @@ table.plan-comparison-table {
 }
 
 .plan-comparison-table th .plan-badge {
-    position: relative;
 
     position: absolute;
-    top: -0.75rem;
+    top: -0.8rem;
     right: 1rem;
 
     background-color: #3f3f3f;
@@ -580,7 +584,7 @@ table.plan-comparison-table {
     border-radius: 0.25rem;
     padding: 0.2rem 0.5rem;
 
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     color: white;
 }
 
@@ -629,6 +633,21 @@ table.plan-comparison-table {
 
 .equipment-list .equipment .equipment-icon {
     width: 100%;
+}
+
+.equipment-list .equipment .equipment-price {
+    position: absolute;
+    bottom: -0.9rem;
+    right: 1rem;
+    
+    background-color: #3f3f3f;
+    
+    border-radius: 0.25rem;
+    padding: 0.2rem 0.5rem;
+    
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: white;
 }
 
 /* Footer */

@@ -46,10 +46,17 @@
                         :name="fieldName('details', index)"
                         :value="equipment.details">
 
-                    <!-- <input
+                    <input
                         type="hidden"
-                        :name="fieldName('pricePerHour', index)"
-                        :value="equipment.pricePerHour"> -->
+                        v-if="equipment.price"
+                        :name="fieldName('price.type', index)"
+                        :value="equipment.price.type">
+
+                    <input
+                        type="hidden"
+                        v-if="equipment.price"
+                        :name="fieldName('price.value', index)"
+                        :value="equipment.price.value">
 
                     <button
                         class="close-button equipment-remove"
@@ -57,6 +64,15 @@
                         @click="equipmentRemove(index)">
                         <span aria-hidden="true">×</span>
                     </button>
+
+                    <div
+                        v-if="equipment.price" 
+                        class="equipment-price">
+                        <money-amount :value="equipmentPriceValue(equipment)"> </money-amount> 
+                        per
+                        <span v-if="equipment.price.type == 'per-hour'">hour</span>
+                        <span v-else-if="equipment.price.type == 'per-session'">session</span>
+                    </div>
 
                     <div class="grid-x grid-margin-x">
                         <div class="cell small-3 medium-4 text-center">
@@ -75,15 +91,6 @@
                                         {{ equipmentCategoryName(equipment) }}
                                     </h6>
                                 </div>
-
-                                <!-- <div class="cell small-4 text-right">
-                                    <small v-if="equipment.pricePerHour">
-                                        €{{ equipment.pricePerHour }}/hour
-                                    </small>
-                                    <small v-else>
-                                        Included
-                                    </small>
-                                </div> -->
 
                                 <div
                                     class="cell small-12 equipment-details text-overflow-ellipsis"
@@ -130,39 +137,84 @@
                         placeholder="i.e. brand, model">
                 </label>
 
-                <!-- <div class="cell small-12">
-                    <input
-                        id="new-equipment-has-extra-fee"
-                        type="checkbox"
-                        v-model="newEquipment.hasExtraFee">
-
-                    <label for="new-equipment-has-extra-fee">
-                        This equipment requires an extra rental fee
-                    </label>
-                </div>
-
-                <slide-down-transition :max-height="85">
-                    <div
-                        class="cell small-12 medium-4 medium-offset-1 large-3"
-                        v-if="newEquipment.hasExtraFee">
-
-                        <label>
-                            Price per hour
-
-                            <money-input
-                                :currency="currency"
-                                v-model="newEquipment.pricePerHour"
-                                :required="newEquipment.hasExtraFee">
-                            </money-input>
+                <div class="cell small-12">
+                    <div class="checkbox-group">
+                        <input
+                            id="new-equipment-has-fee"
+                            type="checkbox"
+                            v-model="newEquipment.hasFee"
+                            :disabled="!canAddFee">
+                            
+                        <label for="new-equipment-has-fee">
+                            The use of this equipment requires an extra rental fee
                         </label>
                     </div>
-                </slide-down-transition> -->
+                    
+                    <p 
+                        v-if="!canAddFee"
+                        class="help-text">
+                        <a
+                            :href="planUpgradeUrl"
+                            target="_blank">
+                            Upgrade to NoisyCamp Premium
+                        </a>
+                        to charge users for the use of additional equipments and gears.
+                    </p>
+                </div>
+
+                <slide-down-transition :max-height="120">
+                    <div 
+                        class="cell small-12"
+                        v-if="canAddFee && newEquipment.hasFee">
+
+                        <div class="grid-x grid-margin-x">
+                            <div class="cell small-12 medium-offset-1 medium-shrink radio-group">
+                                <input
+                                    type="radio"
+                                    value="per-hour"
+                                    v-model="newEquipment.priceType"
+                                    id="new-equipment-price-type-per-hour">
+                                <label for="new-equipment-price-type-per-hour">
+                                    Charge per hour
+                                </label>
+                            </div>
+
+                            <div class="cell small-12 medium-shrink radio-group">
+                                <input
+                                    type="radio"
+                                    value="per-session"
+                                    v-model="newEquipment.priceType"
+                                    id="new-equipment-price-type-per-session">
+                                <label for="new-equipment-price-type-per-session">
+                                    Charge per session
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="grid-x grid-margin-x">
+                            <label class="cell small-12 medium-4 medium-offset-1 large-3">
+                                <span v-if="newEquipment.priceType == 'per-hour'">
+                                    Price per hour
+                                </span>
+                                <span v-else-if="newEquipment.priceType == 'per-session'">
+                                    Price per session
+                                </span>
+
+                                <money-input
+                                    :currency="currency"
+                                    :name="null"
+                                    v-model="newEquipment.priceValue">
+                                </money-input>
+                            </label>
+                        </div>
+                    </div>
+                </slide-down-transition>
 
                 <div class="cell small-12">
                     <button
                         type="button" class="button primary"
                         @click="equipmentAdd()"
-                        :disabled="!newEquipment.category">
+                        :disabled="!canAddEquipment">
                         Add equipment
                     </button>
                 </div>
@@ -175,8 +227,10 @@
 import Vue from "vue";
 
 import { fromCDN } from '../../../misc/CDN';
+import { asMoney } from '../../../misc/MoneyUtils';
 
 import VueInput from '../../widgets/VueInput';
+import MoneyAmount from '../../widgets/MoneyAmount.vue'
 import MoneyInput from '../../widgets/MoneyInput.vue';
 import SlideDownTransition from '../../../transitions/SlideDownTransition.vue';
 
@@ -187,6 +241,8 @@ export default Vue.extend({
     mixins: [VueInput],
     props: {
         value: { type: Object, default() { return {}; } },
+
+        canAddFee: { type: Boolean, default: false },
 
         currency: { type: String, required: false },
     },
@@ -200,18 +256,25 @@ export default Vue.extend({
                     id: equipment.id,
                     category: equipment.category,
                     details: equipment.details,
-                    fee: null,
+                    price: equipment.price,
                 });
             });
         }
 
         return {
-            newEquipment: { category: null, details: null, hasExtraFee: false, pricePerHour: null },
+            newEquipment: { 
+                category: null, details: null,
+                hasFee: false, priceType: "per-hour", priceValue: null,
+            },
 
             equipments: equipments,
         }
     },
-    computed: {
+    computed: {      
+        planUpgradeUrl() {
+            return NC_ROUTES.controllers.account.PremiumController.upgrade().url;
+        },
+        
         // Returns an object of equipment families, each with a `equipment` field with the family's
         // equipments.
         equipmentByFamily() {
@@ -232,35 +295,49 @@ export default Vue.extend({
             }
 
             return families;
+        },
+
+        canAddEquipment() {
+            let value = this.newEquipment;
+
+            return value.category 
+                && (value.category != '__other' || value.details)
+                && (!value.hasPrice || (value.priceType && value.priceValue)) 
         }
     },
     mounted() {
     },
     methods: {
         equipmentAdd() {
-            if (!this.newEquipment.category) {
+            if (!this.canAddEquipment) {
                 return;
             }
 
-            if (this.newEquipment.category == '__other') {
-                this.newEquipment.category = null;
+            let value = this.newEquipment;
+
+            if (value.category == '__other') {
+                value.category = null;
             }
 
-            var fee = null;
-            if (this.newEquipment.hasExtraFee && this.newEquipment.extraFee) {
-                fee = this.newEquipment.extraFee;
+            var price = null;
+            if (value.hasFee) {
+                price = {
+                    type: value.priceType,
+                    value: value.priceValue,
+                };
+                console.log(price);
             }
 
             this.equipments.push({
-                category: this.newEquipment.category,
-                details: this.newEquipment.details,
-                fee: fee,
+                category: value.category,
+                details: value.details,
+                price: price,
             });
 
-            this.newEquipment.category = null;
-            this.newEquipment.details = null;
-            this.newEquipment.hasExtraFee = false;
-            this.newEquipment.extraFee = null;
+            value.category = null;
+            value.details = null;
+            value.hasFee = false;
+            value.priceValue = null;
         },
 
         equipmentRemove(index: number) {
@@ -284,11 +361,18 @@ export default Vue.extend({
             } else {
                 return "Other";
             }
+        },
+
+        equipmentPriceValue(equipment) {
+            return {
+                currency: this.currency,
+                value: equipment.price.value,
+            };
         }
     },
     watch: {
     },
-    components: { MoneyInput, SlideDownTransition },
+    components: { MoneyAmount, MoneyInput, SlideDownTransition },
 });
 </script>
 

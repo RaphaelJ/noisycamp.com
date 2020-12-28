@@ -34,6 +34,15 @@
 @equipmentDetails = {@equip.details.getOrElse("")}
 
 <div class="cell small-12 medium-6 large-4 equipment">
+    @for(price <- equip.price) {
+        <div class="equipment-price">
+            @price match {
+                case LocalEquipmentPricePerHour(value) => { @tags.moneyAmount(value) per hour }
+                case LocalEquipmentPricePerSession(value) => { @tags.moneyAmount(value) per session }
+            }
+        </div>
+    }
+
     <div class="grid-x grid-margin-x">
         <div class="cell small-3 medium-4 text-center">
             <img

@@ -21,7 +21,7 @@
 export default {
     props: {
         // The prefix that will be used for <input> sub-fields. Can be empty (i.e. no prefix).
-        name: { type: String, required: true },
+        name: { type: String, required: false, default: null },
 
         // The input data object or value. If the input if a composite field, use an object to
         // describe the values of the object.

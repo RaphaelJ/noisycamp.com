@@ -218,6 +218,8 @@
         </script>
 
         @helper.javascriptRouter("NC_ROUTES")(
+            controllers.account.routes.javascript.PremiumController.upgrade,
+
             routes.javascript.StudiosController.index,
             routes.javascript.StudiosController.search,
             routes.javascript.StudiosController.show,

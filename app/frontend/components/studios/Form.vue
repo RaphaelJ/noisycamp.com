@@ -181,6 +181,7 @@
                 <equipment-input
                     name="equipments"
                     :value="value['equipments']"
+                    :can-add-fee="canAddFee"
                     :currency="currency">
                 </equipment-input>
 
@@ -244,6 +245,8 @@ export default Vue.extend({
         // If true, the form will be displayed as a multipage form with next
         // and previous navigation buttons.
         isMultiPage: { type: Boolean, required: false, default: false },
+
+        canAddFee: { type: Boolean, default: false },
 
         // If defined, will only show the specified sections of the form.
         shownSections: <PropOptions<String[]>>{

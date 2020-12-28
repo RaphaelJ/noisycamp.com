@@ -34,9 +34,27 @@ object Plan extends Enumeration {
         val payoutSchedule:     PayoutSchedule.Value,
         val calendarSync:       Boolean,
         val websiteIntegration: Boolean,
-        val manualBookings:     Boolean)
+        val manualBookings:     Boolean,
+        val equipmentFee:       Boolean)
         extends super.Val
 
-    val Free = Val("Free", BigDecimal(0.09), Some(1), PayoutSchedule.Monthly, false, false, false)
-    val Premium = Val("Free", BigDecimal(0.06), None, PayoutSchedule.Daily, true, true, true)
+    val Free = Val(
+        "Free",
+        transactionRate = BigDecimal(0.09),
+        studioLimit = Some(1),
+        payoutSchedule = PayoutSchedule.Monthly,
+        calendarSync = false,
+        websiteIntegration = false,
+        manualBookings = false,
+        equipmentFee = false)
+
+    val Premium = Val(
+        "Premium",
+        transactionRate = BigDecimal(0.06),
+        studioLimit = None,
+        payoutSchedule = PayoutSchedule.Daily,
+        calendarSync = true,
+        websiteIntegration = true,
+        manualBookings = true,
+        equipmentFee = true)
 }

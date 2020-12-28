@@ -43,7 +43,8 @@
             <studio-form
                 csrf-token="@helper.CSRF.getToken.value"
                 :value="@tags.json(FormUtils.dataAsJson(studioForm), htmlEscape = true)"
-                :errors='@studioForm.errorsAsJson'>
+                :errors='@studioForm.errorsAsJson'
+                :can-add-fee="@identity.user.plan.equipmentFee">
             </studio-form>
 
             <div class="cell text-right">
