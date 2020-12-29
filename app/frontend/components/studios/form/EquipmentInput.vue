@@ -325,7 +325,6 @@ export default Vue.extend({
                     type: value.priceType,
                     value: value.priceValue,
                 };
-                console.log(price);
             }
 
             this.equipments.push({

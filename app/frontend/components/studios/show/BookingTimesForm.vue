@@ -54,14 +54,13 @@
                 <booking-pricing-calculator
                     :opening-schedule='openingSchedule'
                     :pricing-policy="pricingPolicy"
-                    :booking-times="bookingTimes">
+                    :booking-times="bookingTimes"
+                    :equipments="selectedEquipments">
                 </booking-pricing-calculator>
 
                 <hr>
             </div>
         </slide-down-transition>
-
-        Selected: {{ selectedEquipments }}
 
         <div class="cell small-12">
             <button

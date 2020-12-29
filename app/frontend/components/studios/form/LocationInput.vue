@@ -194,7 +194,6 @@ export default Vue.extend({
         // position with address changes.
         dragMarker() {
             let pos = this.marker.getLngLat();
-            console.log(pos);
             this.coordinates = { long: pos.lng, lat: pos.lat };
             this.shouldUpdateMarker = false;
         },

@@ -62,7 +62,7 @@ export default Vue.extend({
         stripe.redirectToCheckout({
             sessionId: this.sessionId
         }).then(function (result) {
-            console.log(result.error);
+            console.error(result.error);
             this.error = result.error;
         });
     }

@@ -54,7 +54,7 @@
                     </label>
                 </div>
 
-                <div class="cell small-2 text-right">
+                <div class="cell small-3 text-right">
                     <money-amount :value="equipmentPrice(equip)"></money-amount>
                 </div>
             </div>
@@ -121,7 +121,7 @@ export default Vue.extend({
         },
 
         equipmentPrice(equipment) {
-            var price = asCurrency(equipment.price.value);
+            var price = asCurrency(equipment['price']['value']);
 
             if (equipment['price']['price-type'] == 'per-hour') {
                 price = price.multiply(this.sessionDuration).divide(3600);

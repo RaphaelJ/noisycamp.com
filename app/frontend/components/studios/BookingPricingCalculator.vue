@@ -66,6 +66,18 @@
             </div>
         </div>
 
+        <div
+            class="grid-x grid-margin-x"
+            v-if="equipmentFees">
+
+            <div class="cell shrink">
+                Equipments & instruments
+            </div>
+            <div class="cell auto text-right">
+                <money-amount :value="equipmentFees"></money-amount>
+            </div>
+        </div>
+
         <div class="grid-x grid-margin-x total">
             <div class="cell shrink">
                 <strong>Total</strong>
@@ -99,6 +111,8 @@ export default Vue.extend({
         pricingPolicy: { type: Object, required: true },
 
         bookingTimes: { type: Object, required: true },
+
+        equipments: <PropOptions<Object[]>>{ type: Array, required: true },
     },
     data() {
         return {
@@ -209,11 +223,37 @@ export default Vue.extend({
             };
         },
 
+        equipmentFees() {
+            var sum = null;
+            
+            for (var e of this.equipments) {
+                if (e['price']) {
+                    var price = asCurrency(e['price']['value']);
+
+                    if (e['price']['price-type'] == 'per-hour') {
+                        price = price.multiply(this.bookingTimes.duration).divide(3600);
+                    }
+
+                    if (sum) {
+                        sum = sum.add(price);
+                    } else {
+                        sum = price;
+                    }
+                }
+            }
+
+            return sum;
+        },
+ 
         total() {
             // Creates a 0-valued sum currency.js object with the same currency
             // as the pricing policy.
             let pricePerHour = asCurrency(this.pricingPolicy['price-per-hour'])
             var sum = pricePerHour.subtract(pricePerHour);
+            
+            if (this.equipmentFees) {
+                sum.add(this.equipmentFees);
+            }
 
             if (this.pricingBreakdown['regular']) {
                 sum = sum.add(this.pricingBreakdown['regular']['total']);
