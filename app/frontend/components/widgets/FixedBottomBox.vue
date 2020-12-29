@@ -25,7 +25,7 @@
 <template>
     <div
         class="fixed-bottom-box"
-        :class="classes">
+        :class="allClasses">
         <slot></slot>
     </div>
 </template>
@@ -35,7 +35,7 @@ import Vue from "vue";
 
 export default Vue.extend({
     props: {
-        class: { default() { return [] } },
+        classes: { default() { return [] } },
         hideIfVisible: { type: String },
     },
     data() {
@@ -52,11 +52,11 @@ export default Vue.extend({
             }
         },
 
-        classes() {
+        allClasses() {
             let values = { 'hidden': !this.isVisible };
 
-            if (this.class) {
-                Object.assign(values, this.class);
+            if (this.classes) {
+                Object.assign(values, this.classes);
             }
 
             return values;
@@ -67,7 +67,6 @@ export default Vue.extend({
 
         $(window).scroll(() => {
             this.isVisible = this.checkIfIsVisible()
-            console.log(this.isVisible);
         });
     },
     methods: {

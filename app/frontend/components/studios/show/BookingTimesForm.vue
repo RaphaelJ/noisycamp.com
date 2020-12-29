@@ -31,12 +31,26 @@
                 :min-booking-duration="minBookingDuration"
                 v-model="bookingTimes">
             </booking-times-input>
+
+            <hr>
         </div>
 
-        <transition name="slide">
-            <div class="cell small-12" v-if="canComputePricing">
-                <hr>
+        <slide-down-transition :max-height="150">
+            <div class="cell small-12" v-if="hasEquipments && canComputePricing">
+                <p>Some equipments may be rented for the duration of your session:</p>
 
+                <booking-equipments-input
+                    :equipments="equipments"
+                    :session-duration="bookingTimes['duration']"
+                    v-model="selectedEquipments">
+                </booking-equipments-input>
+
+                <hr>
+            </div>
+        </slide-down-transition>
+        
+        <slide-down-transition :max-height="150">
+            <div class="cell small-12" v-if="canComputePricing">
                 <booking-pricing-calculator
                     :opening-schedule='openingSchedule'
                     :pricing-policy="pricingPolicy"
@@ -45,7 +59,9 @@
 
                 <hr>
             </div>
-        </transition>
+        </slide-down-transition>
+
+        Selected: {{ selectedEquipments }}
 
         <div class="cell small-12">
             <button
@@ -64,8 +80,11 @@ import Vue, { PropOptions } from "vue";
 
 import * as moment from 'moment';
 
+import BookingEquipmentsInput from './BookingEquipmentsInput.vue';
 import BookingPricingCalculator from '../BookingPricingCalculator.vue';
 import BookingTimesInput from './BookingTimesInput.vue';
+
+import SlideDownTransition from '../../../transitions/SlideDownTransition.vue';
 
 declare var NC_ROUTES: any;
 
@@ -90,6 +109,8 @@ export default Vue.extend({
         minBookingDuration: { type: Number, required: true },
 
         pricingPolicy: { type: Object, required: true },
+
+        equipments: <PropOptions<Object[]>>{ type: Array, required: true },
     },
     data() {
         return {
@@ -97,6 +118,8 @@ export default Vue.extend({
                 'begins-at': null,
                 'duration': null,
             },
+
+            selectedEquipments: [],
         }
     },
     computed: {
@@ -106,12 +129,21 @@ export default Vue.extend({
             return url.substring(0, url.indexOf('?'));
         },
 
+        // Returns true if the studio has at least one billable equipment.
+        hasEquipments() {
+            return this.equipments.some(e => e.price);
+        },
+
         canComputePricing() {
             return this.bookingTimes['begins-at']
                 && this.bookingTimes['duration'];
         },
+        
     },
-    components: { BookingPricingCalculator, BookingTimesInput }
+    components: { 
+        BookingEquipmentsInput, BookingPricingCalculator, BookingTimesInput,
+        SlideDownTransition
+    }
 });
 </script>
 
@@ -119,23 +151,4 @@ export default Vue.extend({
 .booking-form .help-text {
     margin-top: -0.8rem;
 }
-
-.booking-form .slide-enter-active,
-.booking-form .slide-leave-active {
-    transition: max-height 0.15s linear;
-    overflow: hidden;
-}
-
-.booking-form .slide-enter-to,
-.booking-form .slide-leave {
-    max-height: 150px;
-    opacity: 1;
-}
-
-.booking-form .slide-leave-to,
-.booking-form .slide-enter {
-    max-height: 0;
-    opacity: 0;
-}
-
 </style>

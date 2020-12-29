@@ -272,7 +272,6 @@ export default Vue.extend({
         'coordinates': {
             deep: true,
             handler() {
-                console.log("Updated");
                 this.emitValueChanged();
             }
         },

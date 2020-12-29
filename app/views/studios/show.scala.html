@@ -45,6 +45,7 @@
 @openingScheduleJson = @{ tags.json(Json.toJson(studio.openingSchedule), htmlEscape = true) }
 @bookingEventsJson = @{ tags.json(Json.toJson(bookingEvents), htmlEscape = true) }
 @pricingPolicyJson = @{ tags.json(Json.toJson(pricingPolicy), htmlEscape = true) }
+@equipmentsJson = @{ tags.json(Json.toJson(equipments), htmlEscape = true) }
 
 @head = {
     <link
@@ -104,7 +105,8 @@
                 :opening-schedule="@openingScheduleJson"
                 :occupancies="@bookingEventsJson"
                 :min-booking-duration="@studio.bookingPolicy.minBookingDuration.getSeconds()"
-                :pricing-policy="@pricingPolicyJson">
+                :pricing-policy="@pricingPolicyJson"
+                :equipments="@equipmentsJson">
             </booking-times-form>
         </div>
 

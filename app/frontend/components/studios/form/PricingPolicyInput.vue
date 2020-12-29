@@ -99,7 +99,7 @@
                         </money-input>
 
                         <span v-if="fieldHasError('evening-price-per-hour')" class="error">
-                            {{ fieldError('evening-price-per-hour') }}
+                        {{ fieldError('evening-price-per-hour') }}
                         </span>
                     </label>
                 </div>

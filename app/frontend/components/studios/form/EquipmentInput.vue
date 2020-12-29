@@ -68,7 +68,7 @@
                     <div
                         v-if="equipment.price" 
                         class="equipment-price">
-                        <money-amount :value="equipmentPriceValue(equipment)"> </money-amount> 
+                        <money-amount :value="equipmentPriceValue(equipment)"></money-amount>
                         per
                         <span v-if="equipment.price.type == 'per-hour'">hour</span>
                         <span v-else-if="equipment.price.type == 'per-session'">session</span>
@@ -369,8 +369,6 @@ export default Vue.extend({
                 value: equipment.price.value,
             };
         }
-    },
-    watch: {
     },
     components: { MoneyAmount, MoneyInput, SlideDownTransition },
 });
