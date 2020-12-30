@@ -22,7 +22,7 @@ import play.api.data.{ Form, Mapping }
 import play.api.data.Forms._
 
 import forms.CustomFields
-import models.{ BookingTimes, HasBookingTimes, PaymentMethod, Studio }
+import models.{ BookingTimes, Equipment, HasBookingTimes, PaymentMethod, Studio }
 
 /** A form to place a booking request. */
 object BookingForm {
@@ -32,15 +32,41 @@ object BookingForm {
             PaymentMethod.Online  -> "online",
             PaymentMethod.Onsite  -> "onsite"))
 
-    def form(studio: Studio)(implicit config: Configuration) = Form (
-        mapping(
-            "booking-times"   -> BookingTimesForm.form(studio).mapping,
+    def form(studio: Studio, equipments: Seq[Equipment])(
+        implicit config: Configuration): Form[Data] = {
+        formGeneric(studio, equipments, optional(paymentMethod))
+    }
 
-            "payment-method"  -> paymentMethod
-        )(Data.apply)(Data.unapply))
+    /** Same as `form` but forces the payment method to be defined. */
+    def formWithPaymentMethod(studio: Studio, equipments: Seq[Equipment])(
+        implicit config: Configuration): Form[DataWithPaymentMethod] = {
+        formGeneric(studio, equipments, paymentMethod)
+    }
 
-    case class Data(
-        bookingTimes:     BookingTimes,
-        paymentMethod:    PaymentMethod.Value)
+    private def formGeneric[PM](
+        studio: Studio, equipments: Seq[Equipment], paymentMethodField: Mapping[PM])(
+        implicit config: Configuration): Form[DataGeneric[PM]] = {
+            
+        val equipmentsMap = equipments.map { e => e.id -> e }.toMap
+
+        val equipmentField = longNumber.
+            verifying("Invalid equipment", equipmentsMap.contains _).
+            transform(equipmentsMap.apply _, (e: Equipment) => e.id)
+            
+        Form(
+            mapping(
+                "booking-times"     -> BookingTimesForm.form(studio).mapping,
+                "equipments"        -> seq(equipmentField),
+                "payment-method"    -> paymentMethodField,
+            )(DataGeneric.apply)(DataGeneric.unapply))
+    }
+
+    case class DataGeneric[PM](
+        bookingTimes:   BookingTimes,
+        equipments:     Seq[Equipment],
+        paymentMethod:  PM)
         extends HasBookingTimes
+
+    type Data = DataGeneric[Option[PaymentMethod.Value]]
+    type DataWithPaymentMethod = DataGeneric[PaymentMethod.Value]
 }

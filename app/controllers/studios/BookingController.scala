@@ -36,11 +36,12 @@ import play.api.mvc._
 import auth.DefaultEnv
 import _root_.controllers.{ CustomBaseController, CustomControllerCompoments }
 import daos.CustomColumnTypes
-import forms.studios.{ BookingForm, BookingTimesForm }
+import forms.studios.BookingForm
 import misc.StripePaymentCaptureMethod
-import models.{ BookingDurations, BookingTimes, CancellationPolicy, HasBookingTimes, Identity,
-    LocalPricingPolicy, PaymentMethod, Picture, PriceBreakdown, Studio, StudioBooking,
+import models.{ BookingDurations, BookingTimes, CancellationPolicy, Equipment, HasBookingTimes,
+    Identity, LocalPricingPolicy, PaymentMethod, Picture, PriceBreakdown, Studio, StudioBooking,
     StudioBookingPaymentOnline, StudioBookingPaymentOnsite, StudioBookingStatus, User }
+import _root_.models.StudioEquipment
 
 @Singleton
 class BookingController @Inject() (ccc: CustomControllerCompoments)
@@ -50,20 +51,26 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
     import profile.api._
 
     /** Shows a booking review page. */
-    def show(id: Studio#Id, beginsAt: String, duration: Int) = SecuredAction.async {
-        implicit request =>
+    def show(id: Studio#Id, beginsAt: String, duration: Int, equipments: Seq[Equipment#Id]) =
+        SecuredAction.async { implicit request =>
 
         val params = Map(
-            "begins-at"       -> beginsAt,
-            "duration"        -> duration.toString)
+            "booking-times.begins-at"   -> Seq(beginsAt),
+            "booking-times.duration"    -> Seq(duration.toString),
+            
+            "equipments"                -> equipments.map(_.toString))
 
-        withStudioTransaction(id, { case (studio, picIds) =>
-            validateAvailabilities(studio, BookingTimesForm.form(studio).bind(params)).
+        withStudioTransaction(id, { case (studio, equips, picIds) =>
+            validateAvailabilities(
+                studio, BookingForm.form(studio, equips).bindFromRequest(params)).
                 map { form =>
                     form.fold(
-                        form => Left(form.errors),
-                        bookingTimes => {
+                        form => { 
+                            println(form.errors)
+                            Left(form.errors)},
+                        data => {
                             // Computes the price components based on the booked times.
+                            val bookingTimes = data.bookingTimes
                             val pricingPolicy = studio.pricingPolicy
                             val localPricingPolicy = studio.localPricingPolicy
                             val bookingDurations = studio.openingSchedule.
@@ -93,8 +100,9 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
     /** Processes a reviewed booking. */
     def submit(id: Studio#Id) = SecuredAction.async { implicit request =>
 
-        withStudioTransaction(id, { case (studio, picIds) =>
-            validateAvailabilities(studio, BookingForm.form(studio).bindFromRequest).
+        withStudioTransaction(id, { case (studio, equips, picIds) =>
+            validateAvailabilities(
+                studio, BookingForm.formWithPaymentMethod(studio, equips).bindFromRequest).
                 flatMap { form =>
                     form.fold(
                         form => {
@@ -150,7 +158,8 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
         val onCancel = routes.BookingController.show(
             studioId = studio.id,
             beginsAt = beginsAt.toString,
-            duration = bookingTimes.duration.getSeconds.toInt)
+            duration = bookingTimes.duration.getSeconds.toInt,
+            equipments = Seq.empty)
 
         for {
             owner <- daos.user.query.
@@ -227,8 +236,10 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
 
         def onPaymentFailure(booking: StudioBooking) = {
             Redirect(routes.BookingController.show(
-                booking.studioId, booking.times.beginsAt.toString,
-                booking.times.duration.getSeconds.toInt)).
+                booking.studioId,
+                booking.times.beginsAt.toString,
+                booking.times.duration.getSeconds.toInt,
+                Seq.empty)).
                 flashing("error" ->
                     ("A problem occured during the processing of your payment. Please try again " +
                     "later."))
@@ -406,18 +417,25 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
 
     /** Executes the function within the DBIO monad, or returns a 404 response. */
     private def withStudioTransaction[T](id: Studio#Id,
-        f: ((Studio, Seq[Picture#Id]) => DBIOAction[Result, NoStream, Effect.All]))
+        f: ((Studio, Seq[Equipment], Seq[Picture#Id]) => DBIOAction[Result, NoStream, Effect.All]))
         (implicit request: SecuredRequest[DefaultEnv, T]): Future[Result] = {
 
         val user = request.identity.user
 
         db.run({
-            val dbStudio = daos.studioPicture.getStudioWithPictures(id)
+            for {
+                studioOpt <- daos.studio.query.
+                    filter(_.id === id).
+                    result.headOption
+                    
+                equips <- daos.studioEquipment.withStudioEquipment(id).result
+                picIds <- daos.studioPicture.withStudioPictureIds(id).result
 
-            dbStudio.flatMap {
-                case (Some(studio), picIds) if studio.canAccess(Some(user)) => f(studio, picIds)
-                case _ => DBIO.successful(NotFound("Studio not found."))
-            }: DBIOAction[Result, NoStream, Effect.All]
+                result <- studioOpt match {
+                    case Some(studio) if studio.canAccess(Some(user)) => f(studio, equips, picIds)
+                    case _ => DBIO.successful(NotFound("Studio not found."))
+                }
+            } yield result //: DBIOAction[Result, NoStream, Effect.All]
         }.transactionally)
     }
 

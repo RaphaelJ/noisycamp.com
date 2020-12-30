@@ -29,6 +29,7 @@ import squants.market
 import i18n.{ Country, Currency }
 import models.{ BBox, Coordinates, Picture, PictureId }
 import misc.EquipmentCategory
+import models.StudioEquipment
 
 object CustomFields {
 

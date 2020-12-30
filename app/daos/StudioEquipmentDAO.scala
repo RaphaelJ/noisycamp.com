@@ -26,63 +26,62 @@ import slick.jdbc.JdbcProfile
 import models.{ Equipment, Studio, StudioEquipment }
 
 class StudioEquipmentDAO @Inject() (
-  protected val dbConfigProvider: DatabaseConfigProvider,
-  val studioDao: StudioDAO,
-  val equipmentDao: EquipmentDAO)
-  (implicit executionContext: ExecutionContext)
-  extends HasDatabaseConfigProvider[JdbcProfile] with CustomColumnTypes {
+    protected val dbConfigProvider: DatabaseConfigProvider,
+    val studioDao: StudioDAO,
+    val equipmentDao: EquipmentDAO)
+    (implicit executionContext: ExecutionContext)
+    extends HasDatabaseConfigProvider[JdbcProfile] with CustomColumnTypes {
 
-  import profile.api._
+    import profile.api._
 
-  final class StudioEquipmentTable(tag: Tag)
-    extends Table[StudioEquipment](tag, "studio_equipment") {
+    final class StudioEquipmentTable(tag: Tag)
+        extends Table[StudioEquipment](tag, "studio_equipment") {
 
-    def id            =
-      column[StudioEquipment#Id]("id", O.PrimaryKey, O.AutoInc)
+        def id            =
+            column[StudioEquipment#Id]("id", O.PrimaryKey, O.AutoInc)
 
-    def studioId      = column[Studio#Id]("studio_id")
-    def equipmentId   = column[Equipment#Id]("equipment_id")
+        def studioId      = column[Studio#Id]("studio_id")
+        def equipmentId   = column[Equipment#Id]("equipment_id")
 
-    def * = (id, studioId, equipmentId).mapTo[StudioEquipment]
+        def * = (id, studioId, equipmentId).mapTo[StudioEquipment]
 
-    def studio = foreignKey(
-      "fk_studio_equipment_studio_id", studioId, studioDao.query)(_.id)
+        def studio = foreignKey(
+            "fk_studio_equipment_studio_id", studioId, studioDao.query)(_.id)
 
-    def equipment = foreignKey(
-      "fk_studio_equipment_equipment_id", equipmentId, equipmentDao.query)(_.id)
-  }
+        def equipment = foreignKey(
+            "fk_studio_equipment_equipment_id", equipmentId, equipmentDao.query)(_.id)
+    }
 
-  lazy val query = TableQuery[StudioEquipmentTable]
+    lazy val query = TableQuery[StudioEquipmentTable]
 
-  lazy val insert = query returning
-    query.map(_.id) into ((stuEquip, id) => stuEquip.copy(id = id))
+    lazy val insert = query returning
+        query.map(_.id) into ((stuEquip, id) => stuEquip.copy(id = id))
 
-  /** Sets the equipments of the studio to the specified equipments.
-   *
-   * Inserts any non-existing equipments.
-   *
-   * Should run in a transaction. */
-  def setStudioEquipments(studioId: Studio#Id, equipments: Seq[Equipment])
-    : DBIO[Seq[StudioEquipment]] = {
+    /** Sets the equipments of the studio to the specified equipments.
+     *
+     * Inserts any non-existing equipments.
+     *
+     * Should run in a transaction. */
+    def setStudioEquipments(studioId: Studio#Id, equipments: Seq[Equipment])
+        : DBIO[Seq[StudioEquipment]] = {
 
-    val existingEquip = equipments.filter(_.id != 0L)
+        val existingEquip = equipments.filter(_.id != 0L)
 
-    for {
-      // Inserts the non-existing equipments.
-      newEquips <- equipmentDao.insert ++= equipments.filter(_.id == 0L)
+        for {
+            // Inserts the non-existing equipments.
+            newEquips <- equipmentDao.insert ++= equipments.filter(_.id == 0L)
 
-      // Replaces the previous equipment associations by the new ones.
-      _ <- query.filter(_.studioId === studioId).delete
-      studioEquips <- insert ++= (existingEquip ++ newEquips).map { equip =>
-        StudioEquipment(studioId = studioId, equipmentId = equip.id) }
-    } yield studioEquips
-  }
+            // Replaces the previous equipment associations by the new ones.
+            _ <- query.filter(_.studioId === studioId).delete
+            studioEquips <- insert ++= (existingEquip ++ newEquips).map { equip =>
+                StudioEquipment(studioId = studioId, equipmentId = equip.id) }
+        } yield studioEquips
+    }
 
-  def withStudioEquipment(id: Studio#Id) /* : Query[Seq[Equipment]] */ = {
-    val studioEquips = query.
-      filter(_.studioId === id)
-
-    (studioEquips join equipmentDao.query on (_.equipmentId === _.id)).
-      map(_._2)
-  }
+    def withStudioEquipment(id: Studio#Id) /* : Query[Seq[Equipment]] */ = {
+        query.
+            filter(_.studioId === id).
+            join(equipmentDao.query).on(_.equipmentId === _.id).
+            map(_._2)
+    }
 }

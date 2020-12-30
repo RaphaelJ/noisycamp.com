@@ -25,7 +25,8 @@
                 <div class="cell auto checkbox-group text-overflow-ellipsis">
                     <input 
                         :id="'equipment-' + equip.id"
-                        :name="'equipment-' + equip.id"
+                        name="equipments"
+                        :value="equip.id"
                         type="checkbox"
                         v-model="equipmentToggle[equip.id]">
 

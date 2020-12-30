@@ -26,63 +26,59 @@ import slick.jdbc.JdbcProfile
 import models.{ Picture, StudioPicture, Studio }
 
 class StudioPictureDAO @Inject() (
-  protected val dbConfigProvider: DatabaseConfigProvider,
-  val studioDao: StudioDAO,
-  val pictureDao: PictureDAO)
-  (implicit executionContext: ExecutionContext)
-  extends HasDatabaseConfigProvider[JdbcProfile] with CustomColumnTypes {
+    protected val dbConfigProvider: DatabaseConfigProvider,
+    val studioDao: StudioDAO,
+    val pictureDao: PictureDAO)
+    (implicit executionContext: ExecutionContext)
+    extends HasDatabaseConfigProvider[JdbcProfile] with CustomColumnTypes {
 
-  import profile.api._
+    import profile.api._
 
-  final class StudioPictureTable(tag: Tag)
-    extends Table[StudioPicture](tag, "studio_picture") {
+    final class StudioPictureTable(tag: Tag)
+        extends Table[StudioPicture](tag, "studio_picture") {
 
-    def id          = column[StudioPicture#Id]("id", O.PrimaryKey, O.AutoInc)
-    def studioId    = column[Studio#Id]("studio_id")
-    def pictureId   = column[Picture#Id]("picture_id")
+        def id          = column[StudioPicture#Id]("id", O.PrimaryKey, O.AutoInc)
+        def studioId    = column[Studio#Id]("studio_id")
+        def pictureId   = column[Picture#Id]("picture_id")
 
-    def * = (id, studioId, pictureId).mapTo[StudioPicture]
+        def * = (id, studioId, pictureId).mapTo[StudioPicture]
 
-    def studio = foreignKey(
-      "fk_studio_picture_studio_id", studioId, studioDao.query)(_.id)
+        def studio = foreignKey(
+            "fk_studio_picture_studio_id", studioId, studioDao.query)(_.id)
 
-    def picture = foreignKey(
-      "fk_studio_picture_picture_id", pictureId, pictureDao.query)(_.id)
-  }
+        def picture = foreignKey(
+            "fk_studio_picture_picture_id", pictureId, pictureDao.query)(_.id)
+    }
 
-  lazy val query = TableQuery[StudioPictureTable]
+    lazy val query = TableQuery[StudioPictureTable]
 
-  lazy val insert = query returning
-    query.map(_.id) into ((stuPic, id) => stuPic.copy(id = id))
+    lazy val insert = query returning
+        query.map(_.id) into ((stuPic, id) => stuPic.copy(id = id))
 
-  /** Sets or updates the pictures associated with a studio.
-   *
-   * Should run in a transaction. */
-  def setStudioPics(studioId: Studio#Id, pics: Seq[Picture#Id]) = {
-    // Deletes any picture associations and inserts the new ones.
-    DBIO.seq(
-      query.filter(_.studioId === studioId).delete,
-      query ++= pics.map { picId =>
-        StudioPicture(studioId = studioId, pictureId = picId) }
-    )
-  }
+    /** Sets or updates the pictures associated with a studio.
+     *
+     * Should run in a transaction. */
+    def setStudioPics(studioId: Studio#Id, pics: Seq[Picture#Id]) = {
+        // Deletes any picture associations and inserts the new ones.
+        DBIO.seq(
+            query.filter(_.studioId === studioId).delete,
+            query ++= pics.map { picId => StudioPicture(studioId = studioId, pictureId = picId) })
+    }
 
-  def withStudioPictureIds(id: Studio#Id) = {
-    query.
-      filter(_.studioId === id).
-      sortBy(_.id).
-      map(_.pictureId)
-  }
+    def withStudioPictureIds(id: Studio#Id) = {
+        query.
+            filter(_.studioId === id).
+            sortBy(_.id).
+            map(_.pictureId)
+    }
 
-  def getStudioWithPictures(id: Studio#Id)
-    : DBIO[(Option[Studio], Seq[Picture#Id])] = {
+    def getStudioWithPictures(id: Studio#Id) : DBIO[(Option[Studio], Seq[Picture#Id])] = {
+        for {
+            studio <- studioDao.query.
+                filter(_.id === id).
+                result.headOption
 
-      for {
-        studio <- studioDao.query.
-          filter(_.id === id).
-          result.headOption
-
-        picIds <- withStudioPictureIds(id).result
-      } yield (studio, picIds)
-  }
+            picIds <- withStudioPictureIds(id).result
+        } yield (studio, picIds)
+    }
 }

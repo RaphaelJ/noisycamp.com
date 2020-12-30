@@ -83,7 +83,7 @@ GET     /studios/:id                    controllers.StudiosController.show(id: L
 
 # Booking
 
-GET     /studios/:studioId/booking      controllers.studios.BookingController.show(studioId: Long, beginsAt: String, duration: Int)
+GET     /studios/:studioId/booking      controllers.studios.BookingController.show(studioId: Long, beginsAt: String, duration: Int, equipments: Seq[Long])
 POST    /studios/:studioId/booking      controllers.studios.BookingController.submit(studioId: Long)
 
 GET     /studios/:studioId/booking/payment/:sessionId/success controllers.studios.BookingController.paymentSuccess(studioId: Long, sessionId: String)
