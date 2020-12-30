@@ -17,6 +17,8 @@
 
 package models
 
+import java.time.Duration
+
 import squants.market.{ Currency, CurrencyExchangeRate, Money }
 
 import misc.EquipmentCategory
@@ -44,17 +46,16 @@ case class Equipment(
 
 sealed trait LocalEquipmentPrice {
     /** Computes the cost of leasing the equipment for the duration of the session. */ 
-    def sessionTotal(bookingTimes: HasBookingTimes): Money
+    def sessionTotal(duration: Duration): Money
 }
 final case class LocalEquipmentPricePerHour(val value: Money) extends LocalEquipmentPrice {
-    def sessionTotal(bookingTimes: HasBookingTimes): Money = {
-        val duration = bookingTimes.bookingTimes.duration
+    def sessionTotal(duration: Duration): Money = {
         val nHours = BigDecimal(duration.getSeconds) / BigDecimal(3600.0)
         value * nHours
     }
 }
 final case class LocalEquipmentPricePerSession(val value: Money) extends LocalEquipmentPrice {
-    def sessionTotal(bookingTimes: HasBookingTimes): Money = value
+    def sessionTotal(duration: Duration): Money = value
 }
 
 /** Same as `PricingPolicy` but with `Money` objects. */

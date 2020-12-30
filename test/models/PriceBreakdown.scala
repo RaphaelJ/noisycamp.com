@@ -23,27 +23,33 @@ import org.scalatest.Matchers._
 import org.scalatestplus.play._
 import squants.market.{ CAD, Currency, EUR, Money, USD }
 
-import models.{ BookingDurations, PriceBreakdown }
+import models.{
+    BookingDurations, LocalEquipmentPricePerHour, LocalEquipmentPricePerSession, PriceBreakdown }
 
 class PriceBreakdownSpec extends PlaySpec {
 
+    val equipmentPrices = Seq(
+        LocalEquipmentPricePerHour(EUR(12)),
+        LocalEquipmentPricePerSession(EUR(25)))
+
     val breakdown = PriceBreakdown(
         BookingDurations(Duration.ofHours(12), Duration.ZERO, Duration.ZERO),
-        EUR(15), Some(EUR(20)), Some(EUR(25)), Some(0.05))
+        EUR(15), Some(EUR(20)), Some(EUR(25)), equipmentPrices, Some(0.05))
     val eveningBreakdown = PriceBreakdown(
         BookingDurations(Duration.ofMinutes(3 * 60 + 30), Duration.ofHours(4), Duration.ZERO),
-        CAD(15), Some(CAD(20)), None, Some(0.08))
+        CAD(15), Some(CAD(20)), None, Seq.empty, Some(0.08))
     val weekendBreakdown = PriceBreakdown(
         BookingDurations(Duration.ZERO, Duration.ZERO, Duration.ofHours(8)),
-        USD(15), Some(USD(20)), Some(USD(12)), None)
+        USD(15), Some(USD(20)), Some(USD(12)), Seq.empty, None)
 
     "PriceBreakdown" must {
         "work with a regular booking" in {
-            breakdown.total should be (EUR(180))
+            breakdown.total should be (EUR(349))
             breakdown.totalRegular should be (EUR(180))
             breakdown.totalEvening should be (Some(EUR(0)))
             breakdown.totalWeekend should be (Some(EUR(0)))
-            breakdown.transactionFee should be (Some(EUR(9)))
+            breakdown.totalEquipments should be (Some(EUR(169)))
+            breakdown.transactionFee should be (Some(EUR(17.45)))
         }
 
         "work with a booking with an evening rate" in {

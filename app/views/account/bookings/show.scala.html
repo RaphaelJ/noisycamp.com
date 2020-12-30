@@ -152,7 +152,7 @@
                             </h3>
 
                             @tags.priceBreakdown(
-                                booking.priceBreakdown,
+                                booking.priceBreakdown(),
                                 isRefunded = booking.payment.isRefunded)
 
                             @if(booking.customerCanCancel(studio, now)) {

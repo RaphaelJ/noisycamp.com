@@ -21,14 +21,14 @@
 @import play.api.mvc.RequestHeader
 
 @import misc.JsonWrites._
-@import models.{ BookingTimes, Equipment, Identity, Picture, PriceBreakdown, Studio, User }
+@import models.{ BookingTimes, Identity, LocalEquipment, Picture, PriceBreakdown, Studio, User }
 
 @(
     identity: models.Identity,
     owner: User, 
     studio: Studio,
     pictures: Seq[Picture#Id],
-    summary: Either[Seq[FormError], (BookingTimes, Seq[Equipment], PriceBreakdown)])(
+    summary: Either[Seq[FormError], (BookingTimes, Seq[LocalEquipment], PriceBreakdown)])(
     implicit req: RequestHeader, config: Configuration, flash: Flash)
 
 @leftPanel = {
@@ -114,7 +114,7 @@
                         </p>
 
                         <div class="grid-x grid-margin-x grid-margin-y grid-padding-x grid-padding-y equipment-list">
-                            @for(equip <- equips.map(_.localEquipment(studio))) {
+                            @for(equip <- equips) {
                                 @tags.equipment(equip, false, Some(bookingTimes))
                             }
                         </div>
@@ -135,6 +135,7 @@
                                 :opening-schedule="@tags.json(Json.toJson(studio.openingSchedule), htmlEscape = true)"
                                 :pricing-policy="@tags.json(Json.toJson(pricingPolicy), htmlEscape = true)"
                                 :booking-times="@tags.json(Json.toJson(bookingTimes), htmlEscape = true)"
+                                :equipments="@tags.json(Json.toJson(equips), htmlEscape = true)"
                                 :has-online-payment='@{studio.paymentPolicy.hasOnlinePayment && owner.isPayoutSetup}'
                                 :has-onsite-payment='@studio.paymentPolicy.hasOnsitePayment'
                                 csrf-token="@helper.CSRF.getToken.value">

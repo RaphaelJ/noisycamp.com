@@ -34,6 +34,13 @@
             name="booking-times.duration"
             :value="bookingTimes['duration']">
 
+        <input 
+            v-for="equip in equipments"
+            :key="equip.id"
+            type="hidden"
+            name="equipments[]"
+            :value="equip.id">
+
         <h3 class="text-sans-serif"><small>Please choose your payment method</small></h3>
 
         <fieldset>
@@ -116,6 +123,8 @@ export default Vue.extend({
         pricingPolicy: { type: Object, required: true },
 
         bookingTimes: { type: Object, required: true },
+
+        equipments: <PropOptions<Object[]>>{ type: Array, required: true },
 
         hasOnlinePayment: { type: Boolean, required: true },
         hasOnsitePayment: { type: Boolean, required: true },

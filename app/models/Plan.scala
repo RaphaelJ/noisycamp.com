@@ -29,6 +29,7 @@ object Plan extends Enumeration {
         val name:               String,
 
         val transactionRate:    BigDecimal,
+
         // Maximum number of studios per user. Unlimited if not defined.
         val studioLimit:        Option[Int],
         val payoutSchedule:     PayoutSchedule.Value,

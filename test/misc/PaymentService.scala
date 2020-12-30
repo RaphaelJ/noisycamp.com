@@ -30,10 +30,13 @@ import play.api.Configuration
 import play.api.test.FakeRequest
 
 import i18n.{ Country, Currency }
-import misc.{ PaymentService, StripeAccountType, StripePaymentCaptureMethod }
-import models.{ BookingDurations, Plan, PriceBreakdown, User }
+import misc.{ EquipmentCategory, PaymentService, StripeAccountType, StripePaymentCaptureMethod }
+import models.{
+    BookingDurations, LocalEquipmentPricePerHour, LocalEquipmentPricePerSession, Plan,
+    PriceBreakdown, User }
 import views.html.tags.priceBreakdown
 import controllers.routes
+import misc.EquipmentCategory
 
 class PaymentServiceSpec extends PlaySpec with GuiceOneAppPerSuite {
 
@@ -98,9 +101,13 @@ class PaymentServiceSpec extends PlaySpec with GuiceOneAppPerSuite {
                 val description = f"Booking flow test ${currency.name}"
                 val statement = currency.name
 
+                val equipmentPrices = Seq(
+                    LocalEquipmentPricePerHour(currency(10)),
+                    LocalEquipmentPricePerSession(currency(15)))
+
                 val priceBreakdown = PriceBreakdown(
-                    BookingDurations(Duration.ofHours(2), Duration.ZERO, Duration.ZERO), currency(100),
-                    None, None, Some(Plan.Free.transactionRate))
+                    BookingDurations(Duration.ofHours(2), Duration.ZERO, Duration.ZERO),
+                    currency(100), None, None, equipmentPrices, Some(Plan.Free.transactionRate))
                 
                 val intent = Await.result({
                     for {
@@ -120,7 +127,7 @@ class PaymentServiceSpec extends PlaySpec with GuiceOneAppPerSuite {
 
                 val toBeCharged = PaymentService.asStripeAmount(priceBreakdown.total)._1
                 val toBeTransfered = PaymentService.asStripeAmount(priceBreakdown.netTotal)._1
-
+                
                 intent.getAmount must be (toBeCharged)
                 intent.getAmountCapturable must be (0)
                 intent.getAmountReceived must be (toBeCharged)

@@ -171,9 +171,12 @@ case class StudioBooking(
         cancellationPolicy.map { case CancellationPolicy(notice) => times.beginsAt minus notice }
     }
 
-    def priceBreakdown: PriceBreakdown = {
-        PriceBreakdown(durations, currency(pricePerHour), eveningPricePerHour.map(currency(_)),
-            weekendPricePerHour.map(currency(_)), transactionFeeRate)
+    def priceBreakdown(equipments: Seq[LocalEquipment] = Seq.empty): PriceBreakdown = {
+        PriceBreakdown(
+            durations, currency(pricePerHour),
+            eveningPricePerHour.map(currency(_)), weekendPricePerHour.map(currency(_)),
+            equipments.map(_.price).collect { case Some(value) => value },
+            transactionFeeRate)
     }
 
     /** Pseudo-random 6-characters reservation code generated from the booking ID. */
@@ -203,9 +206,10 @@ object StudioBooking {
     def apply(
         studio: Studio, customer: User, status: StudioBookingStatus.Value,
         cancellationPolicy: Option[CancellationPolicy], times: BookingTimes,
-        transactionFeeRate: Option[BigDecimal], payment: StudioBookingPayment): StudioBooking = {
+        equipments: Seq[LocalEquipment], transactionFeeRate: Option[BigDecimal],
+        payment: StudioBookingPayment): StudioBooking = {
 
-        val priceBreakdown = PriceBreakdown(studio, times, transactionFeeRate)
+        val priceBreakdown = PriceBreakdown(studio, times, equipments, transactionFeeRate)
 
         StudioBooking(studio, customer, status, cancellationPolicy, times, priceBreakdown, payment)
     }

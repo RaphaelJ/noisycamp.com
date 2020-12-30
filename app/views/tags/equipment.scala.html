@@ -27,7 +27,7 @@
     // If true, will display a smaller version of the equipment box.
     small: Boolean = false,
     // If defined, will display the equipment price using the booking duration
-    bookingTimes: Option[HasBookingTimes] = None)(
+    bookingTimes: Option[BookingTimes] = None)(
     implicit req: RequestHeader, config: Configuration)
 
 @equipmentCategoryName = {@equip.category.map(_.name).getOrElse("Other")}
@@ -43,7 +43,7 @@
     @for(price <- equip.price) {
         <div class="equipment-price">
             @if(bookingTimes.isDefined) {
-                @tags.moneyAmount(price.sessionTotal(bookingTimes.get))
+                @tags.moneyAmount(price.sessionTotal(bookingTimes.get.duration))
             } else {
                 @price match {
                     case LocalEquipmentPricePerHour(value) => { @tags.moneyAmount(value) per hour }

@@ -30,6 +30,8 @@ case class PriceBreakdown(
     pricePerHourEvening:    Option[market.Money],
     pricePerHourWeekend:    Option[market.Money],
 
+    equipments:             Seq[LocalEquipmentPrice],
+
     // The rate at which the NoisyCamp transaction fee will be computed.
     transactionFeeRate:     Option[BigDecimal]) {
 
@@ -37,7 +39,10 @@ case class PriceBreakdown(
     require(durations.weekend.isZero || pricePerHourWeekend.isDefined)
 
     lazy val total: market.Money = {
-        totalRegular + totalEvening.getOrElse(moneyZero) + totalWeekend.getOrElse(moneyZero)
+        totalRegular +
+            totalEvening.getOrElse(moneyZero) +
+            totalWeekend.getOrElse(moneyZero) +
+            totalEquipments.getOrElse(moneyZero)
     }
 
     lazy val totalRegular: market.Money = pricePerHour * durationAsHours(durations.regular)
@@ -48,6 +53,17 @@ case class PriceBreakdown(
 
     lazy val totalWeekend: Option[market.Money] = {
         pricePerHourWeekend.map(_ * durationAsHours(durations.weekend))
+    }
+
+    lazy val totalEquipments: Option[market.Money] = {
+        if (equipments.nonEmpty) {
+            val sum = equipments.
+                foldLeft(moneyZero)((acc, p) => acc + p.sessionTotal(durations.total))
+
+            Some(sum)
+        } else {
+            None
+        }
     }
 
     lazy val transactionFee: Option[market.Money] = transactionFeeRate.map(total * _)
@@ -69,7 +85,9 @@ case class PriceBreakdown(
 object PriceBreakdown {
 
     /** Computes the duration and price components of the booking */
-    def apply(studio: Studio, times: BookingTimes, transactionFeeRate: Option[BigDecimal]):
+    def apply(
+        studio: Studio, times: BookingTimes, equipments: Seq[LocalEquipment],
+        transactionFeeRate: Option[BigDecimal]):
         PriceBreakdown = {
 
         val pricingPolicy = studio.pricingPolicy
@@ -77,8 +95,14 @@ object PriceBreakdown {
 
         val durations = studio.openingSchedule.validateBooking(pricingPolicy, times).get
 
-        PriceBreakdown(durations, localPricingPolicy.pricePerHour,
+        val equipmentPrices = equipments.filter(_.price.isDefined).map(_.price.get)
+
+        PriceBreakdown(
+            durations,
+            localPricingPolicy.pricePerHour,
             localPricingPolicy.evening.map(_.pricePerHour),
-            localPricingPolicy.weekend.map(_.pricePerHour), transactionFeeRate)
+            localPricingPolicy.weekend.map(_.pricePerHour),
+            equipmentPrices,
+            transactionFeeRate)
     }
 }

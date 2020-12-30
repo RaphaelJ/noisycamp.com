@@ -39,8 +39,9 @@ import daos.CustomColumnTypes
 import forms.studios.BookingForm
 import misc.StripePaymentCaptureMethod
 import models.{ BookingDurations, BookingTimes, CancellationPolicy, Equipment, HasBookingTimes,
-    Identity, LocalPricingPolicy, PaymentMethod, Picture, PriceBreakdown, Studio, StudioBooking,
-    StudioBookingPaymentOnline, StudioBookingPaymentOnsite, StudioBookingStatus, User }
+    Identity, LocalEquipment, LocalPricingPolicy, PaymentMethod, Picture, PriceBreakdown, Studio,
+    StudioBooking, StudioBookingPaymentOnline, StudioBookingPaymentOnsite, StudioBookingStatus,
+    User }
 import _root_.models.StudioEquipment
 
 @Singleton
@@ -60,7 +61,7 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
             
             "equipments[]"              -> equipments.map(_.toString))
 
-        withStudioTransaction(id, { case (studio, equips, picIds) =>
+        withStudioTransaction(id, { case (studio, owner, equips, picIds) =>
             validateAvailabilities(
                 studio, BookingForm.form(studio, equips).bindFromRequest(params)).
                 map { form =>
@@ -68,19 +69,16 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
                         form => {
                             Left(form.errors)},
                         data => {
-                            // Computes the price components based on the booked times.
                             val bookingTimes = data.bookingTimes
-                            val pricingPolicy = studio.pricingPolicy
-                            val localPricingPolicy = studio.localPricingPolicy
-                            val bookingDurations = studio.openingSchedule.
-                                validateBooking(pricingPolicy, bookingTimes).
-                                get
-                            val priceBreakdown = PriceBreakdown(
-                                bookingDurations, localPricingPolicy.pricePerHour,
-                                localPricingPolicy.evening.map(_.pricePerHour),
-                                localPricingPolicy.weekend.map(_.pricePerHour), None)
 
-                            Right((bookingTimes, data.equipments, priceBreakdown))
+                            val localEquipments = data.equipments.
+                                filter(_.price.isDefined).
+                                map(_.localEquipment(studio))
+
+                            val priceBreakdown = PriceBreakdown(
+                                studio, bookingTimes, localEquipments, None)
+
+                            Right((bookingTimes, localEquipments, priceBreakdown))
                         })
                 }.
                 flatMap { summary =>
@@ -99,36 +97,39 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
     /** Processes a reviewed booking. */
     def submit(id: Studio#Id) = SecuredAction.async { implicit request =>
 
-        withStudioTransaction(id, { case (studio, equips, picIds) =>
+        withStudioTransaction(id, { case (studio, owner, equips, picIds) =>
             validateAvailabilities(
                 studio, BookingForm.formWithPaymentMethod(studio, equips).bindFromRequest).
                 flatMap { form =>
                     form.fold(
                         form => {
-                            daos.user.query.
-                                result.
-                                head.
-                                map { owner => 
-                                    Ok(views.html.studios.booking(
-                                        identity = request.identity, owner, studio, picIds,
-                                        Left(form.errors)))
-                                }
+                            DBIO.successful(Ok(views.html.studios.booking(
+                                identity = request.identity, owner, studio, picIds,
+                                Left(form.errors))))
                         },
                         data => {
                             val handler = data.paymentMethod match {
                                 case PaymentMethod.Online => handleOnlinePayment _
                                 case PaymentMethod.Onsite => handleOnsitePayment _
                             }
+                            
+                            val localEquipments = data.equipments.
+                                filter(_.price.isDefined).
+                                map(_.localEquipment(studio))
 
-                            handler(request.identity, studio, picIds, data.bookingTimes)
+                            handler(
+                                request.identity, studio, picIds, data.bookingTimes,
+                                localEquipments)
                         }
                     )
                 }
         })
     }
 
-    private def handleOnlinePayment(identity: Identity, studio: Studio, pictures: Seq[Picture#Id],
-        bookingTimes: BookingTimes)(implicit request: RequestHeader) : DBIO[Result] = {
+    private def handleOnlinePayment(
+        identity: Identity, studio: Studio, pictures: Seq[Picture#Id],
+        bookingTimes: BookingTimes, equipments: Seq[LocalEquipment])(
+        implicit request: RequestHeader) : DBIO[Result] = {
 
         val user = identity.user
 
@@ -167,7 +168,7 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
                 head
 
             transactionFeeRate = Some(owner.plan.transactionRate)
-            priceBreakdown = PriceBreakdown(studio, bookingTimes, transactionFeeRate)
+            priceBreakdown = PriceBreakdown(studio, bookingTimes, equipments, transactionFeeRate)
 
             session <- DBIO.from(paymentService.createSession(
                 user, owner, priceBreakdown, title, description, statement, pictures,
@@ -186,8 +187,10 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
         } yield Ok(views.html.studios.bookingCheckout(identity = Some(identity), session))
     }
 
-    private def handleOnsitePayment(identity: Identity, studio: Studio, pictures: Seq[Picture#Id],
-        bookingTimes: BookingTimes)(implicit request: RequestHeader) : DBIO[Result] = {
+    private def handleOnsitePayment(
+        identity: Identity, studio: Studio, pictures: Seq[Picture#Id],
+        bookingTimes: BookingTimes, equipments: Seq[LocalEquipment])(
+        implicit request: RequestHeader) : DBIO[Result] = {
 
         val user = identity.user
 
@@ -199,8 +202,8 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
             }
 
         val booking = StudioBooking(
-            studio, user, status, studio.bookingPolicy.cancellationPolicy, bookingTimes, None,
-            StudioBookingPaymentOnsite())
+            studio, user, status, studio.bookingPolicy.cancellationPolicy, bookingTimes, equipments,
+            None, StudioBookingPaymentOnsite())
 
         def onSuccess(booking: StudioBooking, owner: User) = {
             sendBookingEmails(booking, user, studio, pictures, owner).
@@ -416,7 +419,8 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
 
     /** Executes the function within the DBIO monad, or returns a 404 response. */
     private def withStudioTransaction[T](id: Studio#Id,
-        f: ((Studio, Seq[Equipment], Seq[Picture#Id]) => DBIOAction[Result, NoStream, Effect.All]))
+        f: ((Studio, User, Seq[Equipment], Seq[Picture#Id]) 
+            => DBIOAction[Result, NoStream, Effect.All]))
         (implicit request: SecuredRequest[DefaultEnv, T]): Future[Result] = {
 
         val user = request.identity.user
@@ -425,13 +429,16 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
             for {
                 studioOpt <- daos.studio.query.
                     filter(_.id === id).
+                    join(daos.user.query).on(_.ownerId === _.id).
                     result.headOption
                     
                 equips <- daos.studioEquipment.withStudioEquipment(id).result
                 picIds <- daos.studioPicture.withStudioPictureIds(id).result
 
                 result <- studioOpt match {
-                    case Some(studio) if studio.canAccess(Some(user)) => f(studio, equips, picIds)
+                    case Some((studio, owner)) if studio.canAccess(Some(user)) => {
+                        f(studio, owner, equips, picIds)
+                    }
                     case _ => DBIO.successful(NotFound("Studio not found."))
                 }
             } yield result //: DBIOAction[Result, NoStream, Effect.All]

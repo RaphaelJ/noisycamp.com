@@ -61,6 +61,17 @@
     </div>
 }
 
+@for(totalEquipments <- breakdown.totalEquipments) {
+    <div class="grid-x grid-margin-x">
+        <div class="cell shrink">
+            Equipments & instruments
+        </div>
+        <div class="cell auto text-right">
+            @tags.moneyAmount(totalEquipments)
+        </div>
+    </div>
+}
+
 <div class="grid-x grid-margin-x total">
     <div class="cell shrink">
         <strong>Total</strong>

@@ -22,11 +22,14 @@ import java.time.{ Duration, LocalDateTime, LocalTime, ZoneId }
 import org.scalatest.Matchers._
 import org.scalatestplus.play._
 
-import models.{ Address, BookingPolicy, BookingTimes, Coordinates, Location, OpeningSchedule,
-    OpeningTimes, PaymentPolicy, PricingPolicy, Studio, StudioBooking, StudioBookingPaymentOnsite,
-    StudioBookingStatus, User }
+import models.{
+    Address, BookingPolicy, BookingTimes, Coordinates, LocalEquipment, LocalEquipmentPricePerHour,
+    LocalEquipmentPricePerSession, Location, OpeningSchedule, OpeningTimes, PaymentPolicy,
+    PricingPolicy, Studio, StudioBooking, StudioBookingPaymentOnsite, StudioBookingStatus, User }
 import i18n.Country
+import misc.EquipmentCategory
 import models.CancellationPolicy
+import views.html.tags.equipment
 
 class StudioBookingSpec extends PlaySpec {
 
@@ -53,12 +56,23 @@ class StudioBookingSpec extends PlaySpec {
         bookingPolicy = BookingPolicy(Duration.ZERO, true, None),
         paymentPolicy = PaymentPolicy(true, true))
 
+    private val currency = studio.currency
+
+    private val equipments = Seq(
+        LocalEquipment(
+            1, Some(EquipmentCategory.DrumKit), None, 
+            Some(LocalEquipmentPricePerHour(currency(15)))),
+        LocalEquipment(
+            2, Some(EquipmentCategory.Microphone), Some("AKG Bass Drum mic."), 
+            Some(LocalEquipmentPricePerSession(currency(50)))))
+
     private val studioBooking = StudioBooking(
         studio = studio,
         customer = user,
         status = StudioBookingStatus.PendingValidation,
         cancellationPolicy = None,
         times = BookingTimes(LocalDateTime.of(2020, 10, 1, 10, 30), Duration.ofMinutes(90)),
+        equipments = equipments,
         transactionFeeRate = None, payment = StudioBookingPaymentOnsite())
     
     private def getInstantAtStudioTimeZone(date: LocalDateTime) = {
@@ -152,15 +166,15 @@ class StudioBookingSpec extends PlaySpec {
         }
 
         "returns the session start date with a no notice cancellation policy" in {
-            val policy = CancellationPolicy(Duration.ZERO)
-            val maxRefundDate = Just(studioBooking.times.beginsAt)
-            studioBooking.copy(cancellationPolicy=policy).maxRefundDate should be (maxRefundDate)
+            val policy = Some(CancellationPolicy(Duration.ZERO))
+            val maxRefundDate = Some(studioBooking.times.beginsAt)
+            studioBooking.copy(cancellationPolicy = policy).maxRefundDate should be (maxRefundDate)
         }
 
         "returns one day before the session with a 24h cancellation policy" in {
-            val policy = CancellationPolicy(Duration.ofHours(24))
-            val maxRefundDate = Just(LocalDateTime.of(2020, 9, 31, 10, 30))
-            studioBooking.copy(cancellationPolicy=policy).maxRefundDate should be (maxRefundDate)
+            val policy = Some(CancellationPolicy(Duration.ofHours(24)))
+            val maxRefundDate = Some(LocalDateTime.of(2020, 9, 30, 10, 30))
+            studioBooking.copy(cancellationPolicy = policy).maxRefundDate should be (maxRefundDate)
         }
     }
 

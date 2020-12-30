@@ -80,7 +80,7 @@
     <p>
         @views.html.tags.localDateTime(booking.times.beginsAt)<br>
         @views.html.tags.duration(booking.durations.total)<br>
-        <strong>Total: @tags.moneyAmount(booking.priceBreakdown.total)</strong>
+        <strong>Total: @tags.moneyAmount(booking.priceBreakdown().total)</strong>
         @if(booking.isPaidOnline) { (paid online) } else { (to be paid on site) }
     </p>
 
