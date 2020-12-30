@@ -17,6 +17,8 @@
 
 package forms.studios
 
+import scala.collection.mutable
+
 import play.api.Configuration
 import play.api.data.{ Form, Mapping }
 import play.api.data.Forms._
@@ -56,7 +58,23 @@ object BookingForm {
         Form(
             mapping(
                 "booking-times"     -> BookingTimesForm.form(studio).mapping,
-                "equipments"        -> seq(equipmentField),
+                "equipments"        -> seq(equipmentField).
+                    // Removes duplicates using a sorted set (O(n))
+                    transform(
+                        { es =>
+                            val ids = mutable.Set.empty[Equipment#Id]
+                            val uniqueEs = mutable.ArrayBuffer.empty[Equipment]
+                            for (e <- es) {
+                                if (!ids.contains(e.id)) {
+                                    ids += e.id
+                                    uniqueEs += e
+                                }
+                            }
+
+                            uniqueEs.toSeq
+                        },
+                        (es: Seq[Equipment]) => es
+                    ),
                 "payment-method"    -> paymentMethodField,
             )(DataGeneric.apply)(DataGeneric.unapply))
     }

@@ -58,15 +58,14 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
             "booking-times.begins-at"   -> Seq(beginsAt),
             "booking-times.duration"    -> Seq(duration.toString),
             
-            "equipments"                -> equipments.map(_.toString))
+            "equipments[]"              -> equipments.map(_.toString))
 
         withStudioTransaction(id, { case (studio, equips, picIds) =>
             validateAvailabilities(
                 studio, BookingForm.form(studio, equips).bindFromRequest(params)).
                 map { form =>
                     form.fold(
-                        form => { 
-                            println(form.errors)
+                        form => {
                             Left(form.errors)},
                         data => {
                             // Computes the price components based on the booked times.
@@ -81,7 +80,7 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
                                 localPricingPolicy.evening.map(_.pricePerHour),
                                 localPricingPolicy.weekend.map(_.pricePerHour), None)
 
-                            Right((bookingTimes, priceBreakdown))
+                            Right((bookingTimes, data.equipments, priceBreakdown))
                         })
                 }.
                 flatMap { summary =>

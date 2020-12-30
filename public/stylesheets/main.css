@@ -650,6 +650,11 @@ table.plan-comparison-table {
     color: white;
 }
 
+.equipment-list .equipment-small .equipment-icon {
+    height: 1rem;
+    vertical-align: text-top;
+}
+
 /* Footer */
 
 footer {

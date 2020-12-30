@@ -42,9 +42,20 @@ case class Equipment(
     }
 }
 
-sealed trait LocalEquipmentPrice
-final case class LocalEquipmentPricePerHour(val value: Money) extends LocalEquipmentPrice
-final case class LocalEquipmentPricePerSession(val value: Money) extends LocalEquipmentPrice
+sealed trait LocalEquipmentPrice {
+    /** Computes the cost of leasing the equipment for the duration of the session. */ 
+    def sessionTotal(bookingTimes: HasBookingTimes): Money
+}
+final case class LocalEquipmentPricePerHour(val value: Money) extends LocalEquipmentPrice {
+    def sessionTotal(bookingTimes: HasBookingTimes): Money = {
+        val duration = bookingTimes.bookingTimes.duration
+        val nHours = BigDecimal(duration.getSeconds) / BigDecimal(3600.0)
+        value * nHours
+    }
+}
+final case class LocalEquipmentPricePerSession(val value: Money) extends LocalEquipmentPrice {
+    def sessionTotal(bookingTimes: HasBookingTimes): Money = value
+}
 
 /** Same as `PricingPolicy` but with `Money` objects. */
 case class LocalEquipment(

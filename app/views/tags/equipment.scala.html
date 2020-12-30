@@ -22,7 +22,13 @@
 
 @* Renders an equipment or instrument as a small div. *@
 
-@(equip: LocalEquipment)(implicit req: RequestHeader, config: Configuration)
+@(
+    equip: LocalEquipment,
+    // If true, will display a smaller version of the equipment box.
+    small: Boolean = false,
+    // If defined, will display the equipment price using the booking duration
+    bookingTimes: Option[HasBookingTimes] = None)(
+    implicit req: RequestHeader, config: Configuration)
 
 @equipmentCategoryName = {@equip.category.map(_.name).getOrElse("Other")}
 
@@ -33,40 +39,77 @@
 
 @equipmentDetails = {@equip.details.getOrElse("")}
 
-<div class="cell small-12 medium-6 large-4 equipment">
+@equipmentPrice = {
     @for(price <- equip.price) {
         <div class="equipment-price">
-            @price match {
-                case LocalEquipmentPricePerHour(value) => { @tags.moneyAmount(value) per hour }
-                case LocalEquipmentPricePerSession(value) => { @tags.moneyAmount(value) per session }
+            @if(bookingTimes.isDefined) {
+                @tags.moneyAmount(price.sessionTotal(bookingTimes.get))
+            } else {
+                @price match {
+                    case LocalEquipmentPricePerHour(value) => { @tags.moneyAmount(value) per hour }
+                    case LocalEquipmentPricePerSession(value) => { @tags.moneyAmount(value) per session }
+                }
             }
         </div>
     }
+}
 
-    <div class="grid-x grid-margin-x">
-        <div class="cell small-3 medium-4 text-center">
-            <img
-                class="equipment-icon"
-                alt="@equipmentCategoryName"
-                src="@equipmentCategoryIcon">
-        </div>
+@if(!small) {
+    <div class="cell small-12 medium-6 large-4 equipment">
+        @equipmentPrice
 
-        <div class="cell small-9 medium-8">
-            <div class="grid-x">
-                <div class="cell small-12 equipment-name">
-                    <h6 
-                        class="text-sans-serif text-overflow-ellipsis"
-                        title="@equipmentCategoryName">
-                        @equipmentCategoryName
-                    </h6>
-                </div>
+        <div class="grid-x grid-margin-x">
+            <div class="cell small-3 medium-4 text-center">
+                <img
+                    class="equipment-icon"
+                    alt="@equipmentCategoryName"
+                    src="@equipmentCategoryIcon">
+            </div>
 
-                <div
-                    class="cell small-12 equipment-details text-overflow-ellipsis"
-                    title="@equipmentDetails">
-                    <small>@equipmentDetails</small>
+            <div class="cell small-9 medium-8">
+                <div class="grid-x">
+                    <div class="cell small-12 equipment-name">
+                        <h6 
+                            class="text-sans-serif text-overflow-ellipsis"
+                            title="@equipmentCategoryName">
+                            @equipmentCategoryName
+                        </h6>
+                    </div>
+
+                    <div
+                        class="cell small-12 equipment-details text-overflow-ellipsis"
+                        title="@equipmentDetails">
+                        <small>@equipmentDetails</small>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+} else {
+    <div class="small-12 medium-6 large-6 equipment-small text-overflow-ellipsis">
+        <div class="grid-x grid-margin-x">
+            <div class="cell auto">
+                <img
+                    class="equipment-icon"
+                    alt="@equipmentCategoryName"
+                    src="@equipmentCategoryIcon">
+                &nbsp;
+
+                @for(category <- equip.category) {
+                    <span title="@category.name">@category.name</span>
+                    @for(details <- equip.details) {
+                        <small title="@details">@details</small>
+                    }
+                }
+
+                @if(equip.category.isEmpty) {
+                    @for(details <- equip.details) {
+                        <span title="@details">@details</span>
+                    }
+                }
+            </div>
+
+            <div class="cell small-3">@equipmentPrice</div>
+        </div>
+    </div>
+}
