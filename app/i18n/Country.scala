@@ -33,7 +33,15 @@ object Country extends Enumeration {
         val vat: Option[Double] = None, val addressFormat: AddressFormat.Value,
         val states: Map[String, String] = Map(), val hasZipCode: Boolean = true,
         val namePrefix: Option[String] = None)
-        extends super.Val
+        extends super.Val {
+
+        def prefixedName = {
+            namePrefix match {
+                case Some(prefix) => s"${prefix} ${name}"
+                case None => name
+            }
+        }
+    }
 
     /** Eurozone (EU-19) */
     val Austria = Val("Austria", Currency.EUR, "AT", Some(20), AddressFormat.European)

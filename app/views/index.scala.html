@@ -89,10 +89,10 @@ implicit req: RequestHeader, config: Configuration, flash: Flash)
                 <h3>Real-time room availabilities</h3>
 
                 <p>
-                    By enabling online bookings, musicians can immediately see when your room is
-                    available, and submit a reservation request anytime of the day.<br>
-                    <i>Premium</i> plan users can also synchronize their booking calendar with their
-                    favorite calendar app (<i>Google Calendar</i>, <i>Microsoft Outlook</i>,
+                    With online bookings, musicians can immediately see when your premises are
+                    available, and submit reservation requests anytime of the day.<br>
+                    Soon, <i>Premium</i> plan users can also synchronize their booking calendar with
+                    their favorite calendar app (<i>Google Calendar</i>, <i>Microsoft Outlook</i>,
                     <i>Apple Calendar</i> ...).
                 </p>
             </div>
@@ -107,8 +107,8 @@ implicit req: RequestHeader, config: Configuration, flash: Flash)
                 <h3>Secure online payments</h3>
 
                 <p>
-                    With NoisyCamp, you can request an immediate and secure credit-card payment at
-                    the time of the booking.<br>
+                    With NoisyCamp, you can request an immediate and secure credit-card payment to
+                    validate a reservation.<br>
                     The reservation amount will be directly transferred to your bank account.<br>
                     Online payments is optional and increase your revenue by securing the booking
                     amount even if the customer does not show up.
@@ -153,13 +153,7 @@ implicit req: RequestHeader, config: Configuration, flash: Flash)
                         val names = Country.values.
                             toSeq.
                             sortBy(_.asInstanceOf[Country.Val].name).
-                            map { v =>
-                                val country = v.asInstanceOf[Country.Val]
-                                country.namePrefix match {
-                                    case Some(prefix) => s"$prefix ${country.name}"
-                                    case None => country.name
-                                }
-                            }
+                            map(_.asInstanceOf[Country.Val].prefixedName)
 
                         s"${names.init.mkString(", ")} and ${names.last}."
                     }
@@ -169,7 +163,7 @@ implicit req: RequestHeader, config: Configuration, flash: Flash)
                 <dd>
                     NoisyCamp allows professionnal and independently-owned studios to be listed.<br>
                     <a
-                        href="@controllers.account.studios.routes.IndexController.create"></a>
+                        href="@controllers.account.studios.routes.IndexController.create">
                         Become a studio host on NoisyCamp</a>
                     to reach new customers and get extra revenues from your premises.
                 </dd>

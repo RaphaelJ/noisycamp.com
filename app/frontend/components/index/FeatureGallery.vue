@@ -37,7 +37,8 @@
 
             <p>
                 NoisyCamp is a build on top of a global community of 1,000s of musicians.<br>
-                By listing your studio, you will reach new customers, and increase your revenue.<br>
+                By listing your studio on NoisyCamp, you will reach new customers, and increase your
+                revenue.<br>
                 NoisyCamp is available on desktop and mobile devices.
             </p>
         </div>
@@ -47,13 +48,11 @@
             class="cell medium-6 feature-gallery-text"
             :class="{ 'active': currentFeature == 'calendar' }"
             @click="featureClicked('calendar')">
-            <h3>Booking automation</h3>
-            <h5>Save time with online reservations</h5>
+            <h3>Online bookings</h3>
+            <h5>Spend less time managing bookings</h5>
             <p>
-                Enable musicians to book your practice or recording rooms online, reducing the
-                time your spend answering emails and phone calls.<br>
-                Online booking is available 24/7 and provides up to date availabilities of your
-                rooms.
+                Enable musicians to book your practice or recording spaces online, reducing the
+                time your spend answering emails and phone calls.
             </p>
         </div>
     </div>
