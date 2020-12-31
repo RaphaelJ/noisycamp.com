@@ -40,9 +40,8 @@ import forms.studios.BookingForm
 import misc.StripePaymentCaptureMethod
 import models.{ BookingDurations, BookingTimes, CancellationPolicy, Equipment, HasBookingTimes,
     Identity, LocalEquipment, LocalPricingPolicy, PaymentMethod, Picture, PriceBreakdown, Studio,
-    StudioBooking, StudioBookingPaymentOnline, StudioBookingPaymentOnsite, StudioBookingStatus,
-    User }
-import _root_.models.StudioEquipment
+    StudioBooking, StudioBookingEquipment, StudioBookingPaymentOnline, StudioBookingPaymentOnsite,
+    StudioBookingStatus, User }
 
 @Singleton
 class BookingController @Inject() (ccc: CustomControllerCompoments)
@@ -118,7 +117,7 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
                                 map(_.localEquipment(studio))
 
                             handler(
-                                request.identity, studio, picIds, data.bookingTimes,
+                                request.identity, studio, owner, picIds, data.bookingTimes,
                                 localEquipments)
                         }
                     )
@@ -127,7 +126,7 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
     }
 
     private def handleOnlinePayment(
-        identity: Identity, studio: Studio, pictures: Seq[Picture#Id],
+        identity: Identity, studio: Studio, owner: User, pictures: Seq[Picture#Id],
         bookingTimes: BookingTimes, equipments: Seq[LocalEquipment])(
         implicit request: RequestHeader) : DBIO[Result] = {
 
@@ -159,17 +158,12 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
             studioId = studio.id,
             beginsAt = beginsAt.toString,
             duration = bookingTimes.duration.getSeconds.toInt,
-            equipments = Seq.empty)
+            equipments = equipments.map(_.id))
+
+        val transactionFeeRate = Some(owner.plan.transactionRate)
+        val priceBreakdown = PriceBreakdown(studio, bookingTimes, equipments, transactionFeeRate)
 
         for {
-            owner <- daos.user.query.
-                filter(_.id === studio.ownerId).
-                result.
-                head
-
-            transactionFeeRate = Some(owner.plan.transactionRate)
-            priceBreakdown = PriceBreakdown(studio, bookingTimes, equipments, transactionFeeRate)
-
             session <- DBIO.from(paymentService.createSession(
                 user, owner, priceBreakdown, title, description, statement, pictures,
                 StripePaymentCaptureMethod.Manual, onSuccess, onCancel))
@@ -184,11 +178,18 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
                     studio.bookingPolicy.cancellationPolicy, bookingTimes, priceBreakdown,
                     payment))
 
+            bookingEquips <- daos.studioBookingEquipment.
+                insert ++= equipments.map { e => 
+                    StudioBookingEquipment(
+                        bookingId = booking.id,
+                        equipmentId = e.id)
+                }
+
         } yield Ok(views.html.studios.bookingCheckout(identity = Some(identity), session))
     }
 
     private def handleOnsitePayment(
-        identity: Identity, studio: Studio, pictures: Seq[Picture#Id],
+        identity: Identity, studio: Studio, owner: User, pictures: Seq[Picture#Id],
         bookingTimes: BookingTimes, equipments: Seq[LocalEquipment])(
         implicit request: RequestHeader) : DBIO[Result] = {
 
@@ -213,18 +214,19 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
                 }
         }
 
-        daos.studioBooking.
-            insert(booking).
-            flatMap { booking =>
-                daos.user.query.
-                    filter(_.id === studio.ownerId).
-                    result.
-                    head.
-                    flatMap { owner => 
-                        // TODO: Do not send the email within the DB transaction.
-                        DBIO.from { onSuccess(booking, owner)  }
+        for {
+            booking <- daos.studioBooking.insert(booking)
+
+            bookingEquips <- daos.studioBookingEquipment.
+                insert ++= equipments.map { e => 
+                    StudioBookingEquipment(
+                        bookingId = booking.id,
+                        equipmentId = e.id)
                     }
-            }
+            
+            // TODO: Do not send the email within the DB transaction.
+            result <- DBIO.from { onSuccess(booking, owner)  }
+        } yield result    
     }
 
     /** Processes a valid booking payment redirect (from Stripe). */

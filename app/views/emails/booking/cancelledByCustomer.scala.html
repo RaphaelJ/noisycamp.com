@@ -59,9 +59,9 @@
 
     <p>
         @if(customer.fullName) {
-            @customer.fullName (@emails.tags.a("mailto:" + customer.email){customer.email})
+            @customer.fullName (@emails.tags.a("mailto:" + customer.email){@customer.email})
         } else {
-            @emails.tags.a("mailto:" + customer.email){customer.email}
+            @emails.tags.a("mailto:" + customer.email){@customer.email}
         }
     </p>
     

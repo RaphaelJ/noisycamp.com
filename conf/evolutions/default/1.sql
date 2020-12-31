@@ -233,7 +233,9 @@ create table "equipment" (
 create table "studio_equipment" (
     id                  serial primary key,
     studio_id           integer not null references "studio"(id),
-    equipment_id        integer not null references "equipment"(id)
+    equipment_id        integer not null references "equipment"(id),
+
+    unique ("studio_id", "equipment_id")
 );
 
 create index "idx_studio_equipment_studio_id" on "studio_equipment" ("studio_id");
@@ -312,6 +314,19 @@ create index "idx_studio_booking_studio_id_ends_at"
 create index "idx_studio_booking_customer_id_begins_at"
     on "studio_booking" ("customer_id", "begins_at");
 
+create table "studio_booking_equipment" (
+    id                  serial primary key,
+    booking_id          integer not null references "studio_booking"(id),
+    equipment_id        integer not null references "equipment"(id),
+
+    unique ("booking_id", "equipment_id")
+);
+
+create index "idx_studio_booking_equipment_booking_id" 
+    on "studio_booking_equipment" ("booking_id");
+create index "idx_studio_booking_equipment_equipment_id"
+    on "studio_booking_equipment" ("equipment_id");
+
 -- Payouts
 
 create table "payout" (
@@ -332,6 +347,7 @@ create index "idx_payout_customer_id" on "payout" ("customer_id");
 
 drop table "payout";
 
+drop table "studio_booking_equipment";
 drop table "studio_booking";
 
 drop table "studio_equipment";

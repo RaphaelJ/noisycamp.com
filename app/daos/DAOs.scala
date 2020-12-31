@@ -1,5 +1,5 @@
 /* Noisycamp is a platform for booking music studios.
- * Copyright (C) 2019  Raphael Javaux <raphaeljavaux@gmail.com>
+ * Copyright (C) 2019 2020  Raphael Javaux <raphael@noisycamp.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +27,9 @@ class DAOs @Inject () (
   val studio: StudioDAO,
   val studioPicture: StudioPictureDAO,
   val studioEquipment: StudioEquipmentDAO,
+
   val studioBooking: StudioBookingDAO,
+  val studioBookingEquipment: StudioBookingEquipmentDAO,
 
   val payout: PayoutDAO,
 

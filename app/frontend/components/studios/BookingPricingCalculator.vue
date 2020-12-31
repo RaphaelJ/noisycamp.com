@@ -252,7 +252,7 @@ export default Vue.extend({
             var sum = pricePerHour.subtract(pricePerHour);
             
             if (this.equipmentFees) {
-                sum.add(this.equipmentFees);
+                sum = sum.add(this.equipmentFees);
             }
 
             if (this.pricingBreakdown['regular']) {

@@ -1,5 +1,5 @@
 /* Noisycamp is a platform for booking music studios.
- * Copyright (C) 2019  Raphael Javaux <raphaeljavaux@gmail.com>
+ * Copyright (C) 2020  Raphael Javaux <raphael@noisycamp.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,9 +17,9 @@
 
 package models
 
-case class StudioEquipment(
-    id: StudioEquipment#Id = 0L,
-    studioId: Studio#Id,
+case class StudioBookingEquipment(
+    id: StudioBookingEquipment#Id = 0L,
+    bookingId: StudioBooking#Id,
     equipmentId: Equipment#Id) {
 
     type Id = Long
