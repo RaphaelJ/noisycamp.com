@@ -55,4 +55,11 @@ class StudioBookingEquipmentDAO @Inject() (
 
     lazy val insert = query returning
         query.map(_.id) into ((bookingEquip, id) => bookingEquip.copy(id = id))
+
+    def withBookingEquipment(id: StudioBooking#Id) /* : Query[Seq[Equipment]] */ = {
+        query.
+            filter(_.bookingId === id).
+            join(equipmentDao.query).on(_.equipmentId === _.id).
+            map(_._2)
+    }
 }

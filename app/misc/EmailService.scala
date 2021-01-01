@@ -30,7 +30,7 @@ import com.sendgrid.helpers.mail.Mail
 import com.sendgrid.helpers.mail.objects.{ Content, Email }
 
 import forms.account.PremiumForm
-import models.{ Picture, Studio, StudioBooking, User }
+import models.{ LocalEquipment, Picture, Studio, StudioBooking, User }
 
 /** Provides an helper to send emails through SendGrid. */
 @Singleton
@@ -79,18 +79,22 @@ class EmailService @Inject() (
 
     /** Sends an email to the studio owner notifying them of an (automatically) accepted booking
      * request. */
-    def sendBookingReceived(booking: StudioBooking, customer: User, studio: Studio, owner: User)(
+    def sendBookingReceived(
+        booking: StudioBooking, customer: User, studio: Studio, owner: User,
+        equips: Seq[LocalEquipment])(
         implicit request: RequestHeader, config: Configuration): Future[Response] = {
 
-        val content = views.html.emails.booking.received(booking, customer, studio, owner)
+        val content = views.html.emails.booking.received(booking, customer, studio, owner, equips)
         send("Your studio has been booked", content, owner)
     }
         
     /** Sends an email to the studio owner notifying them of a new booking request. */ 
-    def sendBookingRequest(booking: StudioBooking, customer: User, studio: Studio, owner: User)(
+    def sendBookingRequest(
+        booking: StudioBooking, customer: User, studio: Studio, owner: User,
+        equips: Seq[LocalEquipment])(
         implicit request: RequestHeader, config: Configuration): Future[Response] = {
 
-        val content = views.html.emails.booking.request(booking, customer, studio, owner)
+        val content = views.html.emails.booking.request(booking, customer, studio, owner, equips)
         send("[Action required] Your studio received a new booking request", content, owner)
     }
     
@@ -105,11 +109,12 @@ class EmailService @Inject() (
     }
 
     def sendBookingAccepted(
-        booking: StudioBooking, customer: User, studio: Studio, pictures: Seq[Picture#Id], 
-        owner: User)(
+        booking: StudioBooking, customer: User, studio: Studio, pictures: Seq[Picture#Id],
+        owner: User, equips: Seq[LocalEquipment])(
         implicit request: RequestHeader, config: Configuration): Future[Response] = {
 
-        val content = views.html.emails.booking.accepted(booking, customer, studio, pictures, owner)
+        val content = views.html.emails.booking.accepted(
+            booking, customer, studio, pictures, owner, equips)
         send("Your booking has been accepted", content, customer)
     }
 
@@ -122,18 +127,20 @@ class EmailService @Inject() (
     }
 
     def sendBookingCancelledByCustomer(
-        booking: StudioBooking, customer: User, studio: Studio, owner: User)(
+        booking: StudioBooking, customer: User, studio: Studio, owner: User,
+        equips: Seq[LocalEquipment])(
         implicit request: RequestHeader, config: Configuration): Future[Response] = {
 
         val content = views.html.emails.booking.cancelledByCustomer(
-            booking, customer, studio, owner)
+            booking, customer, studio, owner, equips)
         send(f"A booking has been cancelled", content, owner)
     }
     
-    def sendBookingCancelledByOwner(booking: StudioBooking, customer: User, studio: Studio)(
+    def sendBookingCancelledByOwner(
+        booking: StudioBooking, customer: User, studio: Studio, equips: Seq[LocalEquipment])(
         implicit request: RequestHeader, config: Configuration): Future[Response] = {
 
-        val content = views.html.emails.booking.cancelledByOwner(booking, customer, studio)
+        val content = views.html.emails.booking.cancelledByOwner(booking, customer, studio, equips)
         send(f"Your booking has been cancelled", content, customer)
     }
 }

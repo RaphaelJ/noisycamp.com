@@ -207,7 +207,7 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
             None, StudioBookingPaymentOnsite())
 
         def onSuccess(booking: StudioBooking, owner: User) = {
-            sendBookingEmails(booking, user, studio, pictures, owner).
+            sendBookingEmails(booking, user, studio, pictures, owner, equipments).
                 map { _ =>
                     Redirect(_root_.controllers.account.routes.BookingsController.show(booking.id)).
                         flashing("success" -> "Your session has been successfully booked.")
@@ -368,8 +368,14 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
                                 withStudioPictureIds(studio.id).
                                 result
 
+                            equips <- daos.studioBookingEquipment.
+                                withBookingEquipment(booking.id).
+                                result.
+                                map(_.map(_.localEquipment(studio)))
+
                             _ <- DBIO.from(
-                                sendBookingEmails(newBooking, customer, studio, pictures, owner))
+                                sendBookingEmails(
+                                    newBooking, customer, studio, pictures, owner, equips))
                         } yield onPaymentSuccess(newBooking)
                     }
                     case false => abortCharge(intent, booking)
@@ -468,19 +474,19 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
 
     private def sendBookingEmails(
         booking: StudioBooking, customer: User, studio: Studio, pictures: Seq[Picture#Id],
-        owner: User)(
+        owner: User, equips: Seq[LocalEquipment])(
         implicit request: RequestHeader, config: Configuration):
         Future[(Response, Response)] = {
 
         if (booking.isAccepted) {
             // Automatically accepted. Confirm the booking to both actors.
-            emailService.sendBookingAccepted(booking, customer, studio, pictures, owner).
-                zip(emailService.sendBookingReceived(booking, customer, studio, owner))
+            emailService.sendBookingAccepted(booking, customer, studio, pictures, owner, equips).
+                zip(emailService.sendBookingReceived(booking, customer, studio, owner, equips))
         } else {
             // Booking required review. Notifies the customer and sends the request to the
             // owner.
             emailService.sendBookingRequestInReview(booking, customer, studio).
-                zip(emailService.sendBookingRequest(booking, customer, studio, owner))
+                zip(emailService.sendBookingRequest(booking, customer, studio, owner, equips))
         }
     }
 }

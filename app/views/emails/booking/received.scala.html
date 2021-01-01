@@ -18,10 +18,14 @@
 @import play.api.Configuration
 
 @import misc.CDN
-@import models.{ Studio, StudioBooking, User }
+@import models.{ LocalEquipment, Studio, StudioBooking, User }
 
 @(
-    booking: StudioBooking, customer: User, studio: Studio, owner: User)(
+    booking: StudioBooking,
+    customer: User,
+    studio: Studio,
+    owner: User,
+    equips: Seq[LocalEquipment])(
     implicit req: RequestHeader, config: Configuration)
 
 @bookingURL = @{ controllers.account.studios.routes.BookingsController.show(studio.id, booking.id).
@@ -66,7 +70,7 @@
     <p>
         @views.html.tags.localDateTime(booking.times.beginsAt)<br>
         @views.html.tags.duration(booking.durations.total)<br>
-        <strong>Total: @tags.moneyAmount(booking.priceBreakdown().total)</strong>
+        <strong>Total: @tags.moneyAmount(booking.priceBreakdown(equips).total)</strong>
         @if(booking.isPaidOnline) { (paid online) } else { (to be paid on site) }
     </p>
 

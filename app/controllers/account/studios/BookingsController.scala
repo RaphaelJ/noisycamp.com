@@ -120,8 +120,10 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
         implicit request =>
 
         withStudioBookingTransaction(studioId, bookingId) { case (studio, booking, customer) =>
-            DBIO.successful(Ok(views.html.account.studios.bookings.show(
-                request.identity, studio, booking, customer)))
+            for {
+                equips <- bookingLocalEquipments(studio, booking)
+            } yield Ok(views.html.account.studios.bookings.show(
+                request.identity, studio, booking, customer, equips))
         }
     }
 
@@ -141,8 +143,9 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
                         _ <- query.map(_.status).
                             update(StudioBookingStatus.Valid)
                         pictures <- daos.studioPicture.withStudioPictureIds(studioId).result
+                        equips <- bookingLocalEquipments(studio, booking)
                         _ <- DBIO.from(emailService.sendBookingAccepted(
-                            booking, customer, studio, pictures, user))
+                            booking, customer, studio, pictures, user, equips))
                     }  yield Unit
                 )
             } else {
@@ -191,8 +194,9 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
                         _ <- query.map(b => (b.status, b.cancelledAt)).
                             update((StudioBookingStatus.CancelledByOwner, Some(Instant.now)))
                         refundedBooking <- refundBooking(booking)
+                        equips <- bookingLocalEquipments(studio, booking)
                         _ <- DBIO.from(emailService.sendBookingCancelledByOwner(
-                            refundedBooking, customer, studio))
+                            refundedBooking, customer, studio, equips))
                     }  yield Unit
                 )
             } else {
@@ -281,5 +285,12 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
                     case None => DBIO.successful(NotFound("Booking not found."))
                 }: DBIOAction[Result, NoStream, Effect.All]
         }.transactionally)
+    }
+
+    private def bookingLocalEquipments(studio: Studio, booking: StudioBooking) = {
+        daos.studioBookingEquipment.
+            withBookingEquipment(booking.id).
+            result.
+            map(_.map(_.localEquipment(studio)))
     }
 }

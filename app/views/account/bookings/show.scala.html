@@ -29,8 +29,9 @@
 @(
     identity: models.Identity,
     studio: models.Studio,
-    studioOwner: models.User,
+    owner: models.User,
     booking: models.StudioBooking,
+    equips: Seq[models.LocalEquipment],
     now: Instant = Instant.now)(
     implicit req: RequestHeader, config: Configuration, flash: Flash)
 
@@ -122,7 +123,7 @@
                             </p>
 
                             <p>
-                                <a href="mailto:@studioOwner.email">@studioOwner.email</a>
+                                <a href="mailto:@owner.email">@owner.email</a>
                                 @for(phone <- studio.phone) { 
                                     <br>
                                     <a href="tel:@phone">@phone</a>
@@ -152,7 +153,7 @@
                             </h3>
 
                             @tags.priceBreakdown(
-                                booking.priceBreakdown(),
+                                booking.priceBreakdown(equips),
                                 isRefunded = booking.payment.isRefunded)
 
                             @if(booking.customerCanCancel(studio, now)) {

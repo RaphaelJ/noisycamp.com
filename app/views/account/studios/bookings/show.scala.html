@@ -21,7 +21,8 @@
     identity: models.Identity,
     studio: models.Studio,
     booking: models.StudioBooking,
-    customer: models.User)(
+    customer: models.User,
+    equips: Seq[models.LocalEquipment])(
     implicit request: RequestHeader, messagesProvider: MessagesProvider,
     config: Configuration, flash: Flash)
 
@@ -136,7 +137,7 @@
                         </h3>
 
                         @tags.priceBreakdown(
-                            booking.priceBreakdown(),
+                            booking.priceBreakdown(equips),
                             ownerView = true,
                             isRefunded = booking.payment.isRefunded)
 

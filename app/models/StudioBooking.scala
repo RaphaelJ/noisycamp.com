@@ -171,7 +171,7 @@ case class StudioBooking(
         cancellationPolicy.map { case CancellationPolicy(notice) => times.beginsAt minus notice }
     }
 
-    def priceBreakdown(equipments: Seq[LocalEquipment] = Seq.empty): PriceBreakdown = {
+    def priceBreakdown(equipments: Seq[LocalEquipment]): PriceBreakdown = {
         PriceBreakdown(
             durations, currency(pricePerHour),
             eveningPricePerHour.map(currency(_)), weekendPricePerHour.map(currency(_)),

@@ -30,7 +30,7 @@ import auth.DefaultEnv
 import daos.CustomColumnTypes
 import _root_.controllers.{ CustomBaseController, CustomControllerCompoments }
 import models.{
-    Studio, StudioBooking, StudioBookingPaymentOnline, StudioBookingPaymentOnsite, 
+    LocalEquipment, Studio, StudioBooking, StudioBookingPaymentOnline, StudioBookingPaymentOnsite, 
     StudioBookingStatus, User }
 
 @Singleton
@@ -57,9 +57,9 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
     def show(id: StudioBooking#Id) = SecuredAction.async { implicit request =>
         val user = request.identity.user
 
-        withStudioBookingTransaction(id) { (studio, booking, owner) =>
-            DBIO.successful(
-                Ok(views.html.account.bookings.show(request.identity, studio, owner, booking)))
+        withStudioBookingTransaction(id) { (studio, booking, owner, equips) =>
+            DBIO.successful(Ok(views.html.account.bookings.show(
+                request.identity, studio, owner, booking, equips)))
         }
     }
 
@@ -69,7 +69,7 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
 
         val redirectTo = Redirect(routes.BookingsController.show(id))
 
-        withStudioBookingTransaction(id) { (studio, booking, owner) =>
+        withStudioBookingTransaction(id) { (studio, booking, owner, equips) =>
             if (booking.customerCanCancel(studio, now)) {
                 for {
                     _ <- daos.studioBooking.query.
@@ -78,7 +78,7 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
                         update((StudioBookingStatus.CancelledByCustomer, Some(now)))
                     refundedBooking <- refundBooking(studio, booking, now)
                     _ <- DBIO.from(emailService.sendBookingCancelledByCustomer(
-                        refundedBooking, user, studio, owner))
+                        refundedBooking, user, studio, owner, equips))
                 } yield redirectTo.
                     flashing("success" -> "This booking has been successfuly cancelled.")
             } else {
@@ -90,7 +90,8 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
 
     /** Executes the function within the DBIO monad, or returns a 404 response. */
     private def withStudioBookingTransaction[P](bookingId: StudioBooking#Id)
-        (f: ((Studio, StudioBooking, User) => DBIOAction[Result, NoStream, Effect.All]))
+        (f: ((Studio, StudioBooking, User, Seq[LocalEquipment])
+            => DBIOAction[Result, NoStream, Effect.All]))
         (implicit request: SecuredRequest[DefaultEnv, P]): Future[Result] = {
 
         val user = request.identity.user
@@ -103,7 +104,14 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
                 join(daos.user.query).on(_._2.ownerId === _.id).
                 result.headOption.
                 flatMap {
-                    case Some(((booking, studio), owner)) => f(studio, booking, owner)
+                    case Some(((booking, studio), owner)) => {
+                        daos.studioBookingEquipment.
+                            withBookingEquipment(booking.id).
+                            result.
+                            flatMap { equips => 
+                                f(studio, booking, owner, equips.map(_.localEquipment(studio)))
+                            }
+                    }
                     case None => DBIO.successful(NotFound("Booking not found."))
                 }: DBIOAction[Result, NoStream, Effect.All]
 
