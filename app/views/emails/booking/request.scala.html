@@ -88,6 +88,16 @@
         @if(booking.isPaidOnline) { (paid online) } else { (to be paid on site) }
     </p>
 
+    @if(equips.nonEmpty) {
+        @emails.tags.hr()
+
+        @emails.tags.heading("h4") { <small>Equipments & instruments</small> }
+    
+        @for(equip <- equips) {
+            @emails.tags.equipment(equip)    
+        }
+    }
+
     @emails.tags.hr()
 
     @emails.tags.button(bookingURL) { Open booking request }
