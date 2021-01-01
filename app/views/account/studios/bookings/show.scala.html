@@ -130,6 +130,20 @@
                             @tags.duration(booking.times.duration)
                         </p>
 
+                        @if(equips.nonEmpty){
+                            <hr>
+
+                            <h3 class="text-sans-serif">
+                                <small>Equipments & instruments</small>
+                            </h3>
+
+                            <div class="grid-x grid-margin-x equipment-list">
+                                @for(equip <- equips) {
+                                    @tags.equipment(equip, true, Some(booking.times))
+                                }
+                            </div>
+                        }
+
                         <hr>
 
                         <h3 class="text-sans-serif">
