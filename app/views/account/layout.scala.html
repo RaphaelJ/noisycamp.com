@@ -87,6 +87,14 @@
                                     </a>
                                 }
                             </li>
+
+                            @if(identity.user.plan != Plan.Premium) {
+                                <li>
+                                    <a href="@controllers.account.routes.PremiumController.upgrade">
+                                        Upgrade to Premium
+                                    </a>
+                                </li>
+                            }
                         </ul>
 
                         <hr>
