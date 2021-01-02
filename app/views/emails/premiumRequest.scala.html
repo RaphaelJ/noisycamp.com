@@ -56,11 +56,14 @@
         <dt>Desired features</dt>
         <dd>
             <ul>
+                @if(formData.equipmentFees) {
+                    <li>Charge for the rental of equipments</li>
+                }
                 @if(formData.lowerTransactionRate) {
                     <li>Lower online transaction rate</li>
                 }
-                @if(formData.dailyPayouts) {
-                    <li>Daily payouts</li>
+                @if(formData.weeklyPayouts) {
+                    <li>Weekly payouts</li>
                 }
                 @if(formData.calendarSync) {
                     <li>External calendar synchronization</li>

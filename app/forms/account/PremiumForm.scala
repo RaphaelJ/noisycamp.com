@@ -33,8 +33,9 @@ object PremiumForm {
 
             "rooms"                     -> number,
 
+            "equipment-fees"            -> boolean,
             "lower-transaction-rate"    -> boolean,
-            "daily-payouts"             -> boolean,
+            "weekly-payouts"            -> boolean,
             "calendar-sync"             -> boolean,
             "website-integration"       -> boolean,
             "manual-bookings"           -> boolean
@@ -47,8 +48,9 @@ object PremiumForm {
         rooms:                  Int,
 
         // Requested features
+        equipmentFees:          Boolean,
         lowerTransactionRate:   Boolean,
-        dailyPayouts:           Boolean,
+        weeklyPayouts:          Boolean,
         calendarSync:           Boolean,
         websiteIntegration:     Boolean,
         manualBookings:         Boolean)

@@ -68,8 +68,8 @@
                     <h4 class="cell feature-title">Enhanced productivity</h4>
 
                     <p class="cell feature-text">
-                        Get more productive with manual and recurring bookings, and external
-                        calendar app sync.
+                        Get more productive with equipment management, manual and recurring bookings,
+                        and external calendar app sync.
                     </p>
                 </div>
             </div>
@@ -150,21 +150,32 @@
                             <div class="grid-x grid-margin-x grid-padding-x">
                                 <div class="cell small-12 large-6">
                                     @utils.forms.inputCheckbox(
-                                        form("lower-transaction-rate"),
-                                        'label -> "Lower online transaction rate")
+                                        form("equipment-fees"),
+                                        'label -> "Charge for the rental of equipments")
 
                                     <p class="help-text">
-                                        Enjoy a discounted 5% rate on online transactions.
+                                        Charge your customers an extra fee for the use of special
+                                        equipments, gears or instruments.
                                     </p>
                                 </div>
 
                                 <div class="cell small-12 large-6">
                                     @utils.forms.inputCheckbox(
-                                        form("daily-payouts"),
-                                        'label -> "Daily payouts")
+                                        form("lower-transaction-rate"),
+                                        'label -> "Lower online transaction rate")
 
                                     <p class="help-text">
-                                        Receive daily online payment payouts instead of monthly
+                                        Enjoy a discounted rate on online transactions.
+                                    </p>
+                                </div>
+
+                                <div class="cell small-12 large-6">
+                                    @utils.forms.inputCheckbox(
+                                        form("weekly-payouts"),
+                                        'label -> "Weekly payouts")
+
+                                    <p class="help-text">
+                                        Receive weekly online payment payouts instead of monthly
                                         payouts.
                                     </p>
                                 </div>
