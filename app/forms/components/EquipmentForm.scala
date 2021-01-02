@@ -27,7 +27,7 @@ object EquipmentForm {
 
     type Data = Equipment
 
-    val form = Form {
+    def form(canUseEquipmentPrice: Boolean) = Form {
         // Default ID field to 0 (auto-increment) if not specified.
         val idField = optional(CustomFields.longId).
             transform(_.getOrElse(0L), (v: Long) => Some(v))
@@ -56,6 +56,11 @@ object EquipmentForm {
             "details"           -> CustomFields.optionalText,
 
             "price"             -> optional(price)
-        )(Equipment.apply)(Equipment.unapply)
+        )(Equipment.apply)(Equipment.unapply).
+            // Prevents users to create new equipments with a price if this is not allowed by their
+            // plan.
+            verifying(
+                "You can not specify a price for this equipment.",
+                e => e.price.isEmpty || e.id != 0 || canUseEquipmentPrice)
     }
 }

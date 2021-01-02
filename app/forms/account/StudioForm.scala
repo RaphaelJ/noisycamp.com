@@ -31,7 +31,7 @@ import models.{
 /** A form to create and edit studios. */
 object StudioForm {
 
-    val form = Form(
+    def form(canUseEquipmentPrice: Boolean) = Form(
         mapping(
             "general-info.name"              -> nonEmptyText,
             "general-info.description"       -> nonEmptyText,
@@ -48,7 +48,8 @@ object StudioForm {
             "booking-policy"        -> forms.components.BookingPolicyForm.form.mapping,
             "payment-policy"        -> forms.components.PaymentPolicyForm.form.mapping,
 
-            "equipments"            -> seq(forms.components.EquipmentForm.form.mapping),
+            "equipments"            -> 
+                seq(forms.components.EquipmentForm.form(canUseEquipmentPrice).mapping),
             "pictures"              -> seq(CustomFields.pictureId)
         )(Data.apply)(Data.unapply))
 
@@ -113,10 +114,10 @@ object StudioForm {
         }
     }
 
-    def fromStudio(studio: Studio, equipments: Seq[Equipment], pictures: Seq[Picture#Id])
+    def fromStudio(canUseEquipmentPrice: Boolean, studio: Studio, equipments: Seq[Equipment], pictures: Seq[Picture#Id])
         : Form[Data] = {
 
-        form.fill(Data(
+        form(canUseEquipmentPrice).fill(Data(
             name = studio.name,
             description = studio.description,
             phone = studio.phone,

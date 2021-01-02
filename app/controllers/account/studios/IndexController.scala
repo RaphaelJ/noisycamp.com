@@ -60,14 +60,19 @@ class IndexController @Inject() (ccc: CustomControllerCompoments)
 
     /** Shows a form to list a new studio. */
     def create = SecuredAction.async { implicit request =>
+        val user = request.identity.user
+
         ifUserCanCreateStudio(
             DBIO.successful(
-                Ok(views.html.account.studios.create(request.identity, StudioForm.form))))
+                Ok(views.html.account.studios.create(
+                    request.identity, StudioForm.form(user.plan.equipmentFee)))))
     }
 
     def createSubmit = SecuredAction.async { implicit request =>
+        val user = request.identity.user
+
         ifUserCanCreateStudio {
-            StudioForm.form.bindFromRequest.fold(
+            StudioForm.form(user.plan.equipmentFee).bindFromRequest.fold(
                 form => DBIO.successful(BadRequest(views.html.account.studios.create(
                     request.identity, form))),
                 data => {
@@ -143,7 +148,7 @@ class IndexController @Inject() (ccc: CustomControllerCompoments)
             } yield (studio, equips, picIds)
         }.map {
             case (Some(studio), equips, picIds) if studio.ownerId == user.id => {
-                val form = StudioForm.fromStudio(studio, equips, picIds)
+                val form = StudioForm.fromStudio(user.plan.equipmentFee, studio, equips, picIds)
 
                 Ok(views.html.account.studios.settings(request.identity, studio, form))
             }
@@ -163,7 +168,7 @@ class IndexController @Inject() (ccc: CustomControllerCompoments)
 
             dbStudio.flatMap { (_ match {
                 case Some(studio) if studio.ownerId == user.id => {
-                    StudioForm.form.bindFromRequest.fold(
+                    StudioForm.form(user.plan.equipmentFee).bindFromRequest.fold(
                         form => DBIO.successful(BadRequest(
                             views.html.account.studios.settings(request.identity, studio, form))),
                         data => {
