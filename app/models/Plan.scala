@@ -53,7 +53,7 @@ object Plan extends Enumeration {
         "Premium",
         transactionRate = BigDecimal(0.06),
         studioLimit = None,
-        payoutSchedule = PayoutSchedule.Daily,
+        payoutSchedule = PayoutSchedule.Weekly,
         calendarSync = true,
         websiteIntegration = true,
         manualBookings = true,
