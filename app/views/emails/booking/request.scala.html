@@ -29,15 +29,15 @@
     implicit req: RequestHeader, config: Configuration)
 
 @bookingURL = @{ controllers.account.studios.routes.BookingsController.show(studio.id, booking.id).
-    absoluteURL }
+    absoluteURL(config.get[Boolean]("noisycamp.forceHttps")) }
 
 @acceptBookingURL = @{ 
     controllers.account.studios.routes.BookingsController.accept(studio.id, booking.id).
-        absoluteURL }
+        absoluteURL(config.get[Boolean]("noisycamp.forceHttps")) }
 
 @rejectBookingURL = @{ 
     controllers.account.studios.routes.BookingsController.reject(studio.id, booking.id).
-        absoluteURL }
+        absoluteURL(config.get[Boolean]("noisycamp.forceHttps")) }
 
 @emails.layout {
     @emails.tags.heading("h3") {
@@ -51,7 +51,9 @@
 
     <p>
         <strong>@customer.displayName</strong> submitted a booking request for 
-        <strong>@emails.tags.a(routes.StudiosController.show(studio.id).absoluteURL) {
+        <strong>@emails.tags.a(routes.StudiosController.
+            show(studio.id).
+            absoluteURL(config.get[Boolean]("noisycamp.forceHttps"))) {
             @studio.name
         }</strong> on
         <strong>@views.html.tags.localDate(booking.times.beginsAt.toLocalDate)</strong>.

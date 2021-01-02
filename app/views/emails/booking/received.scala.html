@@ -29,7 +29,7 @@
     implicit req: RequestHeader, config: Configuration)
 
 @bookingURL = @{ controllers.account.studios.routes.BookingsController.show(studio.id, booking.id).
-    absoluteURL }
+    absoluteURL(config.get[Boolean]("noisycamp.forceHttps")) }
 
 @emails.layout {
     @emails.tags.heading("h3") { Your studio in @studio.location.address.city has been booked }
@@ -41,7 +41,9 @@
     <p>
         Awesome!
         <strong>@emails.tags.a("mailto:" + customer.email){ @customer.displayName }</strong> booked 
-        <strong>@emails.tags.a(routes.StudiosController.show(studio.id).absoluteURL) {
+        <strong>@emails.tags.a(routes.StudiosController.
+            show(studio.id).
+            absoluteURL(config.get[Boolean]("noisycamp.forceHttps"))) {
             @studio.name
         }</strong> on
         <strong>@views.html.tags.localDate(booking.times.beginsAt.toLocalDate)</strong>.

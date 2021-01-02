@@ -39,7 +39,9 @@
         We are sorry to inform you that
         <strong>@emails.tags.a("mailto:" + customer.email){ @customer.displayName }</strong>
         cancelled their booking for
-        @emails.tags.a(routes.StudiosController.show(studio.id).absoluteURL) { @studio.name}.
+        @emails.tags.a(routes.StudiosController.
+            show(studio.id).
+            absoluteURL(config.get[Boolean]("noisycamp.forceHttps"))) { @studio.name}.
     </p>
     
     @for(reason <- booking.cancellationReason) {
@@ -79,7 +81,7 @@
 
     @emails.tags.button(
         controllers.account.studios.routes.BookingsController.show(studio.id, booking.id).
-            absoluteURL) {
+            absoluteURL(config.get[Boolean]("noisycamp.forceHttps"))) {
         Manage booking
     }
 }

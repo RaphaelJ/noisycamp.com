@@ -221,8 +221,8 @@ class PaymentService @Inject() (
             "client_reference_id" -> from.id.toString,
             "customer_email" -> from.email,
 
-            "success_url" -> onSuccess.absoluteURL,
-            "cancel_url" -> onCancel.absoluteURL,
+            "success_url" -> onSuccess.absoluteURL(true),
+            "cancel_url" -> onCancel.absoluteURL(true),
             "mode" -> "payment",
             "submit_type" -> "book",
             "payment_method_types" -> Seq("card").asJava,

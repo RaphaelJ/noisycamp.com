@@ -36,7 +36,10 @@
 
     <p>
         We have received your booking request for
-        @emails.tags.a(routes.StudiosController.show(studio.id).absoluteURL) { @studio.name }
+        @emails.tags.a(
+            routes.StudiosController.
+                show(studio.id).
+                absoluteURL(config.get[Boolean]("noisycamp.forceHttps"))) { @studio.name }
         on @views.html.tags.localDate(booking.times.beginsAt.toLocalDate).
     </p>
 
@@ -56,7 +59,9 @@
     @emails.tags.hr()
 
     @emails.tags.button(
-        controllers.account.routes.BookingsController.show(booking.id).absoluteURL) {
+        controllers.account.routes.BookingsController.
+            show(booking.id).
+            absoluteURL(config.get[Boolean]("noisycamp.forceHttps"))) {
         Manage my booking
     }
 }

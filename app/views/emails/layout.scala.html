@@ -39,7 +39,7 @@
             text-align: center;
             padding: 30px 0;">
 
-            <a href="@routes.IndexController.index.absoluteURL">
+            <a href="@routes.IndexController.index.absoluteURL(config.get[Boolean]("noisycamp.forceHttps"))">
                 <img
                     src="@CDN.fromCDN(
                         routes.Assets.versioned("images/emails/logo_black.png"), true)"
@@ -63,7 +63,7 @@
             text-align: center;
             padding: 10px 0 20px 0;">
             <a
-                href="@routes.IndexController.index.absoluteURL"
+                href="@routes.IndexController.index.absoluteURL(config.get[Boolean]("noisycamp.forceHttps"))"
                 style="
                     color: grey;
                     text-decoration: none;

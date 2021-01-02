@@ -133,8 +133,8 @@ class PayoutsController @Inject() (
     private def stripeOAuthRedirect(stripeAccountId: String)(implicit req: RequestHeader):
         Future[Result] = {
 
-        val refreshUrl = routes.PayoutsController.index.absoluteURL
-        var returnUrl = routes.PayoutsController.setupComplete.absoluteURL
+        val refreshUrl = routes.PayoutsController.index.absoluteURL(true)
+        var returnUrl = routes.PayoutsController.setupComplete.absoluteURL(true)
 
         paymentService.
             connectOAuthUrl(stripeAccountId, refreshUrl, returnUrl).
