@@ -52,7 +52,7 @@
             <h5>Spend less time managing bookings</h5>
             <p>
                 Enable musicians to book your practice or recording spaces online, reducing the
-                time your spend answering emails and phone calls.
+                time you will spend answering emails and phone calls.
             </p>
         </div>
     </div>
