@@ -68,7 +68,7 @@
             </div>
 
             <p class="help-text">
-                You will be in charge of collecting the fee payment from the
+                You will be in charge of collecting the booking payment from the
                 customers that choose this payment method.
             </p>
 

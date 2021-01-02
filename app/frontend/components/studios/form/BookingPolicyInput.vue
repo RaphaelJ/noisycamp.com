@@ -60,8 +60,8 @@
             </div>
 
             <p class="help-text">
-                If disabled, every booking request will have to be manually approved within 7 days,
-                or will be automatically cancelled and the customer fully refunded
+                If disabled, every booking request will have to be manually approved before the
+                session starts, or will be automatically cancelled and the customer fully refunded.
             </p>
         </div>
 

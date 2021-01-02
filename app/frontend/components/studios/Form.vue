@@ -73,11 +73,6 @@
 
                 <p>Select studio's opening days and hours.</p>
 
-                <p>
-                    This will define the general avalaibility of your studio. More specific opening
-                    schedule, like holidays, can be defined later in the calendar application.
-                </p>
-
                 <opening-schedule-input
                     name="opening-schedule"
                     :value="value['opening-schedule']"
@@ -174,8 +169,7 @@
                 <h2>Equipment &amp; instruments</h2>
 
                 <p>
-                    List the instruments and various equipments that come with your rehearsal place.
-                    <!-- You can request an extra fee for some of these items. -->
+                    List the instruments and various equipments that come with your music space.
                 </p>
 
                 <equipment-input
