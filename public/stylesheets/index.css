@@ -110,11 +110,21 @@
     margin-top: 1.5rem;
 }
 
+@media screen and (max-width: 39.9375em) {
+    .become-a-host .feature-image {
+        margin-top: 3rem;
+    }
+
+    .become-a-host .feature-text {
+        margin-bottom: 1.5rem;
+    }
+}
+
 @media screen and (min-width: 40em) and (max-width: 63.9375em) {
     .become-a-host .feature-text,
     .become-a-host .feature-image {
-        margin-top: 2rem;
-        margin-bottom: 1rem;
+        margin-top: 3.5rem;
+        margin-bottom: 2.5rem;
     }
 }
 
