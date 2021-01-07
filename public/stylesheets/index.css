@@ -18,7 +18,7 @@
 /* Full-screen hero with search box. */
 
 .hero.home-hero .middle-content-section {
-    width: 750px;
+    width: 850px;
 }
 
 @media screen and (max-width: 39.9375em) {

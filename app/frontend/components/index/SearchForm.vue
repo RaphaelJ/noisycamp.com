@@ -19,7 +19,7 @@
 <template>
     <div class="grid-x grid-padding-x">
         <h2 class="cell">
-            Book a music or rehearsal studio.
+            Book a rehearsal or recording studio<span class="show-for-large"> near you</span>.
         </h2>
 
         <div class="cell medium-12 large-auto">

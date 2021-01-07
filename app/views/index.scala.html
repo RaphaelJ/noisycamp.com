@@ -30,7 +30,7 @@ implicit req: RequestHeader, config: Configuration, flash: Flash)
 }
 
 @layout(
-    Seq("Music and rehearsal studio rentals"), head=head,
+    Seq("Rehearsal and music studio rentals"), head=head,
     identity=identity, fullScreen=true) {
 
     <div class="hero home-hero">
@@ -52,7 +52,7 @@ implicit req: RequestHeader, config: Configuration, flash: Flash)
                         scrollTop: $('#become-a-host').offset().top
                 }, 500); return false">
                 <div class="show-for-medium">
-                    Want to list your professional or personal studio?
+                    Do you want to list your professional or personal studio?
                 </div>
                 <arrow direction="bottom"></arrow>
             </a>
@@ -70,10 +70,9 @@ implicit req: RequestHeader, config: Configuration, flash: Flash)
         <div id="become-a-host"
             class="grid-x grid-margin-x grid-margin-y become-a-host">
             <div class="cell small-12 section-title">
-                <h2>
-                    NoisyCamp is the online booking platform for music and
-                    rehearsal studios
-                </h2>
+                <h1>
+                    NoisyCamp is the online booking platform for rehearsal and recording spaces
+                </h1>
             </div>
 
             <div class="cell small-12 section-feature-gallery">
@@ -89,11 +88,8 @@ implicit req: RequestHeader, config: Configuration, flash: Flash)
                 <h3>Real-time room availabilities</h3>
 
                 <p>
-                    With online bookings, musicians can immediately see when your spaces are
-                    available, and submit reservation requests any time of the day.<br>
-                    Soon, <i>Premium</i> plan users can also synchronize their booking calendar with
-                    their favorite calendar app (<i>Google Calendar</i>, <i>Microsoft Outlook</i>,
-                    <i>Apple Calendar</i> ...).
+                    Musicians can immediately see when your spaces are available, and submit
+                    reservation requests any time of the day.
                 </p>
             </div>
 
@@ -106,11 +102,9 @@ implicit req: RequestHeader, config: Configuration, flash: Flash)
                 <h3>Secure online payments</h3>
 
                 <p>
-                    With NoisyCamp, you can request an immediate and secure credit-card payment to
-                    validate a reservation.<br>
-                    The reservation amount will be directly transferred to your bank account.<br>
-                    Online payments are optional and increase your revenue by securing the booking
-                    amount even when the customer does not show up.
+                    Optionally require an immediate and secure credit-card payment to validate a
+                    reservation.<br>
+                    The reservation amount will be directly transferred to your bank account.
                 </p>
             </div>
             <div class="cell small-12 medium-6 show-for-medium feature-image">
@@ -128,9 +122,8 @@ implicit req: RequestHeader, config: Configuration, flash: Flash)
                 <h3>List your studio gears and instruments</h3>
 
                 <p>
-                    NoisyCamp allows you to list all the equipments provided by your studio.<br>
-                    <i>Premium</i> plan users can also charge extra fees for the leasing of some of
-                    their equipments.
+                    Specify the equipments provided by your studio.<br>
+                    You can also request extra fees for the leasing of some of your gears.
                 </p>
             </div>
 
@@ -175,11 +168,17 @@ implicit req: RequestHeader, config: Configuration, flash: Flash)
 
                 <dt>Who can host a studio on NoisyCamp?</dt>
                 <dd>
-                    NoisyCamp allows professional and independently-owned studios to be listed.<br>
+                    NoisyCamp allow any studio owner to list their professional or home studios.<br>
                     <a
                         href="@controllers.account.studios.routes.IndexController.create">
                         Become a studio host on NoisyCamp</a>
                     to reach new customers and get extra revenues from your premises.
+                </dd>
+
+                <dt>What kind of spaces can be listed on NoisyCamp?</dt>
+                <dd>
+                    NoisyCamp is a platform designed for spaces that can be used for practicing,
+                    recording, mastering, teaching or perform music.
                 </dd>
 
                 <dt>How do online transactions work?</dt>

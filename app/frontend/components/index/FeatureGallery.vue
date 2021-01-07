@@ -33,13 +33,13 @@
             @click="featureClicked('online_presence')">
             <h3>Reach new musicians</h3>
 
-            <h5>A modern online presence for your studio</h5>
+            <h4 class="text-sans-serif">
+                <small>A modern online presence for your music studio</small>
+            </h4>
 
             <p>
-                NoisyCamp is a build on top of a global community of 1,000s of musicians.<br>
-                By listing your studio on NoisyCamp, you will reach new customers, and increase your
-                revenue.<br>
-                NoisyCamp is available on desktop and mobile devices.
+                Join a global community of 1,000s of musicians, reach new customers, and increase
+                your revenue.
             </p>
         </div>
 
@@ -48,11 +48,13 @@
             class="cell medium-6 feature-gallery-text"
             :class="{ 'active': currentFeature == 'calendar' }"
             @click="featureClicked('calendar')">
-            <h3>Online bookings</h3>
-            <h5>Spend less time managing bookings</h5>
+            <h3>24/7 Online bookings</h3>
+            <h4 class="text-sans-serif">
+                <small>Spend less time answering emails and phone calls</small>
+            </h4>
             <p>
-                Enable musicians to book your practice or recording spaces online, reducing the
-                time you will spend answering emails and phone calls.
+                Manage your bookings using our studio interface. Directly see your upcoming
+                bookings on our calendar view.
             </p>
         </div>
     </div>
