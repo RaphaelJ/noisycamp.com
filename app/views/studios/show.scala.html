@@ -33,6 +33,22 @@
     pictures: Seq[models.Picture#Id],
     bookingEvents: Seq[models.Event])(
     implicit req: RequestHeader, config: Configuration, flash: Flash)
+
+@subTitle = @{ 
+    val studioType =
+        (studio.usePractice, studio.useRecording, studio.useLive) match {
+            case (true, false, false) => "Rehearsal space"
+            case (false, true, false) => "Recording studio"
+            case (false, false, true) => "Live music space"
+            case _ => "Music studio"
+        }
+
+    studioType + 
+        " for rent in " +
+        studio.location.address.city +
+        ", " +
+        studio.location.address.country.name
+}
     
 @currentDateTime = @{ studio.currentDateTime(now) }
 @currentDate = @{ currentDateTime.toLocalDate }
@@ -48,6 +64,10 @@
 @equipmentsJson = @{ tags.json(Json.toJson(equipments), htmlEscape = true) }
 
 @head = {
+    <meta 
+        name="description"
+        content="@subTitle. @studio.description.take(150)">
+
     <link
         rel="stylesheet"
         href="@CDN.fromCDN(routes.Assets.versioned("stylesheets/studios/show.css"))">
@@ -55,6 +75,17 @@
     <link
         rel="stylesheet"
         href="https://api.mapbox.com/mapbox-gl-js/v1.8.1/mapbox-gl.css">
+
+    <meta property="og:site_name" content="NoisyCamp">
+    <meta property="og:type" content="website">
+    <meta
+        property="og:url"
+        content="@routes.StudiosController.show(studio.id).absoluteURL(config.get[Boolean]("noisycamp.forceHttps"))">
+    @for(picId <- pictures.headOption) {
+        <meta
+            property="og:image"
+            content="@CDN.fromCDN(routes.PictureController.cover(picId.base64, "1600x630"), absoluteURL = true)">
+    }
 }
 
 @studioSettingsLink = {
@@ -123,7 +154,7 @@
 }
 
 @layout(
-    Seq(studio.name, "Music studio to rent in " + studio.location.address.city),
+    Seq(studio.name, subTitle),
     head=head, identity=identity) {
 
     <div class="grid-container">
