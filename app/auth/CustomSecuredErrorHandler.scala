@@ -1,5 +1,5 @@
 /* Noisycamp is a platform for booking music studios.
- * Copyright (C) 2019  Raphael Javaux <raphaeljavaux@gmail.com>
+ * Copyright (C) 2019 2020  Raphael Javaux <raphael@noisycamp.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,35 +25,28 @@ import play.api.mvc.{ ControllerComponents, RequestHeader }
 import play.api.mvc.Results._
 
 class CustomSecuredErrorHandler @Inject() (
-  cc: ControllerComponents)
-  extends SecuredErrorHandler {
+    cc: ControllerComponents)
+    extends SecuredErrorHandler {
 
-  /**
-   * Called when a user is not authenticated.
-   *
-   * Redirects to the sign-in page.
-   *
-   * As defined by RFC 2616, the status code of the response should be 401
-   * Unauthorized.
-   */
-  override def onNotAuthenticated(implicit request: RequestHeader) = {
-    redirectToSignIn
-  }
+    /**
+     * Called when a user is not authenticated.
+     *
+     * Redirects to the sign-up page.
+     */
+    override def onNotAuthenticated(implicit request: RequestHeader) = {
+        redirectToSignUp
+    }
 
-  /**
-   * Called when a user is authenticated but not authorized.
-   *
-   * Redirects to the sign-in page.
-   *
-   * As defined by RFC 2616, the status code of the response should be 403
-   * Forbidden.
-   */
-  override def onNotAuthorized(implicit request: RequestHeader) = {
-    redirectToSignIn
-  }
+    /**
+     * Called when a user is authenticated but not authorized.
+     *
+     * Redirects to the sign-up page.
+     */
+    override def onNotAuthorized(implicit request: RequestHeader) = {
+        redirectToSignUp
+    }
 
-  private def redirectToSignIn(implicit request: RequestHeader) = {
-    Future.successful(Redirect(
-      controllers.routes.AuthController.signIn(Some(request.uri))))
-  }
+    private def redirectToSignUp(implicit request: RequestHeader) = {
+        Future.successful(Redirect(controllers.routes.AuthController.signUp(Some(request.uri))))
+    }
 }
