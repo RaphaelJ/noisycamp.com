@@ -45,7 +45,9 @@
                 <ul class="menu">
                     <li class="logo">
                         <a href="@routes.IndexController.index">
-                            <img src="@CDN.fromCDN(routes.Assets.versioned("images/logo.svg"))">
+                            <img
+                                src="@CDN.fromCDN(routes.Assets.versioned("images/logo.svg"))"
+                                alt="NoisyCamp logo">
                             NoisyCamp
                         </a>
                     </li>
@@ -97,6 +99,10 @@
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <meta name="keywords" content="noisycamp, studio, online bookings, rehearsal, music, recording, musicians, practice space, host, online payment"/>
+        <meta name="copyright" content="Copyright @Year.now NoisyCamp">
+
         <title>@{(title ++ Seq("NoisyCamp")).mkString(" - ")}</title>
 
         <link

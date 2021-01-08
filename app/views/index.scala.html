@@ -24,9 +24,23 @@
 implicit req: RequestHeader, config: Configuration, flash: Flash)
 
 @head = {
+    <meta 
+        name="description"
+        content="NoisyCamp is the online booking platform for rehearsal and recording spaces">
+
     <link
         rel="stylesheet"
         href="@CDN.fromCDN(routes.Assets.versioned("stylesheets/index.css"))">
+
+    <meta property="og:site_name" content="NoisyCamp">
+    <meta property="og:type" content="website">
+    <meta property="og:type" content="website">
+    <meta
+        property="og:url"
+        content="@routes.IndexController.index.absoluteURL(config.get[Boolean]("noisycamp.forceHttps"))">
+    <meta
+        property="og:image"
+        content="@CDN.fromCDN(routes.Assets.versioned("images/index/card.jpg"), absoluteURL = true)">
 }
 
 @layout(
