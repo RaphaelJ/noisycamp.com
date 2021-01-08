@@ -45,7 +45,7 @@
         @for(address2 <- address.address2) {
             @address2<br>
         }
-        @address.city @for(stateCode <- address.stateCode) { stateCode } @address.zipcode.get<br>
+        @address.city @for(stateCode <- address.stateCode) { @stateCode } @address.zipcode.get<br>
         @address.country.name
     }
     case AddressFormat.European => {
