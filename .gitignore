@@ -11,6 +11,7 @@ target/
 .ensime
 .ensime_cache
 project/metals.sbt
+project/project
 
 .vscode/
 *.code-workspace
