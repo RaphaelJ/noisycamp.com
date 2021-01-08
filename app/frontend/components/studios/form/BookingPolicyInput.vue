@@ -31,7 +31,10 @@
                     <option value="" disabled>Please select a value</option>
                     <option value="3600">1 hour</option>
                     <option value="7200">2 hours</option>
+                    <option value="10800">3 hours</option>
                     <option value="14400">4 hours</option>
+                    <option value="18000">5 hours</option>
+                    <option value="21600">6 hours</option>
                     <option value="28800">8 hours</option>
                 </select>
 
