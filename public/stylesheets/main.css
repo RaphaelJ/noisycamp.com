@@ -684,6 +684,10 @@ footer .footer-container {
     margin-right: auto;
 }
 
+footer .social-links {
+    font-size: 1.5rem;
+}
+
 @media screen and (max-width: 39.9375em) {
     footer {
         text-align: center;
