@@ -156,6 +156,17 @@ case class OpeningSchedule(
             BookingDurations(booking.duration, Duration.ZERO, Duration.ZERO)
         }
     }
+
+    def toMap: Map[DayOfWeek, Option[OpeningTimes]] = {
+        Map(
+            DayOfWeek.MONDAY -> monday,
+            DayOfWeek.TUESDAY -> tuesday,
+            DayOfWeek.WEDNESDAY -> wednesday,
+            DayOfWeek.THURSDAY -> thursday,
+            DayOfWeek.FRIDAY -> friday,
+            DayOfWeek.SATURDAY -> saturday,
+            DayOfWeek.SUNDAY -> sunday)
+    }
 }
 
 case class OpeningTimes(

@@ -37,7 +37,31 @@ case class WeekendPricingPolicy(
 case class LocalPricingPolicy(
     pricePerHour:         Money,
     evening:              Option[LocalEveningPricingPolicy],
-    weekend:              Option[LocalWeekendPricingPolicy])
+    weekend:              Option[LocalWeekendPricingPolicy]) {
+
+    /** If the prices of the studio varies depending on the time and day, return a [min, max] range.
+     * Otherwise, returns the regular price. */
+    def priceRange: Either[Money, (Money, Money)] = {
+        (evening, weekend) match {
+            case (Some(eveningVal), Some(weekendVal)) => {
+                val min = pricePerHour min eveningVal.pricePerHour min weekendVal.pricePerHour
+                val max = pricePerHour max eveningVal.pricePerHour max weekendVal.pricePerHour
+                Right((min, max))
+            }
+            case (Some(eveningVal), None) =>  {
+                val min = pricePerHour min eveningVal.pricePerHour
+                val max = pricePerHour max eveningVal.pricePerHour
+                Right((min, max))
+            }
+            case (None, Some(weekendVal)) => {
+                val min = pricePerHour min weekendVal.pricePerHour
+                val max = pricePerHour max weekendVal.pricePerHour
+                Right((min, max))
+            }
+            case (None, None) => Left(pricePerHour)
+        }
+    }
+}
 
 object LocalPricingPolicy {
     def apply(currency: Currency, pricingPolicy: PricingPolicy): LocalPricingPolicy = {

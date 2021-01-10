@@ -24,10 +24,10 @@
  * @param showZeroCents if false, will truncate the decimal part if the decimal
  *     value amount to zero.
  *@
-@(amount: Money, showZeroCents: Boolean = false)
+@(amount: Money, showZeroCents: Boolean = false, showCurrency: Boolean = true)
 
 <span class="money-amount">
-    @{amount.currency.symbol}@{
+    @{if(showCurrency) { amount.currency.symbol } else { "" }}@{
         val decimals = amount.currency.formatDecimals
         val rounded = amount.rounded(decimals, RoundingMode.DOWN)
 

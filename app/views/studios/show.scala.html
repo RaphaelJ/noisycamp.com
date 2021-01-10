@@ -1,5 +1,5 @@
 @* Noisycamp is a platform for booking music studios.
- * Copyright (C) 2019  Raphael Javaux <raphaeljavaux@gmail.com>
+ * Copyright (C) 2020  Raphael Javaux <raphael@noisycamp.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,7 @@
  *@
 
 @import java.time.Instant
+@import java.time.format.TextStyle
 
 @import play.api.Configuration
 @import play.api.libs.json.Json
@@ -49,6 +50,10 @@
         ", " +
         studio.location.address.country.name
 }
+
+@studioURL = @{ routes.StudiosController.
+    show(studio.id).
+    absoluteURL(config.get[Boolean]("noisycamp.forceHttps")) }
     
 @currentDateTime = @{ studio.currentDateTime(now) }
 @currentDate = @{ currentDateTime.toLocalDate }
@@ -63,6 +68,74 @@
 @pricingPolicyJson = @{ tags.json(Json.toJson(pricingPolicy), htmlEscape = true) }
 @equipmentsJson = @{ tags.json(Json.toJson(equipments), htmlEscape = true) }
 
+@openGraphProps = {
+    <meta property="og:site_name" content="NoisyCamp">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="@studioURL">
+    @for(picId <- pictures.headOption) {
+        <meta
+            property="og:image"
+            content="@CDN.fromCDN(routes.PictureController.cover(picId.base64, "1600x630"), absoluteURL = true)">
+    }
+}
+
+@* A JSON-LD descriptor of the studio as a Local Business object. *@ 
+@jsonLDProps = {
+    <script type="application/ld+json">
+        [ {
+            "@@context": "http://schema.org",
+            "@@type": "LocalBusiness",
+            "name": "@studio.name",
+            "url": "@studioURL",
+            @for(picId <- pictures.headOption) {
+                "image": [
+                    "@CDN.fromCDN(routes.PictureController.cover(picId.base64, "1600x900"), absoluteURL = true)",
+                    "@CDN.fromCDN(routes.PictureController.cover(picId.base64, "1600x1200"), absoluteURL = true)",
+                    "@CDN.fromCDN(routes.PictureController.cover(picId.base64, "1600x1600"), absoluteURL = true)"
+                ],
+            }
+            "address" : {
+                "@@type" : "PostalAddress",
+                "streetAddress" : "@studio.location.address.address1 @studio.location.address.address2.getOrElse("")",
+                "addressLocality" : "@studio.location.address.city",
+                @for(stateCode <- studio.location.address.stateCode) {
+                    "addressRegion": "@stateCode, 
+                }
+                @for(zipcode <- studio.location.address.zipcode) {
+                    "postalCode" : "@zipcode",
+                }
+                "addressCountry" : "@studio.location.address.country.isoCode"
+            },
+            "geo": {
+                "@@type": "GeoCoordinates",
+                "latitude": @studio.location.coordinates.lat,
+                "longitude": @studio.location.coordinates.long
+            },
+            "priceRange": @pricingPolicy.priceRange match {
+                case Left(price) => { "@price.toFormattedString" }
+                case Right((minPrice, maxPrice)) => { "@minPrice.toFormattedString-@maxPrice.value" }
+            },
+            "openingHoursSpecification" : [
+                @defining(
+                    studio.openingSchedule.
+                        toMap.toSeq.
+                        collect { case (d, Some(v)) => (d, v) }) { openingDays =>
+                    
+                    @for(day <- openingDays) {
+                        {
+                            "@@type" : "OpeningHoursSpecification",
+                            "dayOfWeek" : "@day._1.getDisplayName(
+                                TextStyle.FULL, java.util.Locale.ENGLISH)",
+                            "opens": "@day._2.opensAt.toString",
+                            "closes": "@day._2.closesAt.toString"
+                        }@if(day != openingDays.last){,}
+                    }
+                }
+            ]
+        } ]
+    </script>
+}
+
 @head = {
     <meta 
         name="description"
@@ -76,16 +149,8 @@
         rel="stylesheet"
         href="https://api.mapbox.com/mapbox-gl-js/v1.8.1/mapbox-gl.css">
 
-    <meta property="og:site_name" content="NoisyCamp">
-    <meta property="og:type" content="website">
-    <meta
-        property="og:url"
-        content="@routes.StudiosController.show(studio.id).absoluteURL(config.get[Boolean]("noisycamp.forceHttps"))">
-    @for(picId <- pictures.headOption) {
-        <meta
-            property="og:image"
-            content="@CDN.fromCDN(routes.PictureController.cover(picId.base64, "1600x630"), absoluteURL = true)">
-    }
+    @openGraphProps
+    @jsonLDProps
 }
 
 @studioSettingsLink = {
