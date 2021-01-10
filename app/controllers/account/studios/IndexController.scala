@@ -24,6 +24,7 @@ import scala.concurrent.Future
 import com.mohiva.play.silhouette.api.actions.SecuredRequest
 import play.api._
 import play.api.mvc._
+import slick.jdbc.TransactionIsolation
 
 import auth.DefaultEnv
 import forms.account.StudioForm
@@ -71,13 +72,13 @@ class IndexController @Inject() (ccc: CustomControllerCompoments)
     def createSubmit = SecuredAction.async { implicit request =>
         val user = request.identity.user
 
-        ifUserCanCreateStudio {
-            StudioForm.form(user.plan.equipmentFee).bindFromRequest.fold(
-                form => DBIO.successful(BadRequest(views.html.account.studios.create(
-                    request.identity, form))),
-                data => {
-                    val (studio, equipments, pictures) = data.toStudio(Left(request.identity.user.id))
+        StudioForm.form(user.plan.equipmentFee).bindFromRequest.fold(
+            form => Future.successful(
+                BadRequest(views.html.account.studios.create(request.identity, form))),
+            data => {
+                val (studio, equipments, pictures) = data.toStudio(Left(request.identity.user.id))
 
+                ifUserCanCreateStudio {
                     for {
                         studioId <- daos.studio.insert(studio).map(_.id)
                         _ <- daos.studioEquipment.setStudioEquipments(studioId, equipments)
@@ -88,8 +89,8 @@ class IndexController @Inject() (ccc: CustomControllerCompoments)
                                 ("Your studio page is ready. " +
                                 "You can now review it before making it available to the public."))
                 }
-            )
-        }
+            }
+        )
     }
 
     /** Executes the provided action if the user is allow to create one additional studio (based on
@@ -118,7 +119,7 @@ class IndexController @Inject() (ccc: CustomControllerCompoments)
                         case _ => f
                     }
                 }
-        }.transactionally)
+        }.withTransactionIsolation(TransactionIsolation.Serializable))
     }
 
     def websiteIntegration(id: Studio#Id) = SecuredAction { implicit request =>
