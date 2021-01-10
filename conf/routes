@@ -14,6 +14,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+GET     /robots.txt                     controllers.Assets.at(path="/public", file="robots.txt")
+GET     /sitemap.xml                    controllers.SitemapController.index
+
+# Map static resources from the /public folder to the /assets URL path
+GET     /assets/*file                   controllers.Assets.versioned(path="/public", file: Asset)
+
 GET     /                               controllers.IndexController.index
 
 GET     /about                          controllers.IndexController.about
@@ -45,7 +51,7 @@ GET     /account/studios                controllers.account.studios.IndexControl
 GET     /account/studios/create         controllers.account.studios.IndexController.create
 POST    /account/studios/create         controllers.account.studios.IndexController.createSubmit
 
-GET    /account/studios/:id/website-integration    controllers.account.studios.IndexController.websiteIntegration(id: Long)
+GET     /account/studios/:id/website-integration    controllers.account.studios.IndexController.websiteIntegration(id: Long)
 
 GET     /account/studios/:id/settings   controllers.account.studios.IndexController.settings(id: Long)
 POST    /account/studios/:id/settings   controllers.account.studios.IndexController.settingsSubmit(id: Long)
@@ -99,6 +105,3 @@ GET     /pictures/:id                   controllers.PictureController.view(id: S
 GET     /pictures/:id/bound/:size       controllers.PictureController.bound(id: String, size: String)
 GET     /pictures/:id/cover/:size       controllers.PictureController.cover(id: String, size: String)
 GET     /pictures/:id/max/:size         controllers.PictureController.max(id: String, size: String)
-
-# Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file                   controllers.Assets.versioned(path="/public", file: Asset)

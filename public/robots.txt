@@ -1,0 +1,10 @@
+User-agent: *
+Disallow: /account
+Disallow: /sign-in
+Disallow: /sign-ip
+Disallow: /sign-out
+Disallow: /social/authenticate/*
+Disallow: /studios/search
+Disallow: /studios/*/booking
+
+Sitemap: https://noisycamp.com/sitemap.xml

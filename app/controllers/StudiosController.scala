@@ -56,7 +56,7 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
 
                 db.run({ for {
                     // Fetches studios matching query.
-                    studios <- daos.studio.query.
+                    studios <- daos.studio.publishedStudios.
                         filter { studio =>
                             // Geographical filter
                             val isInBBox = bboxOpt match {
@@ -86,7 +86,7 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
                             // FIXME: does not filter out studios that are not availaible on
                             // the selected day.
 
-                            studio.published && isInBBox && isOpen
+                            isInBBox && isOpen
                         }.
                         take(200). // Limits to 200 studios
                         result
