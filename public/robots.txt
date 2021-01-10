@@ -1,7 +1,7 @@
 User-agent: *
 Disallow: /account
 Disallow: /sign-in
-Disallow: /sign-ip
+Disallow: /sign-up
 Disallow: /sign-out
 Disallow: /social/authenticate/*
 Disallow: /studios/search
