@@ -99,7 +99,7 @@
                 "streetAddress" : "@studio.location.address.address1 @studio.location.address.address2.getOrElse("")",
                 "addressLocality" : "@studio.location.address.city",
                 @for(stateCode <- studio.location.address.stateCode) {
-                    "addressRegion": "@stateCode, 
+                    "addressRegion": "@stateCode", 
                 }
                 @for(zipcode <- studio.location.address.zipcode) {
                     "postalCode" : "@zipcode",
