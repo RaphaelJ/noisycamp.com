@@ -140,13 +140,15 @@ implicit req: RequestHeader, config: Configuration, flash: Flash)
                 </p>
             </div>
 
+            <h3 class="cell small-12 text-center listing-is-free">
+                Listing your first practice or recording room is free
+            </h3>
+
             <div class="cell small-12 medium-6 medium-offset-3 large-4 large-offset-4 text-center become-a-host-button">
                 <a
                     href="@controllers.account.studios.routes.IndexController.create"
                     class="button primary large expanded">Add your studio now</a>
-                <p class="help-text">
-                    It only takes 5 minutes. The first room is totally free.
-                </p>
+                <p class="help-text">It only takes 5 minutes.</p>
             </div>
 
             <div class="cell small-12">
@@ -166,17 +168,16 @@ implicit req: RequestHeader, config: Configuration, flash: Flash)
             <h2 class="cell small-12 section-title" id="faq">Frequently asked questions</h2>
 
             <dl class="cell small-12 large-offset-1 large-10 faq">
-                <dt>Where is NoisyCamp available?</dt>
+                <dt>How much does NoisyCamp cost?</dt>
                 <dd>
-                    NoisyCamp is currently availaible in @Country.values.size countries:<br>
-                    @{
-                        val names = Country.values.
-                            toSeq.
-                            sortBy(_.asInstanceOf[Country.Val].name).
-                            map(_.asInstanceOf[Country.Val].prefixedName)
-
-                        s"${names.init.mkString(", ")} and ${names.last}."
-                    }
+                    Listing your first studio space on NoisyCamp is free.<br>
+                    Studios that wish to list more than one space are required to upgrade to our
+                    <i>Premium</i> plan.<br>
+                    Studios that wish to use online booking payments will be charged a small online
+                    transaction fee on these payments
+                    (@{(Plan.Free.transactionRate * 100).toIntExact}% for <i>Free</i> plan users,
+                    @{(Plan.Premium.transactionRate * 100).toIntExact}% for <i>Premium</i> plan
+                    users). There is no fee on online bookings that are not paid online. 
                 </dd>
 
                 <dt>Who can host a studio on NoisyCamp?</dt>
@@ -194,13 +195,26 @@ implicit req: RequestHeader, config: Configuration, flash: Flash)
                     recording, mastering, teaching or perform music.
                 </dd>
 
+                <dt>Where is NoisyCamp available?</dt>
+                <dd>
+                    NoisyCamp is currently availaible in @Country.values.size countries:<br>
+                    @{
+                        val names = Country.values.
+                            toSeq.
+                            sortBy(_.asInstanceOf[Country.Val].name).
+                            map(_.asInstanceOf[Country.Val].prefixedName)
+
+                        s"${names.init.mkString(", ")} and ${names.last}."
+                    }
+                </dd>
+
                 <dt>How do online transactions work?</dt>
                 <dd>
                     If the studio owner wishes to accept online payments, musicians will be allowed
                     to settle the reservation amount at the time of booking using a valid credit
                     card.<br>
                     The studio owner will then receive that amount directly on their bank account,
-                    minus the NoisyCamp service fee
+                    minus the NoisyCamp transaction fee
                     (@{(Plan.Free.transactionRate * 100).toIntExact}% for <i>Free</i> plan users,
                     @{(Plan.Premium.transactionRate * 100).toIntExact}% for <i>Premium</i> plan
                     users).<br>
@@ -220,8 +234,7 @@ implicit req: RequestHeader, config: Configuration, flash: Flash)
                     href="@controllers.account.studios.routes.IndexController.create"
                     class="button primary large expanded">Become a host</a>
                 <p class="help-text">
-                    Or <a href="@routes.StudiosController.index()">
-                        browse existing studios</a>.
+                    Listing your first room is free.
                 </p>
             </div>
         </div>

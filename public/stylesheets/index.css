@@ -118,13 +118,33 @@
     .become-a-host .feature-text {
         margin-bottom: 1.5rem;
     }
+    
+    .become-a-host .listing-is-free {
+        margin-top: 3rem;
+    }
+
+    .become-a-host .become-a-host-button {
+        margin-bottom: 3rem;
+    }
 }
 
 @media screen and (min-width: 40em) and (max-width: 63.9375em) {
     .become-a-host .feature-text,
     .become-a-host .feature-image {
         margin-top: 3.5rem;
+    }
+    
+    .become-a-host .feature-text,
+    .become-a-host .feature-image {
         margin-bottom: 2.5rem;
+    }
+
+    .become-a-host .listing-is-free {
+        margin-top: 3.5rem;
+    }
+
+    .become-a-host .become-a-host-button {
+        margin-bottom: 3.5rem;
     }
 }
 
@@ -134,15 +154,27 @@
     }
 }
 
-@media screen and (min-width: 64em) {
+@media screen and (min-width: 64em) {    
     .become-a-host .feature-text,
     .become-a-host .feature-image {
-        margin-top: 6rem;
+        margin-top: 6rem;   
+    }
+    
+    .become-a-host .feature-text,
+    .become-a-host .feature-image {
         margin-bottom: 4rem;
     }
 
     .become-a-host .feature-text {
         padding-top: 3rem;
+    }
+
+    .become-a-host .listing-is-free {
+        margin-top: 6rem;
+    }
+
+    .become-a-host .become-a-host-button {
+        margin-bottom: 6rem;
     }
 }
 
