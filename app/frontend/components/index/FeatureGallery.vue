@@ -29,7 +29,10 @@
 
         <div
             class="cell medium-6 feature-gallery-text"
-            :class="{ 'active': currentFeature == 'online_presence' }"
+            :class="{
+                'active': currentFeature == 'online_presence',
+                'show-for-medium': currentFeature != 'online_presence'
+            }"
             @click="featureClicked('online_presence')">
             <h3>Reach new musicians</h3>
 
@@ -46,7 +49,10 @@
 
         <div
             class="cell medium-6 feature-gallery-text"
-            :class="{ 'active': currentFeature == 'calendar' }"
+            :class="{ 
+                'active': currentFeature == 'calendar',
+                'show-for-medium': currentFeature != 'calendar'
+            }"
             @click="featureClicked('calendar')">
             <h3>24/7 Online bookings</h3>
             <h4 class="text-sans-serif">
@@ -131,44 +137,44 @@ export default Vue.extend({
     margin-top: 1rem;
 }
 
-.feature-gallery .feature-gallery-text,
-.feature-gallery .feature-gallery-text::after {
-    border: 1px solid transparent;
-    transition: background 0.2s ease-in-out, border 0.2s ease-in-out;
+@media print, screen and (min-width: 40em) {
+    .feature-gallery .feature-gallery-text,
+    .feature-gallery .feature-gallery-text::after {
+        border: 1px solid transparent;
+        transition: background 0.2s ease-in-out, border 0.2s ease-in-out;
 
-    cursor: pointer;
-}
+        cursor: pointer;
+    }
 
-.feature-gallery .feature-gallery-text::after {
-    display: block;
-    content: "";
+    .feature-gallery .feature-gallery-text::after {
+        display: block;
+        content: "";
 
-    position: absolute;
-    top: calc(-1.5rem / 2);
-    left: calc(50% - 1.5rem / 2);
+        position: absolute;
+        top: calc(-1.5rem / 2);
+        left: calc(50% - 1.5rem / 2);
 
-    height: 1.5rem;
-    width: 1.5rem;
+        height: 1.5rem;
+        width: 1.5rem;
 
-    transform: rotate(45deg);
-}
+        transform: rotate(45deg);
+    }
 
-.feature-gallery .feature-gallery-text.active,
-.feature-gallery .feature-gallery-text.active::after {
-    background-color: #fefefe;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.feature-gallery .feature-gallery-text.active::after {
-    border-right: 1px solid transparent;
-    border-bottom: 1px solid transparent;
-}
-
-/* Hide the arrow on small screens */
-@media screen and (max-width: 39.9375em) {
+    .feature-gallery .feature-gallery-text.active,
     .feature-gallery .feature-gallery-text.active::after {
-        display: none;
+        background-color: #fefefe;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .feature-gallery .feature-gallery-text.active::after {
+        border-right: 1px solid transparent;
+        border-bottom: 1px solid transparent;
     }
 }
 
+@media screen and (max-width: 39.9375em) {
+    .feature-gallery .feature-gallery-text {
+        height: 190px;
+    }
+}
 </style>
