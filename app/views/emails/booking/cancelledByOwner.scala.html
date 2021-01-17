@@ -17,7 +17,6 @@
 
 @import play.api.Configuration
 
-@import misc.CDN
 @import models.{ LocalEquipment, Studio, StudioBooking, User }
 
 @(
@@ -37,7 +36,7 @@
     <p>
         We are sorry to inform you that <strong>your booking request for
         @emails.tags.a(routes.StudiosController.
-            show(studio.id).
+            show(studio.URLId).
             absoluteURL(config.get[Boolean]("noisycamp.forceHttps"))) { @studio.name }
         has been cancelled</strong> by the studio manager.
     </p>

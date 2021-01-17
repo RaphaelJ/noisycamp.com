@@ -19,7 +19,7 @@
 
 @import play.api.Configuration
 
-@import misc.CDN
+@import misc.URL
 
 @(content: Html)(implicit req: RequestHeader, config: Configuration)
 
@@ -41,7 +41,7 @@
 
             <a href="@routes.IndexController.index.absoluteURL(config.get[Boolean]("noisycamp.forceHttps"))">
                 <img
-                    src="@CDN.fromCDN(
+                    src="@URL.fromCDN(
                         routes.Assets.versioned("images/emails/logo_black.png"), true)"
                     alt="NoisyCamp logo"
                     width="175px">

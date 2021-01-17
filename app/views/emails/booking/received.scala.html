@@ -17,7 +17,6 @@
 
 @import play.api.Configuration
 
-@import misc.CDN
 @import models.{ LocalEquipment, Studio, StudioBooking, User }
 
 @(
@@ -42,7 +41,7 @@
         Awesome!
         <strong>@emails.tags.a("mailto:" + customer.email){ @customer.displayName }</strong> booked 
         <strong>@emails.tags.a(routes.StudiosController.
-            show(studio.id).
+            show(studio.URLId).
             absoluteURL(config.get[Boolean]("noisycamp.forceHttps"))) {
             @studio.name
         }</strong> on

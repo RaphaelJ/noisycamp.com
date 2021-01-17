@@ -24,6 +24,8 @@ import scala.math.BigDecimal.RoundingMode
 import play.api.Configuration
 import squants.market.{ Currency, Money }
 
+import misc.URL
+
 case class Studio(
     id:                 Studio#Id       = 0L,
     createdAt:          Instant         = Instant.now(),
@@ -74,5 +76,18 @@ case class Studio(
         currentDateTime(now).
             toLocalDate.
             plusDays(config.get[Duration]("noisycamp.maxBookingAdvance").toDays)
+    }
+
+    /** Returns a string of the ID and the URL encoded name of the studio. */
+    def URLId: String = {
+        val city = location.address.city
+        val region =
+            location.address.stateCode match {
+                case Some(stateCode) => location.address.country.states(stateCode)
+                case None => location.address.country.name
+            }
+
+        val title = s"${city} ${region} ${name}"
+        s"${id}-${URL.titleAsURL(title)}"
     }
 }

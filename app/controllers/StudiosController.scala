@@ -20,6 +20,7 @@ package controllers
 import java.time.{ DayOfWeek, Instant }
 import javax.inject._
 import scala.concurrent.Future
+import scala.util.Try
 
 import play.api._
 import play.api.libs.json.{ JsArray, Json }
@@ -124,7 +125,14 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
         )
     }
 
-    def show(id: Studio#Id) = UserAwareAction.async { implicit request =>
+    def show(id: String): Action[AnyContent] = {
+        Try(id.takeWhile(_.isDigit).toLong).toOption match {
+            case Some(idLong: Long) => show(idLong)
+            case None => Action(BadRequest("Invalid studio ID."))
+        }
+    }
+
+    def show(id: Long): Action[AnyContent] = UserAwareAction.async { implicit request =>
         val user: Option[User] = request.identity.map(_.user)
 
         val now = Instant.now

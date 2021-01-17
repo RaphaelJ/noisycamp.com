@@ -47,7 +47,7 @@
 <script lang="ts">
 import Vue, { PropOptions } from "vue";
 
-import { fromCDN } from '../../misc/CDN';
+import { fromCDN } from '../../misc/URL';
 
 declare var NC_ROUTES: any;
 

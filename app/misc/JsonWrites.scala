@@ -172,7 +172,10 @@ object JsonWrites {
             "opening-schedule"  -> studio.openingSchedule,
             "pricing-policy"    -> studio.localPricingPolicy,
             "booking-policy"    -> studio.bookingPolicy,
-            "payment-policy"    -> studio.paymentPolicy)
+            "payment-policy"    -> studio.paymentPolicy,
+            
+            "url"               ->
+                controllers.routes.StudiosController.show(studio.URLId).url)
     }
 
     implicit object StudioWithPictureWrites extends Writes[StudioWithPicture] {

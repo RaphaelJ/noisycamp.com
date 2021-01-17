@@ -17,7 +17,7 @@
 
 @import play.api.Configuration
 
-@import misc.CDN
+@import misc.URL
 @import models.LocalEquipment
 
 @* Renders an equipment or instrument as a small div. *@
@@ -32,7 +32,7 @@
 
 @equipmentCategoryName = {@equip.category.map(_.name).getOrElse("Other")}
 
-@equipmentCategoryIcon = {@CDN.fromCDN(routes.Assets.versioned(
+@equipmentCategoryIcon = {@URL.fromCDN(routes.Assets.versioned(
     "images/vendor/music-icons/" +
     equip.category.map(_.code).getOrElse("other") +
     ".svg"))}

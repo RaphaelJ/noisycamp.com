@@ -86,7 +86,7 @@
         @for(studio <- studios) {
             <ul>
                 <li>
-                    <a href="@routes.StudiosController.show(studio.id).absoluteURL">
+                    <a href="@routes.StudiosController.show(studio.URLId).absoluteURL">
                         @studio.name
                     </a>
                 </li>

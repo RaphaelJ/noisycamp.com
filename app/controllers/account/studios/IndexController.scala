@@ -1,5 +1,5 @@
 /* Noisycamp is a platform for booking music studios.
- * Copyright (C) 2019-2020  Raphael Javaux <raphaeljavaux@gmail.com>
+ * Copyright (C) 2019 2020  Raphael Javaux <raphaeljavaux@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -80,11 +80,11 @@ class IndexController @Inject() (ccc: CustomControllerCompoments)
 
                 ifUserCanCreateStudio {
                     for {
-                        studioId <- daos.studio.insert(studio).map(_.id)
-                        _ <- daos.studioEquipment.setStudioEquipments(studioId, equipments)
-                        _ <- daos.studioPicture.setStudioPics(studioId, pictures)
+                        studio <- daos.studio.insert(studio)
+                        _ <- daos.studioEquipment.setStudioEquipments(studio.id, equipments)
+                        _ <- daos.studioPicture.setStudioPics(studio.id, pictures)
                     } yield 
-                        Redirect(_root_.controllers.routes.StudiosController.show(studioId)).
+                        Redirect(_root_.controllers.routes.StudiosController.show(studio.URLId)).
                             flashing("success" ->
                                 ("Your studio page is ready. " +
                                 "You can now review it before making it available to the public."))
@@ -176,8 +176,9 @@ class IndexController @Inject() (ccc: CustomControllerCompoments)
                             val (newStudio, newEquips, newPics) =
                                 data.toStudio(Right(studio))
 
+                            val URLId = newStudio.URLId
                             val onSuccess = {
-                                Redirect(_root_.controllers.routes.StudiosController.show(id)).
+                                Redirect(_root_.controllers.routes.StudiosController.show(URLId)).
                                     flashing("success" -> "Settings have been successfully saved.")
                             }
 
@@ -207,8 +208,9 @@ class IndexController @Inject() (ccc: CustomControllerCompoments)
 
             dbStudio.flatMap {
                 case Some(studio) if studio.isOwner(user) => {
-                    val onSuccess = Redirect(_root_.controllers.routes.StudiosController.show(id)).
-                        flashing("success" -> "The studio is now visible to the public.")
+                    val onSuccess =
+                        Redirect(_root_.controllers.routes.StudiosController.show(studio.URLId)).
+                            flashing("success" -> "The studio is now visible to the public.")
 
                     daos.studio.query.
                         filter(_.id === id).

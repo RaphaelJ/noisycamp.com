@@ -44,10 +44,11 @@ class SitemapController @Inject() (ccc: CustomControllerCompoments)
 
         for {
             studioUrls <- db.
-                run({ daos.studio.publishedStudios.map(_.id).result }.transactionally).
-                map { studioIds => 
-                    studioIds.map { id => 
-                        url(routes.StudiosController.show(id), ChangeFreq.Weekly, 0.5)
+                // TODO: only fetch the IDs and names
+                run({ daos.studio.publishedStudios.result }.transactionally).
+                map { studios => 
+                    studios.map { s => 
+                        url(routes.StudiosController.show(s.URLId), ChangeFreq.Weekly, 0.5)
                     }
                 }
             

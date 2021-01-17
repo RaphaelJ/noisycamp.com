@@ -18,7 +18,7 @@
 @import play.api.Configuration
 
 @import i18n.Country
-@import misc.CDN
+@import misc.URL
 
 @(identity: Option[models.Identity])(
 implicit req: RequestHeader, config: Configuration, flash: Flash)
@@ -30,7 +30,7 @@ implicit req: RequestHeader, config: Configuration, flash: Flash)
 
     <link
         rel="stylesheet"
-        href="@CDN.fromCDN(routes.Assets.versioned("stylesheets/index.css"))">
+        href="@URL.fromCDN(routes.Assets.versioned("stylesheets/index.css"))">
 
     <meta property="og:site_name" content="NoisyCamp">
     <meta property="og:type" content="website">
@@ -39,7 +39,7 @@ implicit req: RequestHeader, config: Configuration, flash: Flash)
         content="@routes.IndexController.index.absoluteURL(config.get[Boolean]("noisycamp.forceHttps"))">
     <meta
         property="og:image"
-        content="@CDN.fromCDN(routes.Assets.versioned("images/index/card.jpg"), absoluteURL = true)">
+        content="@URL.fromCDN(routes.Assets.versioned("images/index/card.jpg"), absoluteURL = true)">
 }
 
 @layout(
@@ -94,7 +94,7 @@ implicit req: RequestHeader, config: Configuration, flash: Flash)
 
             <div class="cell small-12 medium-6 feature-image">
                 <img
-                    src="@CDN.fromCDN(routes.Assets.versioned("images/index/room_availabilities.png"))"
+                    src="@URL.fromCDN(routes.Assets.versioned("images/index/room_availabilities.png"))"
                     alt="Real-time online availabilities screenshot.">
             </div>
             <div class="cell small-12 medium-6 feature-text">
@@ -108,7 +108,7 @@ implicit req: RequestHeader, config: Configuration, flash: Flash)
 
             <div class="cell small-12 medium-6 show-for-small-only feature-image">
                 <img
-                    src="@CDN.fromCDN(routes.Assets.versioned("images/index/online_payment.png"))"
+                    src="@URL.fromCDN(routes.Assets.versioned("images/index/online_payment.png"))"
                     alt="Secure online payments screenshot.">
             </div>
             <div class="cell small-12 medium-6 feature-text">
@@ -122,13 +122,13 @@ implicit req: RequestHeader, config: Configuration, flash: Flash)
             </div>
             <div class="cell small-12 medium-6 show-for-medium feature-image">
                 <img
-                    src="@CDN.fromCDN(routes.Assets.versioned("images/index/online_payment.png"))"
+                    src="@URL.fromCDN(routes.Assets.versioned("images/index/online_payment.png"))"
                     alt="Secure online payments screenshot.">
             </div>
 
             <div class="cell small-12 medium-6 feature-image">
                 <img
-                    src="@CDN.fromCDN(routes.Assets.versioned("images/index/equipments.png"))"
+                    src="@URL.fromCDN(routes.Assets.versioned("images/index/equipments.png"))"
                     alt="Studio equipments and gears screenshot.">
             </div>
             <div class="cell small-12 medium-6 feature-text">

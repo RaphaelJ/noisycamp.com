@@ -27,7 +27,7 @@
 
         <div class="cell small-12 medium-4">
             <a
-                href="@controllers.routes.StudiosController.show(studio.id)"
+                href="@controllers.routes.StudiosController.show(studio.URLId)"
                 target="_blank"
                 class="text-center">
                 <reactive-picture
@@ -47,7 +47,7 @@
                 <div class="cell auto">
                     <h5 class="text-sans-serif text-overflow-ellipsis">
                         <a
-                            href="@controllers.routes.StudiosController.show(studio.id)"
+                            href="@controllers.routes.StudiosController.show(studio.URLId)"
                             target="_blank">
                             <strong>@studio.name</strong>
                         </a>
@@ -57,7 +57,7 @@
                 @if(!studio.published) {
                     <div class="cell shrink">
                         <a
-                            href="@controllers.routes.StudiosController.show(studio.id)"
+                            href="@controllers.routes.StudiosController.show(studio.URLId)"
                             target="_blank"
                             class="text-alert">
                             <i class="fi-alert"></i>&nbsp;

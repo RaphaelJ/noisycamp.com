@@ -66,7 +66,7 @@
 <script lang="ts">
 import Vue, { PropOptions } from "vue";
 
-import { fromCDN } from '../../../misc/CDN';
+import { fromCDN } from '../../../misc/URL';
 import { asCurrency } from '../../../misc/MoneyUtils';
 
 import MoneyAmount from '../../widgets/MoneyAmount.vue'

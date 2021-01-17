@@ -18,7 +18,7 @@
 
 <template>
     <a
-        :href="url"
+        :href="studio.url"
         target="_blank"
         class="studio panel-section"
         :class="{ 'highlighted': highlighted, }"
@@ -118,12 +118,6 @@ export default Vue.extend({
     computed: {
         weekDays(): string[] {
             return ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-        },
-
-        url(): string {
-            return NC_ROUTES.controllers.StudiosController.show(
-                this.studio.id
-            ).url;
         },
 
         location(): string {

@@ -17,7 +17,7 @@
 
 @import play.api.Configuration
 
-@import misc.CDN
+@import misc.URL
 @import models.{ LocalEquipment, Studio, StudioBooking, User }
 
 @(
@@ -39,9 +39,9 @@
 
     @if(!pictures.isEmpty) {
         <p style="text-align: center;">
-            <a href="@routes.StudiosController.show(studio.id).absoluteURL(config.get[Boolean]("noisycamp.forceHttps"))">
+            <a href="@routes.StudiosController.show(studio.URLId).absoluteURL(config.get[Boolean]("noisycamp.forceHttps"))">
                 <img
-                    src="@CDN.fromCDN(routes.PictureController.cover(
+                    src="@URL.fromCDN(routes.PictureController.cover(
                         pictures.head.base64, "600x337"), true)"
                     alt="@studio.name picture"
                     style="border-radius: 3px;"
@@ -57,7 +57,7 @@
     <p>
         Awesome! Your booking request for
         @emails.tags.a(routes.StudiosController.
-            show(studio.id).
+            show(studio.URLId).
             absoluteURL(config.get[Boolean]("noisycamp.forceHttps"))) {
             @studio.name
         }

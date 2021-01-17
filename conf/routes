@@ -85,7 +85,7 @@ POST    /account/premium/upgrade        controllers.account.PremiumController.up
 GET     /studios                        controllers.StudiosController.index
 GET     /studios/search                 controllers.StudiosController.search
 
-GET     /studios/:id                    controllers.StudiosController.show(id: Long)
+GET     /studios/:id                    controllers.StudiosController.show(id: String)
 
 # Booking
 

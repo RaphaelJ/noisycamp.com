@@ -18,7 +18,7 @@
 @import com.mohiva.play.silhouette.impl.providers.SocialProviderRegistry
 @import play.api.Configuration
 
-@import misc.CDN
+@import misc.URL
 
 @(
     title: String, socialProviders: SocialProviderRegistry,
@@ -29,7 +29,7 @@
 @head = {
     <link
         rel="stylesheet"
-        href="@CDN.fromCDN(routes.Assets.versioned("stylesheets/auth/main.css"))">
+        href="@URL.fromCDN(routes.Assets.versioned("stylesheets/auth/main.css"))">
 }
 
 @_root_.views.html.layout(Seq(title), head=head, identity=None, fullScreen=true) {

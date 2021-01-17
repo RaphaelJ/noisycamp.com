@@ -23,7 +23,7 @@
 @import _root_.auth.DefaultEnv
 @import _root_.frontend.JsConfig
 @import i18n.Currency
-@import misc.CDN
+@import misc.URL
 @import models.Identity
 
 @** Main layout for the NoisyCamp website.
@@ -46,7 +46,7 @@
                     <li class="logo">
                         <a href="@routes.IndexController.index">
                             <img
-                                src="@CDN.fromCDN(routes.Assets.versioned("images/logo.svg"))"
+                                src="@URL.fromCDN(routes.Assets.versioned("images/logo.svg"))"
                                 alt="NoisyCamp logo">
                             NoisyCamp
                         </a>
@@ -107,9 +107,9 @@
 
         <link
             rel="shortcut icon" type="image/png"
-            href="@CDN.fromCDN(routes.Assets.versioned("images/favicon-32.png"))">
+            href="@URL.fromCDN(routes.Assets.versioned("images/favicon-32.png"))">
 
-        <link rel="manifest" href="@CDN.fromCDN(routes.Assets.versioned("manifest.json"))">
+        <link rel="manifest" href="@URL.fromCDN(routes.Assets.versioned("manifest.json"))">
 
         <link
             rel="stylesheet"
@@ -117,14 +117,14 @@
 
         <link
             rel="stylesheet"
-            href="@CDN.fromCDN(routes.Assets.versioned("stylesheets/vendor/foundation.min.css"))">
+            href="@URL.fromCDN(routes.Assets.versioned("stylesheets/vendor/foundation.min.css"))">
         <link
             rel="stylesheet"
-            href="@CDN.fromCDN(routes.Assets.versioned("fonts/foundation-icons.css"))">
+            href="@URL.fromCDN(routes.Assets.versioned("fonts/foundation-icons.css"))">
 
         <link
             rel="stylesheet"
-            href="@CDN.fromCDN(routes.Assets.versioned("stylesheets/main.css"))">
+            href="@URL.fromCDN(routes.Assets.versioned("stylesheets/main.css"))">
 
         @for(siteID <- config.getOptional[String]("panelbear.siteID")) { 
             <!-- Panelbear Analytics -->
@@ -256,16 +256,16 @@
             routes.javascript.Assets.versioned,
         )
 
-        <script src="@CDN.fromCDN(routes.Assets.versioned("javascripts/vendor/jquery.js"))">
+        <script src="@URL.fromCDN(routes.Assets.versioned("javascripts/vendor/jquery.js"))">
         </script>
-        <script src="@CDN.fromCDN(routes.Assets.versioned("javascripts/vendor/what-input.js"))">
+        <script src="@URL.fromCDN(routes.Assets.versioned("javascripts/vendor/what-input.js"))">
         </script>
-        <script src="@CDN.fromCDN(routes.Assets.versioned("javascripts/vendor/foundation.min.js"))">
+        <script src="@URL.fromCDN(routes.Assets.versioned("javascripts/vendor/foundation.min.js"))">
         </script>
 
         @javascript
 
-        <script src="@CDN.fromCDN(routes.Assets.versioned("javascripts/bundle.js"))"></script>
+        <script src="@URL.fromCDN(routes.Assets.versioned("javascripts/bundle.js"))"></script>
 
         <script>$(document).foundation();</script>
     </body>

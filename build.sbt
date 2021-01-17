@@ -23,7 +23,7 @@ version := "0.1"
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
-scalaVersion := "2.12.10"
+scalaVersion := "2.12.13"
 
 scalacOptions ++= Seq(
     "-deprecation",             // Emit warning and location for usages of deprecated
