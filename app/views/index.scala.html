@@ -92,6 +92,20 @@ implicit req: RequestHeader, config: Configuration, flash: Flash)
                 <feature-gallery></feature-gallery>
             </div>
 
+            <div class="cell small-12">
+                <hr class="section-break">
+            </div>
+
+            <h2 class="cell small-12 section-title" id="pricing">Plans and pricing</h2>
+
+            <div class="cell small-12 large-offset-1 large-10">
+                @tags.planComparisonTable()
+            </div>
+
+            <div class="cell small-12">
+                <hr class="section-break">
+            </div>
+
             <div class="cell small-12 medium-6 feature-image">
                 <img
                     src="@URL.fromCDN(routes.Assets.versioned("images/index/room_availabilities.png"))"
@@ -149,16 +163,6 @@ implicit req: RequestHeader, config: Configuration, flash: Flash)
                     href="@controllers.account.studios.routes.IndexController.create"
                     class="button primary large expanded">Add your studio now</a>
                 <p class="help-text">It only takes 5 minutes.</p>
-            </div>
-
-            <div class="cell small-12">
-                <hr class="section-break">
-            </div>
-
-            <h2 class="cell small-12 section-title" id="pricing">Plans and pricing</h2>
-
-            <div class="cell small-12 large-offset-1 large-10">
-                @tags.planComparisonTable()
             </div>
 
             <div class="cell small-12">
