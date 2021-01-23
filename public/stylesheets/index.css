@@ -60,8 +60,8 @@
         background-image: url("/assets/images/index/hero_large.jpg");
     }
 
-    .hero.home-hero {
-        min-height: calc(75vh - var(--top-bar-height));
+    .hero.home-hero .middle-content-section {
+        margin: 8rem 0;
     }
 
     .hero.home-hero .bottom-content-section * {
