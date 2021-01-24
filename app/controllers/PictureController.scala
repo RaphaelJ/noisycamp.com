@@ -29,98 +29,105 @@ import play.api.mvc._
 
 import models.{ Picture, PictureId }
 import pictures.{
-  BoundPicture, CoverPicture, MaxPicture, PictureCache, PictureTransform,
-  PictureUtils, RawPicture }
+    BoundPicture, CoverPicture, MaxPicture, PictureCache, PictureTransform, PictureUtils,
+    RawPicture }
 
 @Singleton
 class PictureController @Inject() (
-  ccc: CustomControllerCompoments,
-  pictureCache: PictureCache)
-  extends CustomBaseController(ccc) {
+    ccc: CustomControllerCompoments,
+    pictureCache: PictureCache)
+    extends CustomBaseController(ccc) {
 
-  import profile.api._
+    val MAX_IMAGE_SIZE = 1920
 
-  /** Receives a new picture and stores it in the database. */
-  def upload = SecuredAction(parse.multipartFormData).async {
-    implicit request =>
+    import profile.api._
 
-    request.body
-      .file("picture")
-      .map { file =>
-        PictureUtils.fromFile(file.ref.path) match {
-          case Some(newPic) => {
-            daos.picture.insertIfNotExits(newPic).
-              map { pic =>
-                val id = pic.id.base64
-                val uri = routes.PictureController.view(id).url
-                Created(id).withHeaders("Location" -> uri)
-              }
-          }
-          case None => Future.successful(BadRequest("Invalid image format."))
-        }
-      }.
-      getOrElse {
-        Future.successful(BadRequest("Missing file."))
-      }
-  }
-
-  def view(id: String) = Action.async { picWithTransform(id, RawPicture) }
-
-  def bound(id: String, size: String) =
-    Action.async { picWithSizeTransform(id, size, BoundPicture) }
-
-  def cover(id: String, size: String) =
-    Action.async { picWithSizeTransform(id, size, CoverPicture) }
-
-  def max(id: String, size: String) =
-    Action.async { picWithSizeTransform(id, size, MaxPicture) }
-
-  // --
-
-  /** Parses image size URL parameter such as "640x480". */
-  private def parseSizeArg(sizeArg: String): Option[(Int, Int)] = {
-    val parser = raw"(\d+)x(\d+)".r
-    sizeArg match {
-      case parser(width, height) => {
-        Some((Integer.parseInt(width), Integer.parseInt(height)))
-      }
-      case _ => None
+    /** Receives a new picture and stores it in the database. */
+    def upload = SecuredAction(parse.multipartFormData).async { implicit request =>
+        request.body
+            .file("picture")
+            .map { file =>
+                val picOpt = PictureUtils.
+                    fromFile(file.ref.path).
+                    map { pic =>
+                        // Resizes the image if it's too large
+                        PictureTransform.transform(pic, { _.max(MAX_IMAGE_SIZE, MAX_IMAGE_SIZE) })
+                    }
+                    
+                picOpt match {
+                    case Some(newPic) => {
+                        daos.picture.
+                            insertIfNotExits(newPic).
+                            map { pic =>
+                                val id = pic.id.base64
+                                val uri = routes.PictureController.view(id).url
+                                Created(id).withHeaders("Location" -> uri)
+                            }
+                    }
+                    case None => Future.successful(BadRequest("Invalid image format."))
+                }
+            }.
+            getOrElse { Future.successful(BadRequest("Missing file.")) }
     }
-  }
 
-  /** Serves the provided picture with the specified transform. */
-  private def picWithTransform(id: String,
-    transform: PictureTransform): Future[Result] = {
+    def view(id: String) = Action.async { picWithTransform(id, RawPicture) }
 
-    val picId = PictureId.fromString(id)
+    def bound(id: String, size: String) = Action.async {
+        picWithSizeTransform(id, size, BoundPicture) 
+    }
 
-    pictureCache.get(picId, transform).
-      map {
-        case Some(pic) => {
-          val bs = ByteString(pic.content)
-          val contentType = pic.format match {
-            case Format.PNG => "image/png"
-            case Format.GIF => "image/gif"
-            case Format.JPEG => "image/jpeg"
-          }
+    def cover(id: String, size: String) = Action.async {
+        picWithSizeTransform(id, size, CoverPicture)
+    }
 
-          Result(
-            header = ResponseHeader(200, Map(
-              // Cacheable, expires after a year.
-              "Cache-Control" -> "public, max-age=31536000")),
-            body = HttpEntity.Strict(bs, Some(contentType)))
+    def max(id: String, size: String) = Action.async {
+        picWithSizeTransform(id, size, MaxPicture)
+    }
+
+    // --
+
+    /** Parses image size URL parameter such as "640x480". */
+    private def parseSizeArg(sizeArg: String): Option[(Int, Int)] = {
+        val parser = raw"(\d+)x(\d+)".r
+        sizeArg match {
+            case parser(width, height) => Some((Integer.parseInt(width), Integer.parseInt(height)))
+            case _ => None
         }
-        case None => NotFound("Picture not found.")
-      }
-  }
+    }
 
-  /** Serves the provided picture with the specified size-parametered transform. */
-  private def picWithSizeTransform(id: String, size: String,
-    transform: (Int, Int) => PictureTransform) = {
+    /** Serves the provided picture with the specified transform. */
+    private def picWithTransform(id: String, transform: PictureTransform): Future[Result] = {
 
-    parseSizeArg(size).
-      map { case (width, height) =>
-        picWithTransform(id, transform(width, height)) }.
-      getOrElse { Future.successful(BadRequest("Invalid size format.")) }
-  }
+        val picId = PictureId.fromString(id)
+
+        pictureCache.get(picId, transform).
+            map {
+                case Some(pic) => {
+                    val bs = ByteString(pic.content)
+                    val contentType = pic.format match {
+                        case Format.PNG => "image/png"
+                        case Format.GIF => "image/gif"
+                        case Format.JPEG => "image/jpeg"
+                    }
+
+                    Result(
+                        header = ResponseHeader(200, Map(
+                            // Cacheable, expires after a year.
+                            "Cache-Control" -> "public, max-age=31536000")),
+                        body = HttpEntity.Strict(bs, Some(contentType)))
+                }
+                case None => NotFound("Picture not found.")
+            }
+    }
+
+    /** Serves the provided picture with the specified size-parametered transform. */
+    private def picWithSizeTransform(
+        id: String, size: String, transform: (Int, Int) => PictureTransform) = {
+
+        parseSizeArg(size).
+            map { case (width, height) =>
+                picWithTransform(id, transform(width, height)) }.
+                getOrElse { Future.successful(BadRequest("Invalid size format."))
+            }
+    }
 }

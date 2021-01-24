@@ -25,17 +25,16 @@ import com.sksamuel.scrimage._
 import models.{ Picture, PictureId }
 
 object PictureUtils {
+    /** Creates a `Picture` object from the given file. Does not return anything
+     * with failed to open the file. */
+    def fromFile(path: Path): Option[Picture] = {
+        val content = Files.readAllBytes(path)
 
-  /** Creates a `Picture` object from the given file. Does not return anything
-   * with failed to open the file. */
-  def fromFile(path: Path): Option[Picture] = {
-    val content = Files.readAllBytes(path)
-
-    FormatDetector.
-      detect(content).
-      map { format =>
-        val hash = MessageDigest.getInstance("SHA-256").digest(content)
-        Picture(id=PictureId(hash), format=format, content=content)
-      }
-  }
+        FormatDetector.
+            detect(content).
+            map { format =>
+                val hash = MessageDigest.getInstance("SHA-256").digest(content)
+                Picture(id=PictureId(hash), format=format, content=content)
+            }
+    }
 }
