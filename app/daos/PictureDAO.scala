@@ -22,7 +22,7 @@ import java.nio.file.Files
 import java.time.Instant
 import javax.inject.Inject
 
-import com.sksamuel.scrimage.Format
+import com.sksamuel.scrimage.format.Format
 import play.api.db.slick.{ DatabaseConfigProvider, HasDatabaseConfigProvider }
 import slick.jdbc.JdbcProfile
 

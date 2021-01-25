@@ -20,25 +20,24 @@ package models
 import java.time.Instant
 import scala.language.implicitConversions
 
-import com.sksamuel.scrimage.Format
+import com.sksamuel.scrimage.format.Format
 
 case class PictureId(
-  // SHA-256 hash of the content
-  val value: Array[Byte]) {
+    // SHA-256 hash of the content
+    val value: Array[Byte]) {
 
-  def base64 = java.util.Base64.getEncoder.encodeToString(value)
+    def base64 = java.util.Base64.getEncoder.encodeToString(value)
 }
 
 object PictureId {
-  def fromString(str: String) =
-    PictureId(java.util.Base64.getDecoder.decode(str))
+    def fromString(str: String) = PictureId(java.util.Base64.getDecoder.decode(str))
 }
 
 case class Picture(
-  id:         Picture#Id,
-  createdAt:  Instant     = Instant.now(),
-  format:     Format,
-  content:    Array[Byte]) {
+    id:         Picture#Id,
+    createdAt:  Instant     = Instant.now(),
+    format:     Format,
+    content:    Array[Byte]) {
 
-  type Id = PictureId
+    type Id = PictureId
 }

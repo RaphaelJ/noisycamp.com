@@ -18,6 +18,7 @@
 package pictures
 
 import com.sksamuel.scrimage._
+import com.sksamuel.scrimage.format.{ Format, FormatDetector }
 import com.sksamuel.scrimage.nio.{ GifWriter, JpegWriter, PngWriter }
 
 import models.Picture
@@ -67,13 +68,13 @@ object PictureTransform {
 
   /** Applies the given Scrimage transformation function on the given `Picture`
    * object, keeping the same image format. */
-  def transform(picture: Picture, func: (Image => Image)) : Picture = {
-    val img = Image(picture.content)
+  def transform(picture: Picture, func: (ImmutableImage => ImmutableImage)) : Picture = {
+    val img = ImmutableImage.loader().fromBytes(picture.content)
 
     val writer = picture.format match {
         case Format.GIF => GifWriter.Default
         case Format.JPEG => JpegWriter.Default
-        case Format.PNG => PngWriter.NoCompression
+        case Format.PNG => new PngWriter()
       }
     
     picture.copy(content=func(img).bytes(writer))

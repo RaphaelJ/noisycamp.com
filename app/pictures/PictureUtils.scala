@@ -20,7 +20,7 @@ package pictures
 import java.security.MessageDigest
 import java.nio.file.{ Files, Path }
 
-import com.sksamuel.scrimage._
+import com.sksamuel.scrimage.format.{ Format, FormatDetector }
 
 import models.{ Picture, PictureId }
 
@@ -30,11 +30,14 @@ object PictureUtils {
     def fromFile(path: Path): Option[Picture] = {
         val content = Files.readAllBytes(path)
 
-        FormatDetector.
-            detect(content).
-            map { format =>
-                val hash = MessageDigest.getInstance("SHA-256").digest(content)
-                Picture(id=PictureId(hash), format=format, content=content)
-            }
+        val format = FormatDetector.
+            detect(content)
+
+        if (format.isPresent) {
+            val hash = MessageDigest.getInstance("SHA-256").digest(content)
+            Some(Picture(id=PictureId(hash), format=format.get, content=content))
+        } else {
+            None
+        }
     }
 }

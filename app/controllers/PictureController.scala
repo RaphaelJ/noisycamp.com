@@ -21,7 +21,7 @@ import javax.inject._
 import scala.concurrent.{ ExecutionContext, Future }
 
 import akka.util.ByteString
-import com.sksamuel.scrimage.Format
+import com.sksamuel.scrimage.format.Format
 import org.joda.time.DateTime
 import play.api._
 import play.api.http.HttpEntity

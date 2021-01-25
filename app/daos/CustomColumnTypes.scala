@@ -20,7 +20,7 @@ package daos
 import scala.reflect.ClassTag
 import java.time.{ Duration, LocalDateTime, LocalTime, ZoneId }
 
-import com.sksamuel.scrimage.Format
+import com.sksamuel.scrimage.format.Format
 import play.api.db.slick.HasDatabaseConfigProvider
 import slick.jdbc.JdbcProfile
 import squants.market

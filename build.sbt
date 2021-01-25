@@ -70,7 +70,7 @@ libraryDependencies ++= Seq(
     
     "com.sendgrid" % "sendgrid-java" % "4.6.3",
     
-    "com.sksamuel.scrimage" %% "scrimage-core" % "2.1.8",
+    "com.sksamuel.scrimage" % "scrimage-core" % "4.0.12",
     
     "com.stripe" % "stripe-java" % "19.42.0",
     
