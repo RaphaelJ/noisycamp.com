@@ -36,7 +36,7 @@
             @click="featureClicked('online_presence')">
             <h3>Reach new musicians</h3>
 
-            <h4 class="text-sans-serif">
+            <h4>
                 <small>A modern online presence for your music studio</small>
             </h4>
 
@@ -55,7 +55,7 @@
             }"
             @click="featureClicked('calendar')">
             <h3>24/7 Online bookings</h3>
-            <h4 class="text-sans-serif">
+            <h4>
                 <small>Spend less time answering emails and phone calls</small>
             </h4>
             <p>

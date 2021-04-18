@@ -34,14 +34,14 @@
             name="booking-times.duration"
             :value="bookingTimes['duration']">
 
-        <input 
+        <input
             v-for="equip in equipments"
             :key="equip.id"
             type="hidden"
             name="equipments[]"
             :value="equip.id">
 
-        <h3 class="text-sans-serif"><small>Please choose your payment method</small></h3>
+        <h3><small>Please choose your payment method</small></h3>
 
         <fieldset>
             <div class="grid-y">

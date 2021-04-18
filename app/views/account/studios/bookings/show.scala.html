@@ -30,11 +30,11 @@
     Seq(
         customer.displayName + "'s booking",
         studio.name), identity=identity) {
-    
+
     <div class="grid-x grid-padding-x grid-padding-y">
         @booking.status match {
         case StudioBookingStatus.PendingValidation => {
-            @if(!booking.isStarted(studio)) {                
+            @if(!booking.isStarted(studio)) {
                 @tags.callout("Booking pending approval", Some("fi-alert")) {
                     If you do not approve this booking before the session starts,
                     the booking will be automatically rejected@if(booking.isPaidOnline) {
@@ -45,7 +45,7 @@
                         class="button primary small-only-expanded">
                         Accept booking
                     </a>
-                        
+
                     <a
                         href="@controllers.account.studios.routes.BookingsController.reject(studio.id, booking.id)"
                         class="button secondary small-only-expanded">
@@ -91,17 +91,17 @@
             <div class="panel-section">
                 <div class="grid-x grid-padding-x">
                     <div class="cell small-12 medium-6">
-                        <h3 class="text-sans-serif">
+                        <h3>
                             <small>Reservation code</small>
                         </h3>
 
-                        <h3 class="text-sans-serif">
+                        <h3>
                             @booking.reservationCode
                         </h3>
 
                         <hr>
 
-                        <h3 class="text-sans-serif">
+                        <h3>
                             <small>Guest details</small>
                         </h3>
 
@@ -118,11 +118,11 @@
                     </div>
 
                     <div class="cell small-12 medium-6">
-                        <h3 class="text-sans-serif">
+                        <h3>
                             <small>Booking details</small>
                         </h3>
 
-                        <p class="text-sans-serif">
+                        <p>
                             <i class="fi-calendar"></i>&nbsp;
                             @tags.localDateTime(booking.times.beginsAt)<br>
 
@@ -133,7 +133,7 @@
                         @if(equips.nonEmpty){
                             <hr>
 
-                            <h3 class="text-sans-serif">
+                            <h3>
                                 <small>Equipments & instruments</small>
                             </h3>
 
@@ -146,7 +146,7 @@
 
                         <hr>
 
-                        <h3 class="text-sans-serif">
+                        <h3>
                             <small>Price breakdown</small>
                         </h3>
 
@@ -167,7 +167,7 @@
 
                                 @if(booking.isPaidOnline) {
                                     <p class="help-text">
-                                        The customer will be entirely refunded. 
+                                        The customer will be entirely refunded.
                                         NoisyCamp reserves the right to charge you the transaction
                                         fee in case of abuse.
                                     </p>

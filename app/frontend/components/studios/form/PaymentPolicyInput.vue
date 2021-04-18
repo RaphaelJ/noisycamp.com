@@ -77,14 +77,14 @@
                     class="grid-x grid-margin-y grid-margin-x callout secondary"
                     v-if="hasOnsitePayment && canCancelAnytime === false">
 
-                    <h5 class="text-sans-serif">
+                    <h5>
                         <strong>
                             <i class="fi-alert"></i>&nbsp;
                             We will not be able to enforce your booking cancellation policy on onsite
-                            payments. 
+                            payments.
                         </strong>
                     </h5>
-                    
+
                     <p>
                         If you wish your customers to always comply with your cancellation policy,
                         disable onsite payments, or adapt your cancellation policy.

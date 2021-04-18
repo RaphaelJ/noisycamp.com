@@ -25,7 +25,7 @@
 
 @(
     identity: models.Identity,
-    owner: User, 
+    owner: User,
     studio: Studio,
     pictures: Seq[Picture#Id],
     summary: Either[Seq[FormError], (BookingTimes, Seq[LocalEquipment], PriceBreakdown)])(
@@ -53,7 +53,7 @@
                 </div>
 
                 <div class="cell">
-                    <h4 class="text-overflow-ellipsis text-sans-serif">@studio.name</h4>
+                    <h4 class="text-overflow-ellipsis">@studio.name</h4>
                 </div>
             </div>
         </div>
@@ -84,7 +84,7 @@
         case Right((bookingTimes, equips, priceBreakdown)) => {
             <div class="cell">
                 <div class="panel-section">
-                    <h3 class="text-sans-serif"><small>Summary</small></h3>
+                    <h3><small>Summary</small></h3>
 
                     <div class="grid-y">
                         <div class="cell">
@@ -106,7 +106,7 @@
                     @if(equips.nonEmpty) {
                         <hr>
 
-                        <h3 class="text-sans-serif"><small>Equipments & instruments</small></h3>
+                        <h3><small>Equipments & instruments</small></h3>
 
                         <p>
                             You selected to lease the following gears for the duration of your
@@ -122,7 +122,7 @@
 
                     <hr>
 
-                    <h3 class="text-sans-serif"><small>Price breakdown</small></h3>
+                    <h3><small>Price breakdown</small></h3>
 
                     @tags.priceBreakdown(priceBreakdown)
 
@@ -146,7 +146,7 @@
                             <p>
                                 This studio cannot be booked online. Please contact the studio directly.
                             </p>
-                            
+
                             <p>
                                 <strong>Email:</strong>
                                 <a href="mailto:@owner.email">@owner.email</a>
@@ -157,7 +157,7 @@
                                     <strong>Phone:</strong>
                                     <a href="tel:@phone">@phone</a>
                                 }
-                            </p> 
+                            </p>
                         </div>
                     }
                 </div>

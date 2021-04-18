@@ -38,7 +38,7 @@
 
             <div class="cell small-12 medium-8">
                 <div class="grid-y info">
-                    <h5 class="cell shrink text-sans-serif text-overflow-ellipsis title">
+                    <h5 class="cell shrink text-overflow-ellipsis title">
                         {{ studio.name }}
                     </h5>
 
@@ -81,7 +81,7 @@
                         </span>
                     </div>
 
-                    <h5 class="cell shrink pricing text-sans-serif">
+                    <h5 class="cell shrink pricing">
                         <small v-if="pricing[1]">Starting at </small>
                         <money-amount :value="pricing[0]">
                         </money-amount>

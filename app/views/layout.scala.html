@@ -43,7 +43,7 @@
         <div class="top-bar @if(!fullScreen){ no-full-screen }">
             <div class="top-bar-left">
                 <ul class="menu">
-                    <li class="logo">
+                    <li class="logo text-serif">
                         <a href="@routes.IndexController.index">
                             <img
                                 src="@URL.fromCDN(routes.Assets.versioned("images/logo.svg"))"
@@ -113,7 +113,7 @@
 
         <link
             rel="stylesheet"
-            href="https://fonts.googleapis.com/css?family=Playfair+Display:400,700|Source+Sans+Pro:400,700">
+            href="https://fonts.googleapis.com/css?family=Playfair+Display:400,700|Fira+Sans:ital,wght@@0,400;0,500;0,700;1,400;1,500;1,700">
 
         <link
             rel="stylesheet"
@@ -199,7 +199,7 @@
 
                     <div class="cell small-12 medium-3">
                         <ul>
-                            <li><h6>© @Year.now NoisyCamp</h6></li>
+                            <li><h6>© @Year.now <span class="text-serif">NoisyCamp</span></h6></li>
 
                             <li class="social-links">
                                 <a href="https://facebook.com/noisycamp" target="_blank">

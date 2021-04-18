@@ -44,7 +44,7 @@
     <div class="grid-x grid-padding-x grid-padding-y">
         @booking.status match {
             case StudioBookingStatus.PendingValidation => {
-                @if(!booking.isStarted(studio)) {                
+                @if(!booking.isStarted(studio)) {
                     @tags.callout("Booking pending approval", Some("fi-alert")) {
                         Your request has to be reviewed by the studio manager first. You will
                         receive an email when your request get either accepted or rejected.
@@ -59,11 +59,11 @@
             }
             case StudioBookingStatus.Rejected => {
                 @tags.callout("Booking rejected", Some("fi-x")) {
-                    The booking has not been accepted. 
+                    The booking has not been accepted.
                     @if(booking.payment.isRefunded) {
                         Your payment has been be entirely refunded on the mean of payment chosen
                         during the checkout process. This might take a few days to show up on
-                        your bank balance. 
+                        your bank balance.
                     }
                 }()
             }
@@ -104,17 +104,17 @@
                         </div>
 
                         <div class="cell small-12 medium-6">
-                            <h3 class="text-sans-serif">
+                            <h3>
                                 <small>Reservation code</small>
                             </h3>
 
-                            <h3 class="text-sans-serif">
+                            <h3>
                                 @booking.reservationCode
                             </h3>
 
                             <hr>
 
-                            <h3 class="text-sans-serif">
+                            <h3>
                                 <small>Location & contact info</small>
                             </h3>
 
@@ -124,7 +124,7 @@
 
                             <p>
                                 <a href="mailto:@owner.email">@owner.email</a>
-                                @for(phone <- studio.phone) { 
+                                @for(phone <- studio.phone) {
                                     <br>
                                     <a href="tel:@phone">@phone</a>
                                 }
@@ -134,7 +134,7 @@
                         </div>
 
                         <div class="cell small-12 medium-6">
-                            <h3 class="text-sans-serif">
+                            <h3>
                                 <small>Booking details</small>
                             </h3>
 
@@ -149,7 +149,7 @@
                             @if(equips.nonEmpty){
                                 <hr>
 
-                                <h3 class="text-sans-serif">
+                                <h3>
                                     <small>Equipments & instruments</small>
                                 </h3>
 
@@ -162,7 +162,7 @@
 
                             <hr>
 
-                            <h3 class="text-sans-serif">
+                            <h3>
                                 <small>Price breakdown</small>
                             </h3>
 

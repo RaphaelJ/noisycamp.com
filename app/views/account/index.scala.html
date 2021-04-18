@@ -32,7 +32,7 @@
     <div class="grid-y grid-padding-y">
         <div class="cell">
             <div class="panel-section">
-                <h3 class="text-sans-serif"><small>My upcoming bookings</small></h3>
+                <h3><small>My upcoming bookings</small></h3>
 
                 @if(upcomingGuestBookings.isEmpty) {
                     <div class="text-center">
@@ -48,12 +48,12 @@
 
         <div class="cell">
             <div class="panel-section">
-                <h3 class="text-sans-serif"><small>Upcoming bookings in my studios</small></h3>
+                <h3><small>Upcoming bookings in my studios</small></h3>
 
                 @if(upcomingStudioBookings.isEmpty) {
                     <div class="text-center">
                         @if(identity.isAHost) {
-                            Your studios do not have any upcoming booking. 
+                            Your studios do not have any upcoming booking.
                         } else {
                             No studio associated with this account.
                             Do you want to

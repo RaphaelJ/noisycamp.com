@@ -35,7 +35,7 @@
     bookingEvents: Seq[models.Event])(
     implicit req: RequestHeader, config: Configuration, flash: Flash)
 
-@subTitle = @{ 
+@subTitle = @{
     val studioType =
         (studio.usePractice, studio.useRecording, studio.useLive) match {
             case (true, false, false) => "Rehearsal space"
@@ -44,7 +44,7 @@
             case _ => "Music studio"
         }
 
-    studioType + 
+    studioType +
         " for rent in " +
         studio.location.address.city +
         ", " +
@@ -54,7 +54,7 @@
 @studioURL = @{ routes.StudiosController.
     show(studio.URLId).
     absoluteURL(config.get[Boolean]("noisycamp.forceHttps")) }
-    
+
 @currentDateTime = @{ studio.currentDateTime(now) }
 @currentDate = @{ currentDateTime.toLocalDate }
 
@@ -79,7 +79,7 @@
     }
 }
 
-@* A JSON-LD descriptor of the studio as a Local Business object. *@ 
+@* A JSON-LD descriptor of the studio as a Local Business object. *@
 @jsonLDProps = {
     <script type="application/ld+json">
         [ {
@@ -99,7 +99,7 @@
                 "streetAddress" : "@studio.location.address.address1 @studio.location.address.address2.getOrElse("")",
                 "addressLocality" : "@studio.location.address.city",
                 @for(stateCode <- studio.location.address.stateCode) {
-                    "addressRegion": "@stateCode", 
+                    "addressRegion": "@stateCode",
                 }
                 @for(zipcode <- studio.location.address.zipcode) {
                     "postalCode" : "@zipcode",
@@ -120,7 +120,7 @@
                     studio.openingSchedule.
                         toMap.toSeq.
                         collect { case (d, Some(v)) => (d, v) }) { openingDays =>
-                    
+
                     @for(day <- openingDays) {
                         {
                             "@@type" : "OpeningHoursSpecification",
@@ -137,7 +137,7 @@
 }
 
 @head = {
-    <meta 
+    <meta
         name="description"
         content="@subTitle. @studio.description.take(150)">
 
@@ -261,7 +261,7 @@
                         @if(isStudioOwner) {
                             <div class="cell small-12 show-for-small-only text-center studio-settings-link">
                                 @studioSettingsLink
-                            </div>        
+                            </div>
                         }
 
                         <div class="cell auto">
@@ -275,7 +275,7 @@
                         }
 
                         <div class="cell studio-city">
-                            <h4 class="text-overflow-ellipsis text-sans-serif">
+                            <h4 class="text-overflow-ellipsis">
                                 <small>
                                     <i class="fi-marker"></i>&nbsp;
                                     @studio.location.address.city,
@@ -353,7 +353,7 @@
                     <hr>
 
                     <h3 id="availability">Availability</h3>
-                
+
                     <calendar
                         current-time="@currentDateTime"
                         begin="@minBookingDate"

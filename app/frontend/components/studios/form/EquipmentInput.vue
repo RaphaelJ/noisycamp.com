@@ -66,7 +66,7 @@
                     </button>
 
                     <div
-                        v-if="equipment.price" 
+                        v-if="equipment.price"
                         class="equipment-price">
                         <money-amount :value="equipmentPriceValue(equipment)"></money-amount>
                         per
@@ -86,7 +86,7 @@
                             <div class="grid-x">
                                 <div class="cell small-12 equipment-name">
                                     <h6
-                                        class="text-sans-serif text-overflow-ellipsis"
+                                        class="text-overflow-ellipsis"
                                         :title="equipmentCategoryName(equipment)">
                                         {{ equipmentCategoryName(equipment) }}
                                     </h6>
@@ -144,13 +144,13 @@
                             type="checkbox"
                             v-model="newEquipment.hasFee"
                             :disabled="!canAddFee">
-                            
+
                         <label for="new-equipment-has-fee">
                             The use of this equipment requires an extra rental fee
                         </label>
                     </div>
-                    
-                    <p 
+
+                    <p
                         v-if="!canAddFee"
                         class="help-text">
                         <a
@@ -163,7 +163,7 @@
                 </div>
 
                 <slide-down-transition :max-height="120">
-                    <div 
+                    <div
                         class="cell small-12"
                         v-if="canAddFee && newEquipment.hasFee">
 
@@ -190,7 +190,7 @@
                                 </label>
                             </div>
                         </div>
-                        
+
                         <div class="grid-x grid-margin-x">
                             <label class="cell small-12 medium-4 medium-offset-1 large-3">
                                 <span v-if="newEquipment.priceType == 'per-hour'">
@@ -262,7 +262,7 @@ export default Vue.extend({
         }
 
         return {
-            newEquipment: { 
+            newEquipment: {
                 category: null, details: null,
                 hasFee: false, priceType: "per-hour", priceValue: null,
             },
@@ -270,11 +270,11 @@ export default Vue.extend({
             equipments: equipments,
         }
     },
-    computed: {      
+    computed: {
         planUpgradeUrl() {
             return NC_ROUTES.controllers.account.PremiumController.upgrade().url;
         },
-        
+
         // Returns an object of equipment families, each with a `equipment` field with the family's
         // equipments.
         equipmentByFamily() {
@@ -300,9 +300,9 @@ export default Vue.extend({
         canAddEquipment() {
             let value = this.newEquipment;
 
-            return value.category 
+            return value.category
                 && (value.category != '__other' || value.details)
-                && (!value.hasPrice || (value.priceType && value.priceValue)) 
+                && (!value.hasPrice || (value.priceType && value.priceValue))
         }
     },
     mounted() {

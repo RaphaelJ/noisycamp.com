@@ -32,18 +32,18 @@
 @defining(
     bookings.
         map { case (b, u) => (b, studio, u) }
-        partition { case (b, _, _) => b.isActive && b.isUpcoming(studio, now) } 
+        partition { case (b, _, _) => b.isActive && b.isUpcoming(studio, now) }
     ) { case (upcoming, past) =>
 
     <div class="grid-y grid-padding-y">
         <div class="cell">
             <div class="panel-section">
-                <h3 class="text-sans-serif"><small>Upcoming bookings</small></h3>
-                    
+                <h3><small>Upcoming bookings</small></h3>
+
                 @if(upcoming.isEmpty) {
                     <div class="text-center">
                         Your studio does not have any upcoming booking.
-                        Share your 
+                        Share your
                         <a href="@routes.StudiosController.show(studio.URLId)">studio page</a>
                         to increase your online exposure.
                     </div>
@@ -55,8 +55,8 @@
 
         <div class="cell">
             <div class="panel-section">
-                <h3 class="text-sans-serif"><small>Past and cancelled bookings</small></h3>
-                    
+                <h3><small>Past and cancelled bookings</small></h3>
+
                 @if(past.isEmpty) {
                     <div class="text-center">Your studio does not have any past booking.</div>
                 } else {
