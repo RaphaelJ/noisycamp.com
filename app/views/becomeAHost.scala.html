@@ -1,0 +1,212 @@
+@* Noisycamp is a platform for booking music studios.
+ * Copyright (C) 2021  Raphael Javaux <raphael@noisycamp.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *@
+
+@import play.api.Configuration
+
+@import i18n.Country
+@import misc.URL
+
+@(identity: Option[models.Identity])(
+implicit req: RequestHeader, config: Configuration, flash: Flash)
+
+@head = {
+    <meta
+        name="description"
+        content="Reach new musicians by listing your music studio, rehearsal space or recording space on NoisyCamp">
+
+    <link
+        rel="stylesheet"
+        href="@URL.fromCDN(routes.Assets.versioned("stylesheets/become-a-host.css"))">
+
+    <meta property="og:site_name" content="List your music studio on NoisyCamp">
+    <meta property="og:type" content="website">
+    <meta
+        property="og:url"
+        content="@routes.IndexController.becomeAHost.absoluteURL(config.get[Boolean]("noisycamp.forceHttps"))">
+    <meta
+        property="og:image"
+        content="@URL.fromCDN(routes.Assets.versioned("images/become-a-host/card.jpg"), absoluteURL = true)">
+}
+
+@layout(
+    Seq("List your music studio on NoisyCamp"), head=head,
+    identity=identity, fullScreen=false) {
+
+    <div class="grid-container">
+        <div class="grid-x grid-margin-x grid-margin-y become-a-host">
+            <div class="cell small-12 section-title">
+                <h1>
+                    NoisyCamp is the online booking platform for rehearsal and recording spaces
+                </h1>
+            </div>
+
+            <div class="cell small-12 section-feature-gallery">
+                <feature-gallery></feature-gallery>
+            </div>
+
+            <h3 class="cell small-12 text-center listing-is-free">
+                Listing your first practice or recording room is free
+            </h3>
+
+            <div class="cell small-12 medium-6 medium-offset-3 large-4 large-offset-4 text-center become-a-host-button">
+                <a
+                    href="@controllers.account.studios.routes.IndexController.create"
+                    class="button primary large expanded">Add your studio now</a>
+                <p class="help-text">It only takes 5 minutes.</p>
+            </div>
+
+            <div class="cell small-12">
+                <hr class="section-break">
+            </div>
+
+            <h2 class="cell small-12 section-title" id="pricing">Plans and pricing</h2>
+
+            <div class="cell small-12 large-offset-1 large-10">
+                @tags.planComparisonTable()
+            </div>
+
+            <div class="cell small-12">
+                <hr class="section-break">
+            </div>
+
+            <div class="cell small-12 medium-6 feature-image">
+                <img
+                    src="@URL.fromCDN(routes.Assets.versioned("images/become-a-host/room_availabilities.png"))"
+                    alt="Real-time online availabilities screenshot.">
+            </div>
+            <div class="cell small-12 medium-6 feature-text">
+                <h3>Real-time room availabilities</h3>
+
+                <p>
+                    Musicians can immediately see when your spaces are available, and submit
+                    reservation requests any time of the day.
+                </p>
+            </div>
+
+            <div class="cell small-12 medium-6 show-for-small-only feature-image">
+                <img
+                    src="@URL.fromCDN(routes.Assets.versioned("images/become-a-host/online_payment.png"))"
+                    alt="Secure online payments screenshot.">
+            </div>
+            <div class="cell small-12 medium-6 feature-text">
+                <h3>Secure online payments</h3>
+
+                <p>
+                    Optionally require an immediate and secure credit-card payment to validate a
+                    reservation.<br>
+                    The reservation amount will be directly transferred to your bank account.
+                </p>
+            </div>
+            <div class="cell small-12 medium-6 show-for-medium feature-image">
+                <img
+                    src="@URL.fromCDN(routes.Assets.versioned("images/become-a-host/online_payment.png"))"
+                    alt="Secure online payments screenshot.">
+            </div>
+
+            <div class="cell small-12 medium-6 feature-image">
+                <img
+                    src="@URL.fromCDN(routes.Assets.versioned("images/become-a-host/equipments.png"))"
+                    alt="Studio equipments and gears screenshot.">
+            </div>
+            <div class="cell small-12 medium-6 feature-text">
+                <h3>List your studio gears and instruments</h3>
+
+                <p>
+                    Specify the equipments provided by your studio.<br>
+                    You can also request extra fees for the leasing of some of your gears.
+                </p>
+            </div>
+
+            <div class="cell small-12 medium-6 medium-offset-3 large-4 large-offset-4 text-center become-a-host-button">
+                <a
+                    href="@controllers.account.studios.routes.IndexController.create"
+                    class="button primary large expanded">Become a host</a>
+                <p class="help-text">
+                    Listing your first room is free.
+                </p>
+            </div>
+
+            <div class="cell small-12">
+                <hr class="section-break">
+            </div>
+
+            <h2 class="cell small-12 section-title" id="faq">Frequently asked questions</h2>
+
+            <dl class="cell small-12 large-offset-1 large-10 faq">
+                <dt>How much does NoisyCamp cost?</dt>
+                <dd>
+                    Listing your first s tudio space on NoisyCamp is free.<br>
+                    Studios that wish to list more than one space are required to upgrade to our
+                    <i>Premium</i> plan.<br>
+                    Studios that wish to use online booking payments will be charged a small online
+                    transaction fee on these payments
+                    (@{(Plan.Free.transactionRate * 100).toIntExact}% for <i>Free</i> plan users,
+                    @{(Plan.Premium.transactionRate * 100).toIntExact}% for <i>Premium</i> plan
+                    users). There is no fee on online bookings that are not paid online.
+                </dd>
+
+                <dt>Who can host a studio on NoisyCamp?</dt>
+                <dd>
+                    NoisyCamp allow any studio owner to list their professional or home studios.<br>
+                    <a
+                        href="@controllers.account.studios.routes.IndexController.create">
+                        Become a studio host on NoisyCamp</a>
+                    to reach new customers and get extra revenues from your premises.
+                </dd>
+
+                <dt>What kind of spaces can be listed on NoisyCamp?</dt>
+                <dd>
+                    NoisyCamp is a platform designed for spaces that can be used for practicing,
+                    recording, mastering, teaching or perform music.
+                </dd>
+
+                <dt>Where is NoisyCamp available?</dt>
+                <dd>
+                    NoisyCamp is currently availaible in @Country.values.size countries:<br>
+                    @{
+                        val names = Country.values.
+                            toSeq.
+                            sortBy(_.asInstanceOf[Country.Val].name).
+                            map(_.asInstanceOf[Country.Val].prefixedName)
+
+                        s"${names.init.mkString(", ")} and ${names.last}."
+                    }
+                </dd>
+
+                <dt>How do online transactions work?</dt>
+                <dd>
+                    If the studio owner wishes to accept online payments, musicians will be allowed
+                    to settle the reservation amount at the time of booking using a valid credit
+                    card.<br>
+                    The studio owner will then receive that amount directly on their bank account,
+                    minus the NoisyCamp transaction fee
+                    (@{(Plan.Free.transactionRate * 100).toIntExact}% for <i>Free</i> plan users,
+                    @{(Plan.Premium.transactionRate * 100).toIntExact}% for <i>Premium</i> plan
+                    users).<br>
+                    Payouts to the owner's bank account are done weekly for <i>Premium</i> accounts
+                    (every Monday) and monthtly for <i>Free</i> accounts (on the 15th day of the
+                    month).<br>
+                    To better handle disputes, payments are only released for payout 48 hours after
+                    the end of the session.<br>
+                    For example, a payment for a session on April 14th will be transferred on May
+                    15th for <i>Free</i> plan users, but on the next Monday for <i>Premium</i> plan
+                    users (if more than 48 hours after the session).
+                </dd>
+            </dl>
+        </div>
+    </div>
+}

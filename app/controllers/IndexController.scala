@@ -23,11 +23,15 @@ import play.api._
 import play.api.mvc._
 
 @Singleton
-class IndexController @Inject() (ccc: CustomControllerCompoments) 
+class IndexController @Inject() (ccc: CustomControllerCompoments)
     extends CustomBaseController(ccc) {
 
     def index = UserAwareAction { implicit request =>
         Ok(views.html.index(identity=request.identity))
+    }
+
+    def becomeAHost = UserAwareAction { implicit request =>
+        Ok(views.html.becomeAHost(identity=request.identity))
     }
 
     def about = UserAwareAction { implicit request =>

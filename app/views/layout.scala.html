@@ -65,8 +65,8 @@
                     } else {
                         <li>
                             <a
-                                href="@controllers.account.studios.routes.IndexController.create"
-                                class="button primary">Host a studio</a>
+                                href="@controllers.routes.IndexController.becomeAHost"
+                                class="button primary">List your studio</a>
                         </li>
                     }
 
@@ -126,7 +126,7 @@
             rel="stylesheet"
             href="@URL.fromCDN(routes.Assets.versioned("stylesheets/main.css"))">
 
-        @for(siteID <- config.getOptional[String]("panelbear.siteID")) { 
+        @for(siteID <- config.getOptional[String]("panelbear.siteID")) {
             <!-- Panelbear Analytics -->
             <script async src="https://cdn.panelbear.com/analytics.js?site=@siteID"></script>
             <script>

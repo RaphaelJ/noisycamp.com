@@ -93,109 +93,66 @@
     fill: white;
 }
 
-/* Become a host section */
-
-.become-a-host {
+.cities {
     margin-top: 2rem;
     margin-bottom: 2rem;
 }
 
-.become-a-host .section-title {
+.cities .city {
+    color: white;
+
+    position: relative;
+    padding-top: 13rem;
+
+    background-size: cover;
+    background-position: center center;
+
+    border-radius: 3px;
+}
+
+.cities .city .location-name {
+    position: absolute;
+    top: 40%;
+    left: 0;
+    width: 100%;
+    z-index: 1;
+
+    color: white;
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.4);
     text-align: center;
-    margin-top: 2rem;
-    margin-bottom: 2rem;
+    font-size: 2em;
 }
 
-.become-a-host .become-a-host-button {
-    margin-top: 1.5rem;
+.cities .city .picture-credits {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    padding: 0.75rem;
+    z-index: 1;
+
+    font-size: 0.8rem;
+    opacity: 0.5;
+    text-align: right;
 }
 
-@media screen and (max-width: 39.9375em) {
-    .become-a-host .feature-image {
-        margin-top: 3rem;
-    }
-
-    .become-a-host .feature-text {
-        margin-bottom: 1.5rem;
-    }
-    
-    .become-a-host .listing-is-free {
-        margin-top: 3rem;
-    }
-
-    .become-a-host .become-a-host-button {
-        margin-bottom: 3rem;
-    }
+.cities .city .picture-credits,
+.cities .city .picture-credits a {
+    color: white;
 }
 
-@media screen and (min-width: 40em) and (max-width: 63.9375em) {
-    .become-a-host .feature-text,
-    .become-a-host .feature-image {
-        margin-top: 3.5rem;
-    }
-    
-    .become-a-host .feature-text,
-    .become-a-host .feature-image {
-        margin-bottom: 2.5rem;
-    }
+.cities .city::after {
+    position: absolute;
+    content: "";
 
-    .become-a-host .listing-is-free {
-        margin-top: 3.5rem;
-    }
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
 
-    .become-a-host .become-a-host-button {
-        margin-bottom: 3.5rem;
-    }
+    background: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.3));
 }
 
-@media screen and (min-width: 40em) {
-    .become-a-host .become-a-host-button {
-        margin-top: 2.5rem;
-    }
-}
-
-@media screen and (min-width: 64em) {    
-    .become-a-host .feature-text,
-    .become-a-host .feature-image {
-        margin-top: 6rem;   
-    }
-    
-    .become-a-host .feature-text,
-    .become-a-host .feature-image {
-        margin-bottom: 4rem;
-    }
-
-    .become-a-host .feature-text {
-        padding-top: 3rem;
-    }
-
-    .become-a-host .listing-is-free {
-        margin-top: 6rem;
-    }
-
-    .become-a-host .become-a-host-button {
-        margin-bottom: 6rem;
-    }
-}
-
-.become-a-host .feature-image {
-    text-align: center;
-}
-
-.become-a-host .feature-image img {
-    max-height: 21rem;
-    box-shadow: 0 0 9px rgba(0, 0, 0, 0.075);
-}
-
-/* Frequently asked questions */
-
-dl.faq dt {
-    margin-bottom: 1rem;
-
-    font-size: 1.15em;
-    font-family: 'Playfair Display', serif;
-}
-
-dl.faq dd {
-    margin-bottom: 1.75rem;
+.cities .city:hover:after {
+    background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.4));
 }

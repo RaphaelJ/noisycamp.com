@@ -49,7 +49,7 @@
 
         <div
             class="cell medium-6 feature-gallery-text"
-            :class="{ 
+            :class="{
                 'active': currentFeature == 'calendar',
                 'show-for-medium': currentFeature != 'calendar'
             }"
@@ -101,7 +101,7 @@ export default Vue.extend({
     methods: {
         featureImage(featureName: string) {
             return fromCDN(
-                NC_ROUTES.controllers.Assets.versioned(`images/index/${featureName}.png`));
+                NC_ROUTES.controllers.Assets.versioned(`images/become-a-host/${featureName}.png`));
         },
 
         featureClicked(featureName: string) {

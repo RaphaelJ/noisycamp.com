@@ -1,0 +1,93 @@
+/* Noisycamp is a platform for booking music studios.
+ * Copyright (C) 2019 2020  Raphael Javaux <raphaeljavaux@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+.become-a-host {
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+}
+
+.become-a-host .listing-is-free {
+    margin-top: 2rem;
+}
+
+.become-a-host .become-a-host-button {
+    margin-bottom: 2rem;
+}
+
+@media screen and (max-width: 39.9375em) {
+    .become-a-host .feature-image {
+        margin-top: 3rem;
+    }
+
+    .become-a-host .feature-text {
+        margin-bottom: 1.5rem;
+    }
+}
+
+@media screen and (min-width: 40em) and (max-width: 63.9375em) {
+    .become-a-host .feature-text,
+    .become-a-host .feature-image {
+        margin-top: 3.5rem;
+    }
+
+    .become-a-host .feature-text,
+    .become-a-host .feature-image {
+        margin-bottom: 2.5rem;
+    }
+
+}
+
+@media screen and (min-width: 40em) {
+}
+
+@media screen and (min-width: 64em) {
+    .become-a-host .feature-text,
+    .become-a-host .feature-image {
+        margin-top: 6rem;
+    }
+
+    .become-a-host .feature-text,
+    .become-a-host .feature-image {
+        margin-bottom: 4rem;
+    }
+
+    .become-a-host .feature-text {
+        padding-top: 3rem;
+    }
+}
+
+.become-a-host .feature-image {
+    text-align: center;
+}
+
+.become-a-host .feature-image img {
+    max-height: 21rem;
+    box-shadow: 0 0 9px rgba(0, 0, 0, 0.075);
+}
+
+/* Frequently asked questions */
+
+dl.faq dt {
+    margin-bottom: 1rem;
+
+    font-size: 1.15em;
+    font-family: 'Playfair Display', serif;
+}
+
+dl.faq dd {
+    margin-bottom: 1.75rem;
+}

@@ -1,6 +1,6 @@
 <!--
   Noisycamp is a platform for booking music studios.
-  Copyright (C) 2019  Raphael Javaux <raphaeljavaux@gmail.com>
+  Copyright (C) 2019 2020 2021  Raphael Javaux <raphael@noisycamp.com>
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 <template>
     <div class="grid-x grid-padding-x">
         <h2 class="cell">
-            Book a rehearsal or recording studio<span class="show-for-large"> near you</span>.
+            Book a rehearsal or recording studio
         </h2>
 
         <div class="cell medium-12 large-auto">

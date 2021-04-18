@@ -22,6 +22,7 @@ GET     /assets/*file                   controllers.Assets.versioned(path="/publ
 
 GET     /                               controllers.IndexController.index
 
+GET     /become-a-host                  controllers.IndexController.becomeAHost
 GET     /about                          controllers.IndexController.about
 GET     /terms                          controllers.IndexController.terms
 GET     /privacy                        controllers.IndexController.privacy
