@@ -105,7 +105,6 @@ import { startingPrice } from '../../misc/MoneyUtils';
 import { isWeekend } from "../../misc/DateUtils";
 
 declare var NC_CONFIG: any;
-declare var NC_ROUTES: any;
 
 export default Vue.extend({
     props: {

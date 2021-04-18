@@ -27,7 +27,9 @@
         <div
             v-if="!searchIsProcessing && studios.length == 0"
             class="message">
-            No match found.
+            No match found.<br>
+            Do you own a music studio?
+            <a :href="becomeAHostURL">List it on NoisyCamp now</a>.
         </div>
 
         <ul
@@ -53,7 +55,7 @@
 <script lang="ts">
 import Vue, { PropOptions } from "vue";
 
-declare var NC_CONFIG: any;
+declare var NC_ROUTES: any;
 
 import StudiosIndexListingItem from './IndexListingItem.vue';
 
@@ -68,6 +70,11 @@ export default Vue.extend({
         return {
             location: null,
             highlightedStudio: null,
+        }
+    },
+    computed: {
+        becomeAHostURL() {
+            return NC_ROUTES.controllers.IndexController.becomeAHost().url;
         }
     },
     methods: {

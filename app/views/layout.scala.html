@@ -242,6 +242,8 @@
         </script>
 
         @helper.javascriptRouter("NC_ROUTES")(
+            routes.javascript.IndexController.becomeAHost,
+
             controllers.account.routes.javascript.PremiumController.upgrade,
 
             routes.javascript.StudiosController.index,
