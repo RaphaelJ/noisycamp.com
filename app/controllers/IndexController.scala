@@ -1,5 +1,5 @@
 /* Noisycamp is a platform for booking music studios.
- * Copyright (C) 2019 2020  Raphael Javaux <raphael@noisycamp.com>
+ * Copyright (C) 2019 2021  Raphael Javaux <raphael@noisycamp.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,8 +26,10 @@ import play.api.mvc._
 class IndexController @Inject() (ccc: CustomControllerCompoments)
     extends CustomBaseController(ccc) {
 
-    def index = UserAwareAction { implicit request =>
-        Ok(views.html.index(identity=request.identity))
+    def index = UserAwareAction.async { implicit request =>
+        for {
+            articles <- ccc.mediumArticleService.getArticles
+        } yield Ok(views.html.index(identity=request.identity, articles=articles))
     }
 
     def becomeAHost = UserAwareAction { implicit request =>

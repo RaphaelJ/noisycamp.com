@@ -17,19 +17,40 @@
 
 @import java.time.Duration
 
-@* Renders a duration in an human readable way (e.g "5 hours 10 minutes 50 seconds") *@
+@* Renders a duration in an human readable way (e.g "5 hours 10 minutes 50 seconds")
+ *
+ * If `singleUnit` is true, will only show the largest unit (e.g. "5 hours").
+ *@
 
-@(d: Duration)
-@defining(d.toDays) { days =>
-    @tags.plural(days, "day", "days", hideZero = true)
+@(d: Duration, singleUnit: Boolean = false)
+@{
+    val units = Seq(
+        ("year", "years") -> 365 * 24 * 3600,
+        ("month", "months") -> 30 * 24 * 3600,
+        ("week", "weeks") -> 7 * 24 * 3600,
+        ("day", "days") -> 24 * 3600,
+        ("hour", "hours") -> 3600,
+        ("minute", "minutes") -> 60,
+        ("second", "seconds") -> 1)
 
-    @defining(d.toHours) { hours =>
-        @tags.plural(hours - days * 24, "hour", "hours", hideZero = true)
+    var totalSecs = d.getSeconds
+
+    var elems = List.empty[Html]
+
+    for (((singular, plural), unitValue) <- units) {
+        val n = totalSecs / unitValue
+        totalSecs -= n * unitValue
+
+        if (n > 0) {
+            elems = tags.plural(n, singular, plural) :: elems
+        }
     }
-}
-@defining(d.toMinutes % 60) { mins =>
-    @tags.plural(mins, "minute", "minutes", hideZero = true)
-}
-@defining(d.getSeconds % 60) { secs =>
-    @tags.plural(secs, "second", "seconds", hideZero = true)
+
+    if (elems.isEmpty) {
+        "0 second"
+    } else if (singleUnit) {
+        elems.last
+    } else {
+        new Html(elems.reverse.toSeq)
+    }
 }

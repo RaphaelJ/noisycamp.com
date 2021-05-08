@@ -36,7 +36,7 @@ import auth.{ DefaultEnv, UserService }
 import daos.DAOs
 import _root_.i18n.{ Country, Currency, ExchangeRatesService, GeoIpService,
   GeoIpLocation, TimeZoneService }
-import misc.{ EmailService, PaymentService, TaskExecutionContext }
+import misc.{ EmailService, MediumArticleService, PaymentService, TaskExecutionContext }
 import pictures.PictureCache
 
 class CustomControllerCompoments @Inject() (
@@ -57,6 +57,7 @@ class CustomControllerCompoments @Inject() (
     val emailService: EmailService,
     val exchangeRatesService: ExchangeRatesService,
     val geoIpService: GeoIpService,
+    val mediumArticleService: MediumArticleService,
     val paymentService: PaymentService,
     val timeZoneService: TimeZoneService)
 
@@ -104,18 +105,18 @@ abstract class CustomBaseController @Inject () (
         override def parser = composeWith.parser
     }
 
-    /** Requires the user to be signed in for the action to execute. */ 
+    /** Requires the user to be signed in for the action to execute. */
     def SecuredAction = EnforceHttpsActionBuilder[
         AnyContent, ({ type R[B] = SecuredRequest[DefaultEnv, B] })#R,
         SecuredActionBuilder[DefaultEnv, AnyContent]](
         silhouette.SecuredAction, silhouette.SecuredAction.requestHandler.executionContext)
-    
-    /** Requires the user to not be signed in for the action to execute. */ 
+
+    /** Requires the user to not be signed in for the action to execute. */
     def UnsecuredAction = EnforceHttpsActionBuilder[
         AnyContent, Request, UnsecuredActionBuilder[DefaultEnv, AnyContent]](
         silhouette.UnsecuredAction, silhouette.UnsecuredAction.requestHandler.executionContext)
 
-    /** Provides user information to the action. */ 
+    /** Provides user information to the action. */
     def UserAwareAction = EnforceHttpsActionBuilder[
         AnyContent, ({ type R[B] = UserAwareRequest[DefaultEnv, B] })#R,
         UserAwareActionBuilder[DefaultEnv, AnyContent]](

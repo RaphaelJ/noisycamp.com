@@ -15,13 +15,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *@
 
+@import java.time.{ Duration, Instant }
+
 @import scala.util.Random
 
 @import play.api.Configuration
 
-@import misc.URL
+@import misc.{ MediumArticle, URL }
 
-@(identity: Option[models.Identity])(
+@(identity: Option[models.Identity], articles: Seq[MediumArticle])(
     implicit req: RequestHeader, config: Configuration, flash: Flash)
 
 @head = {
@@ -171,6 +173,36 @@
                     Adding your first studio room is <strong>free</strong>.
                 </p>
             </div>
+
+            <div class="cell small-12">
+                <hr class="section-break">
+            </div>
+
+            <h3 class="cell small-12 section-title">Latest blog articles</h3>
+
+            @for(article <- articles) {
+                <a
+                class="cell small-12 medium-6 @if(articles.length < 2){medium-offset-3} panel-section"
+                href="@article.url">
+                    <div class="grid-x grid-margin-x">
+                        <div class="cell small-12 medium-4">
+                            <img src="@article.thumbnailUrl">
+                        </div>
+
+                        <div class="cell small-12 medium-8">
+                            <h5>
+                                @article.title<br>
+                                <small>
+                                    @tags.duration(
+                                        Duration.between(article.publicationDate, Instant.now),
+                                        singleUnit = true)
+                                    ago
+                                </small>
+                            </h5>
+                        </div>
+                    </div>
+                </a>
+            }
         </div>
     </div>
 }
