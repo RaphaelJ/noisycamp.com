@@ -23,7 +23,7 @@
 
 @import misc.{ MediumArticle, URL }
 
-@(identity: Option[models.Identity], articles: Seq[MediumArticle])(
+@(identity: Option[models.Identity], articlesOpt: Option[Seq[MediumArticle]])(
     implicit req: RequestHeader, config: Configuration, flash: Flash)
 
 @head = {
@@ -174,34 +174,36 @@
                 </p>
             </div>
 
-            <div class="cell small-12">
-                <hr class="section-break">
-            </div>
+            @for(articles <- articlesOpt) {
+                <div class="cell small-12">
+                    <hr class="section-break">
+                </div>
 
-            <h3 class="cell small-12 section-title">Latest blog articles</h3>
+                <h3 class="cell small-12 section-title">Latest blog articles</h3>
 
-            @for(article <- articles) {
-                <a
-                class="cell small-12 medium-6 @if(articles.length < 2){medium-offset-3} panel-section"
-                href="@article.url">
-                    <div class="grid-x grid-margin-x">
-                        <div class="cell small-12 medium-4">
-                            <img src="@article.thumbnailUrl">
+                @for(article <- articles) {
+                    <a
+                    class="cell small-12 medium-6 @if(articles.length < 2){medium-offset-3} panel-section"
+                    href="@article.url">
+                        <div class="grid-x grid-margin-x">
+                            <div class="cell small-12 medium-4">
+                                <img src="@article.thumbnailUrl">
+                            </div>
+
+                            <div class="cell small-12 medium-8">
+                                <h5>
+                                    @article.title<br>
+                                    <small>
+                                        @tags.duration(
+                                            Duration.between(article.publicationDate, Instant.now),
+                                            singleUnit = true)
+                                        ago
+                                    </small>
+                                </h5>
+                            </div>
                         </div>
-
-                        <div class="cell small-12 medium-8">
-                            <h5>
-                                @article.title<br>
-                                <small>
-                                    @tags.duration(
-                                        Duration.between(article.publicationDate, Instant.now),
-                                        singleUnit = true)
-                                    ago
-                                </small>
-                            </h5>
-                        </div>
-                    </div>
-                </a>
+                    </a>
+                }
             }
         </div>
     </div>

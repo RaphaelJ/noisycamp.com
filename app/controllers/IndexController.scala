@@ -28,8 +28,8 @@ class IndexController @Inject() (ccc: CustomControllerCompoments)
 
     def index = UserAwareAction.async { implicit request =>
         for {
-            articles <- ccc.mediumArticleService.getArticles
-        } yield Ok(views.html.index(identity=request.identity, articles=articles))
+            articlesOpt <- ccc.mediumArticleService.getArticles
+        } yield Ok(views.html.index(identity=request.identity, articlesOpt=articlesOpt))
     }
 
     def becomeAHost = UserAwareAction { implicit request =>

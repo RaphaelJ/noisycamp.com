@@ -44,20 +44,22 @@ class MediumArticleService @Inject() (
 
     private var articles: Option[(Seq[MediumArticle], Instant)] = None
 
-    def getArticles(): Future[Seq[MediumArticle]] = {
+    def getArticles(): Future[Option[Seq[MediumArticle]]] = {
         val now = Instant.now
 
         articles match {
             case Some((articles, lastFetch))
                 if Duration.between(lastFetch, now).getSeconds < ARTICLES_EXPIRE_DELAY => {
-                Future.successful(articles)
+                Future.successful(Some(articles))
             }
             case _ => {
+                // No up to date article list.
                 fetchArticles.
                     map { newArticles =>
                         articles = Some((newArticles, now))
-                        newArticles
-                    }
+                        Some(newArticles)
+                    }.
+                    fallbackTo(Future.successful(None))
             }
         }
     }
@@ -65,7 +67,9 @@ class MediumArticleService @Inject() (
     private def fetchArticles(): Future[Seq[MediumArticle]] = {
         val mediumUsername = config.get[String]("noisycamp.mediumUsername")
         val mediumRss = f"https://medium.com/feed/@${mediumUsername}"
-        val url = f"https://api.rss2json.com/v1/api.json?rss_url=${mediumRss}"
+        val rss2jsonApiKey = config.get[String]("rss2json.apiKey")
+        val url = "https://api.rss2json.com/v1/api.json" +
+                  f"?rss_url=${mediumRss}&api_key=${rss2jsonApiKey}"
 
         val instantReads = Reads({ value =>
             val utcStr = value.as[String].patch(10, "T", 1).patch(19, "Z", 0)
