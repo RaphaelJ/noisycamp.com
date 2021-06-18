@@ -25,6 +25,7 @@ import scala.util.Try
 import play.api._
 import play.api.libs.json.{ JsArray, Json }
 import play.api.mvc._
+import play.filters.headers.SecurityHeadersFilter
 
 import daos.CustomColumnTypes
 import forms.studios.SearchForm
@@ -132,46 +133,69 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
         }
     }
 
-    def show(id: Long): Action[AnyContent] = UserAwareAction.async { implicit request =>
+    def show(id: Studio#Id): Action[AnyContent] = UserAwareAction.async { implicit request =>
         val user: Option[User] = request.identity.map(_.user)
 
         val now = Instant.now
 
-        db.run {
-            for {
-                studioOpt <- daos.studio.query.
-                    filter(_.id === id).
-                    result.headOption
-                    
-                equips <- daos.studioEquipment.withStudioEquipment(id).result
-                picIds <- daos.studioPicture.withStudioPictureIds(id).result
-                    
-                bookings <- studioOpt match {
-                    case Some(studio) => {
-                        val localDate = studio.currentDateTime(now).toLocalDate
-                        daos.studioBooking.activeBookings.
-                            filter(_.studioId === studio.id).
-                            filter(_.beginsAt >= localDate.atStartOfDay).
-                            sortBy(_.beginsAt).
-                            result
-                    }
-                    case None => DBIO.successful(Seq.empty)
+        db.run(getStudioData(id, now))
+            .map {
+                case Some((studio, equips, picIds, bookingEvents)) if studio.canAccess(user) => {
+                    Ok(views.html.studios.show(
+                        identity = request.identity, now,
+                        studio, equips, picIds, bookingEvents))
                 }
-            } yield (studioOpt, equips, picIds, bookings)
-        }.map {
-            case (Some(studio), equips, picIds, bookings) if studio.canAccess(user) => {
-                // Converts bookings into anonymous events.
-                val bookingEvents = bookings.
-                    map { booking => 
-                        booking.
-                            toEvent(classes = Seq("occupied")).
-                            copy(title = None, href = None) }
-
-                Ok(views.html.studios.show(
-                    identity = request.identity, now,
-                    studio, equips.map(_.localEquipment(studio)), picIds, bookingEvents))
+                case _ => NotFound("Studio not found.")
             }
-            case _ => NotFound("Studio not found.")
+    }
+
+    def embedded(studioId: Studio#Id)= UserAwareAction.async { implicit request =>
+        val now = Instant.now
+
+        db.run(getStudioData(studioId, now))
+            .map {
+                case Some((studio, equips, picIds, bookingEvents)) => {
+                    Ok(views.html.studios.embedded(
+                        now, studio, equips, picIds, bookingEvents))
+                }
+                case _ => NotFound("Studio not found.")
+            }
+    }
+
+    private def getStudioData(id: Studio#Id, now: Instant = Instant.now) = {
+        for {
+            studioOpt <- daos.studio.query.
+                filter(_.id === id).
+                result.headOption
+
+            equips <- daos.studioEquipment.
+                withStudioEquipment(id).
+                result
+
+            picIds <- daos.studioPicture.withStudioPictureIds(id).result
+
+            bookingEvents <- studioOpt match {
+                case Some(studio) => {
+                    val localDate = studio.currentDateTime(now).toLocalDate
+                    daos.studioBooking.activeBookings.
+                        filter(_.studioId === studio.id).
+                        filter(_.beginsAt >= localDate.atStartOfDay).
+                        sortBy(_.beginsAt).
+                        result.
+                        // Converts bookings into anonymous calendar events.
+                        map { bookings =>
+                            bookings.map {
+                                _.
+                                    toEvent(classes = Seq("occupied")).
+                                    copy(title = None, href = None) }
+                        }
+                }
+                case None => DBIO.successful(Seq.empty)
+            }
+        } yield {
+            studioOpt.
+                map { studio =>
+                    (studio, equips.map(_.localEquipment(studio)), picIds, bookingEvents) }
         }
     }
 }

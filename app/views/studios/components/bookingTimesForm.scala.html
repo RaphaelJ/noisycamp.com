@@ -1,0 +1,84 @@
+@* Noisycamp is a platform for booking music studios.
+ * Copyright (C) 2021  Raphael Javaux <raphael@noisycamp.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *@
+
+@import java.time.Instant
+
+@import play.api.libs.json.Json
+@import play.api.Configuration
+
+@import misc.JsonWrites._
+@import models.{ LocalEquipment, Picture }
+
+@(
+    now: Instant,
+    studio: models.Studio,
+    equipments: Seq[LocalEquipment],
+    bookingEvents: Seq[models.Event])(
+    implicit config: Configuration)
+
+@currentDateTime = @{ studio.currentDateTime(now) }
+
+@maxBookingDate = @{ studio.maxBookingDate(now) }
+
+@pricingPolicy = @{ studio.localPricingPolicy }
+
+@openingScheduleJson = @{ tags.json(Json.toJson(studio.openingSchedule), htmlEscape = true) }
+@bookingEventsJson = @{ tags.json(Json.toJson(bookingEvents), htmlEscape = true) }
+@pricingPolicyJson = @{ tags.json(Json.toJson(pricingPolicy), htmlEscape = true) }
+@equipmentsJson = @{ tags.json(Json.toJson(equipments), htmlEscape = true) }
+
+<div class="cell small-12 text-center">
+    <h2>
+        @tags.moneyAmount(pricingPolicy.pricePerHour)
+        <small>per hour</small>
+    </h2>
+</div>
+
+@for(eveningPolicy <- pricingPolicy.evening) {
+    <div class="cell small-6 text-left specific-pricing">
+        After @eveningPolicy.beginsAt
+    </div>
+    <div class="cell small-6 text-right specific-pricing">
+        @tags.moneyAmount(eveningPolicy.pricePerHour)
+        <small>per hour</small>
+    </div>
+}
+
+@for(weekendPolicy <- pricingPolicy.weekend) {
+    <div class="cell small-6 text-left specific-pricing">
+        Weekend
+    </div>
+    <div class="cell small-6 text-right specific-pricing">
+        @tags.moneyAmount(weekendPolicy.pricePerHour)
+        <small>per hour</small>
+    </div>
+}
+
+<div class="cell small-12"><hr></div>
+
+<div class="cell small-12">
+    <booking-times-form
+        current-time="@currentDateTime"
+        end="@maxBookingDate"
+        :studio-id="@studio.id"
+        :opening-schedule="@openingScheduleJson"
+        :occupancies="@bookingEventsJson"
+        :min-booking-duration="@studio.bookingPolicy.minBookingDuration.getSeconds()"
+        :pricing-policy="@pricingPolicyJson"
+        :equipments="@equipmentsJson">
+    </booking-times-form>
+</div>

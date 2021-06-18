@@ -21,7 +21,6 @@
 @import play.api.libs.json.Json
 
 @import _root_.auth.DefaultEnv
-@import _root_.frontend.JsConfig
 @import i18n.Currency
 @import misc.URL
 @import models.Identity
@@ -105,35 +104,7 @@
 
         <title>@{(title ++ Seq("NoisyCamp")).mkString(" - ")}</title>
 
-        <link
-            rel="shortcut icon" type="image/png"
-            href="@URL.fromCDN(routes.Assets.versioned("images/favicon-32.png"))">
-
-        <link rel="manifest" href="@URL.fromCDN(routes.Assets.versioned("manifest.json"))">
-
-        <link
-            rel="stylesheet"
-            href="https://fonts.googleapis.com/css?family=Playfair+Display:400,700|Fira+Sans:ital,wght@@0,400;0,500;0,700;1,400;1,500;1,700">
-
-        <link
-            rel="stylesheet"
-            href="@URL.fromCDN(routes.Assets.versioned("stylesheets/vendor/foundation.min.css"))">
-        <link
-            rel="stylesheet"
-            href="@URL.fromCDN(routes.Assets.versioned("fonts/foundation-icons.css"))">
-
-        <link
-            rel="stylesheet"
-            href="@URL.fromCDN(routes.Assets.versioned("stylesheets/main.css"))">
-
-        @for(siteID <- config.getOptional[String]("panelbear.siteID")) {
-            <!-- Panelbear Analytics -->
-            <script async src="https://cdn.panelbear.com/analytics.js?site=@siteID"></script>
-            <script>
-                window.panelbear = window.panelbear || function(){ window.panelbearQ = window.panelbearQ || []; panelbearQ.push(arguments); };
-                panelbear('config', { site: '@siteID', honorDNT: true });
-            </script>
-        }
+        @tags.stylesheetHeaders()
 
         @head
     </head>
@@ -250,42 +221,8 @@
             </footer>
         </div>
 
-        <script>
-            var NC_CONFIG = @tags.json(JsConfig());
-        </script>
-
-        @helper.javascriptRouter("NC_ROUTES")(
-            routes.javascript.IndexController.becomeAHost,
-
-            controllers.account.routes.javascript.PremiumController.upgrade,
-
-            routes.javascript.StudiosController.index,
-            routes.javascript.StudiosController.search,
-            routes.javascript.StudiosController.show,
-
-            _root_.controllers.studios.routes.javascript.BookingController.show,
-            _root_.controllers.studios.routes.javascript.BookingController.submit,
-
-            routes.javascript.PictureController.upload,
-
-            routes.javascript.PictureController.view,
-            routes.javascript.PictureController.cover,
-            routes.javascript.PictureController.max,
-
-            routes.javascript.Assets.versioned,
-        )
-
-        <script src="@URL.fromCDN(routes.Assets.versioned("javascripts/vendor/jquery.js"))">
-        </script>
-        <script src="@URL.fromCDN(routes.Assets.versioned("javascripts/vendor/what-input.js"))">
-        </script>
-        <script src="@URL.fromCDN(routes.Assets.versioned("javascripts/vendor/foundation.min.js"))">
-        </script>
+        @tags.javascriptHeaders()
 
         @javascript
-
-        <script src="@URL.fromCDN(routes.Assets.versioned("javascripts/bundle.js"))"></script>
-
-        <script>$(document).foundation();</script>
     </body>
 </html>

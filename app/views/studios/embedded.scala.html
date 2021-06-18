@@ -1,0 +1,86 @@
+@* Noisycamp is a platform for booking music studios.
+ * Copyright (C) 2021  Raphael Javaux <raphael@noisycamp.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *@
+
+@import java.time.Instant
+
+@import play.api.Configuration
+@import play.api.libs.json.Json
+@import play.api.mvc.RequestHeader
+
+@import misc.JsonWrites._
+@import misc.URL
+
+@(
+    now: Instant,
+    studio: models.Studio,
+    equipments: Seq[LocalEquipment],
+    pictures: Seq[models.Picture#Id],
+    bookingEvents: Seq[models.Event])(
+    implicit req: RequestHeader, config: Configuration, flash: Flash)
+
+<!doctype html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <title>Book a music session in @studio.name</title>
+
+        @tags.stylesheetHeaders()
+
+
+        <link
+            rel="stylesheet"
+            href="@URL.fromCDN(routes.Assets.versioned("stylesheets/studios/embedded.css"))">
+    </head>
+    <body>
+        <div id="nc-app" class="grid-container" style="margin: 1rem auto;">
+            <div class="grid-x grid-margin-x grid-margin-y">
+                <div class="cell medium-7 large-8 hide-for-small-only">
+                    <div class="panel-section">
+                        <h3><small>Studio availability</small></h3>
+
+                        @components.calendar(now, studio, bookingEvents)
+                    </div>
+                </div>
+
+                <div class="cell small-12 medium-5 large-4">
+                    <div class="panel-section">
+                        <div class="grid-x grid-padding-x">
+                            @components.bookingTimesForm(now, studio, equipments, bookingEvents)
+                        </div>
+                    </div>
+
+                    <p class="text-center">
+                        <small>
+                            <i class="fi-lock"></i>&nbsp;
+                            Secure booking handled by
+                            <a
+                                href="@routes.IndexController.index.absoluteURL"
+                                target="_blank"
+                                class="text-serif">
+                                NoisyCamp</a>.
+                        </small>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        @tags.javascriptHeaders()
+    </body>
+</html>

@@ -88,6 +88,8 @@ GET     /studios/search                 controllers.StudiosController.search
 
 GET     /studios/:id                    controllers.StudiosController.show(id: String)
 
+GET     /studios/:studioId/embedded/v1  controllers.StudiosController.embedded(studioId: Long)
+
 # Booking
 
 GET     /studios/:studioId/booking      controllers.studios.BookingController.show(studioId: Long, beginsAt: String, duration: Int, equipments: Seq[Long])
@@ -96,6 +98,7 @@ POST    /studios/:studioId/booking      controllers.studios.BookingController.su
 GET     /studios/:studioId/booking/payment/:sessionId/success controllers.studios.BookingController.paymentSuccess(studioId: Long, sessionId: String)
 
 POST    /webhooks/stripe/session-completed controllers.studios.BookingController.stripeCompleted
+
 
 # Pictures
 
