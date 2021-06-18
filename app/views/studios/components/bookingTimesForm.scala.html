@@ -27,7 +27,8 @@
     now: Instant,
     studio: models.Studio,
     equipments: Seq[LocalEquipment],
-    bookingEvents: Seq[models.Event])(
+    bookingEvents: Seq[models.Event],
+    formTarget: Option[String] = None)(
     implicit config: Configuration)
 
 @currentDateTime = @{ studio.currentDateTime(now) }
@@ -79,6 +80,7 @@
         :occupancies="@bookingEventsJson"
         :min-booking-duration="@studio.bookingPolicy.minBookingDuration.getSeconds()"
         :pricing-policy="@pricingPolicyJson"
-        :equipments="@equipmentsJson">
+        :equipments="@equipmentsJson"
+        @for(target <- formTarget) { target="@target" }>
     </booking-times-form>
 </div>

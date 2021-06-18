@@ -20,7 +20,8 @@
     <form
         class="grid-y booking-form"
         :action="bookingUrl"
-        method="get">
+        method="get"
+        :target="target">
 
         <div class="cell small-12">
             <booking-times-input
@@ -48,7 +49,7 @@
                 <hr>
             </div>
         </slide-down-transition>
-        
+
         <slide-down-transition :max-height="150">
             <div class="cell small-12" v-if="canComputePricing">
                 <booking-pricing-calculator
@@ -110,6 +111,9 @@ export default Vue.extend({
         pricingPolicy: { type: Object, required: true },
 
         equipments: <PropOptions<Object[]>>{ type: Array, required: true },
+
+        // An optional target value for the "<form>" element.
+        target: { type: String, required: false },
     },
     data() {
         return {
@@ -137,9 +141,9 @@ export default Vue.extend({
             return this.bookingTimes['begins-at']
                 && this.bookingTimes['duration'];
         },
-        
+
     },
-    components: { 
+    components: {
         BookingEquipmentsInput, BookingPricingCalculator, BookingTimesInput,
         SlideDownTransition
     }
