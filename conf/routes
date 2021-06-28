@@ -70,6 +70,8 @@ GET     /account/studios/:id/bookings/:booking/accept   controllers.account.stud
 GET     /account/studios/:id/bookings/:booking/reject   controllers.account.studios.BookingsController.reject(id: Long, booking: Long)
 GET     /account/studios/:id/bookings/:booking/cancel   controllers.account.studios.BookingsController.cancel(id: Long, booking: Long)
 
+GET     /account/studios/:id/embedded/demo  controllers.account.studios.EmbeddedController.demo(id: Long)
+
 GET     /account/studios/:id/publish    controllers.account.studios.IndexController.publish(id: Long)
 
 GET     /account/payouts                controllers.account.PayoutsController.index

@@ -1,0 +1,124 @@
+@* Noisycamp is a platform for booking music studios.
+ * Copyright (C) 2021  Raphael Javaux <raphael@noisycamp.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *@
+
+@import java.time.Instant
+
+@import play.api.Configuration
+@import play.api.libs.json.Json
+@import play.api.mvc.RequestHeader
+
+@import misc.JsonWrites._
+@import misc.URL
+
+@(
+    studio: models.Studio,
+    pictures: Seq[models.Picture#Id])(
+    implicit req: RequestHeader, config: Configuration)
+
+@topBar = {
+    <div class="top-bar">
+        <div class="top-bar-left">
+            <div class="grid-container">
+                <div class="grid-x">
+                    <div class="cell">
+                        <ul class="dropdown menu">
+                            <li class="menu-text studio-name">
+                                <i class="fi-music"></i>&nbsp;
+                                @studio.name
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@hero = {
+    <div class="grid-container-fluid">
+        <div class="grid-x">
+            <div class="cell hero">
+                <div
+                    class="hero-background"
+                    @for(picId <- pictures.headOption) {
+                        style="background-image: url('@URL.fromCDN(routes.PictureController.view(picId.base64))');"
+                    }>
+                </div>
+
+                <div class="grid-container hero-content">
+                    <div class="grid-x grid-margin-x grid-margin-y">
+                        <div class="cell small-12">
+                            <h1>
+                                @studio.describeType<br>
+                                <small>
+                                    @studio.location.address.city,
+                                    @studio.location.address.country.name
+                                </small>
+                            </h1>
+                        </div>
+
+                        <div class="cell small-12 hide-for-small-only">
+                            ↓&nbsp; Book online now &nbsp;↓
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!doctype html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <title>@studio.name - @studio.describeType</title>
+
+        <link
+            rel="stylesheet"
+            href="@URL.fromCDN(routes.Assets.versioned("stylesheets/vendor/foundation.min.css"))">
+        <link
+            rel="stylesheet"
+            href="@URL.fromCDN(routes.Assets.versioned("fonts/foundation-icons.css"))">
+
+        <link
+            rel="stylesheet"
+            href="@URL.fromCDN(routes.Assets.versioned("stylesheets/account/studios/embedded/demo.css"))">
+    </head>
+
+    <body>
+        @topBar
+
+        <main>
+            @hero
+        </main>
+
+
+        <div class="grid-container">
+            <div class="grid-x">
+                <div class="cell">
+                    <iframe
+                        style="width: 100%; min-height: 825px; border: none;"
+                        src="@routes.StudiosController.embedded(studio.id)"
+                    ></iframe>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

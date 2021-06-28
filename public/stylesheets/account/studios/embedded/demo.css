@@ -1,0 +1,84 @@
+body {
+    background-color: #f4f4f4;
+}
+
+/* Top bar */
+
+.top-bar,
+.top-bar ul {
+    display: none;
+    background-color: #000;
+    color: #eee;
+}
+
+.top-bar .studio-name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Hero */
+
+.hero {
+    position: relative;
+    overflow: hidden;
+}
+
+.hero .hero-background
+{
+    --blur-radius: 5px;
+
+    position: absolute;
+    top: calc(-2 * var(--blur-radius));
+    bottom: calc(-2 * var(--blur-radius));
+    left: calc(-2 * var(--blur-radius));
+    right: calc(-2 * var(--blur-radius));
+
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+
+    z-index: -1;
+
+    filter: blur(var(--blur-radius));
+}
+
+.hero .hero-background::after {
+    /* Adds a thin black layer on top of the backround image. */
+
+    content: "";
+
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 1;
+}
+
+.hero .hero-content {
+    z-index: 1;
+
+    color: white;
+    text-align: center;
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.3);
+
+    margin-top: 5em;
+    margin-bottom: 1em;
+}
+
+@media screen and (max-width: 39.9375em) {
+    .hero .hero-content {
+        margin-top: 1em;
+        margin-bottom: 0.5em;
+    }
+}
+
+@media screen and (min-width: 40em) {
+    .hero .hero-content {
+        margin-top: 5em;
+        margin-bottom: 1em;
+    }
+}

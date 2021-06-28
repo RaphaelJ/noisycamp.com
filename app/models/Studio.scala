@@ -90,4 +90,14 @@ case class Studio(
         val title = s"${city} ${region} ${name}"
         s"${id}-${URL.titleAsURL(title)}"
     }
+
+    /** Returns a string describing the type of studio. */
+    def describeType: String = {
+        (usePractice, useRecording, useLive) match {
+            case (true, false, false) => "Rehearsal space"
+            case (false, true, false) => "Recording studio"
+            case (false, false, true) => "Live music space"
+            case _ => "Music studio"
+        }
+    }
 }

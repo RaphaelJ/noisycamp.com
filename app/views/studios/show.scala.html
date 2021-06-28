@@ -36,15 +36,7 @@
     implicit req: RequestHeader, config: Configuration, flash: Flash)
 
 @subTitle = @{
-    val studioType =
-        (studio.usePractice, studio.useRecording, studio.useLive) match {
-            case (true, false, false) => "Rehearsal space"
-            case (false, true, false) => "Recording studio"
-            case (false, false, true) => "Live music space"
-            case _ => "Music studio"
-        }
-
-    studioType +
+    studio.describeType +
         " for rent in " +
         studio.location.address.city +
         ", " +
