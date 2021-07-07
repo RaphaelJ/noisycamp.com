@@ -83,7 +83,7 @@ class IndexController @Inject() (ccc: CustomControllerCompoments)
                         studio <- daos.studio.insert(studio)
                         _ <- daos.studioEquipment.setStudioEquipments(studio.id, equipments)
                         _ <- daos.studioPicture.setStudioPics(studio.id, pictures)
-                    } yield 
+                    } yield
                         Redirect(_root_.controllers.routes.StudiosController.show(studio.URLId)).
                             flashing("success" ->
                                 ("Your studio page is ready. " +
@@ -112,7 +112,7 @@ class IndexController @Inject() (ccc: CustomControllerCompoments)
                     user.plan.studioLimit match {
                         case Some(studioLimit) if (studioLimit <= nStudios) => {
                             val result = Redirect(redirectTo).
-                                flashing("error" -> 
+                                flashing("error" ->
                                     "Upgrade to NoisyCamp Premium to host more studios.")
                             DBIO.successful(result)
                         }
@@ -120,18 +120,6 @@ class IndexController @Inject() (ccc: CustomControllerCompoments)
                     }
                 }
         }.withTransactionIsolation(TransactionIsolation.Serializable))
-    }
-
-    def websiteIntegration(id: Studio#Id) = SecuredAction { implicit request =>
-        val user = request.identity.user
-
-        if (user.plan.websiteIntegration) {
-            Ok("Feature not yet implemented.")
-        } else {
-            Redirect(_root_.controllers.account.routes.PremiumController.upgrade).
-                flashing("error" -> 
-                    ("Upgrade to NoisyCamp Premium to integrate NoisyCamp into your website."))
-        }
     }
 
     /** Shows the form with the studio settings. */

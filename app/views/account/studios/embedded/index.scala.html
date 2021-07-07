@@ -1,0 +1,53 @@
+@* Noisycamp is a platform for booking music studios.
+ * Copyright (C) 2019-2021  Raphael Javaux <raphael@noisycamp.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *@
+
+@import play.api.Configuration
+
+@import forms.account.StudioForm.Data
+@import misc.FormUtils
+
+@(
+    identity: models.Identity, studio: models.Studio)(
+    implicit request: RequestHeader,
+    config: Configuration, flash: Flash)
+
+@head = {
+}
+
+@views.html.account.layout(
+    Seq("Website integration", studio.name), head=head, identity=identity) {
+
+    <div class="panel-section">
+        <p>
+            <strong>Copy-paste the following HTML code</strong>
+            where you want the booking form to appear on your website:
+        </p>
+
+        <textarea style="width: 100%; min-height: 125px;">
+<iframe
+    style="width: 100%; min-height: 825px; border: none;"
+    src="@routes.StudiosController.embedded(studio.id).absoluteURL">
+</iframe>
+        </textarea>
+
+        <p>
+            Reach our support at
+            <a href="mailto:hello@@noisycamp.com">hello@@noisycamp.com</a>
+            if you have any problem and/or to answer any questions.
+        </p>
+    </div>
+}

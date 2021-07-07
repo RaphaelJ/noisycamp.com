@@ -52,8 +52,6 @@ GET     /account/studios                controllers.account.studios.IndexControl
 GET     /account/studios/create         controllers.account.studios.IndexController.create
 POST    /account/studios/create         controllers.account.studios.IndexController.createSubmit
 
-GET     /account/studios/:id/website-integration    controllers.account.studios.IndexController.websiteIntegration(id: Long)
-
 GET     /account/studios/:id/settings   controllers.account.studios.IndexController.settings(id: Long)
 POST    /account/studios/:id/settings   controllers.account.studios.IndexController.settingsSubmit(id: Long)
 
@@ -70,6 +68,7 @@ GET     /account/studios/:id/bookings/:booking/accept   controllers.account.stud
 GET     /account/studios/:id/bookings/:booking/reject   controllers.account.studios.BookingsController.reject(id: Long, booking: Long)
 GET     /account/studios/:id/bookings/:booking/cancel   controllers.account.studios.BookingsController.cancel(id: Long, booking: Long)
 
+GET     /account/studios/:id/embedded  controllers.account.studios.EmbeddedController.index(id: Long)
 GET     /account/studios/:id/embedded/demo  controllers.account.studios.EmbeddedController.demo(id: Long)
 
 GET     /account/studios/:id/publish    controllers.account.studios.IndexController.publish(id: Long)

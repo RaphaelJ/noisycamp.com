@@ -34,6 +34,32 @@ class EmbeddedController @Inject() (ccc: CustomControllerCompoments)
 
     import profile.api._
 
+    def index(id: Studio#Id) = SecuredAction.async { implicit request =>
+        val user = request.identity.user
+
+        if (user.plan.websiteIntegration) {
+            db.run {
+                for {
+                    studio <- daos.studio.query.
+                        filter(_.id === id).
+                        result.headOption
+                } yield studio
+            }.map {
+                case Some(studio) if studio.isOwner(user) => {
+                    Ok(views.html.account.studios.embedded.index(request.identity, studio))
+                }
+                case Some(_) => Forbidden("Only the studio owner can edit settings.")
+                case None => NotFound("Studio not found.")
+            }
+        } else {
+            Future.successful {
+                Redirect(_root_.controllers.account.routes.PremiumController.upgrade).
+                    flashing("error" ->
+                        ("Upgrade to NoisyCamp Premium to integrate NoisyCamp into your website."))
+            }
+        }
+    }
+
     def demo(id: Studio#Id) = SecuredAction.async { implicit request =>
         db.run({ for {
             studioOpt <- daos.studio.query.
