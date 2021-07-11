@@ -19,6 +19,7 @@
 
 @import forms.account.StudioForm.Data
 @import misc.FormUtils
+@import misc.URL
 
 @(
     identity: models.Identity, studio: models.Studio)(
@@ -26,28 +27,70 @@
     config: Configuration, flash: Flash)
 
 @head = {
+    <link
+        rel="stylesheet"
+        href="@URL.fromCDN(routes.Assets.versioned("stylesheets/account/studios/embedded/index.css"))">
+}
+
+@integrationCode = {
+    <p>
+        <strong>Copy-paste the following HTML code</strong>
+        where you want the booking form to appear on your website:
+    </p>
+
+    <textarea
+        style="width: 100%; min-height: 125px;"
+        onclick="this.focus(); this.select();"><iframe
+    style="width: 100%; min-height: 825px; border: none;"
+    src="@routes.StudiosController.embedded(studio.id).absoluteURL">
+</iframe></textarea>
+
+    <p>
+        Reach our support at
+        <a href="mailto:hello@@noisycamp.com">hello@@noisycamp.com</a>
+        if you have any problem and/or to answer any questions.
+    </p>
 }
 
 @views.html.account.layout(
     Seq("Website integration", studio.name), head=head, identity=identity) {
-
     <div class="panel-section">
-        <p>
-            <strong>Copy-paste the following HTML code</strong>
-            where you want the booking form to appear on your website:
-        </p>
+        <div class="grid-x grid-margin-x grid-margin-y">
+            <div class="cell medium-12 large-7 hide-for-small-only">
+                <h3><small>Book your studio directly from your website</small></h3>
 
-        <textarea style="width: 100%; min-height: 125px;">
-<iframe
-    style="width: 100%; min-height: 825px; border: none;"
-    src="@routes.StudiosController.embedded(studio.id).absoluteURL">
-</iframe>
-        </textarea>
+                <ul>
+                    <li><strong>Live availabilities</strong></li>
+                    <li>Work on <strong>desktop and mobile</strong></li>
+                    <li>Spend less time handling booking calls and emails</li>
+                </ul>
+            </div>
 
-        <p>
-            Reach our support at
-            <a href="mailto:hello@@noisycamp.com">hello@@noisycamp.com</a>
-            if you have any problem and/or to answer any questions.
-        </p>
+            <div class="cell large-5 show-for-large-only">
+                <div class="demo-container">
+                    <img
+                        class="laptop-mockup"
+                        alt="Website integration demo"
+                        src="@URL.fromCDN(routes.Assets.versioned("images/account/studios/embedded/laptop_mockup.png"))">
+
+                    <img
+                        class="phone-mockup"
+                        alt="Website integration demo"
+                        src="@URL.fromCDN(routes.Assets.versioned("images/account/studios/embedded/phone_mockup.png"))">
+
+                    <iframe
+                        class="laptop-demo"
+                        src="@controllers.account.studios.routes.EmbeddedController.demo(studio.id)">
+                    </iframe>
+
+                    <iframe
+                        class="phone-demo"
+                        src="@controllers.account.studios.routes.EmbeddedController.demo(studio.id)">
+                    </iframe>
+                </div>
+            </div>
+
+            <div class="cell small-12">@integrationCode</div>
+        </div>
     </div>
 }

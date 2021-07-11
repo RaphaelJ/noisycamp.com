@@ -1,0 +1,68 @@
+.demo-container {
+    --mockup-width: 1024;
+    --mockup-height: 680;
+    --mockup-aspect-ratio: calc(var(--mockup-width) / var(--mockup-height));
+
+    --demo-mockup-ratio: calc(100% / var(--mockup-width));
+
+    position: relative;
+
+    width: 100%;
+    padding-bottom: calc(1 / var(--mockup-aspect-ratio) * 100%);
+}
+
+.demo-container .laptop-mockup,
+.demo-container .laptop-demo,
+.demo-container .phone-mockup,
+.demo-container .phone-demo {
+    position: absolute;
+}
+
+.demo-container .laptop-mockup,
+.demo-container .phone-mockup {
+    top: 0;
+    left: 0;
+}
+
+.demo-container .laptop-demo,
+.demo-container .phone-demo {
+    border: none;
+}
+
+.demo-container .laptop-mockup {
+    z-index: 1;
+}
+
+.demo-container .laptop-demo {
+    --laptop-demo-scale: calc(0.175);
+
+    z-index: 0;
+
+    top: calc(55 / var(--mockup-height) * 100%);
+    left: calc(132 / var(--mockup-width) * 100%);
+
+    height: calc(480 / var(--mockup-height) * 100% / var(--laptop-demo-scale));
+    width: calc(760 / var(--mockup-width) * 100% / var(--laptop-demo-scale));
+
+    transform: scale(var(--laptop-demo-scale));
+    transform-origin: 0 0;
+}
+
+.demo-container .phone-mockup {
+    z-index: 3;
+}
+
+.demo-container .phone-demo {
+    --laptop-demo-scale: calc(0.15);
+
+    z-index: 2;
+
+    top: calc(241 / var(--mockup-height) * 100%);
+    left: calc(135 / var(--mockup-width) * 100%);
+
+    height: calc(410 / var(--mockup-height) * 100% / var(--laptop-demo-scale));
+    width: calc(190 / var(--mockup-width) * 100% / var(--laptop-demo-scale));
+
+    transform: scale(var(--laptop-demo-scale));
+    transform-origin: 0 0;
+}

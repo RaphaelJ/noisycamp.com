@@ -71,14 +71,14 @@ body {
 
 @media screen and (max-width: 39.9375em) {
     .hero .hero-content {
-        margin-top: 1em;
-        margin-bottom: 0.5em;
+        margin-top: 2.5em;
+        margin-bottom: 1em;
     }
 }
 
 @media screen and (min-width: 40em) {
     .hero .hero-content {
-        margin-top: 5em;
+        margin-top: 3em;
         margin-bottom: 1em;
     }
 }
