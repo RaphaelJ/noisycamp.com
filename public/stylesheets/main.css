@@ -664,6 +664,47 @@ table.plan-comparison-table {
     vertical-align: text-top;
 }
 
+/* Premium feature teaser (blurs the feature and center a alternative action call element). */
+
+.premium-feature {
+    position: relative;
+}
+
+.premium-feature.hidden .feature {
+    filter: blur(1.5px);
+    opacity: 0.25;
+}
+
+.premium-feature.hidden::after {
+    content: "";
+    position: absolute;
+
+    z-index: 0;
+
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+.premium-feature:not(.hidden) .action-call {
+    display: none;
+}
+
+
+.premium-feature.hidden .action-call {
+    position: absolute;
+
+    z-index: 1;
+
+    top: 50%;
+    transform: translateY(-50%);
+
+    left: 0;
+    right: 0;
+    margin: auto;
+}
+
 /* Footer */
 
 footer {

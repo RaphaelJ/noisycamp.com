@@ -26,6 +26,8 @@
     implicit request: RequestHeader,
     config: Configuration, flash: Flash)
 
+@user = @{ identity.user }
+
 @head = {
     <link
         rel="stylesheet"
@@ -38,12 +40,26 @@
         where you want the booking form to appear on your website:
     </p>
 
-    <textarea
-        style="width: 100%; min-height: 125px;"
-        onclick="this.focus(); this.select();"><iframe
+    <div class="premium-feature @if(!user.plan.websiteIntegration){ hidden }">
+        <textarea
+            class="feature"
+            style="width: 100%; min-height: 125px;"
+            onclick="this.focus(); this.select();"><iframe
     style="width: 100%; min-height: 825px; border: none;"
     src="@routes.StudiosController.embedded(studio.id).absoluteURL">
 </iframe></textarea>
+
+        @if(!user.plan.websiteIntegration){
+            <div class="action-call text-center">
+                <a
+                    class="button primary"
+                    href="@controllers.account.routes.PremiumController.upgrade">
+                    Upgrade to NoisyCamp Premium
+                </a>
+                <div class="help-text">This feature requires a Premium subscription</div>
+            </div>
+        }
+    </div>
 
     <p>
         Reach our support at
@@ -66,7 +82,7 @@
                 </ul>
             </div>
 
-            <div class="cell large-5 show-for-large-only">
+            <div class="cell large-5 show-for-large">
                 <div class="demo-container">
                     <img
                         class="laptop-mockup"
