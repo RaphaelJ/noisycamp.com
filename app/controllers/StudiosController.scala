@@ -152,14 +152,31 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
     def embedded(studioId: Studio#Id)= UserAwareAction.async { implicit request =>
         val now = Instant.now
 
-        db.run(getStudioData(studioId, now))
-            .map {
+        // Only allows the embedded widget if the owner's plan allows it or if it's called from the
+        // demo page.
+        def isAllowed(owner: User): Boolean = {
+            val demoUrl = account.studios.routes.EmbeddedController.demo(studioId).absoluteURL
+            owner.plan.websiteIntegration ||
+            request.headers.get("Referer").map(_ == demoUrl).getOrElse(false)
+        }
+
+        db.run(
+            getStudioData(studioId, now).flatMap {
                 case Some((studio, equips, picIds, bookingEvents)) => {
-                    Ok(views.html.studios.embedded(
-                        now, studio, equips, picIds, bookingEvents))
+                    daos.user.query.
+                        filter(_.id === studio.ownerId).
+                        result.head.
+                        map { owner => Some((studio, owner, equips, picIds, bookingEvents)) }
                 }
-                case _ => NotFound("Studio not found.")
+                case None => DBIO.successful(None)
+        }).map {
+            case Some((studio, owner, equips, picIds, bookingEvents)) if isAllowed(owner) => {
+                Ok(views.html.studios.embedded(
+                    now, studio, equips, picIds, bookingEvents))
             }
+            case Some(_) => Forbidden("Website integration not allowed.")
+            case None => NotFound("Studio not found.")
+        }
     }
 
     private def getStudioData(id: Studio#Id, now: Instant = Instant.now) = {
