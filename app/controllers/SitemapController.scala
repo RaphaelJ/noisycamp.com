@@ -1,5 +1,5 @@
 /* Noisycamp is a platform for booking music studios.
- * Copyright (C) 2020  Raphael Javaux <raphael@noisycamp.com>
+ * Copyright (C) 2020 2021  Raphael Javaux <raphael@noisycamp.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@ import play.api._
 import play.api.mvc._
 
 @Singleton
-class SitemapController @Inject() (ccc: CustomControllerCompoments) 
+class SitemapController @Inject() (ccc: CustomControllerCompoments)
     extends CustomBaseController(ccc) {
 
     import profile.api._
@@ -46,14 +46,16 @@ class SitemapController @Inject() (ccc: CustomControllerCompoments)
             studioUrls <- db.
                 // TODO: only fetch the IDs and names
                 run({ daos.studio.publishedStudios.result }.transactionally).
-                map { studios => 
-                    studios.map { s => 
+                map { studios =>
+                    studios.map { s =>
                         url(routes.StudiosController.show(s.URLId), ChangeFreq.Weekly, 0.5)
                     }
                 }
-            
+
             staticUrls = Seq(
                 url(routes.IndexController.index, ChangeFreq.Always, 1.0),
+
+                url(routes.IndexController.becomeAHost, ChangeFreq.Weekly, 0.75),
 
                 url(routes.IndexController.about, ChangeFreq.Weekly, 0.5),
                 url(routes.IndexController.terms, ChangeFreq.Weekly, 0.5),
@@ -61,14 +63,14 @@ class SitemapController @Inject() (ccc: CustomControllerCompoments)
 
                 url(routes.StudiosController.index, ChangeFreq.Weekly, 0.75))
         } yield {
-            val sitemap: scala.xml.Elem = 
+            val sitemap: scala.xml.Elem =
                 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                         xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
                     {staticUrls}
                     {studioUrls}
                 </urlset>
-            
+
             Ok(sitemap)
         }
     }
@@ -80,7 +82,7 @@ class SitemapController @Inject() (ccc: CustomControllerCompoments)
         val forceHttps = config.get[Boolean]("noisycamp.forceHttps")
 
         <url>
-            <loc>{loc.absoluteURL(forceHttps)}</loc>    
+            <loc>{loc.absoluteURL(forceHttps)}</loc>
             <changefreq>{changeFreq.value}</changefreq>
             <priority>{priority}</priority>
         </url>

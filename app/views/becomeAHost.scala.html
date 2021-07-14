@@ -48,10 +48,12 @@ implicit req: RequestHeader, config: Configuration, flash: Flash)
 
     <div class="grid-container">
         <div class="grid-x grid-margin-x grid-margin-y become-a-host">
-            <div class="cell small-12 section-title">
-                <h1>
-                    NoisyCamp is the online booking platform for rehearsal and recording spaces
-                </h1>
+            <div class="cell small-12">
+                <div class="section-title">
+                    <h1>
+                        The online booking platform for music studios
+                    </h1>
+                </div>
             </div>
 
             <div class="cell small-12 section-feature-gallery">
@@ -103,6 +105,25 @@ implicit req: RequestHeader, config: Configuration, flash: Flash)
 
             <div class="cell small-12 medium-6 show-for-small-only feature-image">
                 <img
+                    src="@URL.fromCDN(routes.Assets.versioned("images/become-a-host/website_integration.png"))"
+                    alt="Website integration screenshot.">
+            </div>
+            <div class="cell small-12 medium-6 feature-text">
+                <h3>Booking directly from your website</h3>
+
+                <p>
+                    Integrate your studio live availabilities and booking form directly within your
+                    website in a few seconds.
+                </p>
+            </div>
+            <div class="cell small-12 medium-6 show-for-medium feature-image">
+                <img
+                    src="@URL.fromCDN(routes.Assets.versioned("images/become-a-host/website_integration.png"))"
+                    alt="Website integration screenshot.">
+            </div>
+
+            <div class="cell small-12 medium-6 feature-image">
+                <img
                     src="@URL.fromCDN(routes.Assets.versioned("images/become-a-host/online_payment.png"))"
                     alt="Secure online payments screenshot.">
             </div>
@@ -115,13 +136,8 @@ implicit req: RequestHeader, config: Configuration, flash: Flash)
                     The reservation amount will be directly transferred to your bank account.
                 </p>
             </div>
-            <div class="cell small-12 medium-6 show-for-medium feature-image">
-                <img
-                    src="@URL.fromCDN(routes.Assets.versioned("images/become-a-host/online_payment.png"))"
-                    alt="Secure online payments screenshot.">
-            </div>
 
-            <div class="cell small-12 medium-6 feature-image">
+            <div class="cell small-12 medium-6 show-for-small-only feature-image">
                 <img
                     src="@URL.fromCDN(routes.Assets.versioned("images/become-a-host/equipments.png"))"
                     alt="Studio equipments and gears screenshot.">
@@ -133,6 +149,11 @@ implicit req: RequestHeader, config: Configuration, flash: Flash)
                     Specify the equipments provided by your studio.<br>
                     You can also request extra fees for the leasing of some of your gears.
                 </p>
+            </div>
+            <div class="cell small-12 medium-6 show-for-medium feature-image">
+                <img
+                    src="@URL.fromCDN(routes.Assets.versioned("images/become-a-host/equipments.png"))"
+                    alt="Studio equipments and gears screenshot.">
             </div>
 
             <div class="cell small-12 medium-6 medium-offset-3 large-4 large-offset-4 text-center become-a-host-button">
@@ -153,14 +174,15 @@ implicit req: RequestHeader, config: Configuration, flash: Flash)
             <dl class="cell small-12 large-offset-1 large-10 faq">
                 <dt>How much does NoisyCamp cost?</dt>
                 <dd>
-                    Listing your first s tudio space on NoisyCamp is free.<br>
+                    Listing your first studio space on NoisyCamp is free.<br>
                     Studios that wish to list more than one space are required to upgrade to our
                     <i>Premium</i> plan.<br>
                     Studios that wish to use online booking payments will be charged a small online
                     transaction fee on these payments
                     (@{(Plan.Free.transactionRate * 100).toIntExact}% for <i>Free</i> plan users,
                     @{(Plan.Premium.transactionRate * 100).toIntExact}% for <i>Premium</i> plan
-                    users). There is no fee on online bookings that are not paid online.
+                    users).
+                    <strong>There is no fee on online bookings that are not paid online</strong>.
                 </dd>
 
                 <dt>Who can host a studio on NoisyCamp?</dt>
