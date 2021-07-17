@@ -75,7 +75,7 @@ object Country extends Enumeration {
     val Poland = Val("Poland", Currency.PLN, "PL", Some(23), AddressFormat.European)
     val Romania = Val("Romania", Currency.RON, "RO", Some(19), AddressFormat.European)
     val Sweden = Val("Sweden", Currency.SEK, "SE", Some(25), AddressFormat.European)
-  
+
     /* Europe, non EU */
     // val Iceland = Val("Iceland", Currency.ISK, "IS", Some(24), AddressFormat.European)
     val Norway = Val("Norway", Currency.NOK, "NO", Some(25), AddressFormat.European)
@@ -113,7 +113,7 @@ object Country extends Enumeration {
         hasZipCode = false)
     val NewZealand = Val("New Zealand", Currency.NZD, "NZ", Some(15), AddressFormat.English)
     val Singapore = Val("Singapore", Currency.SGD, "SG", Some(7), AddressFormat.English)
-    val UnitedStates = Val("United States", Currency.USD, "US", None, AddressFormat.American, 
+    val UnitedStates = Val("United States", Currency.USD, "US", None, AddressFormat.American,
         Map(
             /* States */
             "AL" -> "Alabama",
