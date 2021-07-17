@@ -48,7 +48,7 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
 
     def calendar(id: Studio#Id) = SecuredAction.async { implicit request =>
         withStudioBookings(id, onlyActive=true) { case (studio, bookings) =>
-            val bookingEvents = bookings.map { 
+            val bookingEvents = bookings.map {
                 case (booking, user) => booking.toEvent(Some(user), Seq("booking")) }
 
             Ok(views.html.account.studios.bookings.calendar(
@@ -60,10 +60,10 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
         val user = request.identity.user
 
         if (user.plan.calendarSync) {
-            Ok("Feature not yet implemented.")
+            Ok(views.html.featureNotYetImplemented(request.identity))
         } else {
             Redirect(_root_.controllers.account.routes.PremiumController.upgrade).
-                flashing("error" -> 
+                flashing("error" ->
                     ("Upgrade to NoisyCamp Premium to synchronize NoisyCamp with your favorite " +
                     "calendar app."))
         }
@@ -73,7 +73,7 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
         val user = request.identity.user
 
         if (user.plan.manualBookings) {
-            Ok("Feature not yet implemented.")
+            Ok(views.html.featureNotYetImplemented(request.identity))
         } else {
             Redirect(_root_.controllers.account.routes.PremiumController.upgrade).
                 flashing("error" ->
@@ -206,7 +206,7 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
     }
 
     /** Runs the provided booking updating DB action and redirect to the booking page.
-     * 
+     *
      * @param onSuccessMessage the flash message to show on update success.
      * @param onFailureMessage the flash message to show on update failure (i.e. if `updateAction`
      *        returns `None`).
@@ -217,18 +217,18 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
         onSuccessMessage: String, onFailureMessage: String)(
         updateAction: (
             (Studio, StudioBooking, User,
-            Query[StudioBookingDAO#StudioBookingTable, StudioBooking, Seq]) 
+            Query[StudioBookingDAO#StudioBookingTable, StudioBooking, Seq])
             => Option[DBIOAction[T, NoStream, Effect.All]])
         )(
         implicit request: SecuredRequest[DefaultEnv, P]): Future[Result] = {
-    
+
         val redirectTo = Redirect(routes.BookingsController.show(studioId, bookingId))
 
         withStudioBookingTransaction(studioId, bookingId) { (studio, booking, customer) =>
             val query = daos.studioBooking.query.filter(_.id === booking.id)
-            
+
             updateAction(studio, booking, customer, query) match {
-                case Some(action) => for { 
+                case Some(action) => for {
                     _ <- action.map { _ => true }
                 } yield redirectTo.flashing("success" -> onSuccessMessage)
                 case None => DBIO.successful(redirectTo.flashing("error" -> onFailureMessage))
@@ -237,16 +237,16 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
     }
 
     /** Tries to refund the booking if there is an online payment.
-     * 
+     *
      * Saves the result in the database and returns the possibly updated `StudioBooking` object.
      */
     private def refundBooking(booking: StudioBooking):
         DBIOAction[StudioBooking, NoStream, Effect.All] = {
 
         booking.payment match {
-            case payment @ StudioBookingPaymentOnline(sessionId, intentId, _) 
+            case payment @ StudioBookingPaymentOnline(sessionId, intentId, _)
                 if !payment.isRefunded  => {
-                
+
                 for {
                     refund <- DBIO.from(paymentService.refundPaymentIntent(intentId))
 
