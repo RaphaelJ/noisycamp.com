@@ -82,7 +82,7 @@ libraryDependencies ++= Seq(
     
     "org.scalatestplus.play" %% "scalatestplus-play" % "4.0.3" % Test,
 
-    "net.codingwell" %% "scala-guice" % "4.2.6",
+    "net.codingwell" %% "scala-guice" % "5.0.1",
     "net.iakovlev" % "timeshape" % "2018d.6"
 )
 

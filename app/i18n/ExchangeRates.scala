@@ -1,5 +1,5 @@
 /* Noisycamp is a platform for booking music studios.
- * Copyright (C) 2019  Raphael Javaux <raphaeljavaux@gmail.com>
+ * Copyright (C) 2019 2021 Raphael Javaux <raphael@noisycamp.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,65 +35,65 @@ import squants.market
 import misc.TaskExecutionContext
 
 /** A set of exchange rates with their associated timestamp. */
-case class ExchangeRates(rates: List[market.CurrencyExchangeRate],
-  date: DateTime) {
+case class ExchangeRates(rates: List[market.CurrencyExchangeRate], date: DateTime) {
 
-  def context: market.MoneyContext = {
-    Currency.moneyContext withExchangeRates rates
-  }
+    def context: market.MoneyContext = {
+        Currency.moneyContext withExchangeRates rates
+    }
 
-  /** Converts the provided money amount to the target currency, rounding the
-   * value to the nearest representable value (e.g. cents). */
-  def exchange(src: market.Money, dst: market.Currency): market.Money = {
-    val decimals = dst.formatDecimals
-    src.in(dst)(context).rounded(decimals, RoundingMode.CEILING)
-  }
+    /** Converts the provided money amount to the target currency, rounding the
+     * value to the nearest representable value (e.g. cents). */
+    def exchange(src: market.Money, dst: market.Currency): market.Money = {
+        val decimals = dst.formatDecimals
+        src.in(dst)(context).rounded(decimals, RoundingMode.CEILING)
+    }
 }
 
 /** Periodically checks the ECB exchange rates server and provides up to date
  * exchange rates to the Euro. */
 @Singleton
 class ExchangeRatesService @Inject() (
-  actorSystem: ActorSystem,
-  implicit val executionContext: TaskExecutionContext,
-  ws: WSClient) {
+    actorSystem: ActorSystem,
+    implicit val executionContext: TaskExecutionContext,
+    ws: WSClient) {
 
-  val updateInterval: FiniteDuration = 15.minutes
+    val updateInterval: FiniteDuration = 15.minutes
 
-  def exchangeRates: ExchangeRates = exchangeRatesRef.get
+    def exchangeRates: ExchangeRates = exchangeRatesRef.get
 
-  private val exchangeRatesRef: AtomicReference[ExchangeRates] =
-    new AtomicReference(Await.result(updateExchangeRates, 1.minute))
+    private val exchangeRatesRef: AtomicReference[ExchangeRates] =
+        new AtomicReference(updateExchangeRates)
 
-  actorSystem.scheduler.schedule(
-    initialDelay = updateInterval, interval = updateInterval) {
-    updateExchangeRates.map(exchangeRatesRef.set _)
-  }
+    actorSystem.scheduler.scheduleAtFixedRate(
+        initialDelay = updateInterval, interval = updateInterval)(
+        new Runnable() { def run = exchangeRatesRef.set(updateExchangeRates) })
 
-  /** Fetches and updates the exchange rates from the ECB website. */
-  private def updateExchangeRates(): Future[ExchangeRates] = {
-    val url = "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml"
-    ws.url(url).
-      withFollowRedirects(true).
-      get.
-      map { response =>
-        val date = DateTime.now()
+    /** Fetches and updates the exchange rates from the ECB website. */
+    private def updateExchangeRates(): ExchangeRates = {
+        Await.result({
+            val url = "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml"
+            ws.url(url).
+                withFollowRedirects(true).
+                get.
+                map { response =>
+                    val date = DateTime.now()
 
-        val nodes = response.xml \ "Cube" \ "Cube" \ "Cube"
+                    val nodes = response.xml \ "Cube" \ "Cube" \ "Cube"
 
-        val rates: List[market.CurrencyExchangeRate] = nodes.
-          map { node =>
-            val code: String = node.attribute("currency").get(0).text
-            val rate: Double = node.attribute("rate").get(0).text.toDouble
+                    val rates: List[market.CurrencyExchangeRate] = nodes.
+                    map { node =>
+                        val code: String = node.attribute("currency").get(0).text
+                        val rate: Double = node.attribute("rate").get(0).text.toDouble
 
-            Currency.byCode.
-              get(code).
-              map(curr => Currency.EUR / curr(rate))
-          }.
-          flatten.
-          toList
+                        Currency.byCode.
+                        get(code).
+                        map(curr => Currency.EUR / curr(rate))
+                    }.
+                    flatten.
+                    toList
 
-        ExchangeRates(rates, date)
-      }
-  }
+                    ExchangeRates(rates, date)
+                }
+            }, 1.minute)
+    }
 }

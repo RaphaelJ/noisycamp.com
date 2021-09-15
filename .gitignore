@@ -7,6 +7,7 @@ target/
 .DS_store
 
 .bloop
+.bsp
 .metals
 .ensime
 .ensime_cache
@@ -15,3 +16,5 @@ project/project
 
 .vscode/
 *.code-workspace
+
+*.env
