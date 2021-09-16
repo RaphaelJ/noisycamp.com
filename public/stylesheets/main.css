@@ -473,6 +473,16 @@ table.fixed {
     background-color: #f5f3f2;
 }
 
+/* Code sample */
+
+.code-sample, .code-sample:focus {
+    background-color: #575757;
+    border: 1px solid #282828;
+    font-family: monospace;
+    color: #ebebeb;
+    font-size: 0.85rem;
+}
+
 /* Full-width hero picture */
 
 .hero {

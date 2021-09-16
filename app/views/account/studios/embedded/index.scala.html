@@ -42,8 +42,9 @@
 
     <div class="premium-feature @if(!user.plan.websiteIntegration){ hidden }">
         <textarea
-            class="feature"
+            class="feature code-sample"
             style="width: 100%; min-height: 125px;"
+            spellcheck="false"
             onclick="this.focus(); this.select();"><iframe
     style="width: 100%; min-height: 825px; border: none;"
     src="@routes.StudiosController.embedded(studio.id).absoluteURL">
