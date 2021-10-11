@@ -28,6 +28,7 @@ import play.api.mvc._
 
 import auth.DefaultEnv
 import daos.{ CustomColumnTypes, StudioBookingDAO }
+import forms.account.ManualBookingForm
 import models.{ Studio, StudioBooking, StudioBookingPaymentOnline, StudioBookingPaymentOnsite,
     StudioBookingStatus, User }
 import _root_.controllers.{ CustomBaseController, CustomControllerCompoments }
@@ -69,18 +70,53 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
         }
     }
 
-    def create(id: Studio#Id) = SecuredAction { implicit request =>
-        val user = request.identity.user
+    def create(id: Studio#Id) = SecuredAction.async { implicit request =>
+        val now = Instant.now
 
-        if (user.plan.manualBookings) {
-            Ok(views.html.featureNotYetImplemented(request.identity))
-        } else {
-            Redirect(_root_.controllers.account.routes.PremiumController.upgrade).
-                flashing("error" ->
-                    "Upgrade to NoisyCamp Premium to create your own booking events.")
+        ifUserHasManualBookings {
+            withStudioBookings(id, onlyActive=true) { case (studio, bookings) =>
+                val form = ManualBookingForm.form(now, studio)
+                Ok(views.html.account.studios.bookings.create(
+                    request.identity, now, studio, bookings.map { _._1.toEvent() }, form))
+            }
         }
     }
 
+    def createSubmit(id: Studio#Id) = SecuredAction.async { implicit request =>
+        val now = Instant.now
+
+        ifUserHasManualBookings {
+            withStudioBookings(id, onlyActive=true) { case (studio, bookings) =>
+                ManualBookingForm.
+                    form(now, studio).
+                    bindFromRequest.
+                    fold(
+                        form => BadRequest(
+                            views.html.account.studios.bookings.create(
+                                request.identity, now, studio, bookings.map { _._1.toEvent() },
+                                form)),
+                        data => Ok(data.toString))
+            }
+        }
+    }
+
+    private def ifUserHasManualBookings[B](f: => Future[Result])(
+        implicit request: SecuredRequest[DefaultEnv, B]): Future[Result] = {
+
+        val user = request.identity.user
+
+        if (user.plan.manualBookings) {
+            f
+        } else {
+            Future.successful {
+                Redirect(_root_.controllers.account.routes.PremiumController.upgrade).
+                    flashing("error" ->
+                        "Upgrade to NoisyCamp Premium to create your own booking events.")
+            }
+        }
+    }
+
+    /** Executes the provided action after having fetched the studio and its associated bookings. */
     private def withStudioBookings[T](
         id: Studio#Id, onlyActive: Boolean = false)(
         f: ((Studio, Seq[(StudioBooking, User)]) => Result))
@@ -97,7 +133,7 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
                 case Some(studio) => {
                     val baseQuery =
                         if (onlyActive) { daos.studioBooking.activeBookings }
-                        else {daos.studioBooking.bookings }
+                        else { daos.studioBooking.bookings }
 
                     baseQuery.
                         filter(_.studioId === id).

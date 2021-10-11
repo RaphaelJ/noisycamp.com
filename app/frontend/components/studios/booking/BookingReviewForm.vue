@@ -28,10 +28,10 @@
             :value="csrfToken">
 
         <input type="hidden"
-            name="booking-times.begins-at"
+            name="times.begins-at"
             :value="bookingTimes['begins-at']">
         <input type="hidden"
-            name="booking-times.duration"
+            name="times.duration"
             :value="bookingTimes['duration']">
 
         <input
@@ -61,6 +61,7 @@
                             <span class="card-icons">
                                 <img
                                     v-for="card in cardIcons"
+                                    :key="card[0]"
                                     :alt="card[0]"
                                     :src="card[1]">
                             </span>
@@ -111,7 +112,7 @@ import Vue, { PropOptions } from "vue";
 
 import { fromCDN } from '../../../misc/URL';
 
-import BookingPricingCalculator from '../BookingPricingCalculator.vue';
+import BookingPricingCalculator from './BookingPricingCalculator.vue';
 
 declare var NC_ROUTES: any;
 

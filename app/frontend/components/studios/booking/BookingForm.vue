@@ -25,6 +25,7 @@
 
         <div class="cell small-12">
             <booking-times-input
+                name="times"
                 :current-time="currentTime"
                 :end="end"
                 :opening-schedule='openingSchedule'
@@ -41,6 +42,7 @@
                 <p>Some equipments may be rented for the duration of your session:</p>
 
                 <booking-equipments-input
+                    name="equipments[]"
                     :equipments="equipments"
                     :session-duration="bookingTimes['duration']"
                     v-model="selectedEquipments">
@@ -78,10 +80,8 @@
 <script lang="ts">
 import Vue, { PropOptions } from "vue";
 
-import * as moment from 'moment';
-
 import BookingEquipmentsInput from './BookingEquipmentsInput.vue';
-import BookingPricingCalculator from '../BookingPricingCalculator.vue';
+import BookingPricingCalculator from './BookingPricingCalculator.vue';
 import BookingTimesInput from './BookingTimesInput.vue';
 
 import SlideDownTransition from '../../../transitions/SlideDownTransition.vue';
@@ -127,9 +127,7 @@ export default Vue.extend({
     },
     computed: {
         bookingUrl() {
-            let url = NC_ROUTES.controllers.studios.BookingController.show(this.studioId).url;
-            // Removes any unspecified URL parameter.
-            return url.substring(0, url.indexOf('?'));
+            return NC_ROUTES.controllers.studios.BookingController.show(this.studioId).url;
         },
 
         // Returns true if the studio has at least one billable equipment.

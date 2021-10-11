@@ -21,18 +21,28 @@
 export default {
     props: {
         // The prefix that will be used for <input> sub-fields. Can be empty (i.e. no prefix).
-        name: { type: String, required: false, default: null },
+        name: { type: String, required: false, default: '' },
 
         // The input data object or value. If the input if a composite field, use an object to
-        // describe the values of the object.
+        // describe the values of the object (see `FormUtils.dataAsJson`).
         value: { type: [ Object, String ], required: false },
 
-        // The form errors, indexed by the field's name (see
-        // `play.api.data.Form.errorsAsJson`)
+        // The form errors, indexed by the field's name (see `FormUtils.errorsAsJson`).
         errors: {
-            type: Object, required: false,
+            type: [ Object, String ], required: false,
             default: function () { return {}; }
         },
+    },
+    computed: {
+        globalError() {
+            if (typeof(this.errors) == 'string') {
+                return this.errors;
+            } else if ("" in this.errors) {
+                return this.errors[""];
+            } else {
+                return null;
+            }
+        }
     },
     methods: {
         // Returns a prefixed sub-field name, including the parent form's
@@ -63,19 +73,6 @@ export default {
             } else {
                 return defaultVal;
             }
-        },
-
-        fieldHasError(fieldName: string, index?: number) {
-            return this.fieldName(fieldName, index) in this.errors;
-        },
-
-        fieldErrors(fieldName: string, index?: number) {
-            return this.errors[this.fieldName(fieldName, index)];
-        },
-
-        // Returns the first error of the field if any.
-        fieldError(fieldName: string, index?: number) {
-            return this.fieldErrors(fieldName, index)[0];
         },
     }
 };

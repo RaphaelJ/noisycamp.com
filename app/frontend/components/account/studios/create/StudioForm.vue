@@ -34,7 +34,7 @@
 
                 <general-info-input
                     name="general-info"
-                    :errors="errors"
+                    :errors="errors['general-info']"
                     :value="value['general-info']">
                 </general-info-input>
 
@@ -55,7 +55,7 @@
                 <location-input
                     name="location"
                     v-model="location"
-                    :errors="errors">
+                    :errors="errors['location']">
                 </location-input>
                 <hr>
             </div>
@@ -76,7 +76,7 @@
                 <opening-schedule-input
                     name="opening-schedule"
                     :value="value['opening-schedule']"
-                    :errors="errors">
+                    :errors="errors['opening-schedule']">
                 </opening-schedule-input>
 
                 <hr>
@@ -96,6 +96,7 @@
                 <pricing-policy-input
                     name="pricing-policy"
                     :value="value['pricing-policy']"
+                    :errors="errors['pricing-policy']"
                     :currency="currency">
                 </pricing-policy-input>
 
@@ -116,6 +117,7 @@
                 <booking-policy-input
                     name="booking-policy"
                     :value="value['booking-policy']"
+                    :errors="errors['booking-policy']"
                     v-on:cancellation-policy-changed="cancellationPolicyChanged">
                 </booking-policy-input>
 
@@ -136,12 +138,12 @@
                 <payment-policy-input
                     name="payment-policy"
                     :value="value['payment-policy']"
+                    :errors="errors['payment-policy']"
                     :can-cancel-anytime="canCancelAnytime">
                 </payment-policy-input>
 
                 <hr>
             </div>
-        </slide-down-transition>
         </slide-down-transition>
 
         <!-- Extra rules -->
@@ -175,6 +177,7 @@
                 <equipment-input
                     name="equipments"
                     :value="value['equipments']"
+                    :errors="errors['equipments']"
                     :can-add-fee="canAddFee"
                     :currency="currency">
                 </equipment-input>
@@ -195,7 +198,8 @@
 
                 <picture-input
                     name="pictures[]"
-                    :value="value['pictures']">
+                    :value="value['pictures']"
+                    :errors="errors['pictures']">
                 </picture-input>
 
                 <hr>
@@ -207,15 +211,15 @@
 <script lang="ts">
 import Vue, { PropOptions } from "vue";
 
-import BookingPolicyInput from './form/BookingPolicyInput.vue';
-import EquipmentInput from './form/EquipmentInput.vue';
-import GeneralInfoInput from './form/GeneralInfoInput.vue';
-import LocationInput from './form/LocationInput.vue';
-import OpeningScheduleInput from './form/OpeningScheduleInput.vue';
-import PaymentPolicyInput from './form/PaymentPolicyInput.vue';
-import PictureInput from './form/PictureInput.vue';
-import PricingPolicyInput from './form/PricingPolicyInput.vue';
-import SlideDownTransition from '../../transitions/SlideDownTransition.vue';
+import BookingPolicyInput from './BookingPolicyInput.vue';
+import EquipmentInput from './EquipmentInput.vue';
+import GeneralInfoInput from './GeneralInfoInput.vue';
+import LocationInput from './LocationInput.vue';
+import OpeningScheduleInput from './OpeningScheduleInput.vue';
+import PaymentPolicyInput from './PaymentPolicyInput.vue';
+import PictureInput from './PictureInput.vue';
+import PricingPolicyInput from './PricingPolicyInput.vue';
+import SlideDownTransition from '../../../../transitions/SlideDownTransition.vue';
 
 declare var NC_CONFIG: any;
 

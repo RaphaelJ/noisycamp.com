@@ -1,6 +1,6 @@
 <!--
   Noisycamp is a platform for booking music studios.
-  Copyright (C) 2019  Raphael Javaux <raphaeljavaux@gmail.com>
+  Copyright (C) 2019 2021 Raphael Javaux <raphael@noisycamp.com>
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -18,7 +18,12 @@
 
 <template>
     <div class="grid-x grid-padding-x">
-        <div class="cell small-12">
+        <div
+            :class="{
+                'cell': true,
+                'small-12': true,
+                'large-6': compact
+            }">
             <label>
                 Date
                 <input
@@ -30,10 +35,22 @@
                     pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}"
                     placeholder="yyyy-mm-dd"
                     required>
+
+                <span v-if="errors['begins-at']" class="error">
+                    {{ errors['begins-at'] }}
+                </span>
             </label>
         </div>
 
-        <div class="cell medium-12 large-6">
+        <div
+            :class="{
+                'cell': true,
+                'small-12': true,
+                'medium-6': compact,
+                'large-6': !compact,
+                'large-3': compact
+            }">
+
             <label>
                 Starting at
 
@@ -59,17 +76,25 @@
 
         <input
             type="hidden"
-            name="beginsAt"
+            :name="fieldName('begins-at')"
             :value="beginsAtStr">
 
-        <div class="cell medium-12 large-6">
+        <div
+            :class="{
+                'cell': true,
+                'small-12': true,
+                'medium-6': compact,
+                'large-6': !compact,
+                'large-3': compact
+            }">
+
             <label>
                 Duration
 
                 <select
-                    name="duration"
+                    :name="fieldName('duration')"
                     v-model="duration"
-                    :disabled="!date || !time"
+                    :disabled="!date || !time || isClosed"
                     @change="valueChanged()"
                     required>
                     <option
@@ -79,6 +104,18 @@
                         {{ d.title }}
                     </option>
                 </select>
+
+                <span v-if="errors['duration']" class="error">
+                    {{ errors['duration'] }}
+                </span>
+            </label>
+        </div>
+
+        <div
+            class="cell small-12"
+            v-if="globalError">
+            <label>
+                <span class="error">{{ globalError }}</span>
             </label>
         </div>
     </div>
@@ -89,6 +126,7 @@ import Vue, { PropOptions } from "vue";
 
 import * as moment from 'moment';
 
+import VueInput from '../../widgets/VueInput';
 import {
     dateComponent, eventsOverlap, renderDuration, timeComponent, withTimeComponent
 } from '../../../misc/DateUtils';
@@ -96,19 +134,28 @@ import {
 declare var NC_CONFIG: any;
 
 export default Vue.extend({
+    mixins: [VueInput],
     props: {
-        // The current local time, without timezone.
+        // The current local time (as a ISO 8601 date string without timezone).
         currentTime: { type: String, required: true },
 
-        // The last bookable day (as a ISO 8601 date string).
+        // The last bookable day (exclusive, as a ISO 8601 date string without timezone).
         end: { type: String, required: false },
 
         // An array of {is-open, opens-at, closes-at} 7 objects. Starts on Monday.
-        openingSchedule: <PropOptions<Object[]>>{ type: Array, required: true },
+        openingSchedule: <PropOptions<Object[]>>{
+            type: Array,
+            default() {
+                // By default, open all the time.
+                return Array(7).fill({
+                    'is-open': true, 'opens-at': '00:00:00', 'closes-at': '00:00:00'
+                });
+            }
+        },
 
         // A list of {starts-at, duration} ISO 8601 local date time and durations that define
         // unavailable time periods for which the studio cannot be booked.
-        occupancies: <PropOptions<Object[]>>{ type: Array, required: true },
+        occupancies: <PropOptions<Object[]>>{ type: Array, default() { return []; } },
 
         // The minimum duration of a booking, in seconds.
         minBookingDuration: { type: Number, required: true },
@@ -122,22 +169,26 @@ export default Vue.extend({
                     'duration': null
                 }
             }
-        }
+        },
+
+        // If `true`, tries to display the input elements on a single line on larger screens.
+        compact: { type: Boolean, required: false, default: false }
     },
     data() {
         var date = null;
         var time = null;
-        var duration = this.value.duration;
+        var duration = this.value.duration ? this.value.duration : null;
 
-        if (this.value.beginsAt) {
-            date = dateComponent(moment(this.value.beginsAt));
-            time = timeComponent(moment(this.value.beginsAt));
+        if (this.value['begins-at']) {
+            let mBeginsAt = moment(this.value['begins-at']);
+            date = dateComponent(mBeginsAt);
+            time = timeComponent(mBeginsAt, 'minutes');
         }
 
         return {
-            date: null,
-            time: null,
-            duration: null,
+            date: date,
+            time: time,
+            duration: duration,
         }
     },
     computed: {
@@ -165,7 +216,7 @@ export default Vue.extend({
             });
         },
 
-        // The max date (inclusive) value to be passed to the `<input type="date">` widget.
+        // The max (inclusive) date value to be passed to the `<input type="date">` widget.
         mMax() {
             if (this.mEnd) {
                 return this.mEnd.clone().subtract(1, 'days');
@@ -198,7 +249,7 @@ export default Vue.extend({
 
         // When date is set, return the MomentJS date-time at which the studio opens.
         dateOpensAt() {
-            if (!this.mDate) {
+            if (!this.mDate || this.isClosed) {
                 return null;
             }
 
@@ -209,11 +260,15 @@ export default Vue.extend({
 
         // When date is set, return the MomentJS date-time at which the studio closes.
         dateClosesAt() {
+            if (!this.mDate || this.isClosed) {
+                return null;
+            }
+
             let opensAtTime = this.dateSchedule['opens-at'];
             let closesAtTime = this.dateSchedule['closes-at'];
 
             // Close time might be on the next day.
-            let closesAtDate = closesAtTime < opensAtTime
+            let closesAtDate = closesAtTime <= opensAtTime
                 ? this.mDate.clone().add(1, 'days')
                 : this.mDate;
 
@@ -276,7 +331,7 @@ export default Vue.extend({
                 }
 
                 let times = [];
-                while (iTime.isSameOrBefore(lastSession)) {                    
+                while (iTime.isSameOrBefore(lastSession)) {
                     // Skips start times which will always overlap with an occupency event.
                     let earliestEnd = iTime.clone().add(this.minBookingDuration, 'seconds');
                     // TODO: directly iterate to the next availaible slot.
@@ -322,7 +377,7 @@ export default Vue.extend({
         // List all selected day's and start time's availaible rental
         // durations.
         durations() {
-            if (!this.beginsAt) {
+            if (!this.beginsAt || this.isClosed) {
                 return null;
             }
 
@@ -381,11 +436,11 @@ export default Vue.extend({
                 'begins-at': beginsAt,
                 'duration': this.duration,
             });
-        },    
-        
+        },
+
         // Finds the a possible overlap to the provided [beginAt; endsAt[ event from one of the
         // occupencies of the selected day. Returns undefined if no event is found.
-        dateOccupencyOverlap(beginsAt, endsAt): boolean { 
+        dateOccupencyOverlap(beginsAt, endsAt): boolean {
             if (!this.dateOccupencies) {
                 return null;
             }

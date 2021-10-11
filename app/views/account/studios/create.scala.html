@@ -38,11 +38,12 @@
             action="@controllers.account.studios.routes.IndexController.createSubmit"
             method="post">
 
-            <studio-create-form
+            <studio-create
                 csrf-token="@helper.CSRF.getToken.value"
                 :value="@tags.json(FormUtils.dataAsJson(studioForm), htmlEscape = true)"
-                :errors='@studioForm.errorsAsJson'>
-            </studio-create-form>
+                :errors="@tags.json(
+                    FormUtils.errorsAsJson(studioForm)(messagesProvider), htmlEscape = true)">
+            </studio-create>
         </form>
     </div>
 }

@@ -44,7 +44,6 @@ class PremiumController @Inject() (ccc: CustomControllerCompoments)
             data => {
                 val user = request.identity.user
 
-                
                 db.run(daos.studio.query.filter(_.ownerId === user.id).result).
                     flatMap { studios => emailService.sendPremiumRequest(user, data, studios) }.
                     map { _ =>

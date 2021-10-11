@@ -98,11 +98,11 @@ import Vue, { PropOptions } from "vue";
 
 import * as moment from 'moment';
 
-import MoneyAmount from '../widgets/MoneyAmount.vue'
-import ReactivePicture from '../widgets/ReactivePicture.vue';
+import MoneyAmount from '../../widgets/MoneyAmount.vue'
+import ReactivePicture from '../../widgets/ReactivePicture.vue';
 
-import { startingPrice } from '../../misc/MoneyUtils';
-import { isWeekend } from "../../misc/DateUtils";
+import { startingPrice } from '../../../misc/MoneyUtils';
+import { isWeekend } from "../../../misc/DateUtils";
 
 declare var NC_CONFIG: any;
 

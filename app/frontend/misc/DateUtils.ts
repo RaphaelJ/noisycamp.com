@@ -31,7 +31,7 @@ export function renderDuration(duration, precision) {
         }
     }
 
-    addComponent(duration.hours(), 'hour', 'hours');
+    addComponent(Math.floor(duration.asHours()), 'hour', 'hours');
 
     if (precision == 'minutes' || precision == 'seconds') {
         addComponent(duration.minutes(), 'minute', 'minutes');
@@ -52,8 +52,23 @@ export function dateComponent(datetime) {
 
 // Returns the time component of a moment datetime object as a ISO 8601 time
 // string.
-export function timeComponent(datetime) {
-    return datetime.format('HH:mm:ss.SSS');
+export function timeComponent(datetime, precision: string = 'millisecs') {
+    var format: string;
+
+    switch (precision) {
+    case 'millisecs':
+        format = 'HH:mm:ss.SSS';
+        break;
+    case 'seconds':
+        format = 'HH:mm:ss';
+        break;
+    case 'minutes':
+    default:
+        format = 'HH:mm';
+        break;
+    }
+
+    return datetime.format(format);
 }
 
 // Returns a new Moment date with the time component changed.

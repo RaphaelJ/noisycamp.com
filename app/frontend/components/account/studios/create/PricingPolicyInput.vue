@@ -20,12 +20,6 @@
 
 <template>
     <div class="grid-x grid-margin-x">
-        <div
-            class="cell small-12 error"
-            v-if="fieldHasError('')">
-            {{ fieldError('') }}
-        </div>
-
         <div class="cell small-12 medium-4 large-3">
             <label>
                 Price per hour
@@ -37,8 +31,8 @@
                     :required="true">
                 </money-input>
 
-                <span v-if="fieldHasError('price-per-hour')" class="error">
-                    {{ fieldError('price-per-hour') }}
+                <span v-if="errors['price-per-hour']" class="error">
+                    {{ errors['price-per-hour'] }}
                 </span>
             </label>
         </div>
@@ -57,8 +51,8 @@
                 <label for="pricing-has-evening-pricing">
                     Pricing is different for evening sessions
 
-                    <span v-if="fieldHasError('has-evening-pricing')" class="error">
-                        {{ fieldError('has-evening-pricing') }}
+                    <span v-if="errors['has-evening-pricing']" class="error">
+                        {{ errors['has-evening-pricing'] }}
                     </span>
                 </label>
             </div>
@@ -79,8 +73,8 @@
                             :disabled="!hasEveningPricing"
                             :required="hasEveningPricing">
 
-                        <span v-if="fieldHasError('evening-begins-at')" class="error">
-                            {{ fieldError('evening-begins-at') }}
+                        <span v-if="errors['evening-begins-at']" class="error">
+                            {{ errors['evening-begins-at'] }}
                         </span>
                     </label>
                 </div>
@@ -98,8 +92,8 @@
                             :required="hasEveningPricing">
                         </money-input>
 
-                        <span v-if="fieldHasError('evening-price-per-hour')" class="error">
-                        {{ fieldError('evening-price-per-hour') }}
+                        <span v-if="errors['evening-price-per-hour']" class="error">
+                        {{ errors['evening-price-per-hour'] }}
                         </span>
                     </label>
                 </div>
@@ -120,8 +114,8 @@
                 <label for="pricing-has-weekend-pricing">
                     Pricing is different for weekend sessions
 
-                    <span v-if="fieldHasError('has-weekend-pricing')" class="error">
-                        {{ fieldError('has-weekend-pricing') }}
+                    <span v-if="errors['has-weekend-pricing']" class="error">
+                        {{ errors['has-weekend-pricing'] }}
                     </span>
                 </label>
             </div>
@@ -143,21 +137,29 @@
                         :required="hasWeekendPricing">
                     </money-input>
 
-                    <span v-if="fieldHasError('weekend-price-per-hour')" class="error">
-                        {{ fieldError('weekend-price-per-hour') }}
+                    <span v-if="errors['weekend-price-per-hour']" class="error">
+                        {{ errors['weekend-price-per-hour'] }}
                     </span>
                 </label>
             </div>
         </slide-down-transition>
+
+        <div
+            class="cell"
+            v-if="globalError">
+            <label>
+                <span class="error">{{ globalError }}</span>
+            </label>
+        </div>
     </div>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
 
-import VueInput from '../../widgets/VueInput';
-import MoneyInput from '../../widgets/MoneyInput.vue';
-import SlideDownTransition from '../../../transitions/SlideDownTransition.vue';
+import VueInput from '../../../widgets/VueInput';
+import MoneyInput from '../../../widgets/MoneyInput.vue';
+import SlideDownTransition from '../../../../transitions/SlideDownTransition.vue';
 
 export default Vue.extend({
     mixins: [VueInput],

@@ -107,7 +107,8 @@ object CustomFields {
             EquipmentCategory.values.
             toSeq.
             map(_.asInstanceOf[EquipmentCategory.Val]).
-            map { v => v -> v.code }, "Invalid equipment category")
+            map { v => v -> v.code },
+        "Invalid equipment category")
 
     val longId: Mapping[Long] = longNumber(min = 0)
 

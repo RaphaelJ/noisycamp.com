@@ -31,8 +31,8 @@
                     v-model="nameValue"
                     required>
 
-                <span v-if="fieldHasError('name')" class="error">
-                    {{ fieldError('name') }}
+                <span v-if="errors['name']" class="error">
+                    {{ errors['name'] }}
                 </span>
             </label>
 
@@ -110,8 +110,8 @@
                     rows="10" required>
                 </textarea>
 
-                <span v-if="fieldHasError('description')" class="error">
-                    {{ fieldError('description') }}
+                <span v-if="errors['description']" class="error">
+                    {{ errors['description'] }}
                 </span>
             </label>
 
@@ -130,8 +130,8 @@
                     :name="fieldName('phone')"
                     v-model="phone">
 
-                <span v-if="fieldHasError('phone')" class="error">
-                    {{ fieldError('phone') }}
+                <span v-if="errors['phone']" class="error">
+                    {{ errors['phone'] }}
                 </span>
             </label>
 
@@ -145,7 +145,7 @@
 <script lang="ts">
 import Vue from "vue";
 
-import VueInput from '../../widgets/VueInput';
+import VueInput from '../../../widgets/VueInput';
 
 export default Vue.extend({
     mixins: [VueInput],

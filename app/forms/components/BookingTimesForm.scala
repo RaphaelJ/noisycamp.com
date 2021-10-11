@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package forms.studios
+package forms.components
 
 import java.time.{ Duration, Instant, LocalDate, LocalTime }
 import scala.concurrent.duration
@@ -32,17 +32,26 @@ object BookingTimesForm {
 
     type Data = BookingTimes
 
-    def form(studio: Studio)(implicit config: Configuration) = Form {
-        val now = Instant.now
+    /**
+      * @param isManualBooking if true, relaxes some constraint on the booking times.
+      */
+    def form(now: Instant, studio: Studio, isManualBooking: Boolean = false)(
+        implicit config: Configuration) = Form {
+
         val minBookingDateTime = studio.currentDateTime(now)
-        val maxBookingDate = studio.maxBookingDate(now)
+        val maxBookingDate =
+            if (isManualBooking) {
+                studio.maxManualBookingDate(now)
+            } else {
+                studio.maxBookingDate(now)
+            }
 
         mapping(
             "begins-at"       -> CustomFields.localDateTime.
                 verifying(
                     "Invalid booking start time.",
                     beginsAt => {
-                        val bookingBeginsRoundingTime = 
+                        val bookingBeginsRoundingTime =
                             config.get[duration.Duration]("noisycamp.bookingBeginsRoundingTime")
 
                         (beginsAt.getMinute % bookingBeginsRoundingTime.toMinutes) == 0
@@ -64,15 +73,19 @@ object BookingTimesForm {
                     }).
                 verifying(
                     "Less than the minimal rental duration set by the studio's manager.",
-                    duration => duration.compareTo(studio.bookingPolicy.minBookingDuration) >= 0).
+                    duration =>
+                        isManualBooking ||
+                        duration.compareTo(studio.bookingPolicy.minBookingDuration) >= 0).
                 verifying(
                     "Can't exceed 24 hours.",
                     duration => duration.compareTo(Duration.ofDays(1)) <= 0)
             )(BookingTimes.apply)(BookingTimes.unapply).
                 verifying(
                     "The studio is not open during the selected booking period.",
-                    booking => studio.openingSchedule.
-                        validateBooking(studio.pricingPolicy, booking).
-                        isDefined)
+                    booking =>
+                        isManualBooking ||
+                        studio.openingSchedule.
+                            validateBooking(studio.pricingPolicy, booking).
+                            isDefined)
     }
 }

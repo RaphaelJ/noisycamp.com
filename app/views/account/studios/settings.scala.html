@@ -39,19 +39,22 @@
             action="@controllers.account.studios.routes.IndexController.settingsSubmit(studio.id)"
             method="post"
             class="grid-x">
+            @defining(FormUtils.dataAsJson(studioForm)) { formData =>
+            @defining(FormUtils.errorsAsJson(studioForm)(messagesProvider)) { formErrors =>
+                <studio-form
+                    csrf-token="@helper.CSRF.getToken.value"
+                    :value="@tags.json(formData, htmlEscape = true)"
+                    :errors="@tags.json(formErrors, htmlEscape = true)"
+                    :can-add-fee="@identity.user.plan.equipmentFee">
+                </studio-form>
 
-            <studio-form
-                csrf-token="@helper.CSRF.getToken.value"
-                :value="@tags.json(FormUtils.dataAsJson(studioForm), htmlEscape = true)"
-                :errors='@studioForm.errorsAsJson'
-                :can-add-fee="@identity.user.plan.equipmentFee">
-            </studio-form>
-
-            <div class="cell text-right">
-                <button type="submit" class="button primary large small-only-expanded">
-                    Save settings
-                </button>
-            </div>
+                <div class="cell text-right">
+                    <button type="submit" class="button primary large small-only-expanded">
+                        Save settings
+                    </button>
+                </div>
+            }
+            }
         </form>
     </div>
 }

@@ -22,6 +22,7 @@
     <div class="grid-x grid-margin-x">
         <div
             v-for="(weekDay, dayIx) in weekDays"
+            :key="weekDay"
             class="cell small-12 medium-6 large-4">
 
             <div class="grid-x grid-margin-x checkbox-group">
@@ -37,15 +38,9 @@
                         <h5>{{ weekDay }}</h5>
 
                         <span
-                            v-if="fieldHasError(weekDay.toLowerCase())"
+                            v-if="errors[weekDay.toLowerCase()]['is-open']"
                             class="error">
-                            {{ fieldError(weekDay.toLowerCase()) }}
-                        </span>
-
-                        <span
-                            v-if="fieldHasError(weekDay.toLowerCase() + '.is-open')"
-                            class="error">
-                            {{ fieldError(weekDay.toLowerCase() + '.is-open') }}
+                            {{ errors[weekDay.toLowerCase()]['is-open'] }}
                         </span>
                     </label>
                 </div>
@@ -62,9 +57,9 @@
                             pattern="[0-9]{2}:[0-9]{2}">
 
                         <span
-                            v-if="fieldHasError(weekDay.toLowerCase() + '.opens-at')"
+                            v-if="errors[weekDay.toLowerCase()]['opens-at']"
                             class="error">
-                            {{ fieldError(weekDay.toLowerCase() + '.opens-at') }}
+                            {{ errors[weekDay.toLowerCase()]['opens-at'] }}
                         </span>
                     </label>
                 </div>
@@ -81,10 +76,18 @@
                             pattern="[0-9]{2}:[0-9]{2}">
 
                         <span
-                            v-if="fieldHasError(weekDay.toLowerCase() + '.closes-at')"
+                            v-if="errors[weekDay.toLowerCase()]['closes-at']"
                             class="error">
-                            {{ fieldError(weekDay.toLowerCase() + '.closes-at') }}
+                            {{ errors[weekDay.toLowerCase()]['closes-at'] }}
                         </span>
+                    </label>
+                </div>
+
+                <div
+                    class="cell small-12"
+                    v-if="errors[weekDay.toLowerCase()]['']">
+                    <label>
+                        <span class="error">{{ errors[weekDay.toLowerCase()][''] }}</span>
                     </label>
                 </div>
             </div>
@@ -95,7 +98,7 @@
 <script lang="ts">
 import Vue from "vue";
 
-import VueInput from '../../widgets/VueInput';
+import VueInput from '../../../widgets/VueInput';
 
 export default Vue.extend({
     mixins: [VueInput],

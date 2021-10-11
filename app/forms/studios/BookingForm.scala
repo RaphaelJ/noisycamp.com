@@ -19,11 +19,14 @@ package forms.studios
 
 import scala.collection.mutable
 
+import java.time.Instant
+
 import play.api.Configuration
 import play.api.data.{ Form, Mapping }
 import play.api.data.Forms._
 
 import forms.CustomFields
+import forms.components.{ BookingTimesForm }
 import models.{ BookingTimes, Equipment, HasBookingTimes, PaymentMethod, Studio }
 
 /** A form to place a booking request. */
@@ -34,30 +37,30 @@ object BookingForm {
             PaymentMethod.Online  -> "online",
             PaymentMethod.Onsite  -> "onsite"))
 
-    def form(studio: Studio, equipments: Seq[Equipment])(
+    def form(now: Instant, studio: Studio, equipments: Seq[Equipment])(
         implicit config: Configuration): Form[Data] = {
-        formGeneric(studio, equipments, optional(paymentMethod))
+        formGeneric(now, studio, equipments, optional(paymentMethod))
     }
 
     /** Same as `form` but forces the payment method to be defined. */
-    def formWithPaymentMethod(studio: Studio, equipments: Seq[Equipment])(
+    def formWithPaymentMethod(now: Instant, studio: Studio, equipments: Seq[Equipment])(
         implicit config: Configuration): Form[DataWithPaymentMethod] = {
-        formGeneric(studio, equipments, paymentMethod)
+        formGeneric(now, studio, equipments, paymentMethod)
     }
 
     private def formGeneric[PM](
-        studio: Studio, equipments: Seq[Equipment], paymentMethodField: Mapping[PM])(
+        now: Instant, studio: Studio, equipments: Seq[Equipment], paymentMethodField: Mapping[PM])(
         implicit config: Configuration): Form[DataGeneric[PM]] = {
-            
+
         val equipmentsMap = equipments.map { e => e.id -> e }.toMap
 
         val equipmentField = longNumber.
             verifying("Invalid equipment", equipmentsMap.contains _).
             transform(equipmentsMap.apply _, (e: Equipment) => e.id)
-            
+
         Form(
             mapping(
-                "booking-times"     -> BookingTimesForm.form(studio).mapping,
+                "times"             -> BookingTimesForm.form(now, studio).mapping,
                 "equipments"        -> seq(equipmentField).
                     // Removes duplicates using a sorted set (O(n))
                     transform(

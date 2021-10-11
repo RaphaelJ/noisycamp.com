@@ -30,8 +30,8 @@
                     required>
                 </country-select>
 
-                <span v-if="fieldHasError('country')" class="error">
-                    {{ fieldError('country') }}
+                <span v-if="errors['country']" class="error">
+                    {{ errors['country'] }}
                 </span>
             </label>
         </div>
@@ -53,8 +53,8 @@
                     :disabled="!address.country"
                     required>
 
-                <span v-if="fieldHasError('address-1')" class="error">
-                    {{ fieldError('address-1') }}
+                <span v-if="errors['address-1']" class="error">
+                    {{ errors['address-1'] }}
                 </span>
             </label>
         </div>
@@ -71,8 +71,8 @@
                     v-model="address['address-2']"
                     :disabled="!address['country']">
 
-                    <span v-if="fieldHasError('address-2')" class="error">
-                        {{ fieldError('address-2') }}
+                    <span v-if="errors['address-2']" class="error">
+                        {{ errors['address-2'] }}
                     </span>
             </label>
         </div>
@@ -90,8 +90,8 @@
                             :disabled="!address['country']"
                             required>
 
-                        <span v-if="fieldHasError('city')" class="error">
-                            {{ fieldError('city') }}
+                        <span v-if="errors['city']" class="error">
+                            {{ errors['city'] }}
                         </span>
                     </label>
                 </div>
@@ -107,8 +107,8 @@
                             :disabled="!address['country'] || !hasZipCode"
                             :required="hasZipCode">
 
-                        <span v-if="fieldHasError('zipcode')" class="error">
-                            {{ fieldError('zipcode') }}
+                        <span v-if="errors['zipcode']" class="error">
+                            {{ errors['zipcode'] }}
                         </span>
                     </label>
                 </div>
@@ -129,17 +129,26 @@
                             </option>
                             <option
                                 v-for="state in orderedStates"
+                                :key="state.code"
                                 :value="state.code">
                                 {{ state.name }}
                             </option>
                         </select>
 
-                        <span v-if="fieldHasError('state')" class="error">
-                            {{ fieldError('state') }}
+                        <span v-if="errors['state']" class="error">
+                            {{ errors['state'] }}
                         </span>
                     </label>
                 </div>
             </div>
+        </div>
+
+        <div
+            class="cell"
+            v-if="globalError">
+            <label>
+                <span class="error">{{ globalError }}</span>
+            </label>
         </div>
     </div>
 </template>
@@ -147,8 +156,8 @@
 <script lang="ts">
 import Vue from "vue";
 
-import VueInput from '../../widgets/VueInput';
-import CountrySelect from '../../widgets/CountrySelect.vue';
+import VueInput from '../../../widgets/VueInput';
+import CountrySelect from '../../../widgets/CountrySelect.vue';
 
 declare var NC_CONFIG: any;
 

@@ -1,3 +1,4 @@
+
 <!--
   Noisycamp is a platform for booking music studios.
   Copyright (C) 2019  Raphael Javaux <raphaeljavaux@gmail.com>
@@ -57,7 +58,7 @@ import Vue, { PropOptions } from "vue";
 
 declare var NC_ROUTES: any;
 
-import StudiosIndexListingItem from './IndexListingItem.vue';
+import StudiosIndexListingItem from './StudioIndexListingItem.vue';
 
 export default Vue.extend({
     props: {

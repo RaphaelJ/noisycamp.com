@@ -38,8 +38,8 @@
                     <option value="28800">8 hours</option>
                 </select>
 
-                <span v-if="fieldHasError('min-booking-duration')" class="error">
-                    {{ fieldError('min-booking-duration') }}
+                <span v-if="errors['min-booking-duration']" class="error">
+                    {{ errors['min-booking-duration'] }}
                 </span>
             </label>
         </div>
@@ -56,8 +56,8 @@
                 <label for="booking-policy-automatic-approval">
                     Automatically accept booking requests
 
-                    <span v-if="fieldHasError('automatic-approval')" class="error">
-                        {{ fieldError('automatic-approval') }}
+                    <span v-if="errors['automatic-approval']" class="error">
+                        {{ errors['automatic-approval'] }}
                     </span>
                 </label>
             </div>
@@ -80,8 +80,8 @@
                 <label for="booking-policy-can-cancel">
                     Reimburse customers who cancel their booking
 
-                    <span v-if="fieldHasError('can-cancel')" class="error">
-                        {{ fieldError('can-cancel') }}
+                    <span v-if="errors['can-cancel']" class="error">
+                        {{ errors['can-cancel'] }}
                     </span>
                 </label>
             </div>
@@ -109,8 +109,8 @@
                         <option value="604800">1 week before the session</option>
                     </select>
 
-                    <span v-if="fieldHasError('cancellation-notice')" class="error">
-                        {{ fieldError('cancellation-notice') }}
+                    <span v-if="errors['cancellation-notice']" class="error">
+                        {{ errors['cancellation-notice'] }}
                     </span>
                 </label>
 
@@ -119,14 +119,22 @@
                 </p>
             </div>
         </slide-down-transition>
+
+        <div
+            class="cell"
+            v-if="globalError">
+            <label>
+                <span class="error">{{ globalError }}</span>
+            </label>
+        </div>
     </div>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
 
-import VueInput from '../../widgets/VueInput';
-import SlideDownTransition from '../../../transitions/SlideDownTransition.vue';
+import VueInput from '../../../widgets/VueInput';
+import SlideDownTransition from '../../../../transitions/SlideDownTransition.vue';
 
 export default Vue.extend({
     mixins: [VueInput],

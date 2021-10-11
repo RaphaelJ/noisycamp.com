@@ -18,7 +18,7 @@
 package controllers.studios
 
 import javax.inject._
-import java.time.{ Duration, LocalDateTime }
+import java.time.{ Duration, Instant, LocalDateTime }
 import java.time.format.DateTimeFormatter
 
 import scala.concurrent.Future
@@ -42,6 +42,7 @@ import models.{ BookingDurations, BookingTimes, CancellationPolicy, Equipment, H
     Identity, LocalEquipment, LocalPricingPolicy, PaymentMethod, Picture, PriceBreakdown, Studio,
     StudioBooking, StudioBookingEquipment, StudioBookingPaymentOnline, StudioBookingPaymentOnsite,
     StudioBookingStatus, User }
+import java.time.Instant
 
 @Singleton
 class BookingController @Inject() (ccc: CustomControllerCompoments)
@@ -51,22 +52,16 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
     import profile.api._
 
     /** Shows a booking review page. */
-    def show(id: Studio#Id, beginsAt: String, duration: Int, equipments: Seq[Equipment#Id]) =
-        SecuredAction.async { implicit request =>
+    def show(id: Studio#Id) = SecuredAction.async { implicit request =>
 
-        val params = Map(
-            "booking-times.begins-at"   -> Seq(beginsAt),
-            "booking-times.duration"    -> Seq(duration.toString),
-            
-            "equipments[]"              -> equipments.map(_.toString))
+        val now = Instant.now
 
         withStudioTransaction(id, { case (studio, owner, equips, picIds) =>
             validateAvailabilities(
-                studio, BookingForm.form(studio, equips).bindFromRequest(params)).
+                studio, BookingForm.form(now, studio, equips).bindFromRequest(request.queryString)).
                 map { form =>
                     form.fold(
-                        form => {
-                            Left(form.errors)},
+                        form => Left(form.errors),
                         data => {
                             val bookingTimes = data.bookingTimes
 
@@ -85,8 +80,8 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
                         filter(_.id === studio.ownerId).
                         result.
                         head.
-                        map { owner => 
-                            Ok(views.html.studios.booking(
+                        map { owner =>
+                            Ok(views.html.studios.bookingReview(
                                 identity = request.identity, owner, studio, picIds, summary))
                         }
                 }
@@ -96,13 +91,15 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
     /** Processes a reviewed booking. */
     def submit(id: Studio#Id) = SecuredAction.async { implicit request =>
 
+        val now = Instant.now
+
         withStudioTransaction(id, { case (studio, owner, equips, picIds) =>
             validateAvailabilities(
-                studio, BookingForm.formWithPaymentMethod(studio, equips).bindFromRequest).
+                studio, BookingForm.formWithPaymentMethod(now, studio, equips).bindFromRequest).
                 flatMap { form =>
                     form.fold(
                         form => {
-                            DBIO.successful(Ok(views.html.studios.booking(
+                            DBIO.successful(Ok(views.html.studios.bookingReview(
                                 identity = request.identity, owner, studio, picIds,
                                 Left(form.errors))))
                         },
@@ -111,7 +108,7 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
                                 case PaymentMethod.Online => handleOnlinePayment _
                                 case PaymentMethod.Onsite => handleOnsitePayment _
                             }
-                            
+
                             val localEquipments = data.equipments.
                                 filter(_.price.isDefined).
                                 map(_.localEquipment(studio))
@@ -155,10 +152,10 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
 
         val beginsAt = bookingTimes.beginsAt
         val onCancel = routes.BookingController.show(
-            studioId = studio.id,
+            studioId = studio.id/*,
             beginsAt = beginsAt.toString,
             duration = bookingTimes.duration.getSeconds.toInt,
-            equipments = equipments.map(_.id))
+            equipments = equipments.map(_.id)*/)
 
         val transactionFeeRate = Some(owner.plan.transactionRate)
         val priceBreakdown = PriceBreakdown(studio, bookingTimes, equipments, transactionFeeRate)
@@ -179,13 +176,13 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
                     payment))
 
             bookingEquips <- daos.studioBookingEquipment.
-                insert ++= equipments.map { e => 
+                insert ++= equipments.map { e =>
                     StudioBookingEquipment(
                         bookingId = booking.id,
                         equipmentId = e.id)
                 }
 
-        } yield Ok(views.html.studios.bookingCheckout(identity = Some(identity), session))
+        } yield Ok(views.html.studios.bookingCheckoutRedirect(identity = Some(identity), session))
     }
 
     private def handleOnsitePayment(
@@ -218,15 +215,15 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
             booking <- daos.studioBooking.insert(booking)
 
             bookingEquips <- daos.studioBookingEquipment.
-                insert ++= equipments.map { e => 
+                insert ++= equipments.map { e =>
                     StudioBookingEquipment(
                         bookingId = booking.id,
                         equipmentId = e.id)
                     }
-            
+
             // TODO: Do not send the email within the DB transaction.
             result <- DBIO.from { onSuccess(booking, owner)  }
-        } yield result    
+        } yield result
     }
 
     /** Processes a valid booking payment redirect (from Stripe). */
@@ -240,10 +237,10 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
 
         def onPaymentFailure(booking: StudioBooking) = {
             Redirect(routes.BookingController.show(
-                booking.studioId,
+                booking.studioId/*,
                 booking.times.beginsAt.toString,
                 booking.times.duration.getSeconds.toInt,
-                Seq.empty)).
+                Seq.empty*/)).
                 flashing("error" ->
                     ("A problem occured during the processing of your payment. Please try again " +
                     "later."))
@@ -427,7 +424,7 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
 
     /** Executes the function within the DBIO monad, or returns a 404 response. */
     private def withStudioTransaction[T](id: Studio#Id,
-        f: ((Studio, User, Seq[Equipment], Seq[Picture#Id]) 
+        f: ((Studio, User, Seq[Equipment], Seq[Picture#Id])
             => DBIOAction[Result, NoStream, Effect.All]))
         (implicit request: SecuredRequest[DefaultEnv, T]): Future[Result] = {
 
@@ -439,7 +436,7 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
                     filter(_.id === id).
                     join(daos.user.query).on(_.ownerId === _.id).
                     result.headOption
-                    
+
                 equips <- daos.studioEquipment.withStudioEquipment(id).result
                 picIds <- daos.studioPicture.withStudioPictureIds(id).result
 

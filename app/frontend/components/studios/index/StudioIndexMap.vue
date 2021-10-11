@@ -25,10 +25,10 @@ import * as mapboxgl from 'mapbox-gl';
 import * as moment from 'moment';
 import Vue, { PropOptions } from "vue";
 
-import MoneyAmount from '../widgets/MoneyAmount.vue'
+import MoneyAmount from '../../widgets/MoneyAmount.vue'
 
-import { startingPrice } from '../../misc/MoneyUtils';
-import { isWeekend } from "../../misc/DateUtils";
+import { startingPrice } from '../../../misc/MoneyUtils';
+import { isWeekend } from "../../../misc/DateUtils";
 
 declare var NC_CONFIG: any;
 

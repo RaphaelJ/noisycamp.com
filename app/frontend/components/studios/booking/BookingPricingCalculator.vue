@@ -99,9 +99,9 @@ import * as moment from 'moment';
 
 import {
     renderDuration, dateComponent, timeComponent, withTimeComponent
-} from '../../misc/DateUtils';
-import { asCurrency } from '../../misc/MoneyUtils';
-import MoneyAmount from '../widgets/MoneyAmount.vue'
+} from '../../../misc/DateUtils';
+import { asCurrency } from '../../../misc/MoneyUtils';
+import MoneyAmount from '../../widgets/MoneyAmount.vue'
 
 export default Vue.extend({
     props: {

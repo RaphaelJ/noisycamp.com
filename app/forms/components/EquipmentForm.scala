@@ -34,13 +34,13 @@ object EquipmentForm {
 
         val priceType = text.
             verifying(
-                "Invalid price type", 
+                "Invalid price type",
                 { value => Seq("per-hour", "per-session").contains(value) })
 
         val price = mapping(
             "type"  -> priceType,
             "value" -> CustomFields.amount
-        ) { 
+        ) {
             case ("per-hour", value) => EquipmentPricePerHour(value).asInstanceOf[EquipmentPrice]
             case ("per-session", value) => EquipmentPricePerSession(value)
             case (_, _) => throw new Exception("Unreachable path")

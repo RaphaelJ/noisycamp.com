@@ -83,6 +83,6 @@ module.exports = {
             path.resolve(__dirname, '.')
         ),
         new webpack.HotModuleReplacementPlugin(),
-        new VueLoaderPlugin()
+        new VueLoaderPlugin(),
     ]
 };

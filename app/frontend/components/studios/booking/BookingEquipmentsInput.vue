@@ -23,9 +23,9 @@
             :key="equip.id">
             <div class="grid-x grid-margin-x">
                 <div class="cell auto checkbox-group text-overflow-ellipsis">
-                    <input 
+                    <input
                         :id="'equipment-' + equip.id"
-                        name="equipments"
+                        :name="name"
                         :value="equip.id"
                         type="checkbox"
                         v-model="equipmentToggle[equip.id]">
@@ -47,7 +47,7 @@
                                 {{ equip.details }}
                             </small>
                         </span>
-                        <span 
+                        <span
                             v-else-if="equip.details"
                             :title="equip.details">
                             {{ equip.details }}
@@ -85,7 +85,7 @@ export default Vue.extend({
 
         value: <PropOptions<Object[]>>{ type: Array, required: true },
     },
-    data() {  
+    data() {
         let pricedEquipments = this.equipments.filter(e => e['price']);
 
         let equipmentToggle = {};
@@ -99,7 +99,7 @@ export default Vue.extend({
         };
     },
     computed: {
-        
+
     },
     methods: {
         equipmentCategoryIcon(equipment) {

@@ -63,12 +63,12 @@ import Vue from "vue";
 
 declare var NC_ROUTES: any;
 
-import LocationInput from '../widgets/LocationInput.vue';
-import StudiosIndexFilters from './IndexFilters.vue';
-import StudiosIndexListing from './IndexListing.vue';
-import StudiosIndexMap from './IndexMap.vue';
+import LocationInput from '../../widgets/LocationInput.vue';
+import StudiosIndexFilters from './StudioIndexFilters.vue';
+import StudiosIndexListing from './StudioIndexListing.vue';
+import StudiosIndexMap from './StudioIndexMap.vue';
 import { serializeBBox, unserializeBBox, serializeCenter, unserializeCenter,
-    serializeFeature } from '../../misc/GeoUtils';
+    serializeFeature } from '../../../misc/GeoUtils';
 
 export default Vue.extend({
     props: {

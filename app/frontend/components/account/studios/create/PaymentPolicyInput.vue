@@ -35,8 +35,8 @@
                 <label for="payment-policy-has-online-payment">
                     Allow online payments using credit and debit cards
 
-                    <span v-if="fieldHasError('has-online-payment')" class="error">
-                        {{ fieldError('has-online-payment') }}
+                    <span v-if="errors['has-online-payment']" class="error">
+                        {{ errors['has-online-payment'] }}
                     </span>
                 </label>
             </div>
@@ -61,8 +61,8 @@
                 <label for="payment-policy-has-onsite-payment">
                     Allow onsite payments
 
-                    <span v-if="fieldHasError('has-onsite-payment')" class="error">
-                        {{ fieldError('has-onsite-payment') }}
+                    <span v-if="errors['has-onsite-payment']" class="error">
+                        {{ errors['has-onsite-payment'] }}
                     </span>
                 </label>
             </div>
@@ -92,14 +92,22 @@
                 </div>
             </slide-down-transition>
         </div>
+
+        <div
+            class="cell"
+            v-if="globalError">
+            <label>
+                <span class="error">{{ globalError }}</span>
+            </label>
+        </div>
     </div>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
 
-import VueInput from '../../widgets/VueInput';
-import SlideDownTransition from '../../../transitions/SlideDownTransition.vue';
+import VueInput from '../../../widgets/VueInput';
+import SlideDownTransition from '../../../../transitions/SlideDownTransition.vue';
 
 export default Vue.extend({
     mixins: [VueInput],

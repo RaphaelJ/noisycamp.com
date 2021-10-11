@@ -78,6 +78,15 @@ case class Studio(
             plusDays(config.get[Duration]("noisycamp.maxBookingAdvance").toDays)
     }
 
+    /** The maximum (exclusive) date for which a manual booking can be done. */
+    def maxManualBookingDate(now: Instant = Instant.now)(implicit config: Configuration):
+        LocalDate = {
+
+        currentDateTime(now).
+            toLocalDate.
+            plusDays(config.get[Duration]("noisycamp.maxManualBookingAdvance").toDays)
+    }
+
     /** Returns a string of the ID and the URL encoded name of the studio. */
     def URLId: String = {
         val city = location.address.city

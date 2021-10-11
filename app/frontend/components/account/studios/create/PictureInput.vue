@@ -31,14 +31,9 @@
         </div>
 
         <div
-            class="cell callout alert"
-            v-if="fieldHasError('')">
-            {{ fieldError('') }}
-        </div>
-
-        <div
             class="cell medium-4 small-6 picture"
-            v-for="(picId, index) in pictures">
+            v-for="(picId, index) in pictures"
+            :key="picId">
 
             <input type="hidden" :name="name" :value="picId">
 
@@ -79,6 +74,14 @@
                 accept="image/*"
                 multiple>
         </div>
+
+        <div
+            class="cell"
+            v-if="globalError">
+            <label>
+                <span class="error">{{ globalError }}</span>
+            </label>
+        </div>
     </div>
 </template>
 
@@ -86,8 +89,8 @@
 import axios from "axios";
 import Vue from "vue";
 
-import ReactivePicture from '../../widgets/ReactivePicture.vue'
-import VueInput from '../../widgets/VueInput';
+import ReactivePicture from '../../../widgets/ReactivePicture.vue'
+import VueInput from '../../../widgets/VueInput';
 
 declare var NC_CONFIG: any;
 declare var NC_ROUTES: any;

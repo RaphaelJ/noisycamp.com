@@ -27,7 +27,7 @@ GET     /about                          controllers.IndexController.about
 GET     /terms                          controllers.IndexController.terms
 GET     /privacy                        controllers.IndexController.privacy
 
-# Authentication
+# User Authentication
 
 GET     /sign-in                        controllers.AuthController.signIn(redirectTo: Option[String] ?= None)
 POST    /sign-in                        controllers.AuthController.signInSubmit(redirectTo: Option[String] ?= None)
@@ -43,9 +43,13 @@ GET     /social/authenticate/:provider  controllers.AuthController.oauth2Authent
 
 GET     /account                        controllers.account.IndexController.index
 
+# User bookings
+
 GET     /account/bookings               controllers.account.BookingsController.index
 GET     /account/bookings/:id           controllers.account.BookingsController.show(id: Long)
 GET     /account/bookings/:id/cancel    controllers.account.BookingsController.cancel(id: Long)
+
+# User studios
 
 GET     /account/studios                controllers.account.studios.IndexController.index
 
@@ -61,6 +65,7 @@ GET     /account/studios/:id/bookings/calendar  controllers.account.studios.Book
 GET     /account/studios/:id/bookings/calendar/sync  controllers.account.studios.BookingsController.calendarSync(id: Long)
 
 GET     /account/studios/:id/bookings/create  controllers.account.studios.BookingsController.create(id: Long)
+POST    /account/studios/:id/bookings/create  controllers.account.studios.BookingsController.createSubmit(id: Long)
 
 GET     /account/studios/:id/bookings/:booking  controllers.account.studios.BookingsController.show(id: Long, booking: Long)
 
@@ -73,11 +78,15 @@ GET     /account/studios/:id/embedded/demo  controllers.account.studios.Embedded
 
 GET     /account/studios/:id/publish    controllers.account.studios.IndexController.publish(id: Long)
 
+# User payouts
+
 GET     /account/payouts                controllers.account.PayoutsController.index
 
 GET     /account/payouts/setup          controllers.account.PayoutsController.setup
 POST    /account/payouts/setup          controllers.account.PayoutsController.setup
 GET     /account/payouts/setup-complete controllers.account.PayoutsController.setupComplete
+
+# User Premium upgrade
 
 GET     /account/premium/upgrade        controllers.account.PremiumController.upgrade
 POST    /account/premium/upgrade        controllers.account.PremiumController.upgradeSubmit
@@ -93,7 +102,7 @@ GET     /studios/:studioId/embedded/v1  controllers.StudiosController.embedded(s
 
 # Booking
 
-GET     /studios/:studioId/booking      controllers.studios.BookingController.show(studioId: Long, beginsAt: String, duration: Int, equipments: Seq[Long])
+GET     /studios/:studioId/booking      controllers.studios.BookingController.show(studioId: Long)
 POST    /studios/:studioId/booking      controllers.studios.BookingController.submit(studioId: Long)
 
 GET     /studios/:studioId/booking/payment/:sessionId/success controllers.studios.BookingController.paymentSuccess(studioId: Long, sessionId: String)

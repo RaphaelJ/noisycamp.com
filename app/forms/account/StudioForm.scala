@@ -48,7 +48,7 @@ object StudioForm {
             "booking-policy"        -> forms.components.BookingPolicyForm.form.mapping,
             "payment-policy"        -> forms.components.PaymentPolicyForm.form.mapping,
 
-            "equipments"            -> 
+            "equipments"            ->
                 seq(forms.components.EquipmentForm.form(canUseEquipmentPrice).mapping),
             "pictures"              -> seq(CustomFields.pictureId)
         )(Data.apply)(Data.unapply))
@@ -97,7 +97,7 @@ object StudioForm {
                 name = name,
                 description = description,
                 phone = phone,
-                
+
                 usePractice = usePractice,
                 useRecording = useRecording,
                 useLive = useLive,

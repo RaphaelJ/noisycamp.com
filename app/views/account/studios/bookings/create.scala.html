@@ -1,0 +1,118 @@
+@* Noisycamp is a platform for booking music studios.
+ * Copyright (C) 2021  Raphael Javaux <raphael@noisycamp.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *@
+
+@import java.time.Instant
+@import scala.concurrent.duration.Duration
+
+@import play.api.Configuration
+@import play.api.libs.json.Json
+
+@import forms.account.ManualBookingForm
+@import misc.FormUtils
+@import misc.JsonWrites._
+@import models.BookingRepeatFrequency
+
+@(
+    identity: models.Identity,
+    now: Instant,
+    studio: models.Studio,
+    bookingEvents: Seq[models.Event],
+    form: Form[ManualBookingForm.Data])(
+    implicit request: RequestHeader, messagesProvider: MessagesProvider,
+    config: Configuration, flash: Flash)
+
+@implicitField = @{ helper.FieldConstructor(utils.forms.foundationFieldConstructor.f) }
+
+@currentDateTime = @{ studio.currentDateTime(now) }
+
+@maxManualBookingDate = @{ studio.maxManualBookingDate(now) }
+@minBookingDuration = @{ config.get[Duration]("noisycamp.minManualBookingDuration").toSeconds }
+
+@title = @{ "Create a new booking" }
+
+@views.html.account.layout(
+    Seq(title, studio.name),
+    identity=identity) {
+
+<div class="grid-y grid-padding-y">
+    <div class="cell">
+        <div class="panel-section">
+            @helper.form(
+                action=controllers.account.studios.routes.BookingsController.createSubmit(studio.id)
+            ) {
+            @defining(FormUtils.dataAsJson(form)) { formData =>
+            @defining(FormUtils.errorsAsJson(form)(messagesProvider)) { formErrors =>
+
+                @helper.CSRF.formField
+
+                <div class="grid-x">
+                    <div class="cell small-12">
+                        @helper.inputText(form("title"),
+                            '_label -> "Booking's title or description",
+                            'required -> "required",
+                            '_showConstraints -> false)
+                    </div>
+
+                    <div class="cell small-12 large-9">
+                        @defining(form("times").name) { fieldName =>
+                            <booking-times-input
+                                name="@fieldName"
+                                :value="@tags.json(formData(fieldName), htmlEscape = true)"
+                                :errors="@tags.json(formErrors(fieldName), htmlEscape = true)"
+                                current-time="@currentDateTime"
+                                end="@maxManualBookingDate"
+                                :min-booking-duration="@minBookingDuration"
+                                :compact="true">
+                            </booking-times-input>
+                        }
+                    </div>
+
+                    <div class="cell small-12 large-9">
+                        @defining(form("repeat")) { field =>
+                            <booking-repeat-input
+                                name="@field.name"
+                                :value="@tags.json(formData(field.name), htmlEscape = true)"
+                                :errors="@tags.json(formErrors(field.name), htmlEscape = true)"
+                                current-time="@currentDateTime"
+                                end="@maxManualBookingDate">
+                            </booking-repeat-input>
+                        }
+                    </div>
+
+                    @for(globalError<- form.error("")) {
+                        <div class="cell small-12">
+                            <label><span class="error">@globalError.format</span></label>
+                        </div>
+                    }
+
+                    <div class="cell small-12 text-right">
+                        <hr>
+
+                        <button
+                            type="submit"
+                            class="button primary large small-only-expanded">
+                            Create
+                        </button>
+                    </div>
+                </div>
+            }
+            }
+            }
+        </div>
+    </div>
+</div>
+}

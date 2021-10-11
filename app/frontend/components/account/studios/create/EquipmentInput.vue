@@ -20,10 +20,6 @@
 
 <template>
     <div class="grid-x grid-margin-y">
-        <div class="cell callout alert" v-if="fieldHasError()">
-            {{ fieldError() }}
-        </div>
-
         <div class="cell small-12" v-if="equipments.length > 0">
             <ul
                 class="equipment-list grid-x grid-margin-x grid-margin-y grid-padding-x grid-padding-y">
@@ -116,10 +112,12 @@
                         <option disabled>Please select an equipment category</option>
                         <optgroup
                             v-for="family in equipmentByFamily"
+                            :key="family.name"
                             :label="family.name">
 
                             <option
                                 v-for="equipment in family.equipments"
+                                :key="equipment.code"
                                 :value="equipment.code">
                                 {{ equipment.name }}
                             </option>
@@ -218,6 +216,14 @@
                         Add equipment
                     </button>
                 </div>
+
+                <div
+                    class="cell"
+                    v-if="globalError">
+                    <label>
+                        <span class="error">{{ globalError }}</span>
+                    </label>
+                </div>
             </div>
         </div>
     </div>
@@ -226,13 +232,12 @@
 <script lang="ts">
 import Vue from "vue";
 
-import { fromCDN } from '../../../misc/URL';
-import { asMoney } from '../../../misc/MoneyUtils';
+import { fromCDN } from '../../../../misc/URL';
 
-import VueInput from '../../widgets/VueInput';
-import MoneyAmount from '../../widgets/MoneyAmount.vue'
-import MoneyInput from '../../widgets/MoneyInput.vue';
-import SlideDownTransition from '../../../transitions/SlideDownTransition.vue';
+import VueInput from '../../../widgets/VueInput';
+import MoneyAmount from '../../../widgets/MoneyAmount.vue'
+import MoneyInput from '../../../widgets/MoneyInput.vue';
+import SlideDownTransition from '../../../../transitions/SlideDownTransition.vue';
 
 declare var NC_CONFIG: any;
 declare var NC_ROUTES: any;

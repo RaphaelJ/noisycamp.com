@@ -34,6 +34,7 @@
 @currentDateTime = @{ studio.currentDateTime(now) }
 
 @maxBookingDate = @{ studio.maxBookingDate(now) }
+@minBookingDuration = @{ studio.bookingPolicy.minBookingDuration.getSeconds() }
 
 @pricingPolicy = @{ studio.localPricingPolicy }
 
@@ -72,15 +73,15 @@
 <div class="cell small-12"><hr></div>
 
 <div class="cell small-12">
-    <booking-times-form
+    <booking-form
         current-time="@currentDateTime"
         end="@maxBookingDate"
         :studio-id="@studio.id"
         :opening-schedule="@openingScheduleJson"
         :occupancies="@bookingEventsJson"
-        :min-booking-duration="@studio.bookingPolicy.minBookingDuration.getSeconds()"
+        :min-booking-duration="@minBookingDuration"
         :pricing-policy="@pricingPolicyJson"
         :equipments="@equipmentsJson"
         @for(target <- formTarget) { target="@target" }>
-    </booking-times-form>
+    </booking-form>
 </div>

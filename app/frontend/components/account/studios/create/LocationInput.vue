@@ -23,7 +23,8 @@
         <div class="cell small-12">
             <address-input
                 :name="fieldName('address')"
-                v-model="address">
+                v-model="address"
+                :errors="errors['address']">
             </address-input>
         </div>
 
@@ -53,7 +54,7 @@ import * as mbxGeocoding from '@mapbox/mapbox-sdk/services/geocoding';
 import * as _ from "lodash";
 import Vue from "vue";
 
-import VueInput from '../../widgets/VueInput';
+import VueInput from '../../../widgets/VueInput';
 import AddressInput from './AddressInput.vue';
 
 declare var NC_CONFIG: any;

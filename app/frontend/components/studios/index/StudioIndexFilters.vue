@@ -47,7 +47,7 @@ import Vue from "vue";
 
 import * as moment from 'moment';
 
-import LocationInput from '../widgets/LocationInput.vue'
+import LocationInput from '../../widgets/LocationInput.vue'
 
 export default Vue.extend({
     props: {

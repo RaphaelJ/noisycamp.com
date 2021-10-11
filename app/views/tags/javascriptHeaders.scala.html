@@ -3,7 +3,7 @@
 @import frontend.JsConfig
 @import misc.URL
 
-@()(implicit req: RequestHeader, config: Configuration, flash: Flash)
+@(javascript: Html = Html(""))(implicit req: RequestHeader, config: Configuration, flash: Flash)
 
 <script>
     var NC_CONFIG = @tags.json(JsConfig());
@@ -37,9 +37,11 @@
 <script src="@URL.fromCDN(routes.Assets.versioned("javascripts/vendor/foundation.min.js"))">
 </script>
 
-<script src="@URL.fromCDN(routes.Assets.versioned("javascripts/bundle.js"))"></script>
-
 <script>$(document).foundation();</script>
+
+@javascript
+
+<script src="@URL.fromCDN(routes.Assets.versioned("javascripts/bundle.js"))"></script>
 
 @for(pixelID <- config.getOptional[String]("facebook.pixelID")) {
     <script>

@@ -19,7 +19,7 @@ package forms.components
 
 import java.time.LocalTime
 
-import play.api.data.{ Form, FormError, Mapping }
+import play.api.data.{ Form, Mapping }
 import play.api.data.format.Formatter
 import play.api.data.Forms._
 
@@ -58,7 +58,7 @@ object OpeningScheduleForm {
           case (true, Some(opensAt), Some(closesAt)) =>
             Some(OpeningTimes(opensAt, closesAt))
           case (false, _, _) => None
-          // Should never be reached because of hereabove constraint:
+          // Should never be reached because of hereabove verifying constraint:
           case _ => None
         },
         {

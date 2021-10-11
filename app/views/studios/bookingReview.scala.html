@@ -29,7 +29,9 @@
     studio: Studio,
     pictures: Seq[Picture#Id],
     summary: Either[Seq[FormError], (BookingTimes, Seq[LocalEquipment], PriceBreakdown)])(
-    implicit req: RequestHeader, config: Configuration, flash: Flash)
+    implicit req: RequestHeader,
+    messagesProvider: MessagesProvider,
+    config: Configuration, flash: Flash)
 
 @leftPanel = {
     <div class="grid-y grid-padding-y">
@@ -69,7 +71,7 @@
                 <p>
                     The following error(s) occured:
                     @for(err <- errs) {
-                        <pre>@err.message</pre>
+                        <pre>@err.format</pre>
                     }
                 </p>
 
@@ -130,7 +132,7 @@
 
                     @if(studio.canBeBooked(owner)) {
                         @defining(studio.localPricingPolicy) { pricingPolicy =>
-                            <booking-form
+                            <booking-review-form
                                 :studio-id='@studio.id'
                                 :opening-schedule="@tags.json(Json.toJson(studio.openingSchedule), htmlEscape = true)"
                                 :pricing-policy="@tags.json(Json.toJson(pricingPolicy), htmlEscape = true)"
@@ -139,7 +141,7 @@
                                 :has-online-payment='@{studio.paymentPolicy.hasOnlinePayment && owner.isPayoutSetup}'
                                 :has-onsite-payment='@studio.paymentPolicy.hasOnsitePayment'
                                 csrf-token="@helper.CSRF.getToken.value">
-                            </booking-form>
+                            </booking-review-form>
                         }
                     } else {
                         <div class="text-center">
