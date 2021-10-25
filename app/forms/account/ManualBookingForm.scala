@@ -40,7 +40,7 @@ object ManualBookingForm {
                 data.repeat match {
                     case Some(repeat) => {
                         val maxBookingDate = studio.maxManualBookingDate(now)
-                        repeat.until(data.times.beginsAt.toLocalDate).isBefore(maxBookingDate)
+                        repeat.latest(data.times.beginsAt.toLocalDate).isBefore(maxBookingDate)
                     }
                     case None => true
                 }

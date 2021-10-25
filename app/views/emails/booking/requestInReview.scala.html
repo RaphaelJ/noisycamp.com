@@ -17,10 +17,10 @@
 
 @import play.api.Configuration
 
-@import models.{ Studio, StudioBooking, User }
+@import models.{ Studio, StudioCustomerBooking, User }
 
 @(
-    booking: StudioBooking, customer: User, studio: Studio)(
+    booking: StudioCustomerBooking, customer: User, studio: Studio)(
     implicit req: RequestHeader, config: Configuration)
 
 @emails.layout {

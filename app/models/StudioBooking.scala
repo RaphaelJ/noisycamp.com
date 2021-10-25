@@ -17,14 +17,13 @@
 
 package models
 
-import java.time.{ Duration, Instant, LocalDateTime }
+import java.time.{ Duration, Instant, LocalDate, LocalDateTime }
 import java.util.{ Formatter, UUID }
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 
 import play.api.Configuration
 import squants.market
-import java.time.LocalDate
 
 object StudioBookingStatus extends Enumeration {
     // The request for the booking has been received, but the payment has not been validated yet.
@@ -49,6 +48,14 @@ object StudioBookingStatus extends Enumeration {
     val CancelledByOwner = Value
 }
 
+object StudioBookingType extends Enumeration {
+    // A booking made through NoisyCamp's customer interface.
+    val Customer = Value
+
+    // A booking made through NoisyCamp's customer interface.
+    val Manual = Value
+}
+
 sealed trait StudioBookingPayment {
     def isRefunded: Boolean
 }
@@ -66,37 +73,21 @@ final case class StudioBookingPaymentOnsite() extends StudioBookingPayment {
     def isRefunded: Boolean = false
 }
 
-case class StudioBooking(
-    id:                     StudioBooking#Id = 0L,
-    createdAt:              Instant = Instant.now(),
-
-    studioId:               Studio#Id,
-    customerId:             User#Id,
-
-    status:                 StudioBookingStatus.Value,
-
-    // If set, refunds the customer of the booking is cancelled within the specified notice.
-    cancellationPolicy:     Option[CancellationPolicy],
-    
-    cancelledAt:            Option[Instant] = None,
-    cancellationReason:     Option[String] = None,
-
-    times:                  BookingTimes,
-    durations:              BookingDurations,
-
-    currency:               market.Currency,
-    total:                  BigDecimal,
-
-    pricePerHour:           BigDecimal,
-    eveningPricePerHour:    Option[BigDecimal],
-    weekendPricePerHour:    Option[BigDecimal],
-
-    transactionFeeRate:     Option[BigDecimal], // The transaction fee rate collected by NoisyCamp
-    payment:                StudioBookingPayment) {
-
+sealed trait StudioBooking {
     type Id = Long
 
-    require(times.duration == durations.total)
+    def id:                 StudioBooking#Id
+    def createdAt:          Instant
+
+    def studioId:           Studio#Id
+
+    def status:             StudioBookingStatus.Value
+
+    def cancelledAt:        Option[Instant]
+    def cancellationReason: Option[String]
+
+    def times:              BookingTimesWithRepeat
+
     require(cancelledAt.isDefined == isCancelled)
     require(isCancelled || cancellationReason.isEmpty)
 
@@ -141,18 +132,52 @@ case class StudioBooking(
         !studio.currentDateTime(now).isBefore(times.endsAt)
     }
 
-    def isCustomer(user: User): Boolean = customerId == user.id
-
     def canAccept(studio: Studio, now: Instant = Instant.now): Boolean = {
         status == StudioBookingStatus.PendingValidation && !isStarted(studio)
     }
 
     def canReject: Boolean = status == StudioBookingStatus.PendingValidation
 
-    def ownerCanCancel: Boolean = {
-        status == StudioBookingStatus.Valid
-    }
-    
+    def ownerCanCancel: Boolean = status == StudioBookingStatus.Valid
+
+    def toEvent: Event
+}
+
+/** An online booking made by a customer. */
+final case class StudioCustomerBooking(
+    val id:                     StudioBooking#Id = 0L,
+    val createdAt:              Instant = Instant.now(),
+
+    val studioId:               Studio#Id,
+    val customerId:             User#Id,
+
+    val status:                 StudioBookingStatus.Value,
+
+    // If set, refunds the customer of the booking is cancelled within the specified notice.
+    val cancellationPolicy:     Option[CancellationPolicy],
+
+    val cancelledAt:            Option[Instant] = None,
+    val cancellationReason:     Option[String] = None,
+
+    val times:                  BookingTimesWithRepeat,
+    val durations:              BookingDurations,
+
+    val currency:               market.Currency,
+    val total:                  BigDecimal,
+
+    val pricePerHour:           BigDecimal,
+    val eveningPricePerHour:    Option[BigDecimal],
+    val weekendPricePerHour:    Option[BigDecimal],
+
+     // The transaction fee rate collected by NoisyCamp
+    val transactionFeeRate:     Option[BigDecimal],
+    val payment:                StudioBookingPayment)
+    extends StudioBooking {
+
+    require(times.duration == durations.total)
+
+    def isCustomer(user: User): Boolean = customerId == user.id
+
     def customerCanCancel(studio: Studio, now: Instant = Instant.now): Boolean = {
         isActive && !isStarted(studio, now)
     }
@@ -164,7 +189,7 @@ case class StudioBooking(
 
     /** The last (inclusive) date and time at which the online payment will be refunded if cancelled
      * by the customer.
-     * 
+     *
      * Returns `None` if the studio does not refund cancelled bookings.
      */
     def maxRefundDate: Option[LocalDateTime] = {
@@ -191,40 +216,43 @@ case class StudioBooking(
 
         val codeBytes = mac.doFinal(id.toString.getBytes)
 
-        StudioBooking.toHexString(codeBytes).take(CODE_LEN).toUpperCase
+        StudioCustomerBooking.toHexString(codeBytes).take(CODE_LEN).toUpperCase
     }
 
-    def toEvent(customer: Option[User] = None, classes: Seq[String] = Seq.empty): Event = {
+    def toEvent(customer: Option[User]): Event = {
         val href = Some(controllers.account.studios.routes.BookingsController.show(studioId, id))
-        Event(times.beginsAt, times.duration, customer.map(_.displayName), href, classes)
+        Event(times.beginsAt, times.duration, customer.map(_.displayName), href)
     }
+
+    def toEvent = toEvent(None)
 }
 
-object StudioBooking {
+object StudioCustomerBooking {
 
-    /** Constructs a booking object from user selected booking times. */
+    /** Constructs a customer booking object from user selected booking times. */
     def apply(
         studio: Studio, customer: User, status: StudioBookingStatus.Value,
-        cancellationPolicy: Option[CancellationPolicy], times: BookingTimes,
+        cancellationPolicy: Option[CancellationPolicy], times: BookingTimesWithRepeat,
         equipments: Seq[LocalEquipment], transactionFeeRate: Option[BigDecimal],
-        payment: StudioBookingPayment): StudioBooking = {
+        payment: StudioBookingPayment): StudioCustomerBooking = {
 
         val priceBreakdown = PriceBreakdown(studio, times, equipments, transactionFeeRate)
 
-        StudioBooking(studio, customer, status, cancellationPolicy, times, priceBreakdown, payment)
+        StudioCustomerBooking(
+            studio, customer, status, cancellationPolicy, times, priceBreakdown, payment)
     }
 
-    /** Constructs a booking object from user selected booking times and an previously computed
+    /** Constructs a booking object from user selected booking times and a previously computed
      * price breakdown. */
     def apply(
         studio: Studio, customer: User, status: StudioBookingStatus.Value,
-        cancellationPolicy: Option[CancellationPolicy], times: BookingTimes,
-        priceBreakdown: PriceBreakdown, payment: StudioBookingPayment): StudioBooking = {
+        cancellationPolicy: Option[CancellationPolicy], times: BookingTimesWithRepeat,
+        priceBreakdown: PriceBreakdown, payment: StudioBookingPayment): StudioCustomerBooking = {
 
         val pricingPolicy = studio.pricingPolicy
         val localPricingPolicy = studio.localPricingPolicy
 
-        StudioBooking(
+        StudioCustomerBooking(
             studioId = studio.id,
             customerId = customer.id,
             status = status,
@@ -246,5 +274,39 @@ object StudioBooking {
             formatter.format("%02x", b.asInstanceOf[Object])
         }
         formatter.toString
+    }
+}
+
+/** An online booking made by the studio's owner. */
+final case class StudioManualBooking(
+    val id:                     StudioBooking#Id = 0L,
+    val createdAt:              Instant = Instant.now(),
+
+    val studioId:               Studio#Id,
+
+    val title:                  String,
+
+    val status:                 StudioBookingStatus.Value,
+
+    val cancelledAt:            Option[Instant] = None,
+    val cancellationReason:     Option[String] = None,
+
+    val times:                  BookingTimesWithRepeat
+    ) extends StudioBooking {
+
+    def toEvent = Event(times.beginsAt, times.duration)
+}
+
+object StudioManualBooking {
+    def apply(
+        studio: Studio, title: String, status: StudioBookingStatus.Value,
+        times: BookingTimesWithRepeat):
+        StudioManualBooking = {
+
+        StudioManualBooking(
+            studioId = studio.id,
+            title = title,
+            status = status,
+            times = times)
     }
 }

@@ -19,10 +19,12 @@
 
 @import play.api.Configuration
 
+@import models.{ StudioBooking, StudioCustomerBooking }
+
 @(
     identity: models.Identity,
     studio: models.Studio,
-    bookings: Seq[(models.StudioBooking, models.User)])(
+    bookings: Seq[(StudioBooking, Option[User])])(
     implicit request: RequestHeader, messagesProvider: MessagesProvider,
     config: Configuration, flash: Flash)
 
@@ -31,7 +33,7 @@
 @defining(Instant.now) { now =>
 @defining(
     bookings.
-        map { case (b, u) => (b, studio, u) }
+        collect { case (b: StudioCustomerBooking, Some(c)) => (b, studio, Some(c)) }
         partition { case (b, _, _) => b.isActive && b.isUpcoming(studio, now) }
     ) { case (upcoming, past) =>
 

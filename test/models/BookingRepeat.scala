@@ -53,9 +53,9 @@ class BookingRepeatSpec extends PlaySpec {
     "BookingRepeatCount" must {
         "compute the `until` value correctly" in {
             BookingRepeatCount(BookingRepeatFrequency.Daily, 7).
-                until(LocalDate.of(2021, 10, 6)) should be (LocalDate.of(2021, 10, 12))
+                latest(LocalDate.of(2021, 10, 6)) should be (LocalDate.of(2021, 10, 12))
             BookingRepeatCount(BookingRepeatFrequency.Yearly, 1).
-                until(LocalDate.of(2021, 10, 6)) should be (LocalDate.of(2021, 10, 6))
+                latest(LocalDate.of(2021, 10, 6)) should be (LocalDate.of(2021, 10, 6))
         }
     }
 

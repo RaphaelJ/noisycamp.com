@@ -33,10 +33,10 @@ object BookingRepeatFrequency extends Enumeration {
 sealed trait BookingRepeat {
     def frequency:                      BookingRepeatFrequency.Val
 
-    def count(firstOn: LocalDate):     Int
+    def count(firstOn: LocalDate):      Int
 
-    /** The last (inclusive) repeated event. */
-    def until(firstOn: LocalDate):     LocalDate
+    /** The (inclusive) date of the latest repeated event. */
+    def latest(firstOn: LocalDate):     LocalDate
 
     /** List all the dates of the repeated event starting from the provided date. */
     def dates(firstOn: LocalDate): Seq[LocalDate] = {
@@ -54,9 +54,7 @@ final case class BookingRepeatCount(
 
     def count(firstOn: LocalDate) = count
 
-    def until(firstOn: LocalDate) = {
-        firstOn plus frequency.period.multipliedBy((count - 1))
-    }
+    def latest(firstOn: LocalDate) = firstOn plus frequency.period.multipliedBy((count - 1))
 }
 
 /** Repeat an event until a provided date (inclusive). */
@@ -93,5 +91,9 @@ final case class BookingRepeatUntil(
         go(1, Short.MaxValue)
     }
 
-    def until(beginsOn: LocalDate) = until
+    def latest(firstOn: LocalDate) = {
+        val value = firstOn plus frequency.period.multipliedBy((count(firstOn) - 1))
+        assert(!value.isAfter(until), "Latest event occurs after the `until` value.")
+        value
+    }
 }

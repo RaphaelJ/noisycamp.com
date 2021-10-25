@@ -62,7 +62,10 @@
                         }
                     </div>
                 } else {
-                    @tags.bookingTable(Right(upcomingStudioBookings), now)
+                    @tags.bookingTable(
+                        Right(upcomingStudioBookings.
+                            map { case (b, s, c) => (b, s, Some(c)) }),
+                        now)
                 }
             </div>
         </div>

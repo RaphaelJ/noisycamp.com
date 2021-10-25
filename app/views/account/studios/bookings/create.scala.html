@@ -30,7 +30,6 @@
     identity: models.Identity,
     now: Instant,
     studio: models.Studio,
-    bookingEvents: Seq[models.Event],
     form: Form[ManualBookingForm.Data])(
     implicit request: RequestHeader, messagesProvider: MessagesProvider,
     config: Configuration, flash: Flash)

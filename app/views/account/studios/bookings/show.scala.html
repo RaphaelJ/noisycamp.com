@@ -17,19 +17,48 @@
 
 @import play.api.Configuration
 
+@import models.{ Identity, LocalEquipment, Studio, StudioBooking, User }
+
 @(
-    identity: models.Identity,
-    studio: models.Studio,
-    booking: models.StudioBooking,
-    customer: models.User,
-    equips: Seq[models.LocalEquipment])(
+    identity: Identity,
+    studio: Studio,
+    booking: StudioBooking,
+    customerOpt: Option[User],
+    equips: Seq[LocalEquipment])(
     implicit request: RequestHeader, messagesProvider: MessagesProvider,
     config: Configuration, flash: Flash)
 
+@bookingTitle = @{
+    booking match {
+        case scb: StudioCustomerBooking => customerOpt.get.displayName + "'s booking"
+        case smb: StudioManualBooking => smb.title
+    }
+}
+
+@reservationCode = @{
+    booking match {
+        case scb: StudioCustomerBooking => Some(scb.reservationCode)
+        case _: StudioManualBooking => None
+    }
+}
+
+@isPaidOnline = @{
+    booking match {
+        case scb: StudioCustomerBooking => scb.isPaidOnline
+        case _: StudioManualBooking => false
+    }
+}
+
+@isRefunded = @{
+    booking match {
+        case scb: StudioCustomerBooking => scb.payment.isRefunded
+        case _: StudioManualBooking => false
+    }
+}
+
 @views.html.account.layout(
-    Seq(
-        customer.displayName + "'s booking",
-        studio.name), identity=identity) {
+    Seq(bookingTitle,studio.name),
+    identity=identity) {
 
     <div class="grid-x grid-padding-x grid-padding-y">
         @booking.status match {
@@ -37,7 +66,7 @@
             @if(!booking.isStarted(studio)) {
                 @tags.callout("Booking pending approval", Some("fi-alert")) {
                     If you do not approve this booking before the session starts,
-                    the booking will be automatically rejected@if(booking.isPaidOnline) {
+                    the booking will be automatically rejected@if(isPaidOnline) {
                         and the customer will be entirely refunded}.
                     } {
                     <a
@@ -55,7 +84,7 @@
             } else {
                 @tags.callout("Booking not approved on time", Some("fi-alert")) {
                     You did not approve the booking before the session started.
-                    The booking will be automatically rejected@if(booking.isPaidOnline) {
+                    The booking will be automatically rejected@if(isPaidOnline) {
                         and the customer will be entirely refunded}.
                     } {
                     <a
@@ -68,19 +97,19 @@
         }
         case StudioBookingStatus.Rejected => {
             @tags.callout("Booking rejected", Some("fi-x")) {
-                This booking has not been accepted@if(booking.payment.isRefunded) {
+                This booking has not been accepted@if(isRefunded) {
                     and the customer has been entirely refunded}.
             }()
         }
         case StudioBookingStatus.CancelledByCustomer => {
             @tags.callout("Booking cancelled by customer", Some("fi-x")) {
-                The customer cancelled the booking@if(booking.payment.isRefunded) {
+                The customer cancelled the booking@if(isRefunded) {
                     and has been entirely refunded}.
             }()
         }
         case StudioBookingStatus.CancelledByOwner => {
             @tags.callout("Booking cancelled by studio owner", Some("fi-x")) {
-                The studio owner cancelled the booking@if(booking.payment.isRefunded) {
+                The studio owner cancelled the booking@if(isRefunded) {
                     and the customer has been entirely refunded}.
             }()
         }
@@ -91,30 +120,32 @@
             <div class="panel-section">
                 <div class="grid-x grid-padding-x">
                     <div class="cell small-12 medium-6">
-                        <h3>
-                            <small>Reservation code</small>
-                        </h3>
+                        @for(code <- reservationCode) {
+                            <h3>
+                                <small>Reservation code</small>
+                            </h3>
 
-                        <h3>
-                            @booking.reservationCode
-                        </h3>
+                            <h3>@code</h3>
 
-                        <hr>
+                            <hr>
+                        }
 
-                        <h3>
-                            <small>Guest details</small>
-                        </h3>
+                        @for(customer <- customerOpt) {
+                            <h3>
+                                <small>Guest details</small>
+                            </h3>
 
-                        <p>
-                            @for(fullName <- customer.fullName) {
-                                @fullName<br>
-                            }
-                            <a href="mailto:@customer.email">
-                                @customer.email
-                            </a>
-                        </p>
+                            <p>
+                                @for(fullName <- customer.fullName) {
+                                    @fullName<br>
+                                }
+                                <a href="mailto:@customer.email">
+                                    @customer.email
+                                </a>
+                            </p>
 
-                        <hr class="show-for-small-only">
+                            <hr class="show-for-small-only">
+                        }
                     </div>
 
                     <div class="cell small-12 medium-6">
@@ -146,14 +177,19 @@
 
                         <hr>
 
-                        <h3>
-                            <small>Price breakdown</small>
-                        </h3>
+                        @booking match {
+                        case scb: StudioCustomerBooking => {
+                            <h3>
+                                <small>Price breakdown</small>
+                            </h3>
 
-                        @tags.priceBreakdown(
-                            booking.priceBreakdown(equips),
-                            ownerView = true,
-                            isRefunded = booking.payment.isRefunded)
+                            @tags.priceBreakdown(
+                                scb.priceBreakdown(equips),
+                                ownerView = true,
+                                isRefunded = scb.payment.isRefunded)
+                        }
+                        case _ => {}
+                        }
 
                         @if(booking.ownerCanCancel) {
                             <hr>
@@ -165,7 +201,7 @@
                                     Cancel booking
                                 </a>
 
-                                @if(booking.isPaidOnline) {
+                                @if(isPaidOnline) {
                                     <p class="help-text">
                                         The customer will be entirely refunded.
                                         NoisyCamp reserves the right to charge you the transaction

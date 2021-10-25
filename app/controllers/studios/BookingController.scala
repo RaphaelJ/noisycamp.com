@@ -38,10 +38,11 @@ import _root_.controllers.{ CustomBaseController, CustomControllerCompoments }
 import daos.CustomColumnTypes
 import forms.studios.BookingForm
 import misc.StripePaymentCaptureMethod
-import models.{ BookingDurations, BookingTimes, CancellationPolicy, Equipment, HasBookingTimes,
+import models.{ BookingDurations, BookingTimesWithRepeat, CancellationPolicy, Equipment,
+    HasBookingTimes,
     Identity, LocalEquipment, LocalPricingPolicy, PaymentMethod, Picture, PriceBreakdown, Studio,
-    StudioBooking, StudioBookingEquipment, StudioBookingPaymentOnline, StudioBookingPaymentOnsite,
-    StudioBookingStatus, User }
+    StudioBooking, StudioCustomerBooking, StudioBookingEquipment, StudioBookingPaymentOnline,
+    StudioBookingPaymentOnsite, StudioBookingStatus, User }
 import java.time.Instant
 
 @Singleton
@@ -114,8 +115,8 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
                                 map(_.localEquipment(studio))
 
                             handler(
-                                request.identity, studio, owner, picIds, data.bookingTimes,
-                                localEquipments)
+                                request.identity, studio, owner, picIds,
+                                data.bookingTimes.withRepeat(None), localEquipments)
                         }
                     )
                 }
@@ -124,7 +125,7 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
 
     private def handleOnlinePayment(
         identity: Identity, studio: Studio, owner: User, pictures: Seq[Picture#Id],
-        bookingTimes: BookingTimes, equipments: Seq[LocalEquipment])(
+        bookingTimes: BookingTimesWithRepeat, equipments: Seq[LocalEquipment])(
         implicit request: RequestHeader) : DBIO[Result] = {
 
         val user = identity.user
@@ -170,7 +171,7 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
             payment = StudioBookingPaymentOnline(sessionId, intentId)
 
             booking <- daos.studioBooking.
-                insert(StudioBooking(
+                insert(StudioCustomerBooking(
                     studio, user, StudioBookingStatus.PaymentProcessing,
                     studio.bookingPolicy.cancellationPolicy, bookingTimes, priceBreakdown,
                     payment))
@@ -187,7 +188,7 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
 
     private def handleOnsitePayment(
         identity: Identity, studio: Studio, owner: User, pictures: Seq[Picture#Id],
-        bookingTimes: BookingTimes, equipments: Seq[LocalEquipment])(
+        bookingTimes: BookingTimesWithRepeat, equipments: Seq[LocalEquipment])(
         implicit request: RequestHeader) : DBIO[Result] = {
 
         val user = identity.user
@@ -199,11 +200,11 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
                 StudioBookingStatus.PendingValidation
             }
 
-        val booking = StudioBooking(
+        val booking = StudioCustomerBooking(
             studio, user, status, studio.bookingPolicy.cancellationPolicy, bookingTimes, equipments,
             None, StudioBookingPaymentOnsite())
 
-        def onSuccess(booking: StudioBooking, owner: User) = {
+        def onSuccess(booking: StudioCustomerBooking, owner: User) = {
             sendBookingEmails(booking, user, studio, pictures, owner, equipments).
                 map { _ =>
                     Redirect(_root_.controllers.account.routes.BookingsController.show(booking.id)).
@@ -250,8 +251,8 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
 
         db.run {
             daos.studioBooking.query.
-                filter(_.studioId === studioId).
-                filter(_.stripeCheckoutSessionId === sessionId).
+                filter(_._1.studioId === studioId).
+                filter(_._2.flatMap(_.stripeCheckoutSessionId.map(_ === sessionId))).
                 result.
                 headOption
         }.
@@ -318,15 +319,15 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
                 }
             ).andThen {
                 daos.studioBooking.query.
-                    filter(_.id === booking.id).
-                    map(_.status).
+                    filter(_._1.id === booking.id).
+                    map(_._1.status).
                     update(StudioBookingStatus.PaymentFailure).
                     map { _ => onPaymentFailure(booking) }
             }
         }
 
         // Tries to capture the charge and change to booking status to valid or pending-validation.
-        def processCharge(intent: PaymentIntent, studio: Studio, booking: StudioBooking) = {
+        def processCharge(intent: PaymentIntent, studio: Studio, booking: StudioCustomerBooking) = {
             (intent.getStatus match {
                 case "requires_capture" => {
                     DBIO.from(paymentService.capturePaymentIntent(intent)).
@@ -347,8 +348,8 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
 
                         for {
                             _ <- daos.studioBooking.query.
-                                filter(_.id === newBooking.id).
-                                map(_.status).
+                                filter(_._1.id === newBooking.id).
+                                map(_._1.status).
                                 update(newStatus)
 
                             customer <- daos.user.query.
@@ -388,23 +389,27 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
             intent <- paymentService.retrievePaymentIntent(session.getPaymentIntent)
 
             res <- db.run({
-                daos.studio.query.
-                    join(daos.studioBooking.query).on(_.id === _.studioId).
-                    filter { case (s, b) => b.stripeCheckoutSessionId === session.getId }.
+                daos.studioBooking.query.
+                    filter { case (b, scb, _) =>
+                        scb.flatMap(_.stripeCheckoutSessionId.map(_ === session.getId)) }.
+                    join(daos.studio.query).
+                        on(_._1.studioId === _.id).
                     result.
                     headOption.
                     flatMap {
-                        case Some((studio, booking)) => {
-                            booking.status match {
+                        case Some((booking, studio)) => {
+                            val scb = (booking: StudioBooking).asInstanceOf[StudioCustomerBooking]
+
+                            scb.status match {
                                 case StudioBookingStatus.PaymentProcessing => {
                                     // Validates the charge and the booking if we can still book the
                                     // requested times.
 
                                     daos.studioBooking.
-                                        hasOverlap(studio, booking.times).
+                                        hasOverlap(studio, scb.times).
                                         flatMap {
                                             case true => abortCharge(intent, booking)
-                                            case false => processCharge(intent, studio, booking)
+                                            case false => processCharge(intent, studio, scb)
                                         }
                                 }
                                 case StudioBookingStatus.PaymentFailure => {
@@ -452,13 +457,15 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
 
     /** Validates the booking time of a form. Adds a global FormError if the studio is not
      * available during the requested times. */
-    private def validateAvailabilities[T <: HasBookingTimes](studio: Studio, form: Form[T])
-        : DBIO[Form[T]] = {
+    private def validateAvailabilities[PM](
+        studio: Studio,
+        form: Form[BookingForm.DataGeneric[PM]])
+        : DBIO[Form[BookingForm.DataGeneric[PM]]] = {
 
         if (form.hasErrors) {
             DBIO.successful(form)
         } else {
-            val times = form.get.bookingTimes
+            val times = form.get.bookingTimes.withRepeat(None)
 
             daos.studioBooking.hasOverlap(studio, times).
                 map {
@@ -470,7 +477,7 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
     }
 
     private def sendBookingEmails(
-        booking: StudioBooking, customer: User, studio: Studio, pictures: Seq[Picture#Id],
+        booking: StudioCustomerBooking, customer: User, studio: Studio, pictures: Seq[Picture#Id],
         owner: User, equips: Seq[LocalEquipment])(
         implicit request: RequestHeader, config: Configuration):
         Future[(Response, Response)] = {

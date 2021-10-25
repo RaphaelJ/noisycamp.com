@@ -17,10 +17,10 @@
 
 @import play.api.Configuration
 
-@import models.{ LocalEquipment, Studio, StudioBooking, User }
+@import models.{ LocalEquipment, Studio, StudioCustomerBooking, User }
 
 @(
-    booking: StudioBooking, 
+    booking: StudioCustomerBooking,
     customer: User,
     studio: Studio,
     owner: User,
@@ -30,11 +30,11 @@
 @bookingURL = @{ controllers.account.studios.routes.BookingsController.show(studio.id, booking.id).
     absoluteURL(config.get[Boolean]("noisycamp.forceHttps")) }
 
-@acceptBookingURL = @{ 
+@acceptBookingURL = @{
     controllers.account.studios.routes.BookingsController.accept(studio.id, booking.id).
         absoluteURL(config.get[Boolean]("noisycamp.forceHttps")) }
 
-@rejectBookingURL = @{ 
+@rejectBookingURL = @{
     controllers.account.studios.routes.BookingsController.reject(studio.id, booking.id).
         absoluteURL(config.get[Boolean]("noisycamp.forceHttps")) }
 
@@ -49,7 +49,7 @@
     @emails.tags.heading("h4") { Hi@for(firstName <- owner.firstName) { @firstName}, }
 
     <p>
-        <strong>@customer.displayName</strong> submitted a booking request for 
+        <strong>@customer.displayName</strong> submitted a booking request for
         <strong>@emails.tags.a(routes.StudiosController.
             show(studio.URLId).
             absoluteURL(config.get[Boolean]("noisycamp.forceHttps"))) {
@@ -61,7 +61,7 @@
     <p>
         Please @emails.tags.a(bookingURL) { open the booking request } and either
         @emails.tags.a(acceptBookingURL) {accept it}
-        or 
+        or
         @emails.tags.a(rejectBookingURL) {reject it}.
         The booking request will be automatically rejected
         @if(booking.isPaidOnline) { and the customer entirely refunded } if not accepted before the
@@ -81,7 +81,7 @@
             @emails.tags.a("mailto:" + customer.email) {@customer.email}
         }
     </p>
-    
+
     <p>
         @views.html.tags.localDateTime(booking.times.beginsAt)<br>
         @views.html.tags.duration(booking.durations.total)<br>
@@ -93,9 +93,9 @@
         @emails.tags.hr()
 
         @emails.tags.heading("h4") { <small>Equipments & instruments</small> }
-    
+
         @for(equip <- equips) {
-            @emails.tags.equipment(equip)    
+            @emails.tags.equipment(equip)
         }
     }
 

@@ -62,11 +62,14 @@ create table "studio_manual_booking" (
 );
 
 alter table "studio_booking"
-    add column booking_type     varchar not null default('customer')
-        check (booking_type in ('customer', 'manual')),
-
     add column repeat_type      varchar
         check (repeat_type in ('repeat-count', 'repeat-until')),
+
+    add column repeat_frequency varchar
+        check (
+            repeat_type in ('repeat-count', 'repeat-until')
+            and repeat_frequency in ('daily', 'weekly', 'monthly', 'yearly')),
+
     add column repeat_count     integer
         check (
             (repeat_type = 'repeat-count') = (repeat_count is not null)
@@ -76,7 +79,9 @@ alter table "studio_booking"
             (repeat_type = 'repeat-until') = (repeat_until is not null)
             and repeat_until >= begins_at),
 
-    drop column customer_id,
+    add column booking_type     varchar not null default('customer')
+        check (booking_type in ('customer', 'manual')),
+
     drop column can_cancel,
     drop column cancellation_notice,
     drop column customer_id,

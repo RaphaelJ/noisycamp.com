@@ -29,4 +29,9 @@ case class Event(
     title:          Option[String] = None,
     href:           Option[Call] = None,
 
-    classes:        Seq[String] = Seq.empty)
+    classes:        Seq[String] = Seq.empty) {
+
+    def withTitle(value: Option[String]) = copy(title = value)
+    def withHref(value: Option[Call]) = copy(href = value)
+    def withClasses(value: Seq[String]) = copy(classes = value)
+}

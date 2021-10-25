@@ -86,7 +86,7 @@ object PriceBreakdown {
 
     /** Computes the duration and price components of the booking */
     def apply(
-        studio: Studio, times: BookingTimes, equipments: Seq[LocalEquipment],
+        studio: Studio, times: HasBookingTimes, equipments: Seq[LocalEquipment],
         transactionFeeRate: Option[BigDecimal]):
         PriceBreakdown = {
 

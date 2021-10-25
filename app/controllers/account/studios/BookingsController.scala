@@ -28,9 +28,12 @@ import play.api.mvc._
 
 import auth.DefaultEnv
 import daos.{ CustomColumnTypes, StudioBookingDAO }
+import daos.StudioBookingDAO.toStudioBooking
+import daos.StudioBookingDAO.{
+    StudioBookingRow, StudioCustomerBookingRow, StudioManualBookingRow, toStudioBooking }
 import forms.account.ManualBookingForm
-import models.{ Studio, StudioBooking, StudioBookingPaymentOnline, StudioBookingPaymentOnsite,
-    StudioBookingStatus, User }
+import models.{ Studio, StudioBooking, StudioCustomerBooking, StudioManualBooking,
+    StudioBookingPaymentOnline, StudioBookingPaymentOnsite, StudioBookingStatus, User }
 import _root_.controllers.{ CustomBaseController, CustomControllerCompoments }
 import misc.PaymentService
 
@@ -49,8 +52,9 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
 
     def calendar(id: Studio#Id) = SecuredAction.async { implicit request =>
         withStudioBookings(id, onlyActive=true) { case (studio, bookings) =>
-            val bookingEvents = bookings.map {
-                case (booking, user) => booking.toEvent(Some(user), Seq("booking")) }
+            val bookingEvents = bookings.
+                collect { case (b: StudioCustomerBooking, c) =>
+                    b.toEvent(c).withClasses(Seq("booking")) }
 
             Ok(views.html.account.studios.bookings.calendar(
                 request.identity, studio, bookingEvents))
@@ -74,10 +78,11 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
         val now = Instant.now
 
         ifUserHasManualBookings {
-            withStudioBookings(id, onlyActive=true) { case (studio, bookings) =>
+            withStudioTransaction(id) { studio =>
                 val form = ManualBookingForm.form(now, studio)
-                Ok(views.html.account.studios.bookings.create(
-                    request.identity, now, studio, bookings.map { _._1.toEvent() }, form))
+                DBIO.successful(
+                    Ok(views.html.account.studios.bookings.create(
+                        request.identity, now, studio, form)))
             }
         }
     }
@@ -86,16 +91,25 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
         val now = Instant.now
 
         ifUserHasManualBookings {
-            withStudioBookings(id, onlyActive=true) { case (studio, bookings) =>
+            withStudioTransaction(id) { case studio =>
                 ManualBookingForm.
                     form(now, studio).
                     bindFromRequest.
                     fold(
-                        form => BadRequest(
+                        form => DBIO.successful(BadRequest(
                             views.html.account.studios.bookings.create(
-                                request.identity, now, studio, bookings.map { _._1.toEvent() },
-                                form)),
-                        data => Ok(data.toString))
+                                request.identity, now, studio, form))),
+                        data => {
+                            daos.studioBooking.insert(StudioManualBooking(
+                                studio,
+                                data.title,
+                                StudioBookingStatus.Valid,
+                                data.times.withRepeat(data.repeat))).
+                                map { booking =>
+                                    Redirect(routes.BookingsController.show(studio.id, booking.id)).
+                                        flashing("success" -> "Booking successfully created.")
+                                }
+                        })
             }
         }
     }
@@ -116,10 +130,32 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
         }
     }
 
-    /** Executes the provided action after having fetched the studio and its associated bookings. */
+    private def withStudioTransaction[P](studioId: Studio#Id)
+        (f: Studio => DBIOAction[Result, NoStream, Effect.All])
+        (implicit request: SecuredRequest[DefaultEnv, P]): Future[Result] = {
+
+        val user = request.identity.user
+
+        db.run({
+            daos.studio.query.
+                filter(_.id === studioId).
+                result.headOption.
+                flatMap {
+                    case Some(studio) if studio.isOwner(user) => f(studio)
+                    case Some(_) => DBIO.successful(
+                        Forbidden("Cannot access other customers' bookings."))
+                    case None => DBIO.successful(NotFound("Booking not found."))
+                }
+        }.transactionally)
+    }
+
+    /** Executes the provided action after having fetched the studio and its associated bookings.
+     *
+     * Fetches the customer User instances in case of `StudioCustomerBooking`s.
+     */
     private def withStudioBookings[T](
         id: Studio#Id, onlyActive: Boolean = false)(
-        f: ((Studio, Seq[(StudioBooking, User)]) => Result))
+        f: (Studio, Seq[(StudioBooking, Option[User])]) => Result)
         (implicit request: SecuredRequest[DefaultEnv, T]): Future[Result] = {
 
         val user = request.identity.user
@@ -136,17 +172,21 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
                         else { daos.studioBooking.bookings }
 
                     baseQuery.
-                        filter(_.studioId === id).
-                        join(daos.user.query).on(_.customerId === _.id).
+                        filter(_._1.studioId === id).
                         sortBy(_._1.beginsAt.desc).
+                        joinLeft(daos.user.query).
+                            on { case ((b, cb, mb), u) => cb.map(_.customerId === u.id) }.
                         result.
+                        map(_.map { case (b, u) => (toStudioBooking(b), u) }).
                         map { bookings => Some((studio, bookings)) }
                 }
                 case None => DBIO.successful(None)
             }
         }.transactionally).
             map {
-                case Some((studio, bookings)) if studio.isOwner(user) => f(studio, bookings)
+                case Some((studio, bookings)) if studio.isOwner(user) => {
+                    f(studio, bookings)
+                }
                 case Some(_) => Forbidden("Only the studio owner can see bookings.")
                 case None => NotFound("Studio not found.")
             }
@@ -171,18 +211,31 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
         updateBooking(
             studioId, bookingId,
             "This booking has been accepted.", "You can not accept this booking.") {
-            case (studio, booking, customer, query) =>
+            case (studio, booking, customerOpt, query) =>
 
             if (booking.canAccept(studio)) {
+                def sendEmail = {
+                    (booking, customerOpt) match {
+                        case (scb: StudioCustomerBooking, Some(customer)) => {
+                            for {
+                                pictures <- daos.studioPicture.
+                                    withStudioPictureIds(studioId).
+                                    result
+                                equips <- bookingLocalEquipments(studio, booking)
+                                _ <- DBIO.from(emailService.sendBookingAccepted(
+                                    scb, customer, studio, pictures, user, equips))
+                            } yield Unit
+                        }
+                        case _ => DBIO.successful(Unit)
+                    }
+                }
+
                 Some (
                     for {
                         _ <- query.map(_.status).
                             update(StudioBookingStatus.Valid)
-                        pictures <- daos.studioPicture.withStudioPictureIds(studioId).result
-                        equips <- bookingLocalEquipments(studio, booking)
-                        _ <- DBIO.from(emailService.sendBookingAccepted(
-                            booking, customer, studio, pictures, user, equips))
-                    }  yield Unit
+                        _ <- sendEmail
+                    } yield Unit
                 )
             } else {
                 None
@@ -197,17 +250,25 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
          updateBooking(
             studioId, bookingId,
             "This booking has been rejected.", "Can not reject this booking.") {
-            case (studio, booking, customer, query) =>
+            case (studio, booking, customerOpt, query) =>
 
             if (booking.canReject) {
+                def sendEmail(refundedBooking: StudioBooking) = {
+                    (refundedBooking, customerOpt) match {
+                        case (scb: StudioCustomerBooking, Some(customer)) => {
+                            DBIO.from(emailService.sendBookingRejected(scb, customer, studio))
+                        }
+                        case _ => DBIO.successful(Unit)
+                    }
+                }
+
                 Some (
                     for {
                         _ <- query.map(_.status).
                             update(StudioBookingStatus.Rejected)
                         refundedBooking <- refundBooking(booking)
-                        _ <- DBIO.from(emailService.sendBookingRejected(
-                            refundedBooking, customer, studio))
-                    }  yield Unit
+                        _ <- sendEmail(refundedBooking)
+                    } yield Unit
                 )
             } else {
                 None
@@ -222,24 +283,39 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
         updateBooking(
             studioId, bookingId,
             "This booking has been successfuly cancelled.", "Can not cancel this booking.") {
-            case (studio, booking, customer, query) =>
+            case (studio, booking, customerOpt, query) =>
 
             if (booking.ownerCanCancel) {
+                def sendEmail(refundedBooking: StudioBooking) = {
+                    (refundedBooking, customerOpt) match {
+                        case (scb: StudioCustomerBooking, Some(customer)) => {
+                            for {
+                                equips <- bookingLocalEquipments(studio, booking)
+                                _ <- DBIO.from(emailService.sendBookingCancelledByOwner(
+                                    scb, customer, studio, equips))
+                            } yield Unit
+                        }
+                        case _ => DBIO.successful(Unit)
+                    }
+                }
+
                 Some(
                     for {
                         _ <- query.map(b => (b.status, b.cancelledAt)).
                             update((StudioBookingStatus.CancelledByOwner, Some(Instant.now)))
                         refundedBooking <- refundBooking(booking)
-                        equips <- bookingLocalEquipments(studio, booking)
-                        _ <- DBIO.from(emailService.sendBookingCancelledByOwner(
-                            refundedBooking, customer, studio, equips))
-                    }  yield Unit
+                        _ <- sendEmail(refundedBooking)
+                    } yield Unit
                 )
             } else {
                 None
             }
         }
     }
+
+    private type StudioBookingTable = daos.studioBooking.StudioBookingTable
+    private type StudioCustomerBookingTable = daos.studioBooking.StudioCustomerBookingTable
+    private type StudioManualBookingTable = daos.studioBooking.StudioManualBookingTable
 
     /** Runs the provided booking updating DB action and redirect to the booking page.
      *
@@ -252,8 +328,7 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
         studioId: Studio#Id, bookingId: StudioBooking#Id,
         onSuccessMessage: String, onFailureMessage: String)(
         updateAction: (
-            (Studio, StudioBooking, User,
-            Query[StudioBookingDAO#StudioBookingTable, StudioBooking, Seq])
+            (Studio, StudioBooking, Option[User], Query[StudioBookingTable, StudioBookingRow, Seq])
             => Option[DBIOAction[T, NoStream, Effect.All]])
         )(
         implicit request: SecuredRequest[DefaultEnv, P]): Future[Result] = {
@@ -261,7 +336,7 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
         val redirectTo = Redirect(routes.BookingsController.show(studioId, bookingId))
 
         withStudioBookingTransaction(studioId, bookingId) { (studio, booking, customer) =>
-            val query = daos.studioBooking.query.filter(_.id === booking.id)
+            val query = daos.studioBooking.bookingQuery.filter(_.id === booking.id)
 
             updateAction(studio, booking, customer, query) match {
                 case Some(action) => for {
@@ -279,38 +354,45 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
     private def refundBooking(booking: StudioBooking):
         DBIOAction[StudioBooking, NoStream, Effect.All] = {
 
-        booking.payment match {
-            case payment @ StudioBookingPaymentOnline(sessionId, intentId, _)
-                if !payment.isRefunded  => {
+        booking match {
+            case customerBooking: StudioCustomerBooking => {
+                customerBooking.payment match {
+                    case payment @ StudioBookingPaymentOnline(sessionId, intentId, _)
+                        if !payment.isRefunded  => {
 
-                for {
-                    refund <- DBIO.from(paymentService.refundPaymentIntent(intentId))
+                        for {
+                            refund <- DBIO.from(paymentService.refundPaymentIntent(intentId))
 
-                    _ <- daos.studioBooking.query.
-                        filter(_.id === booking.id).
-                        map(_.stripeRefundId).
-                        update(Some(refund.getId))
-                } yield booking.copy(payment=payment.copy(stripeRefundId = Some(refund.getId)))
+                            _ <- daos.studioBooking.query.
+                                filter(_._1.id === booking.id).
+                                map(_._2.map(_.stripeRefundId)).
+                                update(Some(Some(refund.getId)))
+                        } yield customerBooking.copy(
+                            payment=payment.copy(stripeRefundId = Some(refund.getId)))
+                    }
+                    case _ => DBIO.successful(booking)
+                }
             }
             case _ => DBIO.successful(booking)
         }
+
     }
 
     /** Executes the function within the DBIO monad, or returns a 404 response. */
     private def withStudioBookingTransaction[P](studioId: Studio#Id, bookingId: StudioBooking#Id)
-        (f: ((Studio, StudioBooking, User) => DBIOAction[Result, NoStream, Effect.All]))
+        (f: (Studio, StudioBooking, Option[User]) => DBIOAction[Result, NoStream, Effect.All])
         (implicit request: SecuredRequest[DefaultEnv, P]): Future[Result] = {
 
         val user = request.identity.user
 
         db.run({
             daos.studio.query.
-                join(daos.studioBooking.query).on(_.id === _.studioId).
-                join(daos.user.query).on { case ((s, b), u) => b.customerId === u.id }.
-                filter { case ((s, b), u) =>
-                    s.id === studioId &&
-                    b.id === bookingId
+                filter(_.id === studioId).
+                join(daos.studioBooking.query).on(_.id === _._1.studioId).
+                joinLeft(daos.user.query).on {
+                    case ((s, b), u) => b._2.map(_.customerId === u.id)
                 }.
+                filter { case ((s, b), u) => b._1.id === bookingId }.
                 result.headOption.
                 flatMap {
                     case Some(((studio, booking), customer)) if studio.isOwner(user) => {
@@ -319,7 +401,7 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
                     case Some(_) => DBIO.successful(
                         Forbidden("Cannot access other customers' bookings."))
                     case None => DBIO.successful(NotFound("Booking not found."))
-                }: DBIOAction[Result, NoStream, Effect.All]
+                }
         }.transactionally)
     }
 

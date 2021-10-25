@@ -17,10 +17,10 @@
 
 @import play.api.Configuration
 
-@import models.{ Studio, StudioBooking, User }
+@import models.{ Studio, StudioCustomerBooking, User }
 
 @(
-    booking: StudioBooking, customer: User, studio: Studio)(
+    booking: StudioCustomerBooking, customer: User, studio: Studio)(
     implicit req: RequestHeader, config: Configuration)
 
 @emails.layout {
@@ -47,7 +47,7 @@
     @if(booking.payment.isRefunded) {
         <p>
             Your payment has been be entirely refunded on the mean of payment chosen during the
-            checkout process. This might take a few days to show up on your bank balance. 
+            checkout process. This might take a few days to show up on your bank balance.
         </p>
     }
 

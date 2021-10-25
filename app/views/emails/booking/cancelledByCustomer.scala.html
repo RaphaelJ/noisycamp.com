@@ -18,10 +18,10 @@
 @import play.api.Configuration
 
 @import misc.URL
-@import models.{ LocalEquipment, Studio, StudioBooking, User }
+@import models.{ LocalEquipment, Studio, StudioCustomerBooking, User }
 
 @(
-    booking: StudioBooking,
+    booking: StudioCustomerBooking,
     customer: User,
     studio: Studio,
     owner: User,
@@ -43,7 +43,7 @@
             show(studio.URLId).
             absoluteURL(config.get[Boolean]("noisycamp.forceHttps"))) { @studio.name}.
     </p>
-    
+
     @for(reason <- booking.cancellationReason) {
         <p>The booking got cancelled for the following reason:</p>
 
@@ -60,7 +60,7 @@
     <p>Thank you for using NoisyCamp.</p>
 
     @emails.tags.hr()
-    
+
     @emails.tags.heading("h4") { <small>Booking summary</small> }
 
     <p>
@@ -70,7 +70,7 @@
             @emails.tags.a("mailto:" + customer.email){@customer.email}
         }
     </p>
-    
+
     <p>
         @views.html.tags.localDateTime(booking.times.beginsAt)<br>
         @views.html.tags.duration(booking.durations.total)<br>

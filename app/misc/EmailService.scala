@@ -30,7 +30,7 @@ import com.sendgrid.helpers.mail.Mail
 import com.sendgrid.helpers.mail.objects.{ Content, Email }
 
 import forms.account.PremiumForm
-import models.{ LocalEquipment, Picture, Studio, StudioBooking, User }
+import models.{ LocalEquipment, Picture, Studio, StudioCustomerBooking, User }
 
 /** Provides an helper to send emails through SendGrid. */
 @Singleton
@@ -80,36 +80,36 @@ class EmailService @Inject() (
     /** Sends an email to the studio owner notifying them of an (automatically) accepted booking
      * request. */
     def sendBookingReceived(
-        booking: StudioBooking, customer: User, studio: Studio, owner: User,
+        booking: StudioCustomerBooking, customer: User, studio: Studio, owner: User,
         equips: Seq[LocalEquipment])(
         implicit request: RequestHeader, config: Configuration): Future[Response] = {
 
         val content = views.html.emails.booking.received(booking, customer, studio, owner, equips)
         send("Your studio has been booked", content, owner)
     }
-        
-    /** Sends an email to the studio owner notifying them of a new booking request. */ 
+
+    /** Sends an email to the studio owner notifying them of a new booking request. */
     def sendBookingRequest(
-        booking: StudioBooking, customer: User, studio: Studio, owner: User,
+        booking: StudioCustomerBooking, customer: User, studio: Studio, owner: User,
         equips: Seq[LocalEquipment])(
         implicit request: RequestHeader, config: Configuration): Future[Response] = {
 
         val content = views.html.emails.booking.request(booking, customer, studio, owner, equips)
         send("[Action required] Your studio received a new booking request", content, owner)
     }
-    
+
     /** Sends an email to the customer notifying them that their booking request has been correctly
-     * received and is currently in review. */ 
+     * received and is currently in review. */
     def sendBookingRequestInReview(
-        booking: StudioBooking, customer: User, studio: Studio)(
+        booking: StudioCustomerBooking, customer: User, studio: Studio)(
         implicit request: RequestHeader, config: Configuration): Future[Response] = {
-            
+
         val content = views.html.emails.booking.requestInReview(booking, customer, studio)
         send("Your booking request is in review", content, customer)
     }
 
     def sendBookingAccepted(
-        booking: StudioBooking, customer: User, studio: Studio, pictures: Seq[Picture#Id],
+        booking: StudioCustomerBooking, customer: User, studio: Studio, pictures: Seq[Picture#Id],
         owner: User, equips: Seq[LocalEquipment])(
         implicit request: RequestHeader, config: Configuration): Future[Response] = {
 
@@ -119,7 +119,7 @@ class EmailService @Inject() (
     }
 
     def sendBookingRejected(
-        booking: StudioBooking, customer: User, studio: Studio)(
+        booking: StudioCustomerBooking, customer: User, studio: Studio)(
         implicit request: RequestHeader, config: Configuration): Future[Response] = {
 
         val content = views.html.emails.booking.rejected(booking, customer, studio)
@@ -127,7 +127,7 @@ class EmailService @Inject() (
     }
 
     def sendBookingCancelledByCustomer(
-        booking: StudioBooking, customer: User, studio: Studio, owner: User,
+        booking: StudioCustomerBooking, customer: User, studio: Studio, owner: User,
         equips: Seq[LocalEquipment])(
         implicit request: RequestHeader, config: Configuration): Future[Response] = {
 
@@ -135,9 +135,10 @@ class EmailService @Inject() (
             booking, customer, studio, owner, equips)
         send(f"A booking has been cancelled", content, owner)
     }
-    
+
     def sendBookingCancelledByOwner(
-        booking: StudioBooking, customer: User, studio: Studio, equips: Seq[LocalEquipment])(
+        booking: StudioCustomerBooking, customer: User, studio: Studio,
+        equips: Seq[LocalEquipment])(
         implicit request: RequestHeader, config: Configuration): Future[Response] = {
 
         val content = views.html.emails.booking.cancelledByOwner(booking, customer, studio, equips)

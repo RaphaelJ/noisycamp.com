@@ -86,7 +86,6 @@ object BookingForm {
         bookingTimes:   BookingTimes,
         equipments:     Seq[Equipment],
         paymentMethod:  PM)
-        extends HasBookingTimes
 
     type Data = DataGeneric[Option[PaymentMethod.Value]]
     type DataWithPaymentMethod = DataGeneric[PaymentMethod.Value]

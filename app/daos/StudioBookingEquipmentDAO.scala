@@ -45,7 +45,8 @@ class StudioBookingEquipmentDAO @Inject() (
         def * = (id, bookingId, equipmentId).mapTo[StudioBookingEquipment]
 
         def booking = foreignKey(
-            "fk_studio_booking_equipment_booking_id", bookingId, studioBookingDao.query)(_.id)
+            "fk_studio_booking_equipment_booking_id", bookingId,
+            studioBookingDao.bookingQuery)(_.id)
 
         def equipment = foreignKey(
             "fk_studio_booking_equipment_equipment_id", equipmentId, equipmentDao.query)(_.id)

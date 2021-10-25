@@ -17,10 +17,10 @@
 
 @import play.api.Configuration
 
-@import models.{ LocalEquipment, Studio, StudioBooking, User }
+@import models.{ LocalEquipment, Studio, StudioCustomerBooking, User }
 
 @(
-    booking: StudioBooking,
+    booking: StudioCustomerBooking,
     customer: User,
     studio: Studio,
     owner: User,
@@ -39,7 +39,7 @@
 
     <p>
         Awesome!
-        <strong>@emails.tags.a("mailto:" + customer.email){ @customer.displayName }</strong> booked 
+        <strong>@emails.tags.a("mailto:" + customer.email){ @customer.displayName }</strong> booked
         <strong>@emails.tags.a(routes.StudiosController.
             show(studio.URLId).
             absoluteURL(config.get[Boolean]("noisycamp.forceHttps"))) {
@@ -67,21 +67,21 @@
             @emails.tags.a("mailto:" + customer.email){customer.email}
         }
     </p>
-    
+
     <p>
         @views.html.tags.localDateTime(booking.times.beginsAt)<br>
         @views.html.tags.duration(booking.durations.total)<br>
         <strong>Total: @tags.moneyAmount(booking.priceBreakdown(equips).total)</strong>
         @if(booking.isPaidOnline) { (paid online) } else { (to be paid on site) }
     </p>
-    
+
     @if(equips.nonEmpty) {
         @emails.tags.hr()
 
         @emails.tags.heading("h4") { <small>Equipments & instruments</small> }
-    
+
         @for(equip <- equips) {
-            @emails.tags.equipment(equip)    
+            @emails.tags.equipment(equip)
         }
     }
 

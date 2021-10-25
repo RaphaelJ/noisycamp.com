@@ -18,13 +18,14 @@
 @import java.time.Instant
 
 @(
-    // The bookings to list. Use `Left` for the guest view, `Right` for the studio's owner view.
+    // The bookings to list. Use `Left` for the guest view (user sees their own bookings),
+    // `Right` for the studio's owner view (owner's see their customers' bookings).
     bookings: Either[
         Seq[(models.StudioBooking, models.Studio)],
-        Seq[(models.StudioBooking, models.Studio, models.User)]],
+        Seq[(models.StudioBooking, models.Studio, Option[models.User])]],
     now: Instant)
 
-@view = @{ 
+@view = @{
     bookings match {
         case Left(_) => "guest"
         case Right(_) => "studio"
@@ -33,7 +34,7 @@
 
 @** Creates a link to the booking for the studio's owner. *@
 @withStudioBookingLink(studio: Studio, booking: models.StudioBooking)(content: Html) = {
-    <a 
+    <a
         class="text-style-link"
         href="@controllers.account.studios.routes.BookingsController.show(studio.id, booking.id)">
         @content
@@ -42,7 +43,7 @@
 
 @** Creates a link to the booking for the guest. *@
 @withBookingLink(booking: models.StudioBooking)(content: Html) = {
-    <a 
+    <a
         class="text-style-link"
         href="@controllers.account.routes.BookingsController.show(booking.id)">
         @content
@@ -84,7 +85,7 @@
                         </td>
                         <td>
                             @withBookingLink(booking) {
-                                @tags.duration(booking.durations.total)
+                                @tags.duration(booking.times.duration)
                             }
                         </td>
                         <td class="text-overflow-ellipsis">
@@ -97,24 +98,31 @@
                 @for((booking, studio, guest) <- studioBookings) {
                     <tr>
                         <td class="text-overflow-ellipsis">
-                            @withStudioBookingLink(studio, booking) { @guest.displayName }
-                        </td>
-                        <td>
-                            @withStudioBookingLink(studio, booking) { 
-                                @tags.localDateTime(booking.times.beginsAt) 
+                            @withStudioBookingLink(studio, booking) {
+                                @guest.map(_.displayName).getOrElse("")
                             }
                         </td>
                         <td>
                             @withStudioBookingLink(studio, booking) {
-                                @tags.moneyAmount(booking.currency(booking.total))
-    
-                                @booking.payment match {
-                                    case StudioBookingPaymentOnline(_, _, None) => { (paid online) }
-                                    case StudioBookingPaymentOnline(_, _, Some(_)) => { (refunded) }
-                                    case StudioBookingPaymentOnsite() if booking.isActive => {
-                                        <strong>(to be paid on site)</strong>
+                                @tags.localDateTime(booking.times.beginsAt)
+                            }
+                        </td>
+                        <td>
+                            @withStudioBookingLink(studio, booking) {
+                                @booking match {
+                                case scb: StudioCustomerBooking => {
+                                    @tags.moneyAmount(scb.currency(scb.total))
+
+                                    @scb.payment match {
+                                        case StudioBookingPaymentOnline(_, _, None) => { (paid online) }
+                                        case StudioBookingPaymentOnline(_, _, Some(_)) => { (refunded) }
+                                        case StudioBookingPaymentOnsite() if booking.isActive => {
+                                            <strong>(to be paid on site)</strong>
+                                        }
+                                        case _ => {}
                                     }
-                                    case _ => {}
+                                }
+                                case _ => {}
                                 }
                             }
                         </td>

@@ -46,7 +46,7 @@ case class OpeningSchedule(
      *
      * If the booking is not valid, return `None`.
      */
-    def validateBooking(pricingPolicy: PricingPolicy, booking: BookingTimes):
+    def validateBooking(pricingPolicy: PricingPolicy, booking: HasBookingTimes):
         Option[BookingDurations] = {
 
         require(booking.duration.compareTo(Duration.ofDays(1)) <= 0)
@@ -114,7 +114,7 @@ case class OpeningSchedule(
     /** Contructs a BookingDurations object for the booking on the provided opened day. */
     private def toDurations(
         pricingPolicy: PricingPolicy, times: OpeningTimes, date: LocalDate,
-        booking: BookingTimes): BookingDurations = {
+        booking: HasBookingTimes): BookingDurations = {
 
         lazy val weekDay = date.getDayOfWeek
         lazy val isWeekend = weekDay == DayOfWeek.SATURDAY || weekDay == DayOfWeek.SUNDAY

@@ -28,10 +28,11 @@ import play.api.mvc._
 import play.filters.headers.SecurityHeadersFilter
 
 import daos.CustomColumnTypes
+import daos.StudioBookingDAO.toStudioBooking
 import forms.studios.SearchForm
 import misc.GIS
 import misc.JsonWrites._
-import models.{ BBox, Studio, StudioWithPictureAndEquipments, User }
+import models.{ BBox, Studio, StudioWithPictureAndEquipments, StudioBooking, User }
 
 @Singleton
 class StudiosController @Inject() (ccc: CustomControllerCompoments)
@@ -195,16 +196,18 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
                 case Some(studio) => {
                     val localDate = studio.currentDateTime(now).toLocalDate
                     daos.studioBooking.activeBookings.
-                        filter(_.studioId === studio.id).
-                        filter(_.beginsAt >= localDate.atStartOfDay).
-                        sortBy(_.beginsAt).
+                        filter(_._1.studioId === studio.id).
+                        filter(_._1.beginsAt >= localDate.atStartOfDay).
+                        sortBy(_._1.beginsAt).
                         result.
                         // Converts bookings into anonymous calendar events.
                         map { bookings =>
-                            bookings.map {
-                                _.
-                                    toEvent(classes = Seq("occupied")).
-                                    copy(title = None, href = None) }
+                            bookings.map { booking =>
+                                booking.
+                                    toEvent.
+                                    withClasses(Seq("occupied")).
+                                    withTitle(None).
+                                    withHref(None) }
                         }
                 }
                 case None => DBIO.successful(Seq.empty)

@@ -27,7 +27,7 @@ import squants.market
 
 import i18n.{ Country, Currency }
 import misc.EquipmentCategory
-import models.{ PictureId, Plan, StudioBookingStatus }
+import models.{ BookingRepeatFrequency, PictureId, Plan, StudioBookingStatus, StudioBookingType }
 
 trait CustomColumnTypes { this: HasDatabaseConfigProvider[JdbcProfile] =>
 
@@ -74,6 +74,12 @@ trait CustomColumnTypes { this: HasDatabaseConfigProvider[JdbcProfile] =>
         Plan.Free       -> "free",
         Plan.Premium    -> "premium"))
 
+    implicit val bookingRepeatFrequencyType = enumeration[BookingRepeatFrequency.Val](Seq(
+        BookingRepeatFrequency.Daily    -> "daily",
+        BookingRepeatFrequency.Weekly   -> "weekly",
+        BookingRepeatFrequency.Monthly  -> "monthly",
+        BookingRepeatFrequency.Yearly   -> "yearly"))
+
     /** Stores Scrimage image format as text */
     implicit val scrimageFormatType = enumeration[Format](Seq(
         Format.PNG  -> "png",
@@ -88,6 +94,10 @@ trait CustomColumnTypes { this: HasDatabaseConfigProvider[JdbcProfile] =>
         StudioBookingStatus.Rejected            -> "rejected",
         StudioBookingStatus.CancelledByCustomer -> "cancelled-by-customer",
         StudioBookingStatus.CancelledByOwner    -> "cancelled-by-owner"))
+
+    implicit val studioBookingValueType = enumeration[StudioBookingType.Value](Seq(
+        StudioBookingType.Customer  -> "customer",
+        StudioBookingType.Manual    -> "manual"))
 
     implicit val zoneIdType = MappedColumnType.base[ZoneId, String](_.getId, ZoneId.of)
 }

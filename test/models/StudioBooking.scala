@@ -25,11 +25,13 @@ import org.scalatestplus.play._
 import models.{
     Address, BookingPolicy, BookingTimes, Coordinates, LocalEquipment, LocalEquipmentPricePerHour,
     LocalEquipmentPricePerSession, Location, OpeningSchedule, OpeningTimes, PaymentPolicy,
-    PricingPolicy, Studio, StudioBooking, StudioBookingPaymentOnsite, StudioBookingStatus, User }
+    PricingPolicy, Studio, StudioBooking, StudioCustomerBooking, StudioBookingPaymentOnsite,
+    StudioBookingStatus, User }
 import i18n.Country
 import misc.EquipmentCategory
 import models.CancellationPolicy
 import views.html.tags.equipment
+import models.BookingTimesWithRepeat
 
 class StudioBookingSpec extends PlaySpec {
 
@@ -56,131 +58,137 @@ class StudioBookingSpec extends PlaySpec {
         bookingPolicy = BookingPolicy(Duration.ZERO, true, None),
         paymentPolicy = PaymentPolicy(true, true))
 
+    private val times = BookingTimesWithRepeat(
+        LocalDateTime.of(2020, 10, 1, 10, 30), Duration.ofMinutes(90), None)
+
     private val currency = studio.currency
 
     private val equipments = Seq(
         LocalEquipment(
-            1, Some(EquipmentCategory.DrumKit), None, 
+            1, Some(EquipmentCategory.DrumKit), None,
             Some(LocalEquipmentPricePerHour(currency(15)))),
         LocalEquipment(
-            2, Some(EquipmentCategory.Microphone), Some("AKG Bass Drum mic."), 
+            2, Some(EquipmentCategory.Microphone), Some("AKG Bass Drum mic."),
             Some(LocalEquipmentPricePerSession(currency(50)))))
 
-    private val studioBooking = StudioBooking(
+    private val studioCustomerBooking = StudioCustomerBooking(
         studio = studio,
         customer = user,
         status = StudioBookingStatus.PendingValidation,
         cancellationPolicy = None,
-        times = BookingTimes(LocalDateTime.of(2020, 10, 1, 10, 30), Duration.ofMinutes(90)),
+        times = times,
         equipments = equipments,
         transactionFeeRate = None, payment = StudioBookingPaymentOnsite())
-    
+
     private def getInstantAtStudioTimeZone(date: LocalDateTime) = {
         val offset = studio.timezone.getRules.getOffset(date)
         date.toInstant(offset)
     }
 
-    "StudioBooking.isUpcoming" must {
+    "StudioCustomerBooking.isUpcoming" must {
         "returns true before a booking" in {
-            studioBooking.isUpcoming(
+            studioCustomerBooking.isUpcoming(
                 studio, getInstantAtStudioTimeZone(LocalDateTime.of(2020, 10, 1, 10, 29))
                 ) should be (true)
         }
 
         "returns false during a booking" in {
-            studioBooking.isUpcoming(
+            studioCustomerBooking.isUpcoming(
                 studio, getInstantAtStudioTimeZone(LocalDateTime.of(2020, 10, 1, 10, 31))
                 ) should be (false)
         }
 
         "returns false after a booking" in {
-            studioBooking.isUpcoming(
+            studioCustomerBooking.isUpcoming(
                 studio, getInstantAtStudioTimeZone(LocalDateTime.of(2021, 12, 24, 23, 59))
                 ) should be (false)
         }
     }
 
-    "StudioBooking.isStarted" must {
+    "StudioCustomerBooking.isStarted" must {
         "returns false before a booking" in {
-            studioBooking.isStarted(
+            studioCustomerBooking.isStarted(
                 studio, getInstantAtStudioTimeZone(LocalDateTime.of(2020, 10, 1, 10, 0))
                 ) should be (false)
         }
 
         "returns true during a booking" in {
-            studioBooking.isStarted(
+            studioCustomerBooking.isStarted(
                 studio, getInstantAtStudioTimeZone(LocalDateTime.of(2020, 10, 1, 10, 30))
                 ) should be (true)
         }
 
         "returns true after a booking" in {
-            studioBooking.isStarted(
+            studioCustomerBooking.isStarted(
                 studio, getInstantAtStudioTimeZone(LocalDateTime.of(2020, 10, 1, 14, 30))
                 ) should be (true)
         }
     }
 
-    "StudioBooking.isOngoing" must {
+    "StudioCustomerBooking.isOngoing" must {
         "returns false before a booking" in {
-            studioBooking.isOngoing(
+            studioCustomerBooking.isOngoing(
                 studio, getInstantAtStudioTimeZone(LocalDateTime.of(2020, 9, 12, 23, 0))
                 ) should be (false)
         }
 
         "returns true during a booking" in {
-            studioBooking.isOngoing(
+            studioCustomerBooking.isOngoing(
                 studio, getInstantAtStudioTimeZone(LocalDateTime.of(2020, 10, 1, 11, 0))
                 ) should be (true)
         }
 
         "returns false after a booking" in {
-            studioBooking.isOngoing(
+            studioCustomerBooking.isOngoing(
                 studio, getInstantAtStudioTimeZone(LocalDateTime.of(2020, 12, 24, 15, 0))
                 ) should be (false)
         }
     }
 
-    "StudioBooking.isCompleted" must {
+    "StudioCustomerBooking.isCompleted" must {
         "returns false before a booking" in {
-            studioBooking.isCompleted(
+            studioCustomerBooking.isCompleted(
                 studio, getInstantAtStudioTimeZone(LocalDateTime.of(2020, 10, 1, 9, 59))
                 ) should be (false)
         }
 
         "returns false during a booking" in {
-            studioBooking.isCompleted(
+            studioCustomerBooking.isCompleted(
                 studio, getInstantAtStudioTimeZone(LocalDateTime.of(2020, 10, 1, 11, 59))
                 ) should be (false)
         }
 
         "returns true after a booking" in {
-            studioBooking.isCompleted(
+            studioCustomerBooking.isCompleted(
                 studio, getInstantAtStudioTimeZone(LocalDateTime.of(2020, 10, 1, 12, 0))
                 ) should be (true)
         }
     }
 
-    "StudioBooking.maxRefundDate" must {
+    "StudioCustomerBooking.maxRefundDate" must {
         "returns the `None` with no cancellation policy" in {
-            studioBooking.maxRefundDate should be (None)
+            studioCustomerBooking.maxRefundDate should be (None)
         }
 
         "returns the session start date with a no notice cancellation policy" in {
             val policy = Some(CancellationPolicy(Duration.ZERO))
-            val maxRefundDate = Some(studioBooking.times.beginsAt)
-            studioBooking.copy(cancellationPolicy = policy).maxRefundDate should be (maxRefundDate)
+            val maxRefundDate = Some(studioCustomerBooking.times.beginsAt)
+            studioCustomerBooking.copy(cancellationPolicy = policy).
+                maxRefundDate should be (maxRefundDate)
         }
 
         "returns one day before the session with a 24h cancellation policy" in {
             val policy = Some(CancellationPolicy(Duration.ofHours(24)))
             val maxRefundDate = Some(LocalDateTime.of(2020, 9, 30, 10, 30))
-            studioBooking.copy(cancellationPolicy = policy).maxRefundDate should be (maxRefundDate)
+            studioCustomerBooking.copy(cancellationPolicy = policy).
+                maxRefundDate should be (maxRefundDate)
         }
     }
 
-    "StudioBooking.toHexString" must {
+    "StudioCustomerBooking.toHexString" must {
         "returns an hexadecimal representation of a byte sequence" in {
-            StudioBooking.toHexString(Seq(179.toByte, 63.toByte, 58.toByte)) should be ("b33f3a")
+            StudioCustomerBooking.
+                toHexString(Seq(179.toByte, 63.toByte, 58.toByte)) should be ("b33f3a")
         }
     }
 }

@@ -21,7 +21,7 @@
 @import models.{ LocalEquipment, Studio, StudioBooking, User }
 
 @(
-    booking: StudioBooking,
+    booking: StudioCustomerBooking,
     customer: User,
     studio: Studio,
     pictures: Seq[models.Picture#Id],
@@ -100,21 +100,21 @@
     @emails.tags.hr()
 
     @emails.tags.heading("h4") { <small>Booking summary</small> }
-    
+
     <p>
         @views.html.tags.localDateTime(booking.times.beginsAt)<br>
         @views.html.tags.duration(booking.durations.total)<br>
         <strong>Total: @tags.moneyAmount(booking.priceBreakdown(equips).total)</strong>
         @if(booking.isPaidOnline) { (paid online) } else { (to be paid on site) }
     </p>
-    
+
     @if(equips.nonEmpty) {
         @emails.tags.hr()
 
         @emails.tags.heading("h4") { <small>Equipments & instruments</small> }
-    
+
         @for(equip <- equips) {
-            @emails.tags.equipment(equip)    
+            @emails.tags.equipment(equip)
         }
     }
 }

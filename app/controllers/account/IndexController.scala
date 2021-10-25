@@ -25,7 +25,7 @@ import play.api.mvc._
 
 import _root_.controllers.{ CustomBaseController, CustomControllerCompoments }
 import daos.CustomColumnTypes
-import models.StudioBooking
+import models.{ StudioBooking, StudioBookingType, StudioCustomerBooking }
 
 @Singleton
 class IndexController @Inject() (ccc: CustomControllerCompoments)
@@ -39,7 +39,7 @@ class IndexController @Inject() (ccc: CustomControllerCompoments)
         val user = request.identity.user
 
         val now = Instant.now
-        
+
         // Pre-filters all bookings in the database as if they started in the latest possible
         // timezone. We will do the actual timezone-aware filtering on the backend side afterward.
         val minBeginsAt = LocalDateTime.ofInstant(now, ZoneId.of("UTC-12:00"))
@@ -47,18 +47,29 @@ class IndexController @Inject() (ccc: CustomControllerCompoments)
         db.run({
             for {
                 upcomingGuestBookings <- daos.studioBooking.activeBookings.
-                    filter(_.customerId === user.id).
-                    filter(_.beginsAt > minBeginsAt).
-                    sortBy(_.beginsAt.desc).
-                    join(daos.studio.query).on(_.studioId === _.id).
-                    result
+                    filter(_._1.bookingType === StudioBookingType.Customer).
+                    filter(_._2.map(_.customerId === user.id)).
+                    filter(_._1.beginsAt > minBeginsAt).
+                    sortBy(_._1.beginsAt.desc).
+                    join(daos.studio.query).on(_._1.studioId === _.id).
+                    result.
+                    map(_.map {
+                        case (booking, studio) =>
+                            (booking.asInstanceOf[StudioCustomerBooking], studio)
+                    })
 
                 upcomingStudioBookings <- daos.studioBooking.activeBookings.
-                    filter(_.beginsAt > minBeginsAt).
-                    sortBy(_.beginsAt.desc).
-                    join(daos.studio.query.filter(_.ownerId === user.id)).on(_.studioId === _.id).
-                    join(daos.user.query).on(_._1.customerId === _.id).
-                    result
+                    filter(_._1.beginsAt > minBeginsAt).
+                    sortBy(_._1.beginsAt.desc).
+                    join(daos.studio.query.filter(_.ownerId === user.id)).
+                        on(_._1.studioId === _.id).
+                    join(daos.user.query).
+                        on { case (b, u) => b._1._2.map(_.customerId === u.id) }.
+                    result.
+                    map(_.map {
+                        case ((booking, studio), customer) =>
+                            (booking.asInstanceOf[StudioCustomerBooking], studio, customer)
+                    })
 
             } yield (upcomingGuestBookings, upcomingStudioBookings)
         }.transactionally).map { case (upcomingGuestBookings, upcomingStudioBookings) =>
@@ -68,7 +79,6 @@ class IndexController @Inject() (ccc: CustomControllerCompoments)
                 upcomingGuestBookings.
                     filter { case (b, s) => b.isUpcoming(s, now) },
                 upcomingStudioBookings.
-                    map { case ((b, s), u) => (b, s, u) }.
                     filter { case (b, s, _) => b.isUpcoming(s, now) }))
         }
     }

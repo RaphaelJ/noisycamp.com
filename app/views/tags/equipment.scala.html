@@ -27,7 +27,7 @@
     // If true, will display a smaller version of the equipment box.
     small: Boolean = false,
     // If defined, will display the equipment price using the booking duration
-    bookingTimes: Option[BookingTimes] = None)(
+    bookingTimes: Option[HasBookingTimes] = None)(
     implicit req: RequestHeader, config: Configuration)
 
 @equipmentCategoryName = {@equip.category.map(_.name).getOrElse("Other")}
