@@ -92,7 +92,17 @@
                         }
                     </div>
 
-                    @for(globalError<- form.error("")) {
+                    <div class="cell small-12 large-9">
+                        @defining(form("customer-email")) { field =>
+                            <customer-email-input
+                                name="@field.name"
+                                :value="@tags.json(formData(field.name), htmlEscape = true)"
+                                :errors="@tags.json(formErrors(field.name), htmlEscape = true)">
+                            </customer-email-input>
+                        }
+                    </div>
+
+                    @for(globalError <- form.error("")) {
                         <div class="cell small-12">
                             <label><span class="error">@globalError.format</span></label>
                         </div>

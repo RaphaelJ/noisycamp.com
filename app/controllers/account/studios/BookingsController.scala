@@ -103,6 +103,7 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
                             daos.studioBooking.insert(StudioManualBooking(
                                 studio,
                                 data.title,
+                                data.customerEmail,
                                 StudioBookingStatus.Valid,
                                 data.times.withRepeat(data.repeat))).
                                 map { booking =>

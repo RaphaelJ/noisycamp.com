@@ -58,7 +58,8 @@ insert into "studio_customer_booking"
 
 create table "studio_manual_booking" (
     id                          integer unique references "studio_booking"(id),
-    title                       varchar not null
+    title                       varchar not null,
+    customer_email              varchar
 );
 
 alter table "studio_booking"

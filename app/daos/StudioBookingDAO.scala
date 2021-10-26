@@ -129,10 +129,10 @@ class StudioBookingDAO @Inject()
         extends Table[StudioManualBookingRow](tag, "studio_manual_booking") {
 
         def id                      = column[StudioBooking#Id]("id")
-
         def title                   = column[String]("title")
+        def customerEmail           = column[Option[String]]("customer_email")
 
-        def * = (id, title).mapTo[StudioBookingDAO.StudioManualBookingRow]
+        def * = (id, title, customerEmail).mapTo[StudioBookingDAO.StudioManualBookingRow]
     }
 
     lazy val manualBookingQuery = TableQuery[StudioManualBookingTable]
@@ -239,7 +239,8 @@ object StudioBookingDAO {
 
     case class StudioManualBookingRow(
         val id:                         StudioBooking#Id,
-        val title:                      String)
+        val title:                      String,
+        val customerEmail:              Option[String])
 
     /** Implicit conversion helper that converts a set of booking rows to a polymorphic
      * StudioBooking instance. */
@@ -387,6 +388,7 @@ object StudioBookingDAO {
             bookingRow.id, bookingRow.createdAt,
             bookingRow.studioId,
             manualBookingRow.title,
+            manualBookingRow.customerEmail,
             bookingRow.status,
             bookingRow.cancelledAt, bookingRow.cancellationReason,
             toBookingTimes(bookingRow))
@@ -408,7 +410,8 @@ object StudioBookingDAO {
             booking.times.beginsAt, booking.times.duration, booking.times.endsAt,
             repeatType, repeatFrequency, repeatCount, repeatUntil,
             bookingType)
-        val manualBookingRow = StudioManualBookingRow(booking.id, booking.title)
+        val manualBookingRow = StudioManualBookingRow(
+            booking.id, booking.title, booking.customerEmail)
 
         (bookingRow, manualBookingRow)
     }

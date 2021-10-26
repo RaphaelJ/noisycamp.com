@@ -34,6 +34,7 @@ import StudiosIndex from './components/studios/Index/StudioIndex.vue';
 import BookingForm from './components/studios/booking/BookingForm.vue';
 import BookingPricingCalculator from './components/studios/booking/BookingPricingCalculator.vue';
 import BookingRepeatInput from './components/account/studios/bookings/BookingRepeatInput.vue';
+import CustomerEmailInput from './components/account/studios/bookings/CustomerEmailInput.vue';
 import BookingReviewForm from './components/studios/booking/BookingReviewForm.vue';
 import BookingTimesInput from './components/studios/booking/BookingTimesInput.vue';
 
@@ -48,8 +49,8 @@ new Vue({
         StripeCheckoutRedirect,
         FeatureGallery, SearchForm,
         StudiosIndex,
-        BookingForm, BookingPricingCalculator, BookingRepeatInput, BookingReviewForm,
-        BookingTimesInput,
+        BookingForm, BookingPricingCalculator, BookingRepeatInput, CustomerEmailInput,
+        BookingReviewForm, BookingTimesInput,
         StudioCreate, StudioForm,
     },
 });

@@ -286,6 +286,8 @@ final case class StudioManualBooking(
 
     val title:                  String,
 
+    val customerEmail:          Option[String],
+
     val status:                 StudioBookingStatus.Value,
 
     val cancelledAt:            Option[Instant] = None,
@@ -299,13 +301,14 @@ final case class StudioManualBooking(
 
 object StudioManualBooking {
     def apply(
-        studio: Studio, title: String, status: StudioBookingStatus.Value,
-        times: BookingTimesWithRepeat):
+        studio: Studio, title: String, customerEmail: Option[String],
+        status: StudioBookingStatus.Value, times: BookingTimesWithRepeat):
         StudioManualBooking = {
 
         StudioManualBooking(
             studioId = studio.id,
             title = title,
+            customerEmail = customerEmail,
             status = status,
             times = times)
     }

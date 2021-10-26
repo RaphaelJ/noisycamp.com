@@ -34,7 +34,8 @@ object ManualBookingForm {
         mapping(
             "title"             -> nonEmptyText,
             "times"             -> BookingTimesForm.form(now, studio, isManualBooking=true).mapping,
-            "repeat"            -> optional(BookingRepeatForm.form.mapping)
+            "repeat"            -> optional(BookingRepeatForm.form.mapping),
+            "customer-email"    -> optional(email)
         )(Data.apply)(Data.unapply).
             verifying("Last repeated date is too far away.", { data =>
                 data.repeat match {
@@ -50,5 +51,6 @@ object ManualBookingForm {
     case class Data(
         title:                  String,
         times:                  BookingTimes,
-        repeat:                 Option[BookingRepeat])
+        repeat:                 Option[BookingRepeat],
+        customerEmail:          Option[String])
 }

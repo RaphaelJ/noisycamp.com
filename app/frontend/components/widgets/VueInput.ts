@@ -35,9 +35,10 @@ export default {
     },
     computed: {
         globalError() {
+            console.log(this.errors);
             if (typeof(this.errors) == 'string') {
                 return this.errors;
-            } else if ("" in this.errors) {
+            } else if (this.errors && typeof(this.errors) == 'object' && "" in this.errors) {
                 return this.errors[""];
             } else {
                 return null;
