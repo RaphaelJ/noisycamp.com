@@ -221,7 +221,7 @@ final case class StudioCustomerBooking(
 
     def toEvent(customer: Option[User]): Event = {
         val href = Some(controllers.account.studios.routes.BookingsController.show(studioId, id))
-        Event(times.beginsAt, times.duration, customer.map(_.displayName), href)
+        Event(times, customer.map(_.displayName), href)
     }
 
     def toEvent = toEvent(None)
@@ -298,7 +298,10 @@ final case class StudioManualBooking(
     val times:                  BookingTimesWithRepeat
     ) extends StudioBooking {
 
-    def toEvent = Event(times.beginsAt, times.duration)
+    def toEvent = {
+        val href = Some(controllers.account.studios.routes.BookingsController.show(studioId, id))
+        Event(times, Some(title))
+    }
 }
 
 object StudioManualBooking {

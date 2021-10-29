@@ -108,4 +108,6 @@ case class BookingTimesWithRepeat(
 
         false
     }
+
+    def dropRepeat: BookingTimes = BookingTimes(beginsAt, duration)
 }

@@ -17,14 +17,11 @@
 
 package models
 
-import java.time.{ Duration, LocalDateTime }
-
 import play.api.mvc.Call
 
 /** A generic event that will be displayed in the calendar. */
 case class Event(
-    beginsAt:       LocalDateTime,
-    duration:       Duration,
+    times:          BookingTimesWithRepeat,
 
     title:          Option[String] = None,
     href:           Option[Call] = None,

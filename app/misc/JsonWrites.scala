@@ -17,16 +17,18 @@
 
 package misc
 
-import play.api.libs.json.{ JsNull, JsObject, Json, JsString, JsValue, Writes }
+import play.api.libs.json.{ JsNull, JsNumber, JsObject, Json, JsString, JsValue, Writes }
 import play.api.mvc.RequestHeader
 import squants.market.Money
 
 import models.{
-    Address, BookingPolicy, BookingTimes, CancellationPolicy, Coordinates, Event, LocalEquipment,
-    LocalEquipmentPrice, LocalEquipmentPricePerHour, LocalEquipmentPricePerSession, 
-    LocalPricingPolicy, LocalEveningPricingPolicy, LocalWeekendPricingPolicy, Location,
-    OpeningSchedule, OpeningTimes, PaymentPolicy, PictureId, Studio, StudioWithPicture,
-    StudioWithPictureAndEquipments }
+    Address, BookingPolicy, BookingRepeat, BookingRepeatFrequency, BookingRepeatCount,
+    BookingRepeatUntil, BookingTimes, BookingTimesWithRepeat,
+    CancellationPolicy, Coordinates, Event,
+    LocalEquipment, LocalEquipmentPrice, LocalEquipmentPricePerHour, LocalEquipmentPricePerSession,
+    LocalPricingPolicy, LocalEveningPricingPolicy, LocalWeekendPricingPolicy,
+    Location, OpeningSchedule, OpeningTimes, PaymentPolicy, PictureId,
+    Studio, StudioWithPicture, StudioWithPictureAndEquipments }
 
 /** Provides JSON Writes implementation for model objects. */
 object JsonWrites {
@@ -53,11 +55,33 @@ object JsonWrites {
             "cancellation-policy"   -> policy.cancellationPolicy)
     }
 
+    implicit object BookingRepeatFrequencyWrites extends Writes[BookingRepeatFrequency.Val] {
+        def writes(frequency: BookingRepeatFrequency.Val): JsValue = JsString(frequency.value)
+    }
+
+    implicit object BookingRepeatWrites extends Writes[BookingRepeat] {
+        def writes(repeat: BookingRepeat): JsValue = {
+            val repeatData = repeat match {
+                case BookingRepeatCount(_, count) => "count" -> JsNumber(count)
+                case BookingRepeatUntil(_, until) => "until" -> Json.toJson(until)
+            }
+
+            Json.obj("frequency" -> repeat.frequency) + repeatData
+        }
+    }
+
     implicit object BookingTimesWrites extends Writes[BookingTimes] {
         def writes(times: BookingTimes): JsValue = Json.obj(
             "begins-at" -> times.beginsAt.toString,
             "duration" -> times.duration.getSeconds
         )
+    }
+
+    implicit object BookingTimesWithRepeatWrites extends Writes[BookingTimesWithRepeat] {
+        def writes(times: BookingTimesWithRepeat): JsValue = {
+            Json.toJson(times.dropRepeat).asInstanceOf[JsObject] +
+            ("repeat" -> Json.toJson(times.repeat))
+        }
     }
 
     implicit object CoordinatesWrites extends Writes[Coordinates] {
@@ -68,8 +92,7 @@ object JsonWrites {
 
     implicit object EventWrites extends Writes[Event] {
         def writes(event: Event): JsValue = Json.obj(
-            "begins-at"         -> event.beginsAt,
-            "duration"          -> event.duration,
+            "times"             -> event.times,
 
             "title"             -> event.title,
             "href"              -> event.href.map(_.url),
@@ -88,7 +111,7 @@ object JsonWrites {
             "begins-at"       -> policy.beginsAt,
             "price-per-hour"  -> policy.pricePerHour)
     }
-    
+
     implicit object LocalEquipmentPriceWrites extends Writes[LocalEquipmentPrice] {
         def writes(price: LocalEquipmentPrice): JsValue = {
             val (priceType, value) = price match {
@@ -173,7 +196,7 @@ object JsonWrites {
             "pricing-policy"    -> studio.localPricingPolicy,
             "booking-policy"    -> studio.bookingPolicy,
             "payment-policy"    -> studio.paymentPolicy,
-            
+
             "url"               ->
                 controllers.routes.StudiosController.show(studio.URLId).url)
     }
