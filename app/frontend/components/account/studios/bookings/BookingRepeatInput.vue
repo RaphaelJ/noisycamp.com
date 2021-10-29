@@ -160,7 +160,7 @@ export default Vue.extend({
             count: this.value.count ? this.value.count : null,
             until: this.value.until ? this.value.until : null,
 
-            repeatType: this.value.count ? 'count' : 'until',
+            repeatType: this.value.until ? 'until' : 'count',
         }
     },
     computed: {
