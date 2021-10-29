@@ -17,31 +17,29 @@
 
 @import play.api.Configuration
 
-@import misc.URL
 @import models.{ LocalEquipment, Studio, StudioCustomerBooking, User }
 
 @(
-    booking: StudioCustomerBooking,
-    customer: User,
-    studio: Studio,
-    owner: User,
+    booking: StudioCustomerBooking, customer: User, studio: Studio,
     equips: Seq[LocalEquipment])(
     implicit req: RequestHeader, config: Configuration)
 
 @emails.layout {
-    @emails.tags.heading("h3") { A booking in @studio.location.address.city has been cancelled }
+    @emails.tags.heading("h3") {
+        Your booking in @studio.location.address.city on
+        @views.html.tags.localDate(booking.times.beginsAt.toLocalDate) has been cancelled
+    }
 
     @emails.tags.hr()
 
-    @emails.tags.heading("h4") { Hi@for(firstName <- owner.firstName) { @firstName}, }
+    @emails.tags.heading("h4") { Hi@for(firstName <- customer.firstName) { @firstName}, }
 
     <p>
-        We are sorry to inform you that
-        <strong>@emails.tags.a("mailto:" + customer.email){ @customer.displayName }</strong>
-        cancelled their booking for
+        We are sorry to inform you that <strong>your booking request for
         @emails.tags.a(routes.StudiosController.
             show(studio.URLId).
-            absoluteURL(config.get[Boolean]("noisycamp.forceHttps"))) { @studio.name}.
+            absoluteURL(config.get[Boolean]("noisycamp.forceHttps"))) { @studio.name }
+        has been cancelled</strong> by the studio manager.
     </p>
 
     @for(reason <- booking.cancellationReason) {
@@ -52,8 +50,8 @@
 
     @if(booking.payment.isRefunded) {
         <p>
-            In accordance with the cancellation policy at the time of booking, the customer has been
-            entirely refunded.
+            Your payment has been be entirely refunded on the mean of payment chosen during the
+            checkout process. This might take a few days to show up on your bank balance.
         </p>
     }
 
@@ -63,20 +61,13 @@
 
     @emails.tags.heading("h4") { <small>Booking summary</small> }
 
-    <p>
-        @if(customer.fullName) {
-            @customer.fullName (@emails.tags.a("mailto:" + customer.email){@customer.email})
-        } else {
-            @emails.tags.a("mailto:" + customer.email){@customer.email}
-        }
-    </p>
-
     @emails.tags.bookingSummary(booking)
 
     @emails.tags.hr()
 
     @emails.tags.button(
-        controllers.account.studios.routes.BookingsController.show(studio.id, booking.id).
+        controllers.account.routes.BookingsController.
+            show(booking.id).
             absoluteURL(config.get[Boolean]("noisycamp.forceHttps"))) {
         Manage booking
     }

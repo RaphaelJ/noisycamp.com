@@ -31,6 +31,7 @@ import com.sendgrid.helpers.mail.objects.{ Content, Email }
 
 import forms.account.PremiumForm
 import models.{ LocalEquipment, Picture, Studio, StudioCustomerBooking, User }
+import models.StudioManualBooking
 
 /** Provides an helper to send emails through SendGrid. */
 @Singleton
@@ -136,12 +137,32 @@ class EmailService @Inject() (
         send(f"A booking has been cancelled", content, owner)
     }
 
-    def sendBookingCancelledByOwner(
+    def sendCustomerBookingCancelledByOwner(
         booking: StudioCustomerBooking, customer: User, studio: Studio,
         equips: Seq[LocalEquipment])(
         implicit request: RequestHeader, config: Configuration): Future[Response] = {
 
-        val content = views.html.emails.booking.cancelledByOwner(booking, customer, studio, equips)
+        val content = views.html.emails.booking.customerBookingCancelledByOwner(
+            booking, customer, studio, equips)
         send(f"Your booking has been cancelled", content, customer)
+    }
+
+    def sendManualBookingCreatedByOwner(
+        booking: StudioManualBooking, studio: Studio, owner: User, pictures: Seq[Picture#Id])(
+        implicit request: RequestHeader, config: Configuration): Future[Response] = {
+
+        require(booking.customerEmail.isDefined)
+
+        val content = views.html.emails.booking.createdByOwner(booking, studio, owner, pictures)
+        send(f"Your booking has been created", content, booking.customerEmail.get)
+    }
+
+    def sendManualBookingCancelledByOwner(booking: StudioManualBooking, studio: Studio)(
+        implicit request: RequestHeader, config: Configuration): Future[Response] = {
+
+        require(booking.customerEmail.isDefined)
+
+        val content = views.html.emails.booking.manualBookingCancelledByOwner(booking, studio)
+        send(f"Your booking has been cancelled", content, booking.customerEmail.get)
     }
 }

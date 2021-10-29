@@ -1,0 +1,68 @@
+@* Noisycamp is a platform for booking music studios.
+ * Copyright (C) 2021  Raphael Javaux <raphael@noisycamp.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *@
+
+@import play.api.Configuration
+
+@import models.{ Picture, Studio, StudioManualBooking, User }
+
+@(
+    booking: StudioManualBooking,
+    studio: Studio,
+    owner: User,
+    pictures: Seq[Picture#Id])(
+    implicit req: RequestHeader, config: Configuration)
+
+@emails.layout {
+    @emails.tags.heading("h3") {
+        Your booking for @studio.name on
+        @views.html.tags.localDate(booking.times.beginsAt.toLocalDate) has been created
+    }
+
+    @emails.tags.hr()
+
+    @emails.tags.studioPicture(studio, pictures)
+
+    @emails.tags.heading("h4") { Hi, }
+
+    <p>
+        A booking for
+        @emails.tags.a(
+            routes.StudiosController.
+                show(studio.URLId).
+                absoluteURL(config.get[Boolean]("noisycamp.forceHttps"))) { @studio.name }
+        on @views.html.tags.localDate(booking.times.beginsAt.toLocalDate) has been created by
+        @owner.fullName.
+    </p>
+
+    @emails.tags.hr()
+
+    @emails.tags.heading("h4") { <small>Reservation code</small> }
+
+    @emails.tags.heading("h4") { @booking.reservationCode }
+
+    @emails.tags.hr()
+
+    @emails.tags.heading("h4") { <small>Location & contact info</small> }
+
+    @emails.tags.locationAndContactInfo(studio, owner)
+
+    @emails.tags.hr()
+
+    @emails.tags.heading("h4") { <small>Booking summary</small> }
+
+    @emails.tags.bookingSummary(booking)
+}

@@ -17,7 +17,6 @@
 
 @import play.api.Configuration
 
-@import misc.URL
 @import models.{ LocalEquipment, Studio, StudioBooking, User }
 
 @(
@@ -37,20 +36,7 @@
 
     @emails.tags.hr()
 
-    @if(!pictures.isEmpty) {
-        <p style="text-align: center;">
-            <a href="@routes.StudiosController.show(studio.URLId).absoluteURL(config.get[Boolean]("noisycamp.forceHttps"))">
-                <img
-                    src="@URL.fromCDN(routes.PictureController.cover(
-                        pictures.head.base64, "600x337"), true)"
-                    alt="@studio.name picture"
-                    style="border-radius: 3px;"
-                    width="100%">
-            </a>
-        </p>
-
-        @emails.tags.hr()
-    }
+    @emails.tags.studioPicture(studio, pictures)
 
     @emails.tags.heading("h4") { Hi@for(firstName <- customer.firstName) { @firstName}, }
 
@@ -101,12 +87,7 @@
 
     @emails.tags.heading("h4") { <small>Booking summary</small> }
 
-    <p>
-        @views.html.tags.localDateTime(booking.times.beginsAt)<br>
-        @views.html.tags.duration(booking.durations.total)<br>
-        <strong>Total: @tags.moneyAmount(booking.priceBreakdown(equips).total)</strong>
-        @if(booking.isPaidOnline) { (paid online) } else { (to be paid on site) }
-    </p>
+    @emails.tags.bookingSummary(booking)
 
     @if(equips.nonEmpty) {
         @emails.tags.hr()

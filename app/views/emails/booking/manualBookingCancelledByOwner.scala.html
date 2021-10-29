@@ -1,5 +1,5 @@
 @* Noisycamp is a platform for booking music studios.
- * Copyright (C) 2020  Raphael Javaux <raphael@noisycamp.com>
+ * Copyright (C) 2021  Raphael Javaux <raphael@noisycamp.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,10 +17,9 @@
 
 @import play.api.Configuration
 
-@import models.{ LocalEquipment, Studio, StudioBooking, User }
+@import models.{ LocalEquipment, Studio, StudioManualBooking, User }
 
-@(
-    booking: StudioCustomerBooking, customer: User, studio: Studio, equips: Seq[LocalEquipment])(
+@(booking: StudioManualBooking, studio: Studio)(
     implicit req: RequestHeader, config: Configuration)
 
 @emails.layout {
@@ -31,10 +30,10 @@
 
     @emails.tags.hr()
 
-    @emails.tags.heading("h4") { Hi@for(firstName <- customer.firstName) { @firstName}, }
+    @emails.tags.heading("h4") { Hi, }
 
     <p>
-        We are sorry to inform you that <strong>your booking request for
+        We are sorry to inform you that <strong>your booking for
         @emails.tags.a(routes.StudiosController.
             show(studio.URLId).
             absoluteURL(config.get[Boolean]("noisycamp.forceHttps"))) { @studio.name }
@@ -47,31 +46,11 @@
         <blockquote>@reason</blockquote>
     }
 
-    @if(booking.payment.isRefunded) {
-        <p>
-            Your payment has been be entirely refunded on the mean of payment chosen during the
-            checkout process. This might take a few days to show up on your bank balance.
-        </p>
-    }
-
     <p>Thank you for using NoisyCamp.</p>
 
     @emails.tags.hr()
 
     @emails.tags.heading("h4") { <small>Booking summary</small> }
 
-    <p>
-        @views.html.tags.localDateTime(booking.times.beginsAt)<br>
-        @views.html.tags.duration(booking.durations.total)<br>
-        <strong>Total: @tags.moneyAmount(booking.priceBreakdown(equips).total)</strong>
-    </p>
-
-    @emails.tags.hr()
-
-    @emails.tags.button(
-        controllers.account.routes.BookingsController.
-            show(booking.id).
-            absoluteURL(config.get[Boolean]("noisycamp.forceHttps"))) {
-        Manage booking
-    }
+    @emails.tags.bookingSummary(booking)
 }

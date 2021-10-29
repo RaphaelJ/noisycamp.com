@@ -140,6 +140,21 @@ sealed trait StudioBooking {
 
     def ownerCanCancel: Boolean = status == StudioBookingStatus.Valid
 
+    /** Pseudo-random 6-characters reservation code generated from the booking ID. */
+    def reservationCode(implicit config: Configuration): String = {
+        val ALGO = "HmacSHA256";
+        val CODE_LEN = 6
+
+        val key = config.get[String]("play.crypto.secret").getBytes
+
+        val mac = Mac.getInstance(ALGO)
+        mac.init(new SecretKeySpec(key, ALGO))
+
+        val codeBytes = mac.doFinal(id.toString.getBytes)
+
+        StudioBooking.toHexString(codeBytes).take(CODE_LEN).toUpperCase
+    }
+
     def toEvent: Event
 }
 
@@ -204,27 +219,22 @@ final case class StudioCustomerBooking(
             transactionFeeRate)
     }
 
-    /** Pseudo-random 6-characters reservation code generated from the booking ID. */
-    def reservationCode(implicit config: Configuration): String = {
-        val ALGO = "HmacSHA256";
-        val CODE_LEN = 6
-
-        val key = config.get[String]("play.crypto.secret").getBytes
-
-        val mac = Mac.getInstance(ALGO)
-        mac.init(new SecretKeySpec(key, ALGO))
-
-        val codeBytes = mac.doFinal(id.toString.getBytes)
-
-        StudioCustomerBooking.toHexString(codeBytes).take(CODE_LEN).toUpperCase
-    }
-
     def toEvent(customer: Option[User]): Event = {
         val href = Some(controllers.account.studios.routes.BookingsController.show(studioId, id))
         Event(times.beginsAt, times.duration, customer.map(_.displayName), href)
     }
 
     def toEvent = toEvent(None)
+}
+
+object StudioBooking {
+    def toHexString(value: Seq[Byte]) = {
+        val formatter = new Formatter()
+        for (b <- value) {
+            formatter.format("%02x", b.asInstanceOf[Object])
+        }
+        formatter.toString
+    }
 }
 
 object StudioCustomerBooking {
@@ -266,14 +276,6 @@ object StudioCustomerBooking {
             weekendPricePerHour = pricingPolicy.weekend.map(_.pricePerHour),
             transactionFeeRate = priceBreakdown.transactionFeeRate,
             payment = payment)
-    }
-
-    def toHexString(value: Seq[Byte]) = {
-        val formatter = new Formatter()
-        for (b <- value) {
-            formatter.format("%02x", b.asInstanceOf[Object])
-        }
-        formatter.toString
     }
 }
 

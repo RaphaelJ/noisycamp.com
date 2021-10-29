@@ -88,7 +88,22 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
     }
 
     def createSubmit(id: Studio#Id) = SecuredAction.async { implicit request =>
+        val user = request.identity.user
         val now = Instant.now
+
+        def sendEmail(studio: Studio, booking: StudioManualBooking) = {
+            booking.customerEmail.
+                map { _ =>
+                    for {
+                        pictures <- daos.studioPicture.
+                            withStudioPictureIds(studio.id).
+                            result
+                        _ <- DBIO.from(emailService.sendManualBookingCreatedByOwner(
+                            booking, studio, user, pictures))
+                    } yield Unit
+                }.
+                getOrElse(DBIO.successful(Unit))
+        }
 
         ifUserHasManualBookings {
             withStudioTransaction(id) { case studio =>
@@ -100,16 +115,16 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
                             views.html.account.studios.bookings.create(
                                 request.identity, now, studio, form))),
                         data => {
-                            daos.studioBooking.insert(StudioManualBooking(
-                                studio,
-                                data.title,
-                                data.customerEmail,
-                                StudioBookingStatus.Valid,
-                                data.times.withRepeat(data.repeat))).
-                                map { booking =>
-                                    Redirect(routes.BookingsController.show(studio.id, booking.id)).
-                                        flashing("success" -> "Booking successfully created.")
-                                }
+                            for {
+                                booking <- daos.studioBooking.insert(StudioManualBooking(
+                                    studio,
+                                    data.title,
+                                    data.customerEmail,
+                                    StudioBookingStatus.Valid,
+                                    data.times.withRepeat(data.repeat)))
+                                _ <- sendEmail(studio, booking)
+                            } yield Redirect(routes.BookingsController.show(studio.id, booking.id)).
+                                flashing("success" -> "Booking successfully created.")
                         })
             }
         }
@@ -292,9 +307,13 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
                         case (scb: StudioCustomerBooking, Some(customer)) => {
                             for {
                                 equips <- bookingLocalEquipments(studio, booking)
-                                _ <- DBIO.from(emailService.sendBookingCancelledByOwner(
+                                _ <- DBIO.from(emailService.sendCustomerBookingCancelledByOwner(
                                     scb, customer, studio, equips))
                             } yield Unit
+                        }
+                        case (smb: StudioManualBooking, None)
+                            if smb.customerEmail.isDefined => {
+                            DBIO.from(emailService.sendManualBookingCancelledByOwner(smb, studio))
                         }
                         case _ => DBIO.successful(Unit)
                     }
