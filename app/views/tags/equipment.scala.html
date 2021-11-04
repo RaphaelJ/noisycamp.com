@@ -18,7 +18,7 @@
 @import play.api.Configuration
 
 @import misc.URL
-@import models.LocalEquipment
+@import models.{ BookingTimesWithRepeat, LocalEquipment }
 
 @* Renders an equipment or instrument as a small div. *@
 
@@ -27,7 +27,7 @@
     // If true, will display a smaller version of the equipment box.
     small: Boolean = false,
     // If defined, will display the equipment price using the booking duration
-    bookingTimes: Option[HasBookingTimes] = None)(
+    bookingTimes: Option[BookingTimesWithRepeat] = None)(
     implicit req: RequestHeader, config: Configuration)
 
 @equipmentCategoryName = {@equip.category.map(_.name).getOrElse("Other")}
@@ -42,12 +42,15 @@
 @equipmentPrice = {
     @for(price <- equip.price) {
         <div class="equipment-price">
-            @if(bookingTimes.isDefined) {
-                @tags.moneyAmount(price.sessionTotal(bookingTimes.get.duration))
-            } else {
-                @price match {
-                    case LocalEquipmentPricePerHour(value) => { @tags.moneyAmount(value) per hour }
-                    case LocalEquipmentPricePerSession(value) => { @tags.moneyAmount(value) per session }
+            @bookingTimes match {
+                case Some(value) => {
+                    @tags.moneyAmount(price.sessionTotal(value.totalDuration))
+                }
+                case None => {
+                    @price match {
+                        case LocalEquipmentPricePerHour(value) => { @tags.moneyAmount(value) per hour }
+                        case LocalEquipmentPricePerSession(value) => { @tags.moneyAmount(value) per session }
+                    }
                 }
             }
         </div>

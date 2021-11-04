@@ -79,7 +79,7 @@ object JsonWrites {
 
     implicit object BookingTimesWithRepeatWrites extends Writes[BookingTimesWithRepeat] {
         def writes(times: BookingTimesWithRepeat): JsValue = {
-            Json.toJson(times.dropRepeat).asInstanceOf[JsObject] +
+            Json.toJson(BookingTimes(times.beginsAt, times.duration)).asInstanceOf[JsObject] +
             ("repeat" -> Json.toJson(times.repeat))
         }
     }

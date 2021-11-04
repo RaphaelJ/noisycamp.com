@@ -46,7 +46,7 @@ case class OpeningSchedule(
      *
      * If the booking is not valid, return `None`.
      */
-    def validateBooking(pricingPolicy: PricingPolicy, booking: HasBookingTimes):
+    def validateBooking(pricingPolicy: PricingPolicy, booking: BookingTimes):
         Option[BookingDurations] = {
 
         require(booking.duration.compareTo(Duration.ofDays(1)) <= 0)
@@ -109,6 +109,23 @@ case class OpeningSchedule(
                 }
             }
         }
+    }
+
+    def validateBooking(pricingPolicy: PricingPolicy, booking: BookingTimesWithRepeat):
+        Option[BookingDurations] = {
+
+        val durations = booking.
+            times.
+            map(validateBooking(pricingPolicy, _))
+
+        def combine(d1Opt: Option[BookingDurations], d2Opt: Option[BookingDurations]) = {
+            (d1Opt, d2Opt) match {
+                case (Some(d1), Some(d2)) => Some(d1 plus d2)
+                case (_, _) => None
+            }
+        }
+
+        durations.reduceLeft(combine)
     }
 
     /** Contructs a BookingDurations object for the booking on the provided opened day. */

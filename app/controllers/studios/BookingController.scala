@@ -38,8 +38,7 @@ import _root_.controllers.{ CustomBaseController, CustomControllerCompoments }
 import daos.CustomColumnTypes
 import forms.studios.BookingForm
 import misc.StripePaymentCaptureMethod
-import models.{ BookingDurations, BookingTimesWithRepeat, CancellationPolicy, Equipment,
-    HasBookingTimes,
+import models.{ BookingDurations, BookingTimes, HasBookingTimes, CancellationPolicy, Equipment,
     Identity, LocalEquipment, LocalPricingPolicy, PaymentMethod, Picture, PriceBreakdown, Studio,
     StudioBooking, StudioCustomerBooking, StudioBookingEquipment, StudioBookingPaymentOnline,
     StudioBookingPaymentOnsite, StudioBookingStatus, User }
@@ -71,7 +70,7 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
                                 map(_.localEquipment(studio))
 
                             val priceBreakdown = PriceBreakdown(
-                                studio, bookingTimes, localEquipments, None)
+                                studio, bookingTimes.repeatOnce, localEquipments, None)
 
                             Right((bookingTimes, localEquipments, priceBreakdown))
                         })
@@ -115,8 +114,8 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
                                 map(_.localEquipment(studio))
 
                             handler(
-                                request.identity, studio, owner, picIds,
-                                data.bookingTimes.withRepeat(None), localEquipments)
+                                request.identity, studio, owner, picIds, data.bookingTimes,
+                                localEquipments)
                         }
                     )
                 }
@@ -125,7 +124,7 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
 
     private def handleOnlinePayment(
         identity: Identity, studio: Studio, owner: User, pictures: Seq[Picture#Id],
-        bookingTimes: BookingTimesWithRepeat, equipments: Seq[LocalEquipment])(
+        bookingTimes: BookingTimes, equipments: Seq[LocalEquipment])(
         implicit request: RequestHeader) : DBIO[Result] = {
 
         val user = identity.user
@@ -159,7 +158,8 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
             equipments = equipments.map(_.id)*/)
 
         val transactionFeeRate = Some(owner.plan.transactionRate)
-        val priceBreakdown = PriceBreakdown(studio, bookingTimes, equipments, transactionFeeRate)
+        val priceBreakdown = PriceBreakdown(
+            studio, bookingTimes.repeatOnce, equipments, transactionFeeRate)
 
         for {
             session <- DBIO.from(paymentService.createSession(
@@ -173,8 +173,8 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
             booking <- daos.studioBooking.
                 insert(StudioCustomerBooking(
                     studio, user, StudioBookingStatus.PaymentProcessing,
-                    studio.bookingPolicy.cancellationPolicy, bookingTimes, priceBreakdown,
-                    payment))
+                    studio.bookingPolicy.cancellationPolicy, bookingTimes.repeatOnce,
+                    priceBreakdown, payment))
 
             bookingEquips <- daos.studioBookingEquipment.
                 insert ++= equipments.map { e =>
@@ -188,7 +188,7 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
 
     private def handleOnsitePayment(
         identity: Identity, studio: Studio, owner: User, pictures: Seq[Picture#Id],
-        bookingTimes: BookingTimesWithRepeat, equipments: Seq[LocalEquipment])(
+        bookingTimes: BookingTimes, equipments: Seq[LocalEquipment])(
         implicit request: RequestHeader) : DBIO[Result] = {
 
         val user = identity.user
@@ -201,7 +201,8 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
             }
 
         val booking = StudioCustomerBooking(
-            studio, user, status, studio.bookingPolicy.cancellationPolicy, bookingTimes, equipments,
+            studio, user, status, studio.bookingPolicy.cancellationPolicy,
+            bookingTimes.repeatOnce, equipments,
             None, StudioBookingPaymentOnsite())
 
         def onSuccess(booking: StudioCustomerBooking, owner: User) = {
@@ -465,9 +466,10 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
         if (form.hasErrors) {
             DBIO.successful(form)
         } else {
-            val times = form.get.bookingTimes.withRepeat(None)
+            val times = form.get.bookingTimes.repeatOnce
 
-            daos.studioBooking.hasOverlap(studio, times).
+            daos.studioBooking.
+                hasOverlap(studio, times).
                 map {
                     case true => form.withGlobalError(
                         "The studio is not available during the selected booking period.")

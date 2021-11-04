@@ -117,7 +117,7 @@
 
                         <div class="grid-x grid-margin-x grid-margin-y grid-padding-x grid-padding-y equipment-list">
                             @for(equip <- equips) {
-                                @tags.equipment(equip, false, Some(bookingTimes))
+                                @tags.equipment(equip, false, Some(bookingTimes.repeatOnce))
                             }
                         </div>
                     }

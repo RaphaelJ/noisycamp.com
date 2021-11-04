@@ -26,4 +26,15 @@ case class BookingDurations(
     weekend:        Duration) {
 
     def total: Duration = regular plus evening plus weekend
+
+    def plus(other: BookingDurations) = {
+        val sum = BookingDurations(
+            regular plus other.regular,
+            evening plus other.evening,
+            weekend plus other.weekend)
+
+        assert(sum.total == (total plus other.total))
+
+        sum
+    }
 }

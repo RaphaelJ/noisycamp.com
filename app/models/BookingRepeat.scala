@@ -50,6 +50,7 @@ final case class BookingRepeatCount(
     val frequency:          BookingRepeatFrequency.Val,
     val count:              Int,
     ) extends BookingRepeat {
+
     require(count >= 1)
 
     def count(firstOn: LocalDate) = count

@@ -18,35 +18,46 @@
 package models
 
 import java.time.{ LocalDateTime, Duration }
-import org.joda.time
-import akka.actor.ProviderSelection
 
 /** Time information related to a booking. */
 trait HasBookingTimes {
     def beginsAt:       LocalDateTime
     def duration:       Duration
-}
-
-case class BookingTimes(
-    beginsAt:           LocalDateTime,
-    duration:           Duration)
-    extends HasBookingTimes {
 
     require(!duration.isNegative && !duration.isZero)
 
-    def endsAt: LocalDateTime = withRepeat(None).endsAt
+    def endsAt: LocalDateTime = beginsAt plus duration
+
+    def hasOverlap(other: HasBookingTimes): Boolean = {
+        beginsAt.isBefore(other.endsAt) && endsAt.isAfter(other.beginsAt)
+    }
+}
+
+object HasBookingTimes {
+    implicit def ordering[A <: HasBookingTimes] = new Ordering[A] {
+        def compare(a: A, b: A) = a.beginsAt.compareTo(b.beginsAt)
+    }
+}
+
+case class BookingTimes(
+    val beginsAt:       LocalDateTime,
+    val duration:       Duration)
+    extends HasBookingTimes {
 
     def withRepeat(repeat: Option[BookingRepeat]): BookingTimesWithRepeat = {
         BookingTimesWithRepeat(beginsAt, duration, repeat)
     }
+
+    def repeatOnce = withRepeat(None)
 }
 
 /** Time information related to a booking, with repeat information. */
 case class BookingTimesWithRepeat(
-    beginsAt:           LocalDateTime,
-    duration:           Duration,
-    repeat:             Option[BookingRepeat])
-    extends HasBookingTimes {
+    val beginsAt:       LocalDateTime,
+    val duration:       Duration,
+
+    /** If `None`, only repeat the booking once. ¨*/
+    val repeat:         Option[BookingRepeat]) {
 
     require(!duration.isNegative && !duration.isZero)
 
@@ -67,41 +78,39 @@ case class BookingTimesWithRepeat(
         latestBeginsAt plus duration
     }
 
-    /** List all the begin and end times (inclusive and exclusive, respectively) of the repeated
-     * events. */
-    def times: Seq[(LocalDateTime, LocalDateTime)] = {
+    /** List all the booking times of this repeated event. */
+    def times: Seq[BookingTimes] = {
         repeat match {
             case Some(repeatValue) => {
                 val beginsAtTime = beginsAt.toLocalTime
                 repeatValue.
                     dates(beginsAt.toLocalDate).
                     map { date =>
-                        val beginsAt = LocalDateTime.of(date, beginsAtTime)
-                        val endsAt = beginsAt plus duration
-                        (beginsAt, endsAt)
+                        BookingTimes(LocalDateTime.of(date, beginsAtTime), duration)
                     }
             }
-            case None => Seq((beginsAt, beginsAt plus duration))
+            case None => Seq(BookingTimes(beginsAt, duration))
         }
     }
 
     /** Returns true if one of the repeated event of the booking times overlap.
      *
-     * Time complexity: O(n) where `n` is the number of repeated events. */
+     * Time complexity: O(n log(n)) where `n` is the number of repeated events. */
     def hasOverlap(other: BookingTimesWithRepeat): Boolean = {
-        var thisTimes = times
-        var otherTimes = other.times
+        var thisTimes = times.sorted
+        var otherTimes = other.times.sorted
 
         while (thisTimes.nonEmpty && otherTimes.nonEmpty) {
             val thisTime = thisTimes.head
             val otherTime = otherTimes.head
 
-            if (thisTime._2.isAfter(otherTime._1) && thisTime._1.isBefore(otherTime._2)) {
+            if (thisTime.hasOverlap(otherTime)) {
+                assert(beginsAt.isBefore(other.endsAt) && endsAt.isAfter(other.beginsAt))
                 return true
-            } else if (thisTime._1.isBefore(otherTime._1)) {
+            } else if (thisTime.beginsAt.isBefore(otherTime.beginsAt)) {
                 thisTimes = thisTimes.tail
             } else {
-                assert(thisTime._1.isAfter(otherTime._1))
+                assert(thisTime.beginsAt.isAfter(otherTime.beginsAt))
                 otherTimes = otherTimes.tail
             }
         }
@@ -109,5 +118,20 @@ case class BookingTimesWithRepeat(
         false
     }
 
-    def dropRepeat: BookingTimes = BookingTimes(beginsAt, duration)
+    /** Returns the total duration of all the repeated booking events.
+     *
+     * Time complexity: O(1). */
+    def totalDuration: Duration = {
+        val count = repeat.map(_.count(beginsAt.toLocalDate)).getOrElse(1)
+        duration multipliedBy count.toLong
+    }
 }
+
+object BookingTimesWithRepeat {
+    implicit def ordering = new Ordering[BookingTimesWithRepeat] {
+        def compare(a: BookingTimesWithRepeat, b: BookingTimesWithRepeat) = {
+            a.beginsAt.compareTo(b.beginsAt)
+        }
+    }
+}
+
