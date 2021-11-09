@@ -53,8 +53,11 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
     def calendar(id: Studio#Id) = SecuredAction.async { implicit request =>
         withStudioBookings(id, onlyActive=true) { case (studio, bookings) =>
             val bookingEvents = bookings.
-                collect { case (b: StudioCustomerBooking, c) =>
-                    b.toEvent(c).withClasses(Seq("booking")) }
+                flatMap {
+                    case (scb: StudioCustomerBooking, c) => scb.toEvents(c)
+                    case (smb: StudioManualBooking, c) => smb.toEvents
+                }.
+                map(_.withClasses(Seq("booking")))
 
             Ok(views.html.account.studios.bookings.calendar(
                 request.identity, studio, bookingEvents))

@@ -21,7 +21,7 @@ import play.api.mvc.Call
 
 /** A generic event that will be displayed in the calendar. */
 case class Event(
-    times:          BookingTimesWithRepeat,
+    times:          BookingTimes,
 
     title:          Option[String] = None,
     href:           Option[Call] = None,

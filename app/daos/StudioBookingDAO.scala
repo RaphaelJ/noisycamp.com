@@ -192,8 +192,8 @@ class StudioBookingDAO @Inject()
             filter(_._1.studioId === studio.id).
             filter(_._1.endsAt > beginsAt).
             filter(_._1.beginsAt < endsAt).
-            exists.
-            result
+            result.
+            map { bookings => bookings.exists(_.times.hasOverlap(times)) }
     }
 }
 

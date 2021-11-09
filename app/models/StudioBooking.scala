@@ -155,7 +155,7 @@ sealed trait StudioBooking {
         StudioBooking.toHexString(codeBytes).take(CODE_LEN).toUpperCase
     }
 
-    def toEvent: Event
+    def toEvents: Seq[Event]
 }
 
 /** An online booking made by a customer. */
@@ -219,12 +219,15 @@ final case class StudioCustomerBooking(
             transactionFeeRate)
     }
 
-    def toEvent(customer: Option[User]): Event = {
+    def toEvents(customer: Option[User]): Seq[Event] = {
+        val title = customer.map(_.displayName)
         val href = Some(controllers.account.studios.routes.BookingsController.show(studioId, id))
-        Event(times, customer.map(_.displayName), href)
+        times.
+            times.
+            map(Event(_, title, href))
     }
 
-    def toEvent = toEvent(None)
+    def toEvents = toEvents(None)
 }
 
 object StudioBooking {
@@ -298,9 +301,11 @@ final case class StudioManualBooking(
     val times:                  BookingTimesWithRepeat
     ) extends StudioBooking {
 
-    def toEvent = {
+    def toEvents = {
         val href = Some(controllers.account.studios.routes.BookingsController.show(studioId, id))
-        Event(times, Some(title))
+        times.
+            times.
+            map(Event(_, Some(title), href))
     }
 }
 

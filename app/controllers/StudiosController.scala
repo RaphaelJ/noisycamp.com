@@ -194,20 +194,24 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
 
             bookingEvents <- studioOpt match {
                 case Some(studio) => {
-                    val localDate = studio.currentDateTime(now).toLocalDate
+                    val today = studio.currentDateTime(now).toLocalDate.atStartOfDay
                     daos.studioBooking.activeBookings.
                         filter(_._1.studioId === studio.id).
-                        filter(_._1.beginsAt >= localDate.atStartOfDay).
+                        filter(_._1.endsAt > today).
                         sortBy(_._1.beginsAt).
                         result.
-                        // Converts bookings into anonymous calendar events.
                         map { bookings =>
-                            bookings.map { booking =>
-                                booking.
-                                    toEvent.
-                                    withClasses(Seq("occupied")).
-                                    withTitle(None).
-                                    withHref(None) }
+                            bookings.
+                                // Converts bookings into anonymous calendar events.
+                                flatMap(_.toEvents).
+                                map { event =>
+                                    event.
+                                        withClasses(Seq("occupied")).
+                                        withTitle(None).
+                                        withHref(None)
+                                }.
+                                // Removes any repeated events that come before the current date.
+                                filter(_.times.endsAt.isAfter(today))
                         }
                 }
                 case None => DBIO.successful(Seq.empty)
