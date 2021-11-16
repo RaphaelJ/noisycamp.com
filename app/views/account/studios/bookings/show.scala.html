@@ -119,9 +119,9 @@
 
                         <h3>@booking.reservationCode</h3>
 
-                        <hr>
-
                         @for(customer <- customerOpt) {
+                            <hr>
+
                             <h3>
                                 <small>Guest details</small>
                             </h3>
@@ -135,8 +135,26 @@
                                 </a>
                             </p>
 
-                            <hr class="show-for-small-only">
                         }
+
+                        @booking match {
+                            case smb: StudioManualBooking if smb.customerEmail.isDefined => {
+                                <hr>
+
+                                <h3>
+                                    <small>Guest email</small>
+                                </h3>
+
+                                <p>
+                                    <a href="mailto:@smb.customerEmail.get">
+                                        @smb.customerEmail.get
+                                    </a>
+                                </p>
+                            }
+                            case _ => { }
+                        }
+
+                        <hr class="show-for-small-only">
                     </div>
 
                     <div class="cell small-12 medium-6">
@@ -150,6 +168,12 @@
 
                             <i class="fi-clock"></i>&nbsp;
                             @tags.duration(booking.times.duration)
+
+                            @for(repeat <- booking.times.repeat) {
+                                <br>
+                                <i class="fi-refresh"></i>&nbsp;
+                                Repeat @views.html.tags.bookingRepeat(repeat)
+                            }
                         </p>
 
                         @if(equips.nonEmpty){
@@ -166,10 +190,10 @@
                             </div>
                         }
 
-                        <hr>
-
                         @booking match {
                         case scb: StudioCustomerBooking => {
+
+                            <hr>
                             <h3>
                                 <small>Price breakdown</small>
                             </h3>

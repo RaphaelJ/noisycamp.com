@@ -21,15 +21,15 @@
 
 @(repeat: BookingRepeat)
 
-every @{
+<strong>every @{
     Map(
         BookingRepeatFrequency.Daily -> "day",
         BookingRepeatFrequency.Weekly -> "week",
         BookingRepeatFrequency.Monthly -> "month",
         BookingRepeatFrequency.Yearly -> "year"
     )(repeat.frequency)
+}</strong>
+@repeat match {
+    case BookingRepeatCount(_, count) => {for <strong>@count times</strong>.}
+    case BookingRepeatUntil(_, until) => {until <strong>@{tags.localDate(until)}</strong>.}
 }
-@{repeat match {
-    case BookingRepeatCount(_, count) => f"for $count times."
-    case BookingRepeatUntil(_, until) => f"until ${tags.localDate(until)}."
-}}
