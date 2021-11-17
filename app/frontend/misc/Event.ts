@@ -39,7 +39,7 @@ export function eventsOverlap(
 }
 
 // Sorts events by their `begins-at` value.
-export function eventsSort(events: Array<Event>): Array<Event> {
+export function eventsSort(events: Event[]): Event[] {
     return events.
         slice().
         sort((e1: Event, e2: Event) => {
@@ -54,9 +54,9 @@ export function eventsSort(events: Array<Event>): Array<Event> {
 }
 
 // Combines overlapping events as single events. Merge event classes.
-export function eventsMerge(events: Array<Event>): Array<Event> {
+export function eventsMerge(events: Event[]): Event[] {
     return eventsSort(events).
-        reduce((acc: Array<Event>, currEvent: Event) => {
+        reduce((acc: Event[], currEvent: Event) => {
             if (acc.length < 1) {
                 acc.push(currEvent);
                 return acc;
