@@ -18,9 +18,9 @@
 
 <template>
     <div class="grid-x grid-padding-x">
-        <h2 class="cell">
+        <h3 class="cell">
             Book a rehearsal or recording studio
-        </h2>
+        </h3>
 
         <div class="cell medium-12 large-8">
             <label>

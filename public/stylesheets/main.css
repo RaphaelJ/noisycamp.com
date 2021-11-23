@@ -26,7 +26,7 @@ body, a.text-style-link {
 }
 
 body, h1, h2, h3, h4, h5, h6, .text-sans-serif {
-    font-family: 'Fira Sans', sans-serif;
+    font-family: 'Raleway', sans-serif;
 }
 
 .text-serif {
@@ -120,12 +120,11 @@ main {
 /* Buttons */
 
 .button {
-    border-radius: 2px;
-}
-
-.button {
-    color: #b37216;
     background-color: rgba(0, 0, 0, 0);
+    border-radius: 2px;
+
+    color: #b37216;
+    font-weight: 500;
 }
 
 .button:hover {
