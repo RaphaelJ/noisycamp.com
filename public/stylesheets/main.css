@@ -1,5 +1,5 @@
 /* Noisycamp is a platform for booking music studios.
- * Copyright (C) 2019  Raphael Javaux <raphaeljavaux@gmail.com>
+ * Copyright (C) 2019 2021 Raphael Javaux <raphael@noisycamp.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,17 @@
 
 /* General */
 
+:root {
+    --accent-color: #db7233;
+    --accent-color-dark: #be642c;
+    --accent-color-darker: #a05526;
+
+    --accent-color-10pct: #db733325;
+    --accent-color-25pct: #db73333f;
+    --accent-color-50pct: #db73337f;
+    --accent-color-75pct: #db7333bf;
+}
+
 body {
     background-color: #f5f3f2;
 }
@@ -31,6 +42,14 @@ body, h1, h2, h3, h4, h5, h6, .text-sans-serif {
 
 .text-serif {
     font-family: 'Playfair Display', serif;
+}
+
+a, a:visited {
+    color: var(--accent-color-dark);
+}
+
+a:hover {
+    color: var(--accent-color-darker);
 }
 
 /* As title gets smaller on small screen, makes them stronger */
@@ -101,14 +120,6 @@ h1 small, h2 small, h3 small, h4 small, h5 small, h6 small {
     }
 }
 
-a {
-    color: #b37216;
-}
-
-a:hover {
-    color: #915c11;
-}
-
 hr {
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
@@ -123,7 +134,7 @@ main {
     background-color: rgba(0, 0, 0, 0);
     border-radius: 2px;
 
-    color: #b37216;
+    color: var(--accent-color);
     font-weight: 500;
 }
 
@@ -135,7 +146,7 @@ main {
 .button.primary:visited,
 .button.primary:disabled {
     color: white;
-    background-color: #b37216;
+    background-color: var(--accent-color);
     border: 1px solid transparent;
 }
 
@@ -143,8 +154,8 @@ main {
 .button.secondary:visited,
 .button.secondary:disabled {
     background-color: transparent;
-    color: #b37216;
-    border: 1px solid #b37216;
+    color: var(--accent-color);
+    border: 1px solid var(--accent-color);
 }
 
 .button.primary:hover,
@@ -165,12 +176,12 @@ main {
 .button.secondary:hover,
 .button.secondary:hover:disabled,
 .button.secondary:focus {
-    background-color: #915c11;
+    background-color: var(--accent-color-dark);
 }
 
 .button.primary:active,
 .button.secondary:active {
-    background-color: #825313;
+    background-color: var(--accent-color-darker)
 }
 
 /* Input and forms */
@@ -219,7 +230,7 @@ main {
 [type="time"]:focus, [type="url"]:focus, [type="week"]:focus, textarea:focus,
 select:focus
 {
-    border: 1px solid #b37216;
+    border: 1px solid var(--accent-color);
     box-shadow: 0 0 4px rgba(202, 202, 202, 0.075);
 }
 
@@ -351,7 +362,7 @@ table.fixed {
     bottom: 0;
     left: 0;
 
-    background-color: #b37216;
+    background-color: var(--accent-color);
     border-radius: 2px;
 
     transition: width 0.2s ease-out;
@@ -727,7 +738,7 @@ footer h1, footer h2, footer h3, footer h4, footer h5, footer h6 {
     color: white;
 }
 
-footer, footer a, footer label {
+footer, footer a, footer a:visited, footer label {
     color: #a2a2a2;
 }
 

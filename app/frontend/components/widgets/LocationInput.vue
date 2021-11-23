@@ -281,10 +281,10 @@ export default Vue.extend({
 }
 
 .location-input .location-autocomplete li:hover {
-    background-color: #b3721620;
+    background-color: var(--accent-color-10pct);
 }
 
 .location-input .location-autocomplete li.selected {
-    background-color: #b372164d;
+    background-color: var(--accent-color-25pct);
 }
 </style>

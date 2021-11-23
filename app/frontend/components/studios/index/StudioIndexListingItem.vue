@@ -146,7 +146,7 @@ export default Vue.extend({
 });
 </script>
 
-<style scoped>
+<style>
 .studio {
     display: block;
     margin-top: 1rem;
@@ -156,7 +156,7 @@ export default Vue.extend({
 }
 
 .studio.highlighted {
-    border: 2px solid #b3721675;
+    border: 2px solid var(--accent-color);
 }
 
 .studio .title {

@@ -225,12 +225,12 @@ export default Vue.extend({
 }
 
 .studios-map .studio-marker.highlighted {
-    border: 2px solid #b37216;
+    border: 2px solid var(--accent-color);
 }
 
 .studios-map .studio-marker.highlighted::after {
     margin-left: -7px;
     border-width: 7px;
-    border-color: transparent transparent #b37216 transparent;
+    border-color: transparent transparent var(--accent-color) transparent;
 }
 </style>

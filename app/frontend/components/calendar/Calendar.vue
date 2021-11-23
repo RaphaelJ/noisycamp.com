@@ -620,12 +620,12 @@ export default Vue.extend({
     padding: 0.2rem;
 
     border-radius: 3px;
-    border-left: 4px solid #b37216;
-    background-color: #b3721650;
+    border-left: 4px solid var(--accent-color);
+    background-color: var(--accent-color-25pct);
 }
 
 .calendar .schedule .event.booking:hover {
-    background-color: #b3721675;
+    background-color: var(--accent-color-50pct);
 }
 
 .calendar .schedule .event.booking .times {

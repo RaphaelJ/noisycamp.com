@@ -45,13 +45,13 @@
         <div class="cell small-12 medium-8">
             <div class="grid-x grid-margin-x">
                 <div class="cell auto">
-                    <h5 class="text-overflow-ellipsis">
-                        <a
-                            href="@controllers.routes.StudiosController.show(studio.URLId)"
-                            target="_blank">
+                    <a
+                    href="@controllers.routes.StudiosController.show(studio.URLId)"
+                    target="_blank">
+                        <h5 class="text-overflow-ellipsis">
                             <strong>@studio.name</strong>
-                        </a>
-                    </h5>
+                        </h5>
+                    </a>
                 </div>
 
                 @if(!studio.published) {
