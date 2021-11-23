@@ -34,8 +34,7 @@ export default {
         },
     },
     computed: {
-        globalError() {
-            console.log(this.errors);
+        globalError(): string {
             if (typeof(this.errors) == 'string') {
                 return this.errors;
             } else if (this.errors && typeof(this.errors) == 'object' && "" in this.errors) {
@@ -50,7 +49,7 @@ export default {
         // prefix if there is one.
         //
         // If `index` is provided, will add a `[index]` subscript prefix.
-        fieldName(subFieldName?: string, index?: number) {
+        fieldName(subFieldName?: string, index?: number): string {
             var prefix = this.name;
 
             if (index != undefined) {

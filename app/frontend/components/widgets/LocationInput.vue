@@ -51,6 +51,7 @@
             <li
                 v-for="(match, index) in matches"
                 :class="{ selected: index + 1 == selected }"
+                :key="match.place_name"
                 @click="setLocation(match)">
                 {{ match.place_name }}
             </li>
