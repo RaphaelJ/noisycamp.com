@@ -306,10 +306,13 @@ table.fixed {
 
 /* Top bar */
 
-.top-bar-container,
+.top-bar-container {
+    background-color: #110903;
+}
+
 .top-bar,
 .top-bar ul {
-    background-color: #2a1f0d;
+    background-color: transparent;
 }
 
 :root {
@@ -436,7 +439,7 @@ table.fixed {
 
 /* A content section that is slightly highlighted. */
 .section {
-    background-color: rgba(0, 0, 0, 0.05);
+    background-color: rgba(0, 0, 0, 0.025);
 }
 
 /* A section of content that appears in a box  */
