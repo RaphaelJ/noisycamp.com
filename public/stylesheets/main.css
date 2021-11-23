@@ -433,7 +433,7 @@ table.fixed {
     background-color: rgba(255, 255, 255, 1);
     border-radius: 4px;
     border: 1px solid rgba(0, 0, 0, 0.06);
-    padding: 1rem 1.3rem;
+    padding: 1.3rem;
 }
 
 .panel-section > :last-child {
@@ -446,7 +446,7 @@ table.fixed {
 /* Slightly larger padding on medium and large screens. */
 @media screen and (min-width: 40em) {
     .panel-section {
-        padding: 1.2rem 1.5rem;
+        padding: 1.5rem;
     }
 }
 
