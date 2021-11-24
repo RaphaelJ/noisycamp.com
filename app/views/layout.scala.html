@@ -28,13 +28,16 @@
 @** Main layout for the NoisyCamp website.
  *
  * @param fullScreen if true, will expand the header and footer to fill the screen.
+ * @param topBarExtension is an additional top bar with additional context buttons.
  *@
 @(
     title: Seq[String],
     head: Html = Html(""),
     javascript: Html = Html(""),
+    fullScreen: Boolean = false,
+    topBarExtension: Option[Html] = None,
     identity: Option[Identity],
-    fullScreen: Boolean = false)(content: Html)(
+    )(content: Html)(
     implicit req: RequestHeader, config: Configuration, flash: Flash)
 
 @topBar = {
@@ -54,7 +57,7 @@
             </div>
 
             <div class="top-bar-right">
-                <ul class="menu">
+                <ul class="menu align-center-for-small">
                     @if(identity.isDefined && identity.get.isAHost) {
                         <li>
                             <a
@@ -72,7 +75,7 @@
                     @if(identity.isDefined) {
                         <li>
                             <a href="@controllers.account.routes.IndexController.index">
-                                <i class="fi-torso"></i>&nbsp;
+                                <span class="hide-for-small-only"><i class="fi-torso"></i>&nbsp;</span>
                                 @identity.get.user.displayName
                             </a>
                         </li>
@@ -90,6 +93,14 @@
             </div>
         </div>
     </div>
+
+    @for(extension <- topBarExtension) {
+        <div class="top-bar-extension">
+            <div class="grid-container@if(fullScreen){-fluid}">
+                @extension
+            </div>
+        </div>
+    }
 }
 
 <!doctype html>

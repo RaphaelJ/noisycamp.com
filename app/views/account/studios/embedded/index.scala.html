@@ -70,7 +70,11 @@
 }
 
 @views.html.account.layout(
-    Seq("Website integration", studio.name), head=head, identity=identity) {
+    Seq("Website integration"),
+    head=head,
+    topBarExtension=Some(tags.studioTopBarExtension(studio)),
+    identity=identity) {
+
     <div class="panel-section">
         <div class="grid-x grid-margin-x grid-margin-y">
             <div class="cell medium-12 large-7 hide-for-small-only">

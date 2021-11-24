@@ -28,7 +28,10 @@
     implicit request: RequestHeader, messagesProvider: MessagesProvider,
     config: Configuration, flash: Flash)
 
-@views.html.account.layout(Seq("Studio bookings", studio.name), identity=identity) {
+@views.html.account.layout(
+    Seq("Studio bookings"),
+    topBarExtension=Some(tags.studioTopBarExtension(studio)),
+    identity=identity) {
 
 @defining(Instant.now) { now =>
 @defining(

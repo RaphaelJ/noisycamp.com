@@ -32,7 +32,10 @@
 @currentDateTime = @{ studio.currentDateTime() }
 @studioCreatedAt = @{ studio.currentDateTime(studio.createdAt) }
 
-@views.html.account.layout(Seq("Studio calendar", studio.name), identity=identity) {
+@views.html.account.layout(
+    Seq("Studio calendar"),
+    topBarExtension=Some(tags.studioTopBarExtension(studio)),
+    identity=identity) {
 
     <div class="panel-section">
         <div class="grid-x grid-padding-x grid-padding-y">

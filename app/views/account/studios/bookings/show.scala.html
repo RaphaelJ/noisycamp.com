@@ -50,7 +50,8 @@
 }
 
 @views.html.account.layout(
-    Seq(bookingTitle,studio.name),
+    Seq(bookingTitle),
+    topBarExtension=Some(tags.studioTopBarExtension(studio)),
     identity=identity) {
 
     <div class="grid-x grid-padding-x grid-padding-y">

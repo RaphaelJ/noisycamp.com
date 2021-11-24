@@ -1,0 +1,63 @@
+@* Noisycamp is a platform for booking music studios.
+ * Copyright (C) 2021 Raphael Javaux <raphael@noisycamp.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *@
+
+@(
+    studio: models.Studio)(
+    implicit req: RequestHeader)
+
+<div class="grid-x">
+    <div class="cell shrink hide-for-small-only">
+        <ul class="menu align-left">
+            <li>
+                <a
+                    class="text-overflow-ellipsis"
+                    href="@controllers.routes.StudiosController.show(studio.URLId)">
+                    @studio.name
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="cell auto">
+        <ul class="menu align-right align-center-for-small">
+            <li class="show-for-large">
+                <a href="@controllers.account.studios.routes.BookingsController.create(studio.id)">
+                    <span class="hide-for-small-only"><i class="fi-plus"></i>&nbsp;</span>
+                    Create booking
+                </a>
+            </li>
+            <li>
+                <a href="@controllers.account.studios.routes.BookingsController.index(studio.id)">
+                    <span class="hide-for-small-only"><i class="fi-list"></i>&nbsp;</span>
+                    Bookings
+                </a>
+            </li>
+            <li>
+                <a href="@controllers.account.studios.routes.BookingsController.calendar(studio.id)">
+                    <span class="hide-for-small-only"><i class="fi-calendar"></i>&nbsp;</span>
+                    Calendar
+                </a>
+            </li>
+            <li>
+                <a href="@controllers.account.studios.routes.IndexController.settings(studio.id)">
+                    <span class="hide-for-small-only"><i class="fi-widget"></i>&nbsp;</span>
+                    Settings
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>

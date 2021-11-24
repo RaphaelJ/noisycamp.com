@@ -345,19 +345,22 @@ table.fixed {
     margin-bottom: -0.5rem;
 }
 
-.top-bar, .top-bar a {
+.top-bar, .top-bar a,
+.top-bar-extension, .top-bar-extension a {
     color: white;
 }
 
-.top-bar .top-bar-right a {
+/* Creates an animated :hover effect on links. */
+.top-bar .top-bar-right a,
+.top-bar-extension a {
     position: relative;
 
     margin-left: 0.5rem;
     margin-right: 0.5rem;
 }
 
-/* Creates an animated :hover effect on links. */
-.top-bar .top-bar-right a:not(.button)::after {
+.top-bar .top-bar-right a:not(.button)::after,
+.top-bar-extension a:not(.button)::after {
     content: "";
     position: absolute;
     height: 2px;
@@ -371,7 +374,8 @@ table.fixed {
     transition: width 0.2s ease-out;
 }
 
-.top-bar .top-bar-right a:not(.button):hover::after {
+.top-bar .top-bar-right a:not(.button):hover::after,
+.top-bar-extension a:not(.button):hover::after {
     width: 100%;
 }
 
@@ -388,6 +392,13 @@ table.fixed {
     :root {
         --top-bar-height: calc(2 * var(--top-bar-line-height) - 0.7rem);
     }
+}
+
+/* Top bar extension */
+
+.top-bar-extension {
+    background-color: #2d2d2d;
+    padding: 0.25rem;
 }
 
 /* Flash bar */
@@ -411,6 +422,16 @@ table.fixed {
 .menu.small a {
     padding-top: 0.25rem;
     padding-bottom: 0.25rem;
+}
+
+/* Center aligns the menu content on small devices (e.g. on the top bar). */
+@media screen and (max-width: 39.9375em) {
+    .menu.align-center-for-small {
+        -webkit-box-pack: center;
+        -webkit-justify-content: center;
+        -ms-flex-pack: center;
+        justify-content: center;
+    }
 }
 
 /* Avatars */

@@ -44,7 +44,8 @@
 @title = @{ "Create a new booking" }
 
 @views.html.account.layout(
-    Seq(title, studio.name),
+    Seq(title),
+    topBarExtension=Some(tags.studioTopBarExtension(studio)),
     identity=identity) {
 
 <div class="grid-y grid-padding-y">
