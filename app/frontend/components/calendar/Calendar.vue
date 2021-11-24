@@ -103,8 +103,8 @@
                                 <div v-if="styleIndex == 0 && event.title">
                                     <div class="times">
                                         {{ event.times.beginsAt.format('HH:mm') }}
-                                        <span v-if="event.times.duration" class="show-for-large-only">
-                                            - {{ event.times.duration.asHours() }} hours
+                                        <span v-if="event.times.endsAt">
+                                            - {{ event.times.endsAt.format('HH:mm') }}
                                         </span>
                                     </div>
                                     <div
@@ -118,8 +118,8 @@
                                 <div v-if="styleIndex == 0 && event.title">
                                     <div class="times">
                                         {{ event.times.beginsAt.format('HH:mm') }}
-                                        <span v-if="event.times.duration" class="show-for-large-only">
-                                            - {{ event.times.duration.asHours() }} hours
+                                        <span v-if="event.times.endsAt">
+                                            - {{ event.times.endsAt.format('HH:mm') }}
                                         </span>
                                     </div>
                                     <div class="title text-overflow-ellipsis">
