@@ -28,7 +28,6 @@ import play.api.mvc._
 
 import auth.DefaultEnv
 import daos.{ CustomColumnTypes, StudioBookingDAO }
-import daos.StudioBookingDAO.toStudioBooking
 import daos.StudioBookingDAO.{
     StudioBookingRow, StudioCustomerBookingRow, StudioManualBookingRow, toStudioBooking }
 import forms.account.ManualBookingForm

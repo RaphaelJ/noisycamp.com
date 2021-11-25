@@ -133,7 +133,10 @@ import VueInput from '../../widgets/VueInput';
 declare var NC_CONFIG: any;
 
 interface ComponentValue {
+    // The booking begin time, as an ISO 8601 string.
     'begins-at': string | null
+
+    // The booking duration time, as an ISO 8601 string.
     'duration': string | null
 }
 
@@ -432,7 +435,7 @@ export default Vue.extend({
 
                 durations.push({
                     title: renderDuration(iDuration, 'minutes'),
-                    value: iDuration.asSeconds(),
+                    value: iDuration.toISOString(),
                 });
                 iDuration.add(NC_CONFIG.bookingDurationRoundingTime, 'seconds');
             }

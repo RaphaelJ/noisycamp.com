@@ -108,11 +108,11 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
                 join(daos.studio.query).on(_._1.studioId === _.id).
                 join(daos.user.query).on(_._2.ownerId === _.id).
                 result.headOption.
+                map(_.map { case ((bookingRow, studio), owner) =>
+                    ((toStudioBooking(bookingRow), studio), owner)
+                }).
                 flatMap {
-                    case Some(((bookingRow, studio), owner))
-                        if bookingRow._1.bookingType == StudioBookingType.Customer => {
-
-                        val booking = bookingRow.asInstanceOf[StudioCustomerBooking]
+                    case Some(((booking: StudioCustomerBooking, studio), owner)) => {
                         daos.studioBookingEquipment.
                             withBookingEquipment(booking.id).
                             result.

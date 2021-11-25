@@ -146,6 +146,8 @@ export default Vue.extend({
 
             // Computes the durations for the 3 pricing policies.
 
+            let durationSecs = moment.duration(this.bookingTimes['duration']).asSeconds();
+
             let durations = { };
 
             let isWeekend = weekDay == 6 || weekDay == 7;
@@ -153,7 +155,7 @@ export default Vue.extend({
             if (isWeekend && this.pricingPolicy['weekend']) {
                 durations['regular'] = 0;
                 durations['evening'] = 0;
-                durations['weekend'] = this.bookingTimes['duration'];
+                durations['weekend'] = durationSecs;
             } else {
                 durations['weekend'] = 0;
 
@@ -174,14 +176,12 @@ export default Vue.extend({
                         0,
                         Math.min(
                             eveningBeginsAt.diff(beginsAt, 'seconds'),
-                            this.bookingTimes['duration']
+                            durationSecs
                         )
                     );
-                    durations['evening'] =
-                        this.bookingTimes['duration']
-                        - durations['regular'];
+                    durations['evening'] = durationSecs - durations['regular'];
                 } else {
-                    durations['regular'] = this.bookingTimes.duration;
+                    durations['regular'] = durationSecs;
                     durations['evening'] = 0;
                 }
             }
@@ -225,7 +225,7 @@ export default Vue.extend({
 
         equipmentFees() {
             var sum = null;
-            
+
             for (var e of this.equipments) {
                 if (e['price']) {
                     var price = asCurrency(e['price']['value']);
@@ -244,13 +244,13 @@ export default Vue.extend({
 
             return sum;
         },
- 
+
         total() {
             // Creates a 0-valued sum currency.js object with the same currency
             // as the pricing policy.
             let pricePerHour = asCurrency(this.pricingPolicy['price-per-hour'])
             var sum = pricePerHour.subtract(pricePerHour);
-            
+
             if (this.equipmentFees) {
                 sum = sum.add(this.equipmentFees);
             }

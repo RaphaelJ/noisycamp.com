@@ -176,8 +176,21 @@ object CustomFields {
         of(pictureIdFormat)
     }
 
-    /** Maps a number of seconds to a Joda's Duration instance. */
+    /** Maps a number of seconds to a Duration instance. */
     val seconds: Mapping[Duration] = {
         longNumber(min = 0).transform(Duration.ofSeconds, _.getSeconds)
+    }
+
+    /** Maps a ISO 8601 duration to a Duration instance. */
+    val duration: Mapping[Duration] = {
+        val durationFormat = new Formatter[Duration] {
+            def bind(key: String, data: Map[String, String]) = {
+                parsing(Duration.parse, "Invalid duration format", Nil)(key, data)
+            }
+
+            def unbind(key: String, value: Duration) = Map(key -> value.toString)
+        }
+
+        of(durationFormat)
     }
 }

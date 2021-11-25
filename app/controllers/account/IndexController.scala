@@ -25,6 +25,7 @@ import play.api.mvc._
 
 import _root_.controllers.{ CustomBaseController, CustomControllerCompoments }
 import daos.CustomColumnTypes
+import daos.StudioBookingDAO.toStudioBooking
 import models.{ StudioBooking, StudioBookingType, StudioCustomerBooking }
 
 @Singleton
@@ -53,12 +54,14 @@ class IndexController @Inject() (ccc: CustomControllerCompoments)
                     sortBy(_._1.beginsAt.desc).
                     join(daos.studio.query).on(_._1.studioId === _.id).
                     result.
-                    map(_.map {
-                        case (booking, studio) =>
-                            (booking.asInstanceOf[StudioCustomerBooking], studio)
+                    map(_.map { case (bookingRow, studio) =>
+                        val booking = toStudioBooking(bookingRow).
+                            asInstanceOf[StudioCustomerBooking]
+                        (toStudioBooking(bookingRow).asInstanceOf[StudioCustomerBooking], studio)
                     })
 
                 upcomingStudioBookings <- daos.studioBooking.activeBookings.
+                    filter(_._1.bookingType === StudioBookingType.Customer).
                     filter(_._1.beginsAt > minBeginsAt).
                     sortBy(_._1.beginsAt.desc).
                     join(daos.studio.query.filter(_.ownerId === user.id)).
@@ -66,9 +69,10 @@ class IndexController @Inject() (ccc: CustomControllerCompoments)
                     join(daos.user.query).
                         on { case (b, u) => b._1._2.map(_.customerId === u.id) }.
                     result.
-                    map(_.map {
-                        case ((booking, studio), customer) =>
-                            (booking.asInstanceOf[StudioCustomerBooking], studio, customer)
+                    map(_.map { case ((bookingRow, studio), customer) =>
+                        val booking = toStudioBooking(bookingRow).
+                            asInstanceOf[StudioCustomerBooking]
+                        (booking, studio, customer)
                     })
 
             } yield (upcomingGuestBookings, upcomingStudioBookings)

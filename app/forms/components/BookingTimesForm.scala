@@ -62,7 +62,7 @@ object BookingTimesForm {
                 verifying(
                     "A booking cannot be too far in the future.",
                     beginsAt => beginsAt.toLocalDate.isBefore(maxBookingDate)),
-            "duration"        -> CustomFields.seconds.
+            "duration"        -> CustomFields.duration.
                 verifying(
                     "Invalid duration.",
                     duration => {
