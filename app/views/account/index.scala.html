@@ -25,7 +25,10 @@
     upcomingStudioBookings: Seq[(models.StudioBooking, models.Studio, models.User)]
     )(implicit req: RequestHeader, config: Configuration, flash: Flash)
 
-@layout(Seq("My account"), identity=identity) {
+@layout(
+    Seq("My account"),
+    hideSideBarOnSmall=false,
+    identity=identity) {
 
 @defining(Instant.now) { now =>
 
