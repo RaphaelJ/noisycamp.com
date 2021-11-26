@@ -23,74 +23,76 @@
     implicit req: RequestHeader, config: Configuration, flash: Flash)
 
 @studioBlock(studio: Studio, picIdOpt: Option[models.Picture#Id]) = {
-    <div class="grid-x grid-padding-x grid-padding-y">
+    <div class="panel-section">
+        <div class="grid-x grid-padding-x">
 
-        <div class="cell small-12 medium-4">
-            <a
-                href="@controllers.routes.StudiosController.show(studio.URLId)"
-                target="_blank"
-                class="text-center">
-                <reactive-picture
-                    alt="@{studio.name} picture"
-                    @for(picId <- picIdOpt) {
-                        picture-id="@picId.base64"
-                    }
-                    :width="300"
-                    :height="200"
-                    classes="border-radius">
-                </reactive-picture>
-            </a>
-        </div>
+            <div class="cell small-12 medium-4">
+                <a
+                    href="@controllers.routes.StudiosController.show(studio.URLId)"
+                    target="_blank"
+                    class="text-center">
+                    <reactive-picture
+                        alt="@{studio.name} picture"
+                        @for(picId <- picIdOpt) {
+                            picture-id="@picId.base64"
+                        }
+                        :width="300"
+                        :height="200"
+                        classes="border-radius">
+                    </reactive-picture>
+                </a>
+            </div>
 
-        <div class="cell small-12 medium-8">
-            <div class="grid-x grid-margin-x">
-                <div class="cell auto">
-                    <a
-                    href="@controllers.routes.StudiosController.show(studio.URLId)">
-                        <h5 class="text-overflow-ellipsis">
-                            <strong>@studio.name</strong>
-                        </h5>
-                    </a>
-                </div>
-
-                @if(!studio.published) {
-                    <div class="cell shrink">
+            <div class="cell small-12 medium-8">
+                <div class="grid-x grid-margin-x">
+                    <div class="cell auto">
                         <a
-                            href="@controllers.routes.StudiosController.show(studio.URLId)"
-                            target="_blank"
-                            class="text-alert">
-                            <i class="fi-alert"></i>&nbsp;
-                            Unpublished
+                        href="@controllers.routes.StudiosController.show(studio.URLId)">
+                            <h5 class="text-overflow-ellipsis">
+                                <strong>@studio.name</strong>
+                            </h5>
                         </a>
                     </div>
-                }
 
-                <ul class="cell small-12 vertical menu small">
-                    <li>
-                        <a href="@controllers.account.studios.routes.BookingsController.index(studio.id)">
-                            <i class="fi-list-thumbnails"></i>&nbsp;
-                            Bookings
-                        </a>
-                    </li>
-                    <li>
-                        <a href="@controllers.account.studios.routes.BookingsController.calendar(studio.id)">
-                            <i class="fi-calendar"></i>&nbsp;
-                            Calendar
-                        </a>
-                    </li>
-                    <li>
-                        <a href="@controllers.account.studios.routes.EmbeddedController.index(studio.id)">
-                            <i class="fi-web"></i>&nbsp;
-                            Website integration
-                        </a>
-                    </li>
-                    <li>
-                        <a href="@controllers.account.studios.routes.IndexController.settings(studio.id)">
-                            <i class="fi-widget"></i>&nbsp;
-                            Settings
-                        </a>
-                    </li>
-                </ul>
+                    @if(!studio.published) {
+                        <div class="cell shrink">
+                            <a
+                                href="@controllers.routes.StudiosController.show(studio.URLId)"
+                                target="_blank"
+                                class="text-alert">
+                                <i class="fi-alert"></i>&nbsp;
+                                Unpublished
+                            </a>
+                        </div>
+                    }
+
+                    <ul class="cell small-12 vertical menu small">
+                        <li>
+                            <a href="@controllers.account.studios.routes.BookingsController.index(studio.id)">
+                                <i class="fi-list-thumbnails"></i>&nbsp;
+                                Bookings
+                            </a>
+                        </li>
+                        <li>
+                            <a href="@controllers.account.studios.routes.BookingsController.calendar(studio.id)">
+                                <i class="fi-calendar"></i>&nbsp;
+                                Calendar
+                            </a>
+                        </li>
+                        <li>
+                            <a href="@controllers.account.studios.routes.EmbeddedController.index(studio.id)">
+                                <i class="fi-web"></i>&nbsp;
+                                Website integration
+                            </a>
+                        </li>
+                        <li>
+                            <a href="@controllers.account.studios.routes.IndexController.settings(studio.id)">
+                                <i class="fi-widget"></i>&nbsp;
+                                Settings
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
@@ -100,31 +102,40 @@
     Seq("Manage my studios"),
     identity=identity) {
 
-    <div class="panel-section">
-        @if(studios.isEmpty) {
-            <div class="text-center">
-                No studio associated with this account.
-                Do you want to
-                <a href="@controllers.account.studios.routes.IndexController.create">
-                    host a studio</a>?
-            </div>
-        } else {
-            <div class="grid-y">
-                @for((studio, picId) <- studios) {
-                    <div class="cell">
-                        @studioBlock(studio, picId)
-                        <hr>
-                    </div>
-                }
-
-                <div class="cell text-center">
-                    <a
-                        href="@controllers.account.studios.routes.IndexController.create"
-                        class="button primary small-only-expanded">
-                        Host a new studio
-                    </a>
+    @if(studios.isEmpty) {
+        <div class="text-center">
+            No studio associated with this account.
+            Do you want to
+            <a href="@controllers.account.studios.routes.IndexController.create">
+                host a studio</a>?
+        </div>
+    } else {
+        <div class="grid-y grid-margin-y">
+            @for((studio, picId) <- studios) {
+                <div class="cell">
+                    @studioBlock(studio, picId)
                 </div>
+            }
+
+            <div
+                class="cell text-center"
+                id="host-a-new-studio">
+                <a
+                    href="@controllers.account.studios.routes.IndexController.create"
+                    class="button large primary small-only-expanded">
+                    Host a new studio
+                </a>
             </div>
-        }
-    </div>
+        </div>
+
+        <fixed-bottom-box
+            :class="{ 'show-for-small-only': true }"
+            hide-if-visible="#host-a-new-studio">
+            <a
+                href="@controllers.account.studios.routes.IndexController.create"
+                class="button large primary expanded no-margin">
+                Host a new studio
+            </a>
+        </fixed-bottom-box>
+    }
 }
