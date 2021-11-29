@@ -33,7 +33,7 @@
 }
 
 @views.html.account.layout(Seq("Host a new studio"), head=head, identity=identity) {
-    <div class="panel-section">
+    <div class="panel-section expand-on-small">
         <form
             action="@controllers.account.studios.routes.IndexController.createSubmit"
             method="post">

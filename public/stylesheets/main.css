@@ -184,6 +184,8 @@ main {
     background-color: var(--accent-color-darker)
 }
 
+.button.no-margin
+
 /* Input and forms */
 
 .help-text {
@@ -456,6 +458,10 @@ table.fixed {
     border-radius: 3px;
 }
 
+.no-margin {
+    margin: 0;
+}
+
 /* Content */
 
 /* A content section that is slightly highlighted. */
@@ -463,36 +469,66 @@ table.fixed {
     background-color: rgba(0, 0, 0, 0.025);
 }
 
-/* A section of content that appears in a box  */
+/* A section of content that appears in a card-linke box  */
+
 .panel-section {
+    --panel-section-padding: 1.3rem;
+    --border-radius: 4px;
+
     background-color: rgba(255, 255, 255, 1);
-    border-radius: 4px;
-    border: 1px solid rgba(0, 0, 0, 0.06);
-    padding: 1.3rem;
+    border-radius: var(--border-radius);
+    box-shadow: 0 1px rgba(0, 0, 0, 0.06);
 }
 
 .panel-section > :last-child {
     margin-top: 0;
-}
-.panel-section > :last-child {
     margin-bottom: 0;
 }
 
 /* Slightly larger padding on medium and large screens. */
 @media screen and (min-width: 40em) {
     .panel-section {
-        padding: 1.5rem;
+        --panel-section-padding: 1.3rem;
     }
+}
+
+.panel-section {
+    padding: var(--panel-section-padding);
+}
+
+.panel-section .panel-picture {
+    margin-top: calc(-1 * var(--panel-section-padding));
+    margin-left: calc(-1 * var(--panel-section-padding));
+    margin-right: calc(-1 * var(--panel-section-padding));
+
+    width: calc(100% + 2 * var(--panel-section-padding));
+}
+
+.grid-padding-y > .cell.panel-picture {
+    padding-top: 0;
 }
 
 /* Removes panel cell padding on small devices is the cell is full width. */
 @media screen and (max-width: 39.9375em) {
-    .small-12 .panel-section {
+    .cell .panel-section.expand-on-small {
         border-radius: 0;
 
         margin-right: -0.625rem;
         margin-left: -0.625rem;
     }
+}
+
+.panel-section .panel-picture {
+    margin-top: calc(-1 * var(--panel-section-padding));
+    margin-left: calc(-1 * var(--panel-section-padding));
+    margin-right: calc(-1 * var(--panel-section-padding));
+
+    width: calc(100% + 2 * var(--panel-section-padding));
+}
+
+.panel-section .panel-picture,
+.panel-section .panel-picture img {
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
 }
 
 /* Callouts */

@@ -18,38 +18,37 @@
 -->
 
 <template>
-    <div ref="listing">
+    <div class="grid-x grid-padding-x grid-padding-y">
         <div
             v-if="searchIsProcessing"
-            class="message">
+            class="cell small-12 text-center">
             Searching ...
         </div>
 
         <div
             v-if="!searchIsProcessing && studios.length == 0"
-            class="message">
+            class="cell small-12 text-center">
             No match found.<br>
             Do you own a music studio?
             <a :href="becomeAHostURL">List it on NoisyCamp now</a>.
         </div>
 
-        <ul
-            v-if="!searchIsProcessing && studios.length > 0"
-            class="grid-x studios">
-            <li v-for="(studio, index) in studios"
-                :ref="'studio-' + index"
-                class="cell small-12">
+        <div
+            v-for="(studio, index) in studios"
+            :ref="'studio-' + index"
+            :key="studio.id"
+            class="cell small-12 large-6">
 
-                <studios-index-listing-item
-                    :studio="studio"
-                    :booking-date="bookingDate"
-                    :highlighted="highlightedStudio == index"
+            <studios-index-listing-item
+                v-if="!searchIsProcessing"
+                :studio="studio"
+                :booking-date="bookingDate"
+                :highlighted="highlightedStudio == index"
 
-                    @mouseover="$emit('studio-hover', index)"
-                    @mouseout="$emit('studio-hover', null)">
-                </studios-index-listing-item>
-            </li>
-        </ul>
+                @mouseover="$emit('studio-hover', index)"
+                @mouseout="$emit('studio-hover', null)">
+            </studios-index-listing-item>
+        </div>
     </div>
 </template>
 
@@ -106,10 +105,4 @@ export default Vue.extend({
 
     text-align: center;
 }
-
-ul.studios {
-    list-style-type: none;
-    margin-left: 0;
-}
-
 </style>
