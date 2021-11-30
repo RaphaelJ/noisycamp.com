@@ -94,7 +94,7 @@ export default Vue.extend({
 <style>
 .fixed-bottom-box {
     width: 100%;
-    padding: 1rem;
+    padding: 1.3rem;
 
     position: fixed;
     bottom: 0;
@@ -104,7 +104,7 @@ export default Vue.extend({
     background-color: rgba(255, 255, 255, 1);
 
     border-top: 1px solid rgba(0, 0, 0, 0.06);
-    box-shadow: 0 0 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
 
     transition: transform 0.25s, box-shadow 0.25s;
 }

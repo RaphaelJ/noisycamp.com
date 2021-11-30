@@ -475,6 +475,8 @@ table.fixed {
     --panel-section-padding: 1.3rem;
     --border-radius: 4px;
 
+    padding: var(--panel-section-padding);
+
     background-color: rgba(255, 255, 255, 1);
     border-radius: var(--border-radius);
     box-shadow: 0 1px rgba(0, 0, 0, 0.06);
@@ -483,17 +485,6 @@ table.fixed {
 .panel-section > :last-child {
     margin-top: 0;
     margin-bottom: 0;
-}
-
-/* Slightly larger padding on medium and large screens. */
-@media screen and (min-width: 40em) {
-    .panel-section {
-        --panel-section-padding: 1.3rem;
-    }
-}
-
-.panel-section {
-    padding: var(--panel-section-padding);
 }
 
 .panel-section .panel-picture {

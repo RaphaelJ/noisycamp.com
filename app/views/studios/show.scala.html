@@ -314,14 +314,43 @@
                 :class="{ 'booking-footer-link': true, 'show-for-small-only': true }"
                 id="booking-footer-link"
                 hide-if-visible="#booking">
-                <a
-                    class="button primary large expanded no-margin"
-                    href="#availability"
-                    onclick="$('html, body').animate({
-                        scrollTop: $('#booking').offset().top
-                    }, 500); return false">
-                    Book now
-                </a>
+
+                <div class="grid-x grid-padding-x">
+                    <div class="cell small-7">
+                        <div class="grid-y" style="height: 100%;">
+                            <div class="cell auto"></div>
+
+                            <h5 class="cell shrink no-margin">
+                                @pricingPolicy.priceRange match {
+                                    case Left(price) => {
+                                        <small>Reserve online</small><br>
+                                        @tags.moneyAmount(price)
+                                    }
+                                    case Right((minPrice, _)) => {
+                                        <small>Starting at</small><br>
+                                        @tags.moneyAmount(minPrice)
+                                    }
+                                }
+                                <small>per hour</small>
+                            </h5>
+
+                            <div class="cell auto"></div>
+                        </div>
+                    </div>
+
+                    <div class="cell small-5">
+                        <a
+                            class="button primary large expanded no-margin"
+                            href="#availability"
+                            onclick="$('html, body').animate({
+                                scrollTop: $('#booking').offset().top
+                            }, 500); return false">
+                            Book
+                        </a>
+                    </div>
+                </div>
+
+
             </fixed-bottom-box>
         </div>
     </div>
