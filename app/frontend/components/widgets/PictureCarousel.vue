@@ -20,7 +20,7 @@
     <div class="carousel">
         <div class="picture-container">
             <div v-if="hasPicture">
-                <div 
+                <div
                     v-for="(picId, i) in pictureIds"
                     :key="picId">
                     <reactive-picture
@@ -136,7 +136,7 @@ export default Vue.extend({
 .carousel .left-arrow,
 .carousel .right-arrow {
     cursor: pointer;
-    opacity: 0.7;
+    opacity: 0.8;
 
     position: absolute;
     top: 50%;
@@ -144,6 +144,9 @@ export default Vue.extend({
     margin-top: -20px;
 
     z-index: 1;
+
+    box-shadow: 0 0 4px #00000085;
+    border-radius: 50%;
 }
 
 .carousel .left-arrow:hover,
