@@ -157,14 +157,14 @@
             :height="450">
         </picture-carousel>
 
-        <hr>
+        <hr class="transparent">
     </div>
 
     <h3>Description</h3>
 
     <p>@tags.nl2br(studio.description.trim)</p>
 
-    <hr>
+    <hr class="transparent">
 
     @if(equipments.length > 0) {
 
@@ -176,7 +176,7 @@
             }
         </div>
 
-        <hr>
+        <hr class="transparent">
     }
 
     <h3>Policy</h3>
@@ -206,19 +206,19 @@
         </label>
     </div>
 
-    <hr>
+    <hr class="transparent">
 
     <h3>Opening schedule</h3>
 
     @tags.openingSchedule(studio.openingSchedule)
 
-    <hr>
+    <hr class="transparent">
 
     <h3 id="availability">Availability</h3>
 
     @components.calendar(now, studio, bookingEvents)
 
-    <hr>
+    <hr class="transparent">
 
     <h3>Location</h3>
 

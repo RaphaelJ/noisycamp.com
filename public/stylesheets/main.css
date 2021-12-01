@@ -124,6 +124,10 @@ hr {
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
+hr.transparent {
+    border-bottom-color: transparent;
+}
+
 main {
     min-height: calc(100vh - var(--top-bar-height));
 }
