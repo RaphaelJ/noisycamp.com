@@ -14,9 +14,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
- 
-.studio-settings-link {
-    margin-top: 1rem;
+
+.cell.small-picture-carousel {
+    padding: 0;
 }
 
 /* Makes the right-side booking panel sticky on medium and large. */

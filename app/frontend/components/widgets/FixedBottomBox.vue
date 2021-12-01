@@ -94,7 +94,7 @@ export default Vue.extend({
 <style>
 .fixed-bottom-box {
     width: 100%;
-    padding: 1.3rem;
+    padding: 1rem;
 
     position: fixed;
     bottom: 0;

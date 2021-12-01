@@ -55,6 +55,7 @@
 
 @pricingPolicy = @{ studio.localPricingPolicy }
 
+@picturesJson = @{ tags.json(Json.toJson(pictures), htmlEscape = true) }
 @openingScheduleJson = @{ tags.json(Json.toJson(studio.openingSchedule), htmlEscape = true) }
 @bookingEventsJson = @{ tags.json(Json.toJson(bookingEvents), htmlEscape = true) }
 @pricingPolicyJson = @{ tags.json(Json.toJson(pricingPolicy), htmlEscape = true) }
@@ -147,6 +148,91 @@
     @jsonLDProps
 }
 
+@studioInfo = {
+    <div class="hide-for-small-only">
+        <picture-carousel
+            alt="@{studio.name} picture"
+            :picture-ids="@picturesJson"
+            :width="800"
+            :height="450">
+        </picture-carousel>
+
+        <hr>
+    </div>
+
+    <h3>Description</h3>
+
+    <p>@tags.nl2br(studio.description.trim)</p>
+
+    <hr>
+
+    @if(equipments.length > 0) {
+
+        <h3>Equipment &amp; instruments</h3>
+
+        <div class="grid-x grid-margin-x grid-margin-y grid-padding-x grid-padding-y equipment-list">
+            @for(equip <- equipments) {
+                @tags.equipment(equip)
+            }
+        </div>
+
+        <hr>
+    }
+
+    <h3>Policy</h3>
+
+    <div class="grid-x grid-padding-x">
+        <label class="cell small-12 large-6">
+            @defining(studio.bookingPolicy.minBookingDuration) { minDuration =>
+                <input type="checkbox" checked disabled>
+                Minimal session duration: @tags.duration(minDuration)
+            }
+        </label>
+
+        <label class="cell small-12 large-6">
+            @studio.bookingPolicy.cancellationPolicy match {
+                case Some(CancellationPolicy(notice)) => {
+                    <input type="checkbox" checked disabled>
+                    Refunded if cancelled
+                    @if(!notice.isZero) {
+                        @tags.duration(notice) before the session
+                    }
+                }
+                case None => {
+                    <input type="checkbox" disabled>
+                    Not refunded if cancelled
+                }
+            }
+        </label>
+    </div>
+
+    <hr>
+
+    <h3>Opening schedule</h3>
+
+    @tags.openingSchedule(studio.openingSchedule)
+
+    <hr>
+
+    <h3 id="availability">Availability</h3>
+
+    @components.calendar(now, studio, bookingEvents)
+
+    <hr>
+
+    <h3>Location</h3>
+
+    <p class="address">
+        @tags.location(studio.location, showDirections = true)
+    </p>
+
+    <location-map
+        :lat="@studio.location.coordinates.lat"
+        :long="@studio.location.coordinates.long"
+        :zoom="13">
+    </location-map>
+}
+
 @bookingPanel = {
     <div class="grid-x grid-padding-x">
         @components.bookingForm(now, studio, equipments, bookingEvents)
@@ -163,6 +249,49 @@
     </div>
 }
 
+@fixedBottomBox = {
+    <fixed-bottom-box
+        :class="{ 'booking-footer-link': true, 'show-for-small-only': true }"
+        id="booking-footer-link"
+        hide-if-visible="#booking">
+
+        <div class="grid-x grid-margin-x">
+            <div class="cell small-7">
+                <div class="grid-y" style="height: 100%;">
+                    <div class="cell auto"></div>
+
+                    <h5 class="cell shrink no-margin">
+                        @pricingPolicy.priceRange match {
+                            case Left(price) => {
+                                <small>Reserve online</small><br>
+                                @tags.moneyAmount(price)
+                            }
+                            case Right((minPrice, _)) => {
+                                <small>Starting at</small><br>
+                                @tags.moneyAmount(minPrice)
+                            }
+                        }
+                        <small>per hour</small>
+                    </h5>
+
+                    <div class="cell auto"></div>
+                </div>
+            </div>
+
+            <div class="cell small-5">
+                <a
+                    class="button primary large expanded no-margin"
+                    href="#availability"
+                    onclick="$('html, body').animate({
+                        scrollTop: $('#booking').offset().top
+                    }, 500); return false">
+                    Book
+                </a>
+            </div>
+        </div>
+    </fixed-bottom-box>
+}
+
 @layout(
     Seq(studio.name, subTitle),
     head=head,
@@ -171,6 +300,15 @@
 
     <div class="grid-container">
         <div class="grid-x grid-padding-x grid-padding-y">
+            <div class="cell small-12 show-for-small-only small-picture-carousel">
+                <picture-carousel
+                    alt="@{studio.name} picture"
+                    :picture-ids="@picturesJson"
+                    :width="800"
+                    :height="450">
+                </picture-carousel>
+            </div>
+
             @if(!studio.published) {
                 @tags.callout("This page is only visible to you", Some("fi-eye")) {
                     Please review the information on this page. Once you're satisfied, push the
@@ -221,86 +359,7 @@
 
             <div class="cell small-12 medium-8">
                 <div class="panel-section expand-on-small">
-                    <picture-carousel
-                        alt="@{studio.name} picture"
-                        :picture-ids="@tags.json(Json.toJson(pictures), htmlEscape = true)"
-                        :width="800"
-                        :height="450">
-                    </picture-carousel>
-
-                    <hr>
-
-                    <h3>Description</h3>
-
-                    <p>@tags.nl2br(studio.description.trim)</p>
-
-                    <hr>
-
-                    @if(equipments.length > 0) {
-
-                        <h3>Equipment &amp; instruments</h3>
-
-                        <div class="grid-x grid-margin-x grid-margin-y grid-padding-x grid-padding-y equipment-list">
-                            @for(equip <- equipments) {
-                                @tags.equipment(equip)
-                            }
-                        </div>
-
-                        <hr>
-                    }
-
-                    <h3>Policy</h3>
-
-                    <div class="grid-x grid-padding-x">
-                        <label class="cell small-12 large-6">
-                            @defining(studio.bookingPolicy.minBookingDuration) { minDuration =>
-                                <input type="checkbox" checked disabled>
-                                Minimal session duration: @tags.duration(minDuration)
-                            }
-                        </label>
-
-                        <label class="cell small-12 large-6">
-                            @studio.bookingPolicy.cancellationPolicy match {
-                                case Some(CancellationPolicy(notice)) => {
-                                    <input type="checkbox" checked disabled>
-                                    Refunded if cancelled
-                                    @if(!notice.isZero) {
-                                        @tags.duration(notice) before the session
-                                    }
-                                }
-                                case None => {
-                                    <input type="checkbox" disabled>
-                                    Not refunded if cancelled
-                                }
-                            }
-                        </label>
-                    </div>
-
-                    <hr>
-
-                    <h3>Opening schedule</h3>
-
-                    @tags.openingSchedule(studio.openingSchedule)
-
-                    <hr>
-
-                    <h3 id="availability">Availability</h3>
-
-                    @components.calendar(now, studio, bookingEvents)
-
-                    <hr>
-
-                    <h3>Location</h3>
-
-                    <p class="address">
-                        @tags.location(studio.location, showDirections = true)
-                    </p>
-
-                    <location-map
-                        :lat="@studio.location.coordinates.lat"
-                        :long="@studio.location.coordinates.long"
-                        :zoom="13">
-                    </location-map>
+                    @studioInfo
                 </div>
             </div>
 
@@ -309,49 +368,8 @@
                     @bookingPanel
                 </div>
             </div>
-
-            <fixed-bottom-box
-                :class="{ 'booking-footer-link': true, 'show-for-small-only': true }"
-                id="booking-footer-link"
-                hide-if-visible="#booking">
-
-                <div class="grid-x grid-padding-x">
-                    <div class="cell small-7">
-                        <div class="grid-y" style="height: 100%;">
-                            <div class="cell auto"></div>
-
-                            <h5 class="cell shrink no-margin">
-                                @pricingPolicy.priceRange match {
-                                    case Left(price) => {
-                                        <small>Reserve online</small><br>
-                                        @tags.moneyAmount(price)
-                                    }
-                                    case Right((minPrice, _)) => {
-                                        <small>Starting at</small><br>
-                                        @tags.moneyAmount(minPrice)
-                                    }
-                                }
-                                <small>per hour</small>
-                            </h5>
-
-                            <div class="cell auto"></div>
-                        </div>
-                    </div>
-
-                    <div class="cell small-5">
-                        <a
-                            class="button primary large expanded no-margin"
-                            href="#availability"
-                            onclick="$('html, body').animate({
-                                scrollTop: $('#booking').offset().top
-                            }, 500); return false">
-                            Book
-                        </a>
-                    </div>
-                </div>
-
-
-            </fixed-bottom-box>
         </div>
     </div>
+
+    @fixedBottomBox
 }

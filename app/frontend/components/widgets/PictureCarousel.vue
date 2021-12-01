@@ -135,13 +135,14 @@ export default Vue.extend({
 
 .carousel .left-arrow,
 .carousel .right-arrow {
+    --arrow-size: 40px;
+
     cursor: pointer;
     opacity: 0.8;
 
     position: absolute;
-    top: 50%;
-    height: 40px;
-    margin-top: -20px;
+    height: var(--arrow-size);
+    top: calc(50% - var(--arrow-size) / 2);
 
     z-index: 1;
 
