@@ -20,13 +20,14 @@
 -->
 
 <template>
-    <div 
+    <div
         class="reactive-picture-container"
         :style="{
             'padding-top': (imageRatio * 100) + '%'
         }">
 
-        <i 
+        <i
+            v-if="placeholder"
             class="reactive-picture-placeholder fi-photo"
             :class="classes">
         </i>
@@ -61,6 +62,8 @@ export default Vue.extend({
 
         width: { type: Number, required: true },
         height: { type: Number, required: true },
+
+        placeholder: { type: Boolean, default: true }
     },
     computed: {
         imageRatio() {

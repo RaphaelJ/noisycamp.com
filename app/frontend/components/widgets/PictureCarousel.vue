@@ -43,23 +43,46 @@
                     :classes="classes">
                 </reactive-picture>
             </div>
+
+            <span
+                class="left-arrow"
+                v-show="hasPrevious"
+                @click="previous()">
+
+                <arrow direction="left"></arrow>
+            </span>
+
+            <span
+                class="right-arrow"
+                v-show="hasNext"
+                @click="next()">
+
+                <arrow direction="right"></arrow>
+            </span>
         </div>
 
-        <span
-            class="left-arrow"
-            v-show="hasPrevious"
-            @click="previous()">
-
-            <arrow direction="left"></arrow>
-        </span>
-
-        <span
-            class="right-arrow"
-            v-show="hasNext"
-            @click="next()">
-
-            <arrow direction="right"></arrow>
-        </span>
+        <div
+            v-if="thumbnails && hasPicture"
+            class="thumbnails"
+            ref="thumbnails">
+            <div
+                v-for="(picId, i) in pictureIds"
+                :key="picId"
+                :ref="'thumbnail-' + i"
+                :class="{
+                    'thumbnail-container': true,
+                    'active': i == selected,
+                }"
+                @click="select(i)">
+                <reactive-picture
+                    alt="Thumbnail"
+                    :picture-id="picId"
+                    :width="96"
+                    :height="54"
+                    :placeholder="false">
+                </reactive-picture>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -77,6 +100,8 @@ export default Vue.extend({
 
         width: { type: Number, required: true },
         height: { type: Number, required: true },
+
+        thumbnails: { type: Boolean, default: false },
     },
     data() {
         return {
@@ -98,18 +123,57 @@ export default Vue.extend({
     },
     methods: {
         next() {
-            ++this.selected;
+            this.select(this.selected + 1);
         },
+
         previous() {
-            --this.selected;
-        }
+            this.select(this.selected - 1);
+        },
+
+        select(i: number) {
+            if (i < 0 || i >= this.pictureIds.length) {
+                return;
+            }
+
+            this.selected = i;
+            this.makeThumbnailVisible();
+        },
+
+        // Scroll the thumbnail box to make the currently selected thumbnail fully visible.
+        makeThumbnailVisible() {
+            if (!this.thumbnails) {
+                return;
+            }
+
+            let container = $(this.$refs["thumbnails"]);
+            let thumbnail = $(this.$refs["thumbnail-" + this.selected]);
+
+            let containerLeft = container.offset().left;
+            let containerRight = containerLeft + container.width();
+
+            let thumbnailLeft = thumbnail.offset().left;
+            let thumbnailRight = thumbnailLeft + thumbnail.outerWidth();
+
+            var scrollLeft = container.scrollLeft();
+            if (containerRight < thumbnailRight) {
+                // Scroll to the right
+                scrollLeft += thumbnailRight - containerRight + 1;
+            } else if (thumbnailLeft < containerLeft) {
+                // Scroll to the left
+                scrollLeft -= containerLeft - thumbnailLeft;
+            }
+
+            if (scrollLeft != container.scrollLeft()) {
+                container.animate({ scrollLeft: scrollLeft }, 150);
+            }
+        },
     },
     components: { Arrow, ReactivePicture },
 });
 </script>
 
 <style>
-.carousel {
+.carousel .picture-container {
     position: relative;
 
     /* Keeps a 16/9 aspect ratio. */
@@ -124,7 +188,7 @@ export default Vue.extend({
     -ms-user-select: none;
 }
 
-.carousel .reactive-picture {
+.carousel .picture-container .reactive-picture {
     position: absolute;
 
     top: 0;
@@ -147,6 +211,7 @@ export default Vue.extend({
     z-index: 1;
 
     box-shadow: 0 0 4px #00000085;
+    background-color: #0000004d;
     border-radius: 50%;
 }
 
@@ -170,5 +235,33 @@ export default Vue.extend({
     height: 2.5rem;
     width: 2.5rem;
     fill: rgba(255, 255, 255, 1);
+}
+
+.carousel .thumbnails {
+    width: 100%;
+    margin: 1rem 0;
+
+    overflow-x: auto;
+    white-space: nowrap;
+}
+
+.carousel .thumbnails .thumbnail-container {
+    display: inline-block;
+    box-sizing: border-box;
+    opacity: 0.35;
+    width: 96px;
+
+    border: 2px solid transparent;
+
+    cursor: pointer;
+}
+
+.carousel .thumbnails .thumbnail-container:not(last-child) {
+    margin-right: 0.5em;
+}
+
+.carousel .thumbnails .thumbnail-container.active {
+    opacity: 1;
+    border-color: var(--accent-color);
 }
 </style>
