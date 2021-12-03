@@ -20,8 +20,27 @@
     margin-bottom: 2rem;
 }
 
-.become-a-host .listing-is-free {
-    margin-top: 2rem;
+.become-a-host .main-feature-icon {
+    --main-feature-icon-size: 6rem;
+
+    display: block;
+
+    height: var(--main-feature-icon-size);
+    width: var(--main-feature-icon-size);
+    border-radius: 50%;
+    padding: 1rem;
+    margin: 1.5rem auto;
+
+    text-align: center;
+    line-height: calc(var(--main-feature-icon-size) - 2rem);
+    font-size: calc(var(--main-feature-icon-size) - 2rem);
+
+    background-color: #3f3f3f;
+    color: white;
+}
+
+.become-a-host .main-feature-link {
+    margin-top: 1rem;
 }
 
 .become-a-host .become-a-host-button {
@@ -49,9 +68,6 @@
     .become-a-host .feature-image {
         margin-bottom: 2.5rem;
     }
-}
-
-@media screen and (min-width: 40em) {
 }
 
 @media screen and (min-width: 64em) {

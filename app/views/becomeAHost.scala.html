@@ -42,38 +42,93 @@ implicit req: RequestHeader, config: Configuration, flash: Flash)
         content="@URL.fromCDN(routes.Assets.versioned("images/become-a-host/card.jpg"), absoluteURL = true)">
 }
 
+@mainFeature(
+    icon: String, title: String,
+    linkHref: Call, linkText: String, linkTarget: Option[String] = None)(
+    description: Html) = {
+
+    <div class="cell small-12 medium-4">
+        <div class="grid-y">
+            <div class="cell">
+                <i class="main-feature-icon fi-@icon"></i>
+            </div>
+
+            <div class="cell">
+                <h3 class="hide-for-small-only"><small>@title</small></h3>
+                <h3 class="show-for-small-only text-center">@title</h3>
+            </div>
+
+            <div class="cell">@description</div>
+
+            <div class="cell main-feature-link">
+                <a href="@linkHref" @for(target <- linkTarget) { target="@target" }>→ @linkText</a>
+            </div>
+        </div>
+    </div>
+}
+
 @layout(
     Seq("List your music studio on NoisyCamp"), head=head,
     identity=identity, fullScreen=false) {
 
     <div class="grid-container">
         <div class="grid-x grid-margin-x grid-margin-y become-a-host">
-            <div class="cell small-12">
-                <div class="section-title">
-                    <h1>
-                        The online booking platform for music studios
-                    </h1>
+            <div class="cell small-12 text-center">
+                <h1>
+                    The <strong>online booking platform</strong> for music studios
+                </h1>
+                <h2>
+                    <small>Booking management software for practice and recording spaces</small>
+                </h2>
+            </div>
+
+            <div
+                class="cell large-offset-3 large-6">
+                <div class="grid-x grid-margin-x">
+                    <div class="cell small-12 medium-6 text-center">
+                        <a
+                            class="button large primary expanded"
+                            href="@controllers.account.studios.routes.IndexController.create">
+                            Add your studio<span class="hide-for-small-only"> now</span>
+                        </a>
+                    </div>
+
+                    <div class="cell small-12 medium-6">
+                        <a
+                            class="button large secondary expanded"
+                            href="@controllers.routes.IndexController.becomeAHost">
+                            Request a demo
+                        </a>
+                    </div>
                 </div>
             </div>
 
-            <div class="cell small-12 section-feature-gallery">
-                <feature-gallery></feature-gallery>
+            <div class="cell small-12 medium-10 medium-offset-1 large-8 large-offset-2">
+                <img
+                    src="@URL.fromCDN(routes.Assets.versioned("images/become-a-host/showcase.png"))"
+                    alt="NoisyCamp website and mobile app.">
             </div>
 
-            <div class="cell small-12">
-                <hr class="section-break">
-            </div>
+            @mainFeature(
+                "calendar", "Online booking management",
+                routes.IndexController.becomeAHost.withFragment("features"), "Discover our studio interface") {
+                Spend <strong>less time answering emails and phone calls</strong> and focus more on
+                your creative activities.
+            }
 
-            <h3 class="cell small-12 text-center listing-is-free">
-                Listing your first practice or recording room is free
-            </h3>
+            @mainFeature(
+                "pricetag-multiple", "Increased studio revenue",
+                routes.StudiosController.index, "Browse our existing studios", Some("_blank")) {
+                Get more reservations for your space by
+                <strong>making it easier for musicians</strong> to book your spaces.
+            }
 
-            <div class="cell small-12 medium-6 medium-offset-3 large-4 large-offset-4 text-center become-a-host-button">
-                <a
-                    href="@controllers.account.studios.routes.IndexController.create"
-                    class="button primary large expanded">Add your studio now</a>
-                <p class="help-text">It only takes 5 minutes.</p>
-            </div>
+            @mainFeature(
+                "mobile", "On mobile and tablet",
+                routes.IndexController.becomeAHost.withFragment("features"), "See all features") {
+                Allow musicians to book your studio from <strong>anywhere</strong> and from
+                <strong>any device</strong>.
+            }
 
             <div class="cell small-12">
                 <hr class="section-break">

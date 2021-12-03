@@ -26,7 +26,6 @@ import PictureCarousel from './components/widgets/PictureCarousel.vue';
 import ReactivePicture from './components/widgets/ReactivePicture.vue';
 import StripeCheckoutRedirect from './components/widgets/StripeCheckoutRedirect.vue';
 
-import FeatureGallery from './components/index/FeatureGallery.vue';
 import SearchForm from './components/index/SearchForm.vue';
 
 import StudiosIndex from './components/studios/Index/StudioIndex.vue';
@@ -47,7 +46,7 @@ new Vue({
         Calendar,
         Arrow, LocationMap, FixedBottomBox, PictureCarousel, ReactivePicture,
         StripeCheckoutRedirect,
-        FeatureGallery, SearchForm,
+        SearchForm,
         StudiosIndex,
         BookingForm, BookingPricingCalculator, BookingRepeatInput, CustomerEmailInput,
         BookingReviewForm, BookingTimesInput,
