@@ -26,13 +26,13 @@ implicit req: RequestHeader, config: Configuration, flash: Flash)
 @head = {
     <meta
         name="description"
-        content="Reach new musicians by listing your music studio, rehearsal space or recording space on NoisyCamp">
+        content="NoisyCamp is a booking management software for practice and recording spaces.">
 
     <link
         rel="stylesheet"
         href="@URL.fromCDN(routes.Assets.versioned("stylesheets/become-a-host.css"))">
 
-    <meta property="og:site_name" content="List your music studio on NoisyCamp">
+    <meta property="og:site_name" content="Manage your studio bookings with NoisyCamp">
     <meta property="og:type" content="website">
     <meta
         property="og:url"
@@ -47,7 +47,7 @@ implicit req: RequestHeader, config: Configuration, flash: Flash)
     linkHref: Call, linkText: String, linkTarget: Option[String] = None)(
     description: Html) = {
 
-    <div class="cell small-12 medium-4">
+    <div class="cell hide-for-small-only medium-4">
         <div class="grid-y">
             <div class="cell">
                 <i class="main-feature-icon fi-@icon"></i>
@@ -68,7 +68,7 @@ implicit req: RequestHeader, config: Configuration, flash: Flash)
 }
 
 @layout(
-    Seq("List your music studio on NoisyCamp"), head=head,
+    Seq("Booking management software for practice and recording spaces"), head=head,
     identity=identity, fullScreen=false) {
 
     <div class="grid-container">
@@ -134,15 +134,21 @@ implicit req: RequestHeader, config: Configuration, flash: Flash)
                 <hr class="section-break">
             </div>
 
-            <h2 class="cell small-12 section-title" id="pricing">Plans and pricing</h2>
+            <h2 class="cell small-12 section-title" id="pricing">
+                Plans & pricing
+            </h2>
 
-            <div class="cell small-12 large-offset-1 large-10">
+            <div class="cell small-12 ">
                 @tags.planComparisonTable()
             </div>
 
             <div class="cell small-12">
                 <hr class="section-break">
             </div>
+
+            <h2 class="cell small-12 section-title" id="features">
+                NoisyCamp's <strong>features</strong>
+            </h2>
 
             <div class="cell small-12 medium-6 feature-image">
                 <img

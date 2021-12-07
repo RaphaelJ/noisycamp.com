@@ -1,96 +1,195 @@
-<table class="plan-comparison-table unstriped">
-    <thead>
-        <tr>
-            <th width="50%">
-                <h4><strong>Free</strong></h4>
-                <h5>
-                    <small>
-                        Recommended for independently-owned studios that are looking for additional
-                        exposure.
-                    </small>
-                </h5>
+<div class="plan-comparison-container">
+    <table class="plan-comparison-table">
+        <thead>
+            <tr>
+                <th class="feature-title"></th>
 
-                <div class="text-center">
-                    <a
-                        href="@controllers.account.studios.routes.IndexController.create"
-                        class="button primary">Add your studio now</a>
-                </div>
-            </th>
-            <th width="50%">
-                <div class="plan-badge show-for-medium">Designed for professionals</div>
-
-                <h4><strong>Premium</strong></h4>
-                <h5>
-                    <small>
-                        Intended for pros and businesses that want additional productivity oriented
-                        features.
-                    </small>
-                </h5>
-
-                <div class="text-center">
-                    <a
-                        href="@controllers.account.routes.PremiumController.upgrade"
-                        class="button primary">
-                        Request access
-                        <span class="show-for-medium">now</span>
+                <th class="plan-name">
+                    <h4>Free</h4>
+                    <h5><strong>$0</strong><small>/month</small></h5>
+                    <a class="button small primary hide-for-small-only" href="#">
+                        Add your studio
                     </a>
-                </div>
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr class="features">
-            <td>
-                <strong>List your studio on NoisyCamp:</strong>
+                </th>
+                <th class="plan-name">
+                    <h4>Standard</h4>
+                    <h5><strong>$19</strong><small>/month</small></h5>
+                    <a class="button small primary hide-for-small-only" href="#">
+                        Try now
+                    </a>
+                </th>
+                <th class="plan-name">
+                    <h4><strong>Premium</strong></h4>
+                    <h5><strong>$79</strong><small>/month</small></h5>
+                    <a class="button small primary hide-for-small-only" href="#">
+                        Contact us
+                    </a>
+                </th>
+            </tr>
+        </thead>
 
-                <ul>
-                    <li>Personalized page for a single room studio</li>
-                    <li>Increase your studio revenue</li>
-                    <li>Reach 1,000s of musicians</li>
-                </ul>
+        <tbody>
+            <tr>
+                <th>
+                    <h5>Max. number of studio rooms</h5>
+                    <small>Manage multiple studio spaces from our studio interface.</small>
+                </th>
 
-                <strong>Booking management:</strong>
+                <td>1</td>
+                <td>4</td>
+                <td><strong>∞</strong></td>
+            </tr>
+            <tr class="subfeature">
+                <th>
+                    <h6>
+                        Marketing & social
+                        <span class="hide-for-small-only">media</span> optimisation
+                    </h6>
+                    <small>We increase your studio exposure by <strong>regularly creating posts and
+                    ads</strong> on social medias.</small>
+                </th>
 
-                <ul>
-                    <li>Online bookings </li>
-                    <li>Bookings on mobile devices</li>
-                    <li>Real-time room availabilities</li>
-                    <li>Booking calendar</li>
-                    <li>
-                        Optional online transactions
-                        (@{(Plan.Free.transactionRate * 100).toIntExact}% fee, monthly payouts)
-                    </li>
-                </ul>
-            </td>
+                <td>—</td>
+                <td>—</td>
+                <td><i class="fi-check"></i></td>
+            </tr>
 
-            <td>
-                <strong>Everything in Free, plus:</strong>
+            <tr>
+                <th>
+                    <h5>Live booking calendar</h5>
+                </th>
 
-                <ul>
-                    <li>Unlimited number of studio rooms</li>
-                    <li>Recurring and manual bookings</li>
-                    <li>Booking directly from your website</li>
-                    <li>Charge extra fees for instruments and/or services</li>
-                    <li>
-                        Lower online transaction fee
-                        (@{(Plan.Premium.transactionRate * 100).toIntExact}%)
-                    </li>
-                    <li>Weekly payouts for online payments</li>
-                </ul>
+                <td><i class="fi-check"></i></td>
+                <td><i class="fi-check"></i></td>
+                <td><i class="fi-check"></i></td>
+            </tr>
+            <tr class="subfeature">
+                <th>
+                    <h6>Manual &amp; recurring bookings</h6>
+                    <small>Add your own reservations and events to the calendar.</small>
+                </th>
 
-                <em>Coming soon:</em>
+                <td>—</td>
+                <td><i class="fi-check"></i></td>
+                <td><i class="fi-check"></i></td>
+            </tr>
+            <tr class="subfeature">
+                <th>
+                    <h6>External calendar sync.</h6>
+                    <small>Integrates with Google Calendar, Apple Calendar, Outlook.</small>
+                </th>
 
-                <ul>
-                    <li>Synchronization with external calendar apps</li>
-                </ul>
-            </td>
-        </tr>
-    </tbody>
-</table>
+                <td>—</td>
+                <td>—</td>
+                <td><i class="fi-check"></i></td>
+            </tr>
+            <tr class="subfeature">
+                <th>
+                    <h6>SMS reminders</h6>
+                    <small>Automatically send SMS reminders to your customers before their
+                    sessions.</small>
+                </th>
+
+                <td>—</td>
+                <td>—</td>
+                <td><i class="fi-check"></i></td>
+            </tr>
+
+            <tr>
+                <th>
+                    <h5>Instruments & equipments</h5>
+                    <small>List your studio gears and services.</small>
+                </th>
+
+                <td><i class="fi-check"></i></td>
+                <td><i class="fi-check"></i></td>
+                <td><i class="fi-check"></i></td>
+            </tr>
+            <tr class="subfeature">
+                <th>
+                    <h6>Charge extra fees</h6>
+                    <small>Charge extra fees for instrument and equipment rental.</small>
+                </th>
+
+                <td>—</td>
+                <td><i class="fi-check"></i></td>
+                <td><i class="fi-check"></i></td>
+            </tr>
+
+            <tr>
+                <th>
+                    <h5>On site payments</h5>
+                    <small>Accepts bookings <strong>without</strong> requiring an online
+                    transaction.</small>
+                </th>
+
+                <td>—</td>
+                <td><i class="fi-check"></i></td>
+                <td><i class="fi-check"></i></td>
+            </tr>
+            <tr class="subfeature">
+                <th>
+                    <h6>Processing fee</h6>
+                    <small>We <strong>do not charge</strong> any fee on these bookings.</small>
+                </th>
+
+                <td>—</td>
+                <td>0 %</td>
+                <td>0 %</td>
+            </tr>
+
+            <tr>
+                <th>
+                    <h5>Online payments</h5>
+                    <small>Securely charge the customer's <strong>credit card</strong> at the time of
+                    booking.</small>
+                </th>
+
+                <td><i class="fi-check"></i></td>
+                <td><i class="fi-check"></i></td>
+                <td><i class="fi-check"></i></td>
+            </tr>
+            <tr class="subfeature">
+                <th><h6>Transaction fee</h6></th>
+
+                <td>9 %</td>
+                <td>6 %</td>
+                <td>4 %</td>
+            </tr>
+            <tr class="subfeature">
+                <th><h6>Payout period</h6></th>
+
+                <td>Monthly</td>
+                <td>Weekly</td>
+                <td>Daily</td>
+            </tr>
+
+            <tr>
+                <th>
+                    <h5>Website integration</h5>
+                    <small>Book your studio directly from your website with a simple copy &amp; paste
+                    code.</small>
+                </th>
+
+                <td>—</td>
+                <td><i class="fi-check"></i></td>
+                <td><i class="fi-check"></i></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
 
 <p class="text-center">
     <i class="fi-heart"></i>&nbsp;
-    Are you a nonprofit organization?
+    Are you a nonprofit organization?<br class="show-for-small-only">
     <a href="@controllers.account.routes.PremiumController.upgrade">Reach us now</a> and obtain a
-    preferential rate on our <i>Premium</i> plan.
+    preferential rate on our <i>Standard</i> and <i>Premium</i> plans.
 </p>
+
+<div class="show-for-small-only">
+    <a
+        class="button primary large expanded no-margin"
+        href="@controllers.account.studios.routes.IndexController.create">
+        Add your studio
+    </a>
+</div>

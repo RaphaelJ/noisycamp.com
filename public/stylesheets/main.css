@@ -26,6 +26,14 @@
     --accent-color-25pct: #db73333f;
     --accent-color-50pct: #db73337f;
     --accent-color-75pct: #db7333bf;
+
+    --success-color: #639315;
+    --success-color-50pct: #6393157f;
+    --success-color-75pct: #639315bf;
+
+    --error-color: #cc4b37;
+    --error-color-50pct: #cc4b377f;
+    --error-color-75pct: #cc4b37bf;
 }
 
 body {
@@ -188,8 +196,6 @@ main {
     background-color: var(--accent-color-darker)
 }
 
-.button.no-margin
-
 /* Input and forms */
 
 .help-text {
@@ -303,7 +309,7 @@ form label .error {
 
     font-size: 0.75rem;
     font-weight: 700;
-    color: #cc4b37;
+    color: var(--error-color);
 }
 
 table.fixed {
@@ -414,11 +420,11 @@ table.fixed {
 }
 
 .flash-bar.success {
-    background-color: #639315;
+    background-color: var(--success-color);
 }
 
 .flash-bar.error {
-    background-color: #cc3232;
+    background-color: var(--error-color);
 
 }
 
@@ -607,69 +613,131 @@ table.fixed {
 
 /* Plan comparison table */
 
-table.plan-comparison-table {
-    border-collapse: unset;
+table.plan-comparison-table thead,
+table.plan-comparison-table tbody {
+    border: none
 }
 
-/* Adds a larger margin between plans on medium and large screens. */
-@media screen and (max-width: 39.9375em) {
-    table.plan-comparison-table {
-        border-spacing: 0.25rem 0;
-    }
+table.plan-comparison-table thead {
+    background-color: transparent;
+    vertical-align: top;
+}
+
+table.plan-comparison-table thead .feature-title {
+    width: 55%;
+    min-width: 250px;
+}
+
+table.plan-comparison-table thead .plan-name {
+    width: 15%;
+    min-width: 140px;
+}
+
+table.plan-comparison-table thead th h4 {
+    font-weight: 700;
+}
+
+table.plan-comparison-table thead th h5 {
+    font-weight: normal;
+}
+
+table.plan-comparison-table thead th,
+table.plan-comparison-table tbody td {
+    text-align: center;
+}
+
+table.plan-comparison-table thead th:not(:first-child),
+table.plan-comparison-table tbody td {
+    border-left: 1px solid rgba(0, 0, 0, 0.075);
+}
+
+table.plan-comparison-table tbody {
+    background-color: transparent;
+}
+
+table.plan-comparison-table tbody tr:nth-child(2n) {
+    background-color: transparent;
+}
+
+table.plan-comparison-table tbody tr:not(:nth-child(2n)) {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+table.plan-comparison-table tbody th {
+    text-align: left;
+    font-weight: normal;
+}
+
+table.plan-comparison-table tbody th h5,
+table.plan-comparison-table tbody th h6 {
+    margin-bottom: 0;
+}
+
+table.plan-comparison-table tbody th h5 {
+    font-weight: 700;
+}
+
+/* Subfeatures are slightly translated to the right. */
+table.plan-comparison-table tbody tr.subfeature th {
+    padding-left: 2rem;
+    font-size: 0.9em;
+}
+
+table.plan-comparison-table tbody tr td i.fi-check {
+    --checkmark-icon-size: 1.3rem;
+    --checkmark-icon-padding: 0.25rem;
+
+    display: block;
+    height: var(--checkmark-icon-size);
+    width: var(--checkmark-icon-size);
+    border-radius: 50%;
+    padding: var(--checkmark-icon-padding);
+    margin: 0 auto;
+    text-align: center;
+    line-height: calc(var(--checkmark-icon-size) - (2 * var(--checkmark-icon-padding)));
+    font-size: calc(var(--checkmark-icon-size) - (2 * var(--checkmark-icon-padding)));
+    background-color: var(--success-color-75pct);
+    color: white;
 }
 
 @media screen and (min-width: 40em) {
-    table.plan-comparison-table {
-        border-spacing: 2rem 0px;
+    /* Makes the plan names and price sticky on medium and large screens.
+     *
+     * We would ideally like to get the same behavior on small screens, but it messes up with the
+     * small screen `overflow-x` directive.
+     */
+
+    .plan-comparison-container {
+        position: relative;
+        width: 100%;
+    }
+
+    table.plan-comparison-table thead tr {
+        position: sticky;
+        top: 0;
+        left: 0;
+        background-color: #f5f3f2;
+    }
+
+    table.plan-comparison-table thead .plan-name {
+        min-width: 140px;
     }
 }
 
-.plan-comparison-table th, .plan-comparison-table td {
-    vertical-align: top;
-    padding: 1.1rem;
+@media screen and (max-width: 39.9375em) {
+    /* Makes the table scrollable horizontally on small screens. */
+    .plan-comparison-container {
+        overflow-x: auto;
+    }
 
-    border: 1px solid rgba(0, 0, 0, 0.1);
-}
+    /* Hide feature descriptions on small screens */
+    table.plan-comparison-table tbody th small {
+        display: none;
+    }
 
-.plan-comparison-table th,
-.plan-comparison-table tr:not(:last-child) td {
-    border-bottom: none;
-}
-
-.plan-comparison-table tr td {
-    border-top: none;
-}
-
-.plan-comparison-table tr td li {
-    margin-top: 0.25rem;
-    margin-bottom: 0.25rem;
-}
-
-.plan-comparison-table tr td abbr {
-    opacity: 0.5;
-}
-
-.plan-comparison-table tr td abbr:hover {
-    opacity: 0.5;
-}
-
-.plan-comparison-table th {
-    position: relative;
-}
-
-.plan-comparison-table th .plan-badge {
-
-    position: absolute;
-    top: -0.8rem;
-    right: 1rem;
-
-    background-color: #3f3f3f;
-
-    border-radius: 0.25rem;
-    padding: 0.2rem 0.5rem;
-
-    font-size: 0.8rem;
-    color: white;
+    table.plan-comparison-table thead .plan-name {
+        min-width: 90px;
+    }
 }
 
 /* Feature presentation list */
@@ -695,7 +763,6 @@ table.plan-comparison-table {
    color: #666;
    font-size: 0.95rem;
 }
-
 
 /* Equipment/Instrument list */
 
