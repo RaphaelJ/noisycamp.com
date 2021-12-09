@@ -86,8 +86,13 @@ h1 small, h2 small, h3 small, h4 small, h5 small, h6 small {
 
 .section-title {
     text-align: center;
-    margin-top: 2rem;
-    margin-bottom: 2rem;
+    margin-top: 2.5rem;
+    margin-bottom: 2.5rem;
+}
+
+hr.section-break {
+    margin-top: 2.5rem;
+    margin-bottom: 2.5rem;
 }
 
 .text-alert {

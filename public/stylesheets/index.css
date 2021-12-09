@@ -157,3 +157,9 @@
 .cities .city:hover:after {
     background: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.2));
 }
+
+@media screen and (min-width: 64em) {
+    .become-a-host-title {
+        margin-top: 2rem;
+    }
+}
