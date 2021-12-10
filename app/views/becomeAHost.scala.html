@@ -245,6 +245,35 @@ implicit req: RequestHeader, config: Configuration, flash: Flash)
                 <hr class="section-break">
             </div>
 
+            <h2 class="cell small-12 section-title" id="integrations">
+                Integrate with your existing tools<br>
+                <small>Connect with the most used calendar apps and web platforms</small>
+            </h2>
+
+            <div class="cell small-12 large-10 large-offset-1">
+                <div class="grid-x grid-margin-x grid-margin-y grid-padding-x grid-padding-y">
+                    @for((name, logo) <- Seq(
+                        ("Microsoft Outlook", "microsoft_outlook.svg"),
+                        ("Squarespace", "squarespace.svg"),
+                        ("Apple Calendar", "apple_calendar.svg"),
+                        ("Wix", "wix.svg"),
+                        ("WordPress", "wordpress.svg"),
+                        ("Google Calendar", "google_calendar.svg"),
+                    )) {
+                        <div class="cell small-4 large-2">
+                            <img
+                                src="@URL.fromCDN(routes.Assets.versioned("images/become-a-host/integrations/" + logo))"
+                                alt="@name"
+                                title="@name">
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="cell small-12">
+                <hr class="section-break">
+            </div>
+
             <h2 class="cell small-12 section-title" id="faq">Frequently asked questions</h2>
 
             <dl class="cell small-12 large-offset-1 large-10 faq">
