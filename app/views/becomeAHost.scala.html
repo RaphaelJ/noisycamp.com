@@ -279,14 +279,20 @@ implicit req: RequestHeader, config: Configuration, flash: Flash)
                 <dt>Where is NoisyCamp available?</dt>
                 <dd>
                     NoisyCamp is currently availaible in @Country.values.size countries:<br>
-                    @{
-                        val names = Country.values.
-                            toSeq.
-                            sortBy(_.asInstanceOf[Country.Val].name).
-                            map(_.asInstanceOf[Country.Val].prefixedName)
 
-                        s"${names.init.mkString(", ")} and ${names.last}."
-                    }
+                    <div class="grid-x grid-margin-x">
+                        @for(
+                            c <- Country.values.
+                                toSeq.
+                                map(_.asInstanceOf[Country.Val]).
+                                sortBy(_.asInstanceOf[Country.Val].name)) {
+
+                            <div class="cell small-6 medium-4 large-3">
+                                <span class="country-flag">@c.flag</span>&nbsp;
+                                <span class="country-name">@c.prefixedName</span>
+                            </div>
+                        }
+                    </div>
                 </dd>
 
                 <dt>How do online transactions work?</dt>

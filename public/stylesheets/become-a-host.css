@@ -66,10 +66,6 @@
         margin-top: 3rem;
         margin-bottom: 3rem;
     }
-
-    .become-a-host .feature-text,
-    .become-a-host .feature-image {
-    }
 }
 
 @media screen and (min-width: 64em) {
@@ -109,4 +105,12 @@ dl.faq dt {
 
 dl.faq dd {
     margin-bottom: 1.75rem;
+}
+
+dl.faq .country-flag {
+    opacity: 0.75;
+}
+
+dl.faq .country-name {
+    font-size: 0.9em;
 }
