@@ -17,6 +17,11 @@
 
 package models
 
+import squants.market
+
+import i18n.Currency
+import i18n.Currency._
+
 object PayoutSchedule extends Enumeration {
     val Daily = Value
     val Weekly = Value
@@ -36,8 +41,21 @@ object Plan extends Enumeration {
         val calendarSync:       Boolean,
         val websiteIntegration: Boolean,
         val manualBookings:     Boolean,
-        val equipmentFee:       Boolean)
-        extends super.Val
+        val onsitePayments:     Boolean,
+        val equipmentFee:       Boolean,
+        val socialAds:          Boolean,
+        val smsReminders:       Boolean,
+
+        val prices:             Option[Map[market.Currency, market.Money]],
+        ) extends super.Val {
+
+        require(
+            prices.isEmpty || Currency.currencies.forall(prices.get.contains(_)),
+            "Plan should contain a value for every currency in `i18n.Currency`.")
+        require(
+            prices.isEmpty || prices.get.forall { case (curr, money) => curr == money.currency },
+            "Plan price should match its associated currency.")
+    }
 
     val Free = Val(
         "Free",
@@ -47,15 +65,79 @@ object Plan extends Enumeration {
         calendarSync = false,
         websiteIntegration = false,
         manualBookings = false,
-        equipmentFee = false)
+        onsitePayments = false,
+        equipmentFee = false,
+        socialAds = false,
+        smsReminders = false,
+        prices = None)
+
+    val Standard = Val(
+        "Standard",
+        transactionRate = BigDecimal(0.06),
+        studioLimit = Some(4),
+        payoutSchedule = PayoutSchedule.Weekly,
+        calendarSync = false,
+        websiteIntegration = true,
+        manualBookings = true,
+        onsitePayments = true,
+        equipmentFee = true,
+        socialAds = false,
+        smsReminders = false,
+        prices = Some(Map(
+            USD -> USD(25),
+            EUR -> EUR(19),
+
+            BGN -> BGN(39),
+            HRK -> HRK(139),
+            CZK -> CZK(499),
+            DKK -> DKK(149),
+            HUF -> HUF(6900),
+            PLN -> PLN(89),
+            GBP -> GBP(16),
+            RON -> RON(99),
+            SEK -> SEK(199),
+            NOK -> NOK(199),
+            CHF -> CHF(19),
+            ISK -> ISK(2900),
+            AUD -> AUD(29),
+            CAD -> CAD(29),
+            HKD -> HKD(169),
+            NZD -> NZD(29),
+            SGD -> SGD(29),
+        )))
 
     val Premium = Val(
         "Premium",
-        transactionRate = BigDecimal(0.06),
+        transactionRate = BigDecimal(0.04),
         studioLimit = None,
-        payoutSchedule = PayoutSchedule.Weekly,
+        payoutSchedule = PayoutSchedule.Daily,
         calendarSync = true,
         websiteIntegration = true,
         manualBookings = true,
-        equipmentFee = true)
+        onsitePayments = false,
+        equipmentFee = true,
+        socialAds = true,
+        smsReminders = true,
+        prices = Some(Map(
+            USD -> USD(79),
+            EUR -> EUR(69),
+
+            BGN -> BGN(129),
+            HRK -> HRK(499),
+            CZK -> CZK(1600),
+            DKK -> DKK(490),
+            HUF -> HUF(25000),
+            PLN -> PLN(299),
+            GBP -> GBP(59),
+            RON -> RON(339),
+            SEK -> SEK(699),
+            NOK -> NOK(699),
+            CHF -> CHF(69),
+            ISK -> ISK(10000),
+            AUD -> AUD(99),
+            CAD -> CAD(99),
+            HKD -> HKD(599),
+            NZD -> NZD(115),
+            SGD -> SGD(99),
+        )))
 }

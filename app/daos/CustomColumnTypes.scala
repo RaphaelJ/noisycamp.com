@@ -72,6 +72,7 @@ trait CustomColumnTypes { this: HasDatabaseConfigProvider[JdbcProfile] =>
 
     implicit val planType = enumeration[Plan.Val](Seq(
         Plan.Free       -> "free",
+        Plan.Standard   -> "standard",
         Plan.Premium    -> "premium"))
 
     implicit val bookingRepeatFrequencyType = enumeration[BookingRepeatFrequency.Val](Seq(

@@ -100,6 +100,10 @@ alter table "studio_booking"
     drop column stripe_payment_intent_id,
     drop column stripe_refund_id;
 
+alter table "user"
+    drop constraint user_plan_check,
+    add constraint user_plan_check check (plan in ('free', 'standard', 'premium'));
+
 # --- !Downs
 
 drop table "studio_manual_booking";
