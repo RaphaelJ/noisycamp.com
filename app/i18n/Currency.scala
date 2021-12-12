@@ -20,46 +20,50 @@
 
 package i18n
 
+import scala.util.Random
+
 import squants.market
 
 object Currency {
 
-  // Additional currencies not defined in Squants
-  object BGN extends market.Currency("BGN", "Bulgarian lev", "лв.", 2)
-  object HRK extends market.Currency("HRK", "Croatian kuna", "kn", 2)
-  object HUF extends market.Currency("HUF", "Hungarian forint", "Ft", 2)
-  object ISK extends market.Currency("ISK", "Icelandic króna", "kr", 0)
-  object PLN extends market.Currency("PLN", "Polish złoty", "zł", 2)
-  object RON extends market.Currency("RON", "Romanian leu", "L", 2)
-  object SGD extends market.Currency("SGD", "Singapore dollar", "$", 2)
+    // Additional currencies not defined in Squants
+    object BGN extends market.Currency("BGN", "Bulgarian lev", "лв.", 2)
+    object HRK extends market.Currency("HRK", "Croatian kuna", "kn", 2)
+    object HUF extends market.Currency("HUF", "Hungarian forint", "Ft", 2)
+    object ISK extends market.Currency("ISK", "Icelandic króna", "kr", 0)
+    object PLN extends market.Currency("PLN", "Polish złoty", "zł", 2)
+    object RON extends market.Currency("RON", "Romanian leu", "L", 2)
+    object SGD extends market.Currency("SGD", "Singapore dollar", "$", 2)
 
-  // Export aliases to existing Squants currencies
-  def AUD = market.AUD
-  def CAD = market.CAD
-  def CHF = market.CHF
-  def CZK = market.CZK
-  def DKK = market.DKK
-  def EUR = market.EUR
-  def GBP = market.GBP
-  def HKD = market.HKD
-  def NOK = market.NOK
-  def NZD = market.NZD
-  def SEK = market.SEK
-  def USD = market.USD
+    // Export aliases to existing Squants currencies
+    def AUD = market.AUD
+    def CAD = market.CAD
+    def CHF = market.CHF
+    def CZK = market.CZK
+    def DKK = market.DKK
+    def EUR = market.EUR
+    def GBP = market.GBP
+    def HKD = market.HKD
+    def NOK = market.NOK
+    def NZD = market.NZD
+    def SEK = market.SEK
+    def USD = market.USD
 
-  val currencies: Set[market.Currency] = Set(
-    // EU
-    BGN, HRK, CZK, DKK, EUR, HUF, PLN, GBP, RON, SEK,
+    val currencies: Set[market.Currency] = Set(
+        // EU
+        BGN, HRK, CZK, DKK, EUR, HUF, PLN, GBP, RON, SEK,
 
-    // Europe, non EU
-    NOK, CHF, ISK,
+        // Europe, non EU
+        NOK, CHF, ISK,
 
-    // Other
-    AUD, CAD, HKD, NZD, SGD, USD)
+        // Other
+        AUD, CAD, HKD, NZD, SGD, USD)
 
-  def byCode: Map[String, market.Currency] = {
-    currencies.map(c => c.code -> c).toMap
-  }
+    def default = USD
 
-  def moneyContext = market.MoneyContext(EUR, currencies, Seq.empty)
+    def byCode: Map[String, market.Currency] = {
+        currencies.map(c => c.code -> c).toMap
+    }
+
+    def moneyContext = market.MoneyContext(EUR, currencies, Seq.empty)
 }

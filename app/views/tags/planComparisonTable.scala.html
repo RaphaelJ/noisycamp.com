@@ -1,30 +1,78 @@
+@* Noisycamp is a platform for booking music studios.
+ * Copyright (C) 2021  Raphael Javaux <raphael@noisycamp.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *@
+
+@import squants.market.Currency
+
+@import models.{ Plan, User }
+
+@(user: Option[User], currency: Currency)
+
+@featureValue(feature: (Plan.Val => String)) = {
+    @for(plan <- Plan.values) {
+        <td>
+            <!-- @plan.name -->
+            @feature(plan)
+        </td>
+    }
+}
+
+@featureCheckbox(feature: (Plan.Val => Boolean)) = {
+    @for(plan <- Plan.values) {
+        <!-- @plan.name -->
+        <td>
+            @if(feature(plan)) { <i class="fi-check"></i> } else { — }
+        </td>
+    }
+}
+
+@featurePercentage(feature: (Plan.Val => Option[BigDecimal])) = {
+    @for(plan <- Plan.values) {
+        <td>
+            <!-- @plan.name -->
+            @feature(plan) match {
+                case Some(value) => { @{(value * 100).toIntExact} % }
+                case None => { — }
+            }
+        </td>
+    }
+}
+
 <div class="plan-comparison-container">
     <table class="plan-comparison-table">
         <thead>
             <tr>
                 <th class="feature-title"></th>
 
-                <th class="plan-name">
-                    <h4>Free</h4>
-                    <h5><strong>$0</strong><small>/month</small></h5>
-                    <a class="button small primary hide-for-small-only" href="#">
-                        Add your studio
-                    </a>
-                </th>
-                <th class="plan-name">
-                    <h4>Standard</h4>
-                    <h5><strong>$19</strong><small>/month</small></h5>
-                    <a class="button small primary hide-for-small-only" href="#">
-                        Try now
-                    </a>
-                </th>
-                <th class="plan-name">
-                    <h4><strong>Premium</strong></h4>
-                    <h5><strong>$79</strong><small>/month</small></h5>
-                    <a class="button small primary hide-for-small-only" href="#">
-                        Contact us
-                    </a>
-                </th>
+                @for(plan <- Plan.values) {
+                    <th class="plan-name">
+                        <h4>@plan.name</h4>
+                        <h5>
+                        @defining(plan.prices.map(_(currency)).getOrElse(currency(0))) { price =>
+                            <strong>@tags.moneyAmount(price)</strong><small>/month</small>
+                        }
+                        </h5>
+
+                        @if(plan != user.map(_.plan).getOrElse(false)) {
+                            <a class="button small primary hide-for-small-only" href="#">
+                                Add your studio
+                            </a>
+                        }
+                    </th>
+                }
             </tr>
         </thead>
 
@@ -35,9 +83,12 @@
                     <small>Manage multiple studio spaces from our studio interface.</small>
                 </th>
 
-                <td>1</td>
-                <td>4</td>
-                <td><strong>∞</strong></td>
+                @featureValue(plan =>
+                    plan.studioLimit match {
+                        case Some(limit) => limit.toString
+                        case None => "∞"
+                    }
+                )
             </tr>
             <tr class="subfeature">
                 <th>
@@ -49,9 +100,7 @@
                     ads</strong> on social medias.</small>
                 </th>
 
-                <td>—</td>
-                <td>—</td>
-                <td><i class="fi-check"></i></td>
+                @featureCheckbox(_.socialAds)
             </tr>
 
             <tr>
@@ -59,9 +108,7 @@
                     <h5>Live booking calendar</h5>
                 </th>
 
-                <td><i class="fi-check"></i></td>
-                <td><i class="fi-check"></i></td>
-                <td><i class="fi-check"></i></td>
+                @featureCheckbox(_ => true)
             </tr>
             <tr class="subfeature">
                 <th>
@@ -69,9 +116,7 @@
                     <small>Add your own reservations and events to the calendar.</small>
                 </th>
 
-                <td>—</td>
-                <td><i class="fi-check"></i></td>
-                <td><i class="fi-check"></i></td>
+                @featureCheckbox(_.manualBookings)
             </tr>
             <tr class="subfeature">
                 <th>
@@ -79,9 +124,7 @@
                     <small>Integrates with Google Calendar, Apple Calendar, Outlook.</small>
                 </th>
 
-                <td>—</td>
-                <td>—</td>
-                <td><i class="fi-check"></i></td>
+                @featureCheckbox(_.calendarSync)
             </tr>
             <tr class="subfeature">
                 <th>
@@ -90,9 +133,7 @@
                     sessions.</small>
                 </th>
 
-                <td>—</td>
-                <td>—</td>
-                <td><i class="fi-check"></i></td>
+                @featureCheckbox(_.smsReminders)
             </tr>
 
             <tr>
@@ -101,9 +142,7 @@
                     <small>List your studio gears and services.</small>
                 </th>
 
-                <td><i class="fi-check"></i></td>
-                <td><i class="fi-check"></i></td>
-                <td><i class="fi-check"></i></td>
+                @featureCheckbox(_ => true)
             </tr>
             <tr class="subfeature">
                 <th>
@@ -111,9 +150,7 @@
                     <small>Charge extra fees for instrument and equipment rental.</small>
                 </th>
 
-                <td>—</td>
-                <td><i class="fi-check"></i></td>
-                <td><i class="fi-check"></i></td>
+                @featureCheckbox(_.equipmentFee)
             </tr>
 
             <tr>
@@ -123,9 +160,7 @@
                     transaction.</small>
                 </th>
 
-                <td>—</td>
-                <td><i class="fi-check"></i></td>
-                <td><i class="fi-check"></i></td>
+                @featureCheckbox(_.onsitePayments)
             </tr>
             <tr class="subfeature">
                 <th>
@@ -133,9 +168,7 @@
                     <small>We <strong>do not charge</strong> any fee on these bookings.</small>
                 </th>
 
-                <td>—</td>
-                <td>0 %</td>
-                <td>0 %</td>
+                @featurePercentage(plan => if (plan.onsitePayments) Some(0) else None)
             </tr>
 
             <tr>
@@ -145,23 +178,17 @@
                     booking.</small>
                 </th>
 
-                <td><i class="fi-check"></i></td>
-                <td><i class="fi-check"></i></td>
-                <td><i class="fi-check"></i></td>
+                @featureCheckbox(_ => true)
             </tr>
             <tr class="subfeature">
                 <th><h6>Transaction fee</h6></th>
 
-                <td>9 %</td>
-                <td>6 %</td>
-                <td>4 %</td>
+                @featurePercentage(plan => Some(plan.transactionRate))
             </tr>
             <tr class="subfeature">
-                <th><h6>Payout period</h6></th>
+                <th><h6>Payout schedule</h6></th>
 
-                <td>Monthly</td>
-                <td>Weekly</td>
-                <td>Daily</td>
+                @featureValue(_.payoutSchedule.name)
             </tr>
 
             <tr>
@@ -171,9 +198,7 @@
                     code.</small>
                 </th>
 
-                <td>—</td>
-                <td><i class="fi-check"></i></td>
-                <td><i class="fi-check"></i></td>
+                @featureCheckbox(_.websiteIntegration)
             </tr>
         </tbody>
     </table>

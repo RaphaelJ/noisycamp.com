@@ -32,8 +32,10 @@ class IndexController @Inject() (ccc: CustomControllerCompoments)
         } yield Ok(views.html.index(identity=request.identity, articlesOpt=articlesOpt))
     }
 
-    def becomeAHost = UserAwareAction { implicit request =>
-        Ok(views.html.becomeAHost(identity=request.identity))
+    def becomeAHost = UserAwareAction.async { implicit request =>
+        for {
+            currency <- clientCurrency
+        } yield Ok(views.html.becomeAHost(identity=request.identity, currency=currency))
     }
 
     def about = UserAwareAction { implicit request =>

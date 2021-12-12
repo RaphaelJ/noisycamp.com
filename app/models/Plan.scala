@@ -17,15 +17,21 @@
 
 package models
 
+import scala.language.implicitConversions
+
 import squants.market
 
 import i18n.Currency
 import i18n.Currency._
 
 object PayoutSchedule extends Enumeration {
-    val Daily = Value
-    val Weekly = Value
-    val Monthly = Value
+    case class Val(val name: String) extends super.Val
+
+    implicit def valueToVal(v: Value): Val = v.asInstanceOf[Val]
+
+    val Daily = Val("Daily")
+    val Weekly = Val("Weekly")
+    val Monthly = Val("Monthly")
 }
 
 object Plan extends Enumeration {
@@ -56,6 +62,8 @@ object Plan extends Enumeration {
             prices.isEmpty || prices.get.forall { case (curr, money) => curr == money.currency },
             "Plan price should match its associated currency.")
     }
+
+    implicit def valueToVal(v: Value): Val = v.asInstanceOf[Val]
 
     val Free = Val(
         "Free",
@@ -114,7 +122,7 @@ object Plan extends Enumeration {
         calendarSync = true,
         websiteIntegration = true,
         manualBookings = true,
-        onsitePayments = false,
+        onsitePayments = true,
         equipmentFee = true,
         socialAds = true,
         smsReminders = true,
