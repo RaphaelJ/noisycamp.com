@@ -59,7 +59,7 @@ object Currency {
         // Other
         AUD, CAD, HKD, NZD, SGD, USD)
 
-    def default = USD
+    def default = EUR
 
     def byCode: Map[String, market.Currency] = {
         currencies.map(c => c.code -> c).toMap

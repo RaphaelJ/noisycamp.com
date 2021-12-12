@@ -59,18 +59,28 @@
 
                 @for(plan <- Plan.values) {
                     <th class="plan-name">
-                        <h4>@plan.name</h4>
-                        <h5>
-                        @defining(plan.prices.map(_(currency)).getOrElse(currency(0))) { price =>
-                            <strong>@tags.moneyAmount(price)</strong><small>/month</small>
-                        }
-                        </h5>
+                    @defining(plan.prices.map(_(currency))) { price =>
+                        <h3>@plan.name</h3>
+                        <h4>
+                            <strong>@tags.moneyAmount(price.getOrElse(currency(0)))</strong>
+                            <small>/month</small>
+                        </h4>
 
-                        @if(plan != user.map(_.plan).getOrElse(false)) {
-                            <a class="button small primary hide-for-small-only" href="#">
-                                Add your studio
+                        @if(plan == user.map(_.plan).getOrElse(false)) {
+                            <button class="button small secondary expanded" disabled>
+                                Current plan
+                            </button>
+                        } else if(price.isDefined) {
+                            <a class="button small secondary expanded" href="#">
+                                Try now
+                            </a>
+                            <div class="help-text">14 days free trial</div>
+                        } else {
+                            <a class="button small secondary expanded" href="#">
+                                Add your studio<span class="show-for-large-only"> now</span>
                             </a>
                         }
+                    }
                     </th>
                 }
             </tr>

@@ -638,13 +638,19 @@ table.plan-comparison-table thead .plan-name {
     min-width: 140px;
 }
 
-table.plan-comparison-table thead th h4 {
+table.plan-comparison-table thead th h3 {
     font-weight: 700;
+    margin-bottom: 0rem;
 }
 
-table.plan-comparison-table thead th h5 {
+table.plan-comparison-table thead th h4 {
     font-weight: normal;
 }
+
+table.plan-comparison-table thead .plan-name .help-text {
+    font-weight: normal;
+}
+
 
 table.plan-comparison-table thead th,
 table.plan-comparison-table tbody td {
@@ -738,10 +744,6 @@ table.plan-comparison-table tbody tr td i.fi-check {
     /* Hide feature descriptions on small screens */
     table.plan-comparison-table tbody th small {
         display: none;
-    }
-
-    table.plan-comparison-table thead .plan-name {
-        min-width: 90px;
     }
 }
 
