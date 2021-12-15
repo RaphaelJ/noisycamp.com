@@ -30,7 +30,7 @@ object Currency {
     object BGN extends market.Currency("BGN", "Bulgarian lev", "лв.", 2)
     object HRK extends market.Currency("HRK", "Croatian kuna", "kn", 2)
     object HUF extends market.Currency("HUF", "Hungarian forint", "Ft", 2)
-    object ISK extends market.Currency("ISK", "Icelandic króna", "kr", 0)
+    object ISK extends market.Currency("ISK", "Icelandic króna", "kr", 2)
     object PLN extends market.Currency("PLN", "Polish złoty", "zł", 2)
     object RON extends market.Currency("RON", "Romanian leu", "L", 2)
     object SGD extends market.Currency("SGD", "Singapore dollar", "$", 2)

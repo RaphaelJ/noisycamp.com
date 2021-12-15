@@ -27,7 +27,8 @@ import com.stripe.Stripe
 import com.stripe.exception.StripeException
 import com.stripe.model.checkout.Session
 import com.stripe.model.oauth.TokenResponse
-import com.stripe.model.{ Account, AccountLink, Event, File, LoginLink, PaymentIntent, Refund }
+import com.stripe.model.{
+    Account, AccountLink, Event, File, LoginLink, PaymentIntent, Price, Refund }
 import com.stripe.net.{ OAuth, RequestOptions, Webhook }
 import com.stripe.param.{ FileCreateParams, RefundCreateParams }
 import play.api.Configuration
@@ -39,6 +40,7 @@ import squants.market.Money
 import i18n.{ Country, Currency }
 import models.{ Picture, Plan, Studio, User }
 import models.PriceBreakdown
+import views.html.tags.priceBreakdown
 
 object StripeAccountType extends Enumeration {
     val Express = Value
@@ -269,6 +271,17 @@ class PaymentService @Inject() (
         Future { blocking { Refund.create(params, requestOptions) } }
     }
 
+    def retrievePrice(plan: Plan.Value, currency: market.Currency)(implicit config: Configuration):
+        Future[Option[Price]] = {
+
+        PaymentService.planPriceId(plan, currency) match {
+            case Some(priceId) => {
+                Future { blocking { Some(Price.retrieve(priceId, requestOptions)) } }
+            }
+            case None => Future.successful(None)
+        }
+    }
+
     /** Creates a Stripe file by uploading the provided file. */
     def fileUpload(path: String, purpose: FileCreateParams.Purpose)(
         implicit config: Configuration): Future[File] = {
@@ -345,7 +358,7 @@ object PaymentService {
         val decimals = value.currency.formatDecimals
         val rounded = value.rounded(decimals, RoundingMode.DOWN)
         val amount = (rounded.amount * BigDecimal(10).pow(decimals)).toLong
-        val code = rounded.currency.code
+        val code = rounded.currency.code.toLowerCase
 
         (amount, code)
     }

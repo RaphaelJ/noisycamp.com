@@ -39,6 +39,7 @@ import views.html.tags.priceBreakdown
 import controllers.routes
 import misc.EquipmentCategory
 import org.scalatest.selenium.WebBrowser
+import org.apache.xpath.operations.Bool
 
 class PaymentServiceSpec extends PlaySpec with GuiceOneAppPerSuite {
 
@@ -170,11 +171,44 @@ class PaymentServiceSpec extends PlaySpec with GuiceOneAppPerSuite {
         }
     }
 
+    "PaymentService.retrievePrice" must {
+        // Checks that there exists a matching Stripe price for every plan and currency.
+
+        for (plan <- Plan.values.filter(_.prices.isDefined)) {
+            for (currency <- Currency.currencies) {
+                (f"match ${plan.name} price for ${currency.code}") in {
+                    val stripePrice = Await.result(
+                        paymentService.retrievePrice(plan, currency),
+                        timeout)
+
+                    (stripePrice.isDefined) should be (true)
+
+                    val planPrice = plan.prices.get.get(currency)
+
+                    (planPrice.isDefined) should be (true)
+
+                    val stripePriceValue = stripePrice.get
+
+                    (stripePriceValue.getActive: Boolean) should be (true)
+
+                    val (planAmount, planCurrency) = PaymentService.asStripeAmount(planPrice.get)
+
+                    (stripePriceValue.getUnitAmount) should be (planAmount)
+                    (stripePriceValue.getCurrency) should be (planCurrency)
+                    (stripePriceValue.getBillingScheme) should be ("per_unit")
+
+                    (stripePriceValue.getType) should be ("recurring")
+                    (stripePriceValue.getRecurring.getInterval) should be ("month")
+                }
+            }
+        }
+    }
+
     "PaymentService.asStripeAmount" must {
         "returns the currency amount in the smallest unit of the currency" in {
-            PaymentService.asStripeAmount(Currency.CHF(233.2)) should be ((23320, "CHF"))
-            PaymentService.asStripeAmount(Currency.EUR(12.542)) should be ( (1254, "EUR"))
-            PaymentService.asStripeAmount(Currency.ISK(450)) should be ((450, "ISK"))
+            PaymentService.asStripeAmount(Currency.CHF(233.2)) should be ((23320, "chf"))
+            PaymentService.asStripeAmount(Currency.EUR(12.542)) should be ((1254, "eur"))
+            PaymentService.asStripeAmount(Currency.ISK(450)) should be ((45000, "isk"))
         }
     }
 
