@@ -28,6 +28,7 @@ import org.scalatestplus.play._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Configuration
 import play.api.test.FakeRequest
+import squants.market
 
 import i18n.{ Country, Currency }
 import misc.{ EquipmentCategory, PaymentService, StripeAccountType, StripePaymentCaptureMethod }
@@ -174,6 +175,15 @@ class PaymentServiceSpec extends PlaySpec with GuiceOneAppPerSuite {
             PaymentService.asStripeAmount(Currency.CHF(233.2)) should be ((23320, "CHF"))
             PaymentService.asStripeAmount(Currency.EUR(12.542)) should be ( (1254, "EUR"))
             PaymentService.asStripeAmount(Currency.ISK(450)) should be ((450, "ISK"))
+        }
+    }
+
+    "PaymentService.planPriceId" must {
+        "generates the correct Stripe price ID" in {
+            PaymentService.planPriceId(Plan.Free, Currency.CAD) should be (None)
+            PaymentService.planPriceId(Plan.Premium, market.BTC) should be (None)
+            PaymentService.planPriceId(Plan.Standard, Currency.CHF) should be
+                (Some("noisycamp_standard_chf"))
         }
     }
 }

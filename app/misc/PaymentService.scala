@@ -37,7 +37,7 @@ import squants.market
 import squants.market.Money
 
 import i18n.{ Country, Currency }
-import models.{ Picture, Studio, User }
+import models.{ Picture, Plan, Studio, User }
 import models.PriceBreakdown
 
 object StripeAccountType extends Enumeration {
@@ -348,5 +348,13 @@ object PaymentService {
         val code = rounded.currency.code
 
         (amount, code)
+    }
+
+    /** Returns an unique price ID that can be used to identify the plan price when billing the
+     * customer with Stripe. */
+    def planPriceId(plan: Plan.Value, currency: market.Currency): Option[String] = {
+        plan.prices.
+            flatMap { _.get(currency) }.
+            map { _ => f"noisycamp_${plan.name.toLowerCase}_${currency.code.toLowerCase}" }
     }
 }
