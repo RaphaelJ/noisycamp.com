@@ -165,7 +165,7 @@ class PaymentService @Inject() (
 
     /** Initiate a Stripe Checkout transaction. */
     def createSession(
-        from: User, to: User, priceBreakdown: PriceBreakdown, 
+        from: User, to: User, priceBreakdown: PriceBreakdown,
         title: String, description: String, statement: String, pics: Seq[Picture#Id],
         captureMethod: StripePaymentCaptureMethod.Value, onSuccess: Call, onCancel: Call)(
         implicit request: RequestHeader, config: Configuration): Future[Session] = {
@@ -178,34 +178,11 @@ class PaymentService @Inject() (
             map(_.base64).
             map { id => controllers.routes.PictureController.cover(id, "500x500") }.
             map(_.absoluteURL)
-            
+
         val amount = priceBreakdown.total
         val (stripeAmount, stripeCurrency) = PaymentService.asStripeAmount(amount)
 
         val transferAmount: Long = PaymentService.asStripeAmount(priceBreakdown.netTotal)._1
-
-        // Uses the connected account as the processing account if the currency does not match the
-        // platform's.
-        val onBehalfOf =
-            if (platformCurrency == amount.currency) { Map.empty }
-            else { Map("on_behalf_of" -> to.stripeAccountId.get) }
-        
-        val paymentIntent = (
-            Map(
-                "capture_method" -> {
-                    captureMethod match {
-                        case StripePaymentCaptureMethod.Automatic => "automatic"
-                        case StripePaymentCaptureMethod.Manual => "manual"
-                    }
-                }.asInstanceOf[AnyRef],
-                "statement_descriptor" -> statement,
-                "description" -> description,
-                "transfer_data" -> Map(
-                    "destination" -> to.stripeAccountId.get,
-                    "amount" -> transferAmount.asInstanceOf[AnyRef]).asJava
-            ) ++
-            onBehalfOf
-        ).asJava
 
         val items: java.util.List[java.util.Map[String, AnyRef]] = Seq((
                 Map(
@@ -226,7 +203,8 @@ class PaymentService @Inject() (
             "mode" -> "payment",
             "submit_type" -> "book",
             "payment_method_types" -> Seq("card").asJava,
-            "payment_intent_data" -> paymentIntent,
+            "payment_intent_data" -> paymentIntentParams(
+                to, priceBreakdown, description: String, statement: String, captureMethod),
             "line_items" -> items).asJava
 
         Future { blocking { Session.create(params, requestOptions) } }
@@ -236,45 +214,13 @@ class PaymentService @Inject() (
         Future { blocking { Session.retrieve(sessionId, requestOptions) } }
     }
 
-    /** Initiate a Stripe Checkout transaction. */
+    /** Initiate a Stripe transaction without a Checkout session. */
     def createPaymentIntent(
-        from: User, to: User, priceBreakdown: PriceBreakdown, 
+        to: User, priceBreakdown: PriceBreakdown,
         description: String, statement: String, captureMethod: StripePaymentCaptureMethod.Value)(
         implicit request: RequestHeader, config: Configuration): Future[PaymentIntent] = {
 
-        require(statement.length <= 22)
-        require(!to.stripeAccountId.isEmpty)
-            
-        val amount = priceBreakdown.total
-        val (stripeAmount, stripeCurrency) = PaymentService.asStripeAmount(amount)
-
-        val transferAmount: Long = PaymentService.asStripeAmount(priceBreakdown.netTotal)._1
-
-        // Uses the connected account as the processing account if the currency does not match the
-        // platform's.
-        val onBehalfOf =
-            if (platformCurrency == amount.currency) { Map.empty }
-            else { Map("on_behalf_of" -> to.stripeAccountId.get) }
-        
-        val params = (
-            Map(
-                "capture_method" -> {
-                    captureMethod match {
-                        case StripePaymentCaptureMethod.Automatic => "automatic"
-                        case StripePaymentCaptureMethod.Manual => "manual"
-                    }
-                }.asInstanceOf[AnyRef],
-                "statement_descriptor" -> statement,
-                "description" -> description,
-                "amount" -> stripeAmount.asInstanceOf[AnyRef],
-                "currency" -> stripeCurrency,
-                "transfer_data" -> Map(
-                "destination" -> to.stripeAccountId.get,
-                "amount" -> transferAmount.asInstanceOf[AnyRef]).asJava
-            ) ++
-            onBehalfOf
-        ).asJava
-
+        val params = paymentIntentParams(to, priceBreakdown, description, statement, captureMethod)
         Future { blocking { PaymentIntent.create(params, requestOptions) } }
     }
 
@@ -288,7 +234,7 @@ class PaymentService @Inject() (
         implicit config: Configuration):
         Future[PaymentIntent] = {
 
-        val params: java.util.Map[String, Object] = 
+        val params: java.util.Map[String, Object] =
             paymentMethod.
                 map { m => Map("payment_method" -> m.asInstanceOf[AnyRef]) }.
                 getOrElse(Map.empty).
@@ -348,6 +294,46 @@ class PaymentService @Inject() (
         } catch {
             case e: Exception => Future.successful(Results.BadRequest(e.toString))
         }
+    }
+
+    private def paymentIntentParams(
+        to: User,
+        priceBreakdown: PriceBreakdown,
+        description: String, statement: String,
+        captureMethod: StripePaymentCaptureMethod.Value
+    )(implicit config: Configuration): java.util.Map[String, Object] = {
+
+        require(statement.length <= 22)
+        require(!to.stripeAccountId.isEmpty)
+
+        val amount = priceBreakdown.total
+        val (stripeAmount, stripeCurrency) = PaymentService.asStripeAmount(amount)
+
+        val transferAmount: Long = PaymentService.asStripeAmount(priceBreakdown.netTotal)._1
+
+        // Uses the connected account as the processing account if the currency does not match the
+        // platform's.
+        val onBehalfOf =
+            if (platformCurrency == amount.currency) { Map.empty }
+            else { Map("on_behalf_of" -> to.stripeAccountId.get) }
+
+        (Map(
+                "capture_method" -> {
+                    captureMethod match {
+                        case StripePaymentCaptureMethod.Automatic => "automatic"
+                        case StripePaymentCaptureMethod.Manual => "manual"
+                    }
+                }.asInstanceOf[AnyRef],
+                "statement_descriptor" -> statement,
+                "description" -> description,
+                "amount" -> stripeAmount.asInstanceOf[AnyRef],
+                "currency" -> stripeCurrency,
+                "transfer_data" -> Map(
+                    "destination" -> to.stripeAccountId.get,
+                    "amount" -> transferAmount.asInstanceOf[AnyRef]).asJava
+            ) ++
+            onBehalfOf
+        ).asJava
     }
 }
 

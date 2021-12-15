@@ -37,17 +37,18 @@ import models.{
 import views.html.tags.priceBreakdown
 import controllers.routes
 import misc.EquipmentCategory
+import org.scalatest.selenium.WebBrowser
 
 class PaymentServiceSpec extends PlaySpec with GuiceOneAppPerSuite {
 
-    implicit val configuration = app.injector.instanceOf(classOf[Configuration]) 
+    implicit val configuration = app.injector.instanceOf(classOf[Configuration])
     implicit val request = FakeRequest()
-    val paymentService = app.injector.instanceOf(classOf[PaymentService]) 
+    val paymentService = app.injector.instanceOf(classOf[PaymentService])
 
     val timeout = duration.Duration(1, duration.MINUTES)
 
     // Tries the whole payment flow for a booking with all the supported currencies.
-    
+
     "PaymenService" must {
         val customer = User(
             id = 1,
@@ -62,36 +63,61 @@ class PaymentServiceSpec extends PlaySpec with GuiceOneAppPerSuite {
 
             val country = Country.Belgium
 
-            val params = Map(
+            val address = Map(
+                "line1" -> "address_full_match​",
+                "postal_code" -> "4000",
+                "city" -> "Liège",
+                "country" -> country.isoCode
+            ).asJava
+
+            val extraParams = Map(
                 "business_type" -> "individual",
-                "individual" -> (Map(
+                "individual" -> Map(
                     "first_name" -> "Bob",
                     "last_name" -> "Testman",
                     "dob" -> Map(
-                        "day" -> "6".asInstanceOf[AnyRef],
-                        "month" -> "3",
-                        "year" -> "1991"
+                        "day" -> "01".asInstanceOf[AnyRef],
+                        "month" -> "01",
+                        "year" -> "1902"
                     ).asJava,
-                    "address" -> Map(
-                        "line1" -> "Place du marché",
-                        "postal_code" -> "4000",
-                        "city" -> "Liège",
-                        "country" -> country.isoCode
-                    ).asJava,
+                    "address" -> address,
                     "email" -> "bob@testman.com",
-                    "phone" -> "+32412345678")
+                    "phone" -> "+32412345678",
+                    "id_number" -> "222222222",
+                    "verification" -> Map(
+                        "document" -> Map(
+                            "front" -> "file_identity_document_success",
+                        ).asJava,
+                        "additional_document" -> Map(
+                            "front" -> "file_identity_document_success",
+                        ).asJava,
+                    ).asJava,
+                ).asJava,
+                "external_account" -> Map(
+                    "object" -> "bank_account",
+                    "country" -> country.isoCode,
+                    "currency" -> country.currency.code,
+                    "account_number" -> "BE89370400440532013000",
+                ).asJava,
+                "company" -> Map(
+                    "name" -> "Bob Testman",
+                    "address" -> address,
+                    "tax_id" -> "222222222",
                 ).asJava,
                 "business_profile" -> Map(
                     "mcc" -> 5734.asInstanceOf[AnyRef],
-                    "url" -> "https://noisycamp.com"
+                    "url" -> "https://noisycamp.com",
                 ).asJava,
                 "tos_acceptance" -> Map(
                     "date" -> 1607130427.asInstanceOf[Object],
                     "ip" -> "83.134.216.114").asJava)
 
             paymentService.
-                createAccount(user, country, StripeAccountType.Custom, params).
-                map { account => user.copy(stripeAccountId = Some(account.getId)) }
+                createAccount(user, country, StripeAccountType.Custom, extraParams).
+                map { account =>
+                    Thread.sleep(15000) // Stripe's account verification takes a few seconds.
+                    user.copy(stripeAccountId = Some(account.getId))
+                }
         }
 
         val currencies = Country.values.map(_.asInstanceOf[Country.Val].currency)
@@ -108,12 +134,12 @@ class PaymentServiceSpec extends PlaySpec with GuiceOneAppPerSuite {
                 val priceBreakdown = PriceBreakdown(
                     BookingDurations(Duration.ofHours(2), Duration.ZERO, Duration.ZERO),
                     currency(100), None, None, equipmentPrices, Some(Plan.Free.transactionRate))
-                
+
                 val intent = Await.result({
                     for {
                         owner <- owner
                         intent <- paymentService.createPaymentIntent(
-                            customer, owner, priceBreakdown, description, statement,
+                            owner, priceBreakdown, description, statement,
                             StripePaymentCaptureMethod.Manual
                         )
                         intent <- paymentService.retrievePaymentIntent(intent.getId)
@@ -127,7 +153,7 @@ class PaymentServiceSpec extends PlaySpec with GuiceOneAppPerSuite {
 
                 val toBeCharged = PaymentService.asStripeAmount(priceBreakdown.total)._1
                 val toBeTransfered = PaymentService.asStripeAmount(priceBreakdown.netTotal)._1
-                
+
                 intent.getAmount must be (toBeCharged)
                 intent.getAmountCapturable must be (0)
                 intent.getAmountReceived must be (toBeCharged)
@@ -135,13 +161,13 @@ class PaymentServiceSpec extends PlaySpec with GuiceOneAppPerSuite {
                 intent.getTransferData.getAmount must be (toBeTransfered)
 
                 val refund = Await.result({
-                    paymentService.refundPaymentIntent(intent.getId) 
+                    paymentService.refundPaymentIntent(intent.getId)
                 }, timeout)
 
                 refund.getAmount should be (toBeCharged)
             }
         }
-    } 
+    }
 
     "PaymentService.asStripeAmount" must {
         "returns the currency amount in the smallest unit of the currency" in {

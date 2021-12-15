@@ -101,7 +101,7 @@ class IndexController @Inject() (ccc: CustomControllerCompoments)
 
         val user = request.identity.user
 
-        val redirectTo = _root_.controllers.account.routes.PremiumController.upgrade
+        val redirectTo = _root_.controllers.account.routes.PlansController.index
 
         db.run({
             daos.studio.query.
@@ -113,7 +113,7 @@ class IndexController @Inject() (ccc: CustomControllerCompoments)
                         case Some(studioLimit) if (studioLimit <= nStudios) => {
                             val result = Redirect(redirectTo).
                                 flashing("error" ->
-                                    "Upgrade to NoisyCamp Premium to host more studios.")
+                                    "Upgrade your NoisyCamp account to host more studios.")
                             DBIO.successful(result)
                         }
                         case _ => f

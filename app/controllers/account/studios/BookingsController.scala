@@ -69,9 +69,9 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
         if (user.plan.calendarSync) {
             Ok(views.html.featureNotYetImplemented(request.identity))
         } else {
-            Redirect(_root_.controllers.account.routes.PremiumController.upgrade).
+            Redirect(_root_.controllers.account.routes.PlansController.index).
                 flashing("error" ->
-                    ("Upgrade to NoisyCamp Premium to synchronize NoisyCamp with your favorite " +
+                    ("Upgrade your NoisyCamp account to synchronize NoisyCamp with your favorite " +
                     "calendar app."))
         }
     }
@@ -141,9 +141,9 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
             f
         } else {
             Future.successful {
-                Redirect(_root_.controllers.account.routes.PremiumController.upgrade).
+                Redirect(_root_.controllers.account.routes.PlansController.index).
                     flashing("error" ->
-                        "Upgrade to NoisyCamp Premium to create your own booking events.")
+                        "Upgrade your NoisyCamp account to create your own booking events.")
             }
         }
     }

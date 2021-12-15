@@ -154,7 +154,7 @@
                         <a
                             :href="planUpgradeUrl"
                             target="_blank">
-                            Upgrade to NoisyCamp Premium
+                            Upgrade your NoisyCamp account
                         </a>
                         to charge users for the use of additional equipments and gears.
                     </p>
@@ -277,7 +277,7 @@ export default Vue.extend({
     },
     computed: {
         planUpgradeUrl() {
-            return NC_ROUTES.controllers.account.PremiumController.upgrade().url;
+            return NC_ROUTES.controllers.account.PlansController.index().url;
         },
 
         // Returns an object of equipment families, each with a `equipment` field with the family's

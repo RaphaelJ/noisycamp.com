@@ -86,10 +86,10 @@ GET     /account/payouts/setup          controllers.account.PayoutsController.se
 POST    /account/payouts/setup          controllers.account.PayoutsController.setup
 GET     /account/payouts/setup-complete controllers.account.PayoutsController.setupComplete
 
-# User Premium upgrade
+# User upgrade
 
-GET     /account/premium/upgrade        controllers.account.PremiumController.upgrade
-POST    /account/premium/upgrade        controllers.account.PremiumController.upgradeSubmit
+GET     /account/plans                  controllers.account.PlansController.index
+POST    /account/premium/upgrade        controllers.account.PlansController.upgradeSubmit
 
 # Studios
 

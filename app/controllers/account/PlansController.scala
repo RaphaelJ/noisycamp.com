@@ -27,13 +27,15 @@ import _root_.controllers.{ CustomBaseController, CustomControllerCompoments }
 import forms.account.PremiumForm
 
 @Singleton
-class PremiumController @Inject() (ccc: CustomControllerCompoments)
+class PlansController @Inject() (ccc: CustomControllerCompoments)
     extends CustomBaseController(ccc) {
 
     import profile.api._
 
-    def upgrade = SecuredAction { implicit request =>
-        Ok(views.html.account.premium.upgrade(request.identity, PremiumForm.form))
+    def index = UserAwareAction.async { implicit request =>
+        for {
+            currency <- clientCurrency
+        } yield Ok(views.html.account.plans.index(request.identity, currency))
     }
 
     def upgradeSubmit = SecuredAction.async { implicit request =>
@@ -47,7 +49,7 @@ class PremiumController @Inject() (ccc: CustomControllerCompoments)
                 db.run(daos.studio.query.filter(_.ownerId === user.id).result).
                     flatMap { studios => emailService.sendPremiumRequest(user, data, studios) }.
                     map { _ =>
-                        Redirect(controllers.account.routes.IndexController.index).
+                        Redirect(routes.IndexController.index).
                             flashing("success" ->
                                 ("Your Premium access request has been received, we will get " +
                                  "back to you shortly."))

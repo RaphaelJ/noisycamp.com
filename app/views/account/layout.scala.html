@@ -95,14 +95,20 @@
                                     </a>
                                 }
                             </li>
+                        </ul>
 
-                            @if(identity.user.plan != Plan.Premium) {
-                                <li>
-                                    <a href="@controllers.account.routes.PremiumController.upgrade">
-                                        Upgrade to Premium
-                                    </a>
-                                </li>
-                            }
+                        <hr>
+
+                        <ul class="vertical menu">
+                            <li>
+                                <a href="@controllers.account.routes.PlansController.index">
+                                    @if(identity.user.plan == Plan.Free) {
+                                        Upgrade plan
+                                    } else {
+                                        Manage plan
+                                    }
+                                </a>
+                            </li>
                         </ul>
 
                         <hr>
