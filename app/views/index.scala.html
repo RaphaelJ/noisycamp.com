@@ -21,7 +21,7 @@
 
 @import play.api.Configuration
 
-@import misc.{ MediumArticle, URL }
+@import misc.{ HighlightLocation, MediumArticle, URL }
 
 @(identity: Option[models.Identity], articlesOpt: Option[Seq[MediumArticle]])(
     implicit req: RequestHeader, config: Configuration, flash: Flash)
@@ -45,45 +45,7 @@
         content="@URL.fromCDN(routes.Assets.versioned("images/index/card.jpg"), absoluteURL = true)">
 }
 
-@highlightLocations = @{ Random.shuffle(Seq(
-    (
-        "Australia",
-        (-9.04366970633253,-54.835465496212,112.821294400027,159.208731278622),
-        URL.fromCDN(routes.Assets.versioned("images/index/cities/australia.jpg")),
-        "Johnny Bhalla",
-        "https://unsplash.com/@johnnybhalla"),
-    (
-        "Belgium",
-        (51.5051159806493,49.4969670113735,2.51026658202508,6.40815299714662),
-        URL.fromCDN(routes.Assets.versioned("images/index/cities/belgium.jpg")),
-        "Piron Guillaume",
-        "https://unsplash.com/@gpiron"),
-    (
-        "France",
-        (51.148409399929,41.3108229,-5.24227249992918,9.66015649291518),
-        URL.fromCDN(routes.Assets.versioned("images/index/cities/france.jpg")),
-        "Jad Limcaco",
-        "https://unsplash.com/@jadlimcaco"),
-    (
-        "New York",
-        (45.0239286969073,40.4771391062446,-79.8578350999901,-71.7564918092633),
-        URL.fromCDN(routes.Assets.versioned("images/index/cities/new-york.jpg")),
-        "Tania Fernandez",
-        "https://unsplash.com/@tania_fernandez"),
-    (
-        "New Zealand",
-        (-34.0465240000456,-52.6693956973145,165.770163500618,179.9),
-        URL.fromCDN(routes.Assets.versioned("images/index/cities/new-zealand.jpg")),
-        "Tobias Keller",
-        "https://unsplash.com/@tokeller"),
-    (
-        "United Kingdom",
-        (60.9093517989553,49.802416901086,-8.74974065661991,1.86276379960989),
-        URL.fromCDN(routes.Assets.versioned("images/index/cities/united-kingdom.jpg")),
-        "Marcin Nowak",
-        "https://unsplash.com/@marcin"),
-    )).take(4)
-}
+@highlightLocations = @{ Random.shuffle(HighlightLocation.locations).take(4) }
 
 @layout(
     Seq("Rehearsal and music studio rentals"), head=head,
@@ -130,29 +92,35 @@
                 </h2>
             </div>
 
-            @for((locName, locBBox, pictureUrl, authorName, authorUrl) <- highlightLocations) {
-                <div class="cell small-12 medium-4 large-3">
+            @for(location <- highlightLocations) {
+                <a
+                    class="cell small-12 medium-4 large-3"
+                    href="@location.url"
+                    target="_blank">
+
                     <div class="panel-section">
                         <div class="grid-x grid-padding-y">
 
                             <div class="cell small-12 panel-picture">
-                                <a
-                                    href="@routes.StudiosController.index#location.place_name=@locName&location.bbox=@locBBox._1,@locBBox._2,@locBBox._3,@locBBox._4"
-                                    target="_blank">
-                                    <img src="@pictureUrl" class="border-radius">
-                                </a>
+                                <img src="@URL.fromCDN(location.picture.url)">
                             </div>
 
                             <div class="cell small-12">
                                 <div class="grid-x grid-margin-x">
                                     <div class="cell auto">
-                                        <h4 class="text-overflow-ellipsis">@locName</h4>
+                                        <h5 class="text-overflow-ellipsis">@location.name</h5>
+
+                                        <h5 class="cell shrink">
+                                            <small>Starting at </small>
+                                            $20
+                                            <small>per hour</small>
+                                        </h5>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                </a>
             }
 
             <div class="cell small-12">
