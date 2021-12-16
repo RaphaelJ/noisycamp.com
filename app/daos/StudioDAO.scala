@@ -17,7 +17,7 @@
 
 package daos
 
-import java.time.{ Duration, Instant, LocalTime, ZoneId }
+import java.time.{ DayOfWeek, Duration, Instant, LocalDate, LocalTime, ZoneId }
 import scala.concurrent.{ ExecutionContext, Future }
 import javax.inject.Inject
 
@@ -26,7 +26,7 @@ import slick.jdbc.JdbcProfile
 import squants.market.Currency
 
 import i18n.Country
-import models.{ Address, BookingPolicy, CancellationPolicy, Coordinates,
+import models.{ Address, BBox, BookingPolicy, CancellationPolicy, Coordinates,
   EveningPricingPolicy, Location, OpeningSchedule, OpeningTimes, PaymentPolicy,
   PricingPolicy, Studio, User, WeekendPricingPolicy }
 
@@ -235,7 +235,7 @@ class StudioDAO @Inject()
                 fromOpeningTimes(schedule.sunday))
         }
 
-        private def toPricingPolicy(policyTuple: PricingPolicyTuple) = {
+        def toPricingPolicy(policyTuple: PricingPolicyTuple) = {
             val evening =
                 if (policyTuple._2) {
                     Some(EveningPricingPolicy(policyTuple._3.get, policyTuple._4.get))
@@ -286,5 +286,43 @@ class StudioDAO @Inject()
      * ID. */
     def insert(studio: Studio): DBIO[Studio] = {
         query returning query.map(_.id) into ((s, id) => s.copy(id=id)) += studio
+    }
+
+    /** Searches all studios matching the given filters. */
+    def search(bboxOpt: Option[BBox] = None, availableOn: Option[LocalDate] = None):
+        Query[StudioTable, Studio, Seq] = {
+
+        publishedStudios.
+            filter { studio =>
+                // Geographical filter
+                val isInBBox = bboxOpt match {
+                    case Some(BBox(north, south, west, east)) => {
+                        studio.long >= west && studio.long <= east &&
+                        studio.lat >= south && studio.lat <= north
+                    }
+                    case None => true: Rep[Boolean]
+                }
+
+                // Is open on date
+                val isOpen = availableOn match {
+                    case Some(date) => {
+                        date.getDayOfWeek match {
+                            case DayOfWeek.MONDAY => studio.mondayIsOpen
+                            case DayOfWeek.TUESDAY => studio.tuesdayIsOpen
+                            case DayOfWeek.WEDNESDAY => studio.wednesdayIsOpen
+                            case DayOfWeek.THURSDAY => studio.thursdayIsOpen
+                            case DayOfWeek.FRIDAY => studio.fridayIsOpen
+                            case DayOfWeek.SATURDAY => studio.saturdayIsOpen
+                            case DayOfWeek.SUNDAY => studio.sundayIsOpen
+                        }
+                    }
+                    case None => true: Rep[Boolean]
+                }
+
+                // FIXME: does not filter out studios that are not availaible on
+                // the selected day.
+
+                isInBBox && isOpen
+            }
     }
 }

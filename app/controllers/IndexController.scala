@@ -18,18 +18,31 @@
 package controllers
 
 import javax.inject._
+import scala.util.Random
 
 import play.api._
 import play.api.mvc._
+import squants.market.Money
+
+import misc.HighlightLocation
 
 @Singleton
 class IndexController @Inject() (ccc: CustomControllerCompoments)
     extends CustomBaseController(ccc) {
 
+    import profile.api._
+
     def index = UserAwareAction.async { implicit request =>
+        val N_LOCATIONS = 4
+        val locations = Random.shuffle(HighlightLocation.locations).take(N_LOCATIONS)
+
         for {
+            locationPrices <- db.run(locationStartingPrices(locations))
             articlesOpt <- ccc.mediumArticleService.getArticles
-        } yield Ok(views.html.index(identity=request.identity, articlesOpt=articlesOpt))
+        } yield Ok(views.html.index(
+            identity=request.identity,
+            highlightLocations=locations.zip(locationPrices),
+            articlesOpt=articlesOpt))
     }
 
     def becomeAHost = UserAwareAction.async { implicit request =>
@@ -48,5 +61,22 @@ class IndexController @Inject() (ccc: CustomControllerCompoments)
 
     def privacy = UserAwareAction { implicit request =>
         Ok(views.html.privacy(identity=request.identity))
+    }
+
+    private def locationStartingPrices(locations: Seq[HighlightLocation]):
+        DBIO[Seq[Option[Money]]] = {
+
+        DBIO.sequence(
+            locations.
+                map { location =>
+                    // FIXME: does not take into account studio's currency.
+                    daos.studio.
+                        search(bboxOpt = Some(location.bbox)).
+                        sortBy(_.pricePerHour.asc).
+                        take(1).
+                        result.
+                        headOption.
+                        map(_.map(_.localPricingPolicy.priceMin))
+                })
     }
 }

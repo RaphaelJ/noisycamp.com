@@ -17,13 +17,15 @@
 
 @import java.time.{ Duration, Instant }
 
-@import scala.util.Random
-
 @import play.api.Configuration
+@import squants.market.Money
 
 @import misc.{ HighlightLocation, MediumArticle, URL }
 
-@(identity: Option[models.Identity], articlesOpt: Option[Seq[MediumArticle]])(
+@(
+    identity: Option[models.Identity],
+    highlightLocations: Seq[(HighlightLocation, Option[Money])],
+    articlesOpt: Option[Seq[MediumArticle]])(
     implicit req: RequestHeader, config: Configuration, flash: Flash)
 
 @head = {
@@ -44,8 +46,6 @@
         property="og:image"
         content="@URL.fromCDN(routes.Assets.versioned("images/index/card.jpg"), absoluteURL = true)">
 }
-
-@highlightLocations = @{ Random.shuffle(HighlightLocation.locations).take(4) }
 
 @layout(
     Seq("Rehearsal and music studio rentals"), head=head,
@@ -92,15 +92,13 @@
                 </h2>
             </div>
 
-            @for(location <- highlightLocations) {
+            @for((location, priceOpt) <- highlightLocations) {
                 <a
                     class="cell small-12 medium-4 large-3"
-                    href="@location.url"
-                    target="_blank">
+                    href="@location.url">
 
                     <div class="panel-section">
                         <div class="grid-x grid-padding-y">
-
                             <div class="cell small-12 panel-picture">
                                 <img src="@URL.fromCDN(location.picture.url)">
                             </div>
@@ -111,9 +109,14 @@
                                         <h5 class="text-overflow-ellipsis">@location.name</h5>
 
                                         <h5 class="cell shrink">
-                                            <small>Starting at </small>
-                                            $20
-                                            <small>per hour</small>
+                                            @priceOpt match {
+                                            case Some(price) => {
+                                                <small>Starting at </small>
+                                                @tags.moneyAmount(price)
+                                                <small>per hour</small>
+                                            }
+                                            case None => { &nbsp; }
+                                            }
                                         </h5>
                                     </div>
                                 </div>

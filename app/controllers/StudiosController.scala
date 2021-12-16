@@ -17,7 +17,7 @@
 
 package controllers
 
-import java.time.{ DayOfWeek, Instant }
+import java.time.Instant
 import javax.inject._
 import scala.concurrent.Future
 import scala.util.Try
@@ -33,6 +33,7 @@ import forms.studios.SearchForm
 import misc.GIS
 import misc.JsonWrites._
 import models.{ BBox, Studio, StudioWithPictureAndEquipments, StudioBooking, User }
+import daos.StudioDAO
 
 @Singleton
 class StudiosController @Inject() (ccc: CustomControllerCompoments)
@@ -59,39 +60,8 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
 
                 db.run({ for {
                     // Fetches studios matching query.
-                    studios <- daos.studio.publishedStudios.
-                        filter { studio =>
-                            // Geographical filter
-                            val isInBBox = bboxOpt match {
-                                case Some(BBox(north, south, west, east)) => {
-                                    studio.long >= west && studio.long <= east &&
-                                    studio.lat >= south && studio.lat <= north
-                                }
-                                case None => true: Rep[Boolean]
-                            }
-
-                            // Is open on date
-                            val isOpen = data.availableOn match {
-                                case Some(date) => {
-                                    date.getDayOfWeek match {
-                                        case DayOfWeek.MONDAY => studio.mondayIsOpen
-                                        case DayOfWeek.TUESDAY => studio.tuesdayIsOpen
-                                        case DayOfWeek.WEDNESDAY => studio.wednesdayIsOpen
-                                        case DayOfWeek.THURSDAY => studio.thursdayIsOpen
-                                        case DayOfWeek.FRIDAY => studio.fridayIsOpen
-                                        case DayOfWeek.SATURDAY => studio.saturdayIsOpen
-                                        case DayOfWeek.SUNDAY => studio.sundayIsOpen
-                                    }
-                                }
-                                case None => true: Rep[Boolean]
-                            }
-
-                            // FIXME: does not filter out studios that are not availaible on
-                            // the selected day.
-
-                            isInBBox && isOpen
-                        }.
-                        take(200). // Limits to 200 studios
+                    studios <- daos.studio.search(bboxOpt, data.availableOn).
+                        take(200).  // Limits to 200 studios
                         result
 
                     // Fetches matching studios' pictures

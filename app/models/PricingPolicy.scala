@@ -61,6 +61,13 @@ case class LocalPricingPolicy(
             case (None, None) => Left(pricePerHour)
         }
     }
+
+    def priceMin: Money = {
+        priceRange match {
+            case Left(value) => value
+            case Right((value, _)) => value
+        }
+    }
 }
 
 object LocalPricingPolicy {
