@@ -22,7 +22,7 @@
 
 @import _root_.auth.DefaultEnv
 @import i18n.Currency
-@import misc.URL
+@import misc.{ HighlightLocation, URL }
 @import models.Identity
 
 @** Main layout for the NoisyCamp website.
@@ -154,7 +154,7 @@
 
             <footer>
                 <div class="grid-x grid-padding-x grid-padding-y footer-container">
-                    <div class="cell small-12 medium-6">
+                    <div class="cell small-12 medium-6 large-3">
                         <h5>Company</h5>
 
                         <ul>
@@ -183,10 +183,21 @@
                         </ul>
                     </div>
 
-                    <div class="cell small-12 medium-3">
+                    <div class="cell large-4 show-for-large">
+                        <h5>Locations</h5>
+
+                        <div class="grid-x grid-margin-x">
+                            @for(location <- HighlightLocation.locations.sortBy(_.name)) {
+                                <a
+                                    class="cell small-6"
+                                    href="@location.url">
+                                    @location.name
+                                </a>
+                            }
+                        </div>
                     </div>
 
-                    <div class="cell small-12 medium-3">
+                    <div class="cell small-12 medium-3 large-offset-2">
                         <ul>
                             <li><h6>© @Year.now <span class="text-serif">NoisyCamp</span></h6></li>
 
