@@ -289,11 +289,11 @@ class StudioDAO @Inject()
     }
 
     /** Searches all studios matching the given filters. */
-    def search(bboxOpt: Option[BBox] = None, availableOn: Option[LocalDate] = None):
+    def search(bbox: Option[BBox] = None, availableOn: Option[LocalDate] = None):
         Query[StudioTable, Studio, Seq] = {
 
         publishedStudios.
-            filterOpt(bboxOpt) { case (studio, BBox(north, south, west, east)) =>
+            filterOpt(bbox) { case (studio, BBox(north, south, west, east)) =>
                 // Geographical filter
                 studio.long >= west && studio.long <= east &&
                 studio.lat >= south && studio.lat <= north

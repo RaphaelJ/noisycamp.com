@@ -18,6 +18,7 @@
 package controllers
 
 import javax.inject._
+import scala.concurrent.Future
 import scala.util.Random
 
 import play.api._
@@ -25,6 +26,7 @@ import play.api.mvc._
 import squants.market.Money
 
 import misc.HighlightLocation
+import models.Picture
 
 @Singleton
 class IndexController @Inject() (ccc: CustomControllerCompoments)
@@ -37,7 +39,7 @@ class IndexController @Inject() (ccc: CustomControllerCompoments)
         val locations = Random.shuffle(HighlightLocation.locations).take(N_LOCATIONS)
 
         for {
-            locationPrices <- db.run(locationStartingPrices(locations))
+            locationPrices <- db.run(DBIO.sequence(locations.map(locationStartingPrice _)))
             articlesOpt <- ccc.mediumArticleService.getArticles
         } yield Ok(views.html.index(
             identity=request.identity,
@@ -63,20 +65,41 @@ class IndexController @Inject() (ccc: CustomControllerCompoments)
         Ok(views.html.privacy(identity=request.identity))
     }
 
-    private def locationStartingPrices(locations: Seq[HighlightLocation]):
-        DBIO[Seq[Option[Money]]] = {
+    def location(id: String) = UserAwareAction.async { implicit request =>
+        HighlightLocation.byId.get(id) match {
+            case Some(location) => db.run {
+                for {
+                    startingPrice <- locationStartingPrice(location)
+                    studios <- daos.studio.
+                        search(bbox = Some(location.bbox)).
+                        result
+                    pics <- DBIO.sequence(
+                        studios.map { studio =>
+                            daos.studioPicture.
+                                withStudioPictureIds(studio.id).
+                                take(1).result.
+                                headOption
+                        })
+                } yield Ok(views.html.location(
+                    location,
+                    startingPrice,
+                    studios zip pics,
+                    identity=request.identity))
+            }
+            case None => Future.successful(NotFound(""))
+        }
+    }
 
-        DBIO.sequence(
-            locations.
-                map { location =>
-                    // FIXME: does not take into account studio's currency.
-                    daos.studio.
-                        search(bboxOpt = Some(location.bbox)).
-                        sortBy(_.pricePerHour.asc).
-                        take(1).
-                        result.
-                        headOption.
-                        map(_.map(_.localPricingPolicy.priceMin))
-                })
+    private def locationStartingPrice(location: HighlightLocation):
+        DBIO[Option[Money]] = {
+
+        // FIXME: does not take into account studio's currency.
+        daos.studio.
+            search(bbox = Some(location.bbox)).
+            sortBy(_.pricePerHour.asc).
+            take(1).
+            result.
+            headOption.
+            map(_.map(_.localPricingPolicy.priceMin))
     }
 }

@@ -1,0 +1,141 @@
+@* Noisycamp is a platform for booking music studios.
+ * Copyright (C) 2021  Raphael Javaux <raphael@noisycamp.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *@
+
+@import play.api.Configuration
+
+@import squants.market.Money
+
+@import misc.{ HighlightLocation, URL }
+@import models.{ Picture, Studio }
+
+@(
+    location: HighlightLocation,
+    startingPrice: Option[Money],
+    studios: Seq[(Studio, Option[Picture#Id])],
+    identity: Option[models.Identity])(
+    implicit req: RequestHeader, config: Configuration, flash: Flash)
+
+@head = {
+    <meta
+        name="description"
+        content="Find practice and recording spaces in @location.name with NoisyCamp">
+
+    <link
+        rel="stylesheet"
+        href="@URL.fromCDN(routes.Assets.versioned("stylesheets/location.css"))">
+
+    <meta property="og:site_name" content="Music studios in @location.name">
+    <meta property="og:type" content="website">
+    <meta
+        property="og:url"
+        content="@routes.IndexController.location(location.id).absoluteURL(
+            config.get[Boolean]("noisycamp.forceHttps"))">
+    <meta
+        property="og:image"
+        content="@URL.fromCDN(location.picture.url, absoluteURL = true)">
+}
+
+@studioBlock(studio: Studio, picIdOpt: Option[models.Picture#Id]) = {
+    <div class="panel-section">
+        <div class="grid-x grid-padding-y">
+
+            <div class="cell small-12 panel-picture">
+                <a
+                    href="@controllers.routes.StudiosController.show(studio.URLId)"
+                    target="_blank"
+                    class="text-center">
+                    <reactive-picture
+                        alt="@{studio.name} picture"
+                        @for(picId <- picIdOpt) {
+                            picture-id="@picId.base64"
+                        }
+                        :width="375"
+                        :height="250"
+                        classes="border-radius">
+                    </reactive-picture>
+                </a>
+            </div>
+
+            <div class="cell small-12">
+                <div class="grid-x grid-margin-x">
+                    <div class="cell auto">
+                        <a
+                        href="@controllers.routes.StudiosController.show(studio.URLId)">
+                            <h5 class="text-overflow-ellipsis">
+                                @studio.name<br>
+                                <small class="text-overflow-ellipsis">
+                                    @studio.location.address.city,
+                                    @studio.location.address.country.name
+                                </small>
+                            </h5>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@layout(
+    Seq(f"Rehearsal and recording spaces in ${location.name}") ++
+    startingPrice.
+        map(price => Seq(f"Starting at ${price.currency.symbol}${price.amount} per hour")).
+        getOrElse(Seq.empty),
+    head=head,
+    identity=identity,
+    fullScreen=false) {
+
+    <div class="grid-container">
+        <div class="grid-x grid-margin-x grid-margin-y become-a-host">
+            <div class="cell small-12 text-center">
+                <div class="section-title">
+                    <h1>Music studios in <strong>@location.name</strong></h1>
+
+                    @for(price <- startingPrice) {
+                        <h3>
+                            <small>Rehearsal and recording spaces starting at
+                            <strong>@tags.moneyAmount(price)</strong> per hour</small>
+                        </h3>
+                    }
+                </div>
+            </div>
+
+            @if(!studios.isEmpty) {
+            <div class="cell small-12 large-10 large-offset-1">
+                    <div class="grid-x grid-margin-y grid-margin-x">
+                        @for((studio, picId) <- studios) {
+                            <div class="cell small-12 medium-4 ">
+                                @studioBlock(studio, picId)
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+            <div class="cell small-12">
+                <p class="text-center">
+                    @if(studios.isEmpty) {
+                        We do not know any studio in @location.name.<br>
+                    }
+                    Do you own a music studio in @location.name?
+                    <a href="@controllers.account.studios.routes.IndexController.create">
+                        List it on NoisyCamp now</a>.
+                </p>
+            </div>
+        </div>
+    </div>
+}

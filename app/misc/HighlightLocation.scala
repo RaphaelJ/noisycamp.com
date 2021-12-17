@@ -37,12 +37,7 @@ case class HighlightLocation(
     val picture:        HighlightLocationPicture
     ) {
 
-    def url: Call = {
-        controllers.routes.StudiosController.index.
-            withFragment(
-                f"location.place_name=${name}" +
-                f"&location.bbox=${bbox.north},${bbox.south},${bbox.west},${bbox.east}")
-    }
+    def url: Call = controllers.routes.IndexController.location(id)
 }
 
 object HighlightLocation {
@@ -88,11 +83,13 @@ object HighlightLocation {
                 "https://unsplash.com/@tokeller")),
 
         HighlightLocation(
-            "united-kingdom", "United Kingdom",
+            "united-kingdom", "The United Kingdom",
             BBox(60.9093517989553, 49.802416901086, -8.74974065661991, 1.86276379960989),
             HighlightLocationPicture(
                 controllers.routes.Assets.versioned("images/index/cities/united-kingdom.jpg"),
                 "Marcin Nowak",
                 "https://unsplash.com/@marcin")),
         )
+
+    val byId: Map[String, HighlightLocation] = locations.map(l => l.id -> l).toMap
 }
