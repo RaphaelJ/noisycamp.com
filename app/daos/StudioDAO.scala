@@ -293,36 +293,24 @@ class StudioDAO @Inject()
         Query[StudioTable, Studio, Seq] = {
 
         publishedStudios.
-            filter { studio =>
+            filterOpt(bboxOpt) { case (studio, BBox(north, south, west, east)) =>
                 // Geographical filter
-                val isInBBox = bboxOpt match {
-                    case Some(BBox(north, south, west, east)) => {
-                        studio.long >= west && studio.long <= east &&
-                        studio.lat >= south && studio.lat <= north
-                    }
-                    case None => true: Rep[Boolean]
-                }
-
-                // Is open on date
-                val isOpen = availableOn match {
-                    case Some(date) => {
-                        date.getDayOfWeek match {
-                            case DayOfWeek.MONDAY => studio.mondayIsOpen
-                            case DayOfWeek.TUESDAY => studio.tuesdayIsOpen
-                            case DayOfWeek.WEDNESDAY => studio.wednesdayIsOpen
-                            case DayOfWeek.THURSDAY => studio.thursdayIsOpen
-                            case DayOfWeek.FRIDAY => studio.fridayIsOpen
-                            case DayOfWeek.SATURDAY => studio.saturdayIsOpen
-                            case DayOfWeek.SUNDAY => studio.sundayIsOpen
-                        }
-                    }
-                    case None => true: Rep[Boolean]
-                }
-
+                studio.long >= west && studio.long <= east &&
+                studio.lat >= south && studio.lat <= north
+            }.
+            filterOpt(availableOn) { case (studio, date) =>
                 // FIXME: does not filter out studios that are not availaible on
                 // the selected day.
 
-                isInBBox && isOpen
+                date.getDayOfWeek match {
+                    case DayOfWeek.MONDAY => studio.mondayIsOpen
+                    case DayOfWeek.TUESDAY => studio.tuesdayIsOpen
+                    case DayOfWeek.WEDNESDAY => studio.wednesdayIsOpen
+                    case DayOfWeek.THURSDAY => studio.thursdayIsOpen
+                    case DayOfWeek.FRIDAY => studio.fridayIsOpen
+                    case DayOfWeek.SATURDAY => studio.saturdayIsOpen
+                    case DayOfWeek.SUNDAY => studio.sundayIsOpen
+                }
             }
     }
 }
