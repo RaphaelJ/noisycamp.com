@@ -22,6 +22,8 @@ import javax.inject._
 import play.api._
 import play.api.mvc._
 
+import misc.HighlightLocation
+
 @Singleton
 class SitemapController @Inject() (ccc: CustomControllerCompoments)
     extends CustomBaseController(ccc) {
@@ -41,6 +43,12 @@ class SitemapController @Inject() (ccc: CustomControllerCompoments)
     }
 
     def index = Action.async { implicit request =>
+
+        val locationUrls = HighlightLocation.
+            locations.
+            map { location =>
+                url(location.url, ChangeFreq.Weekly, 0.75)
+            }
 
         for {
             studioUrls <- db.
@@ -68,6 +76,7 @@ class SitemapController @Inject() (ccc: CustomControllerCompoments)
                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                         xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
                     {staticUrls}
+                    {locationUrls}
                     {studioUrls}
                 </urlset>
 

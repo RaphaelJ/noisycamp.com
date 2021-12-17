@@ -22,8 +22,9 @@ package misc
 
 import scala.math
 
-import models.BBox
 import play.api.mvc.Call
+
+import models.BBox
 
 case class HighlightLocationPicture(
     val url:        Call,
