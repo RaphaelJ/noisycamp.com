@@ -106,6 +106,8 @@
                 :csrf-token="csrfToken"
                 :value="value"
                 :errors="errors"
+                :can-onsite-payments="canOnsitePayments"
+                :can-add-fee="canAddFee"
                 :shownSections="shownSections">
             </studio-form>
         </div>
@@ -144,6 +146,9 @@ export default Vue.extend({
         csrfToken: { type: String, required: false },
         value: { type: Object, required: false },
         errors: { type: Object, required: false },
+
+        canOnsitePayments: { type: Boolean, default: false },
+        canAddFee: { type: Boolean, default: false },
     },
     data() {
         return {

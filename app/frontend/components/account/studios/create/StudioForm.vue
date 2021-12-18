@@ -139,6 +139,7 @@
                     name="payment-policy"
                     :value="value['payment-policy']"
                     :errors="errors['payment-policy']"
+                    :can-onsite-payments="canOnsitePayments"
                     :can-cancel-anytime="canCancelAnytime">
                 </payment-policy-input>
 
@@ -244,6 +245,7 @@ export default Vue.extend({
         // and previous navigation buttons.
         isMultiPage: { type: Boolean, required: false, default: false },
 
+        canOnsitePayments: { type: Boolean, default: false },
         canAddFee: { type: Boolean, default: false },
 
         // If defined, will only show the specified sections of the form.

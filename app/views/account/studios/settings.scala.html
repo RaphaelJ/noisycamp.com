@@ -50,6 +50,7 @@
                     csrf-token="@helper.CSRF.getToken.value"
                     :value="@tags.json(formData, htmlEscape = true)"
                     :errors="@tags.json(formErrors, htmlEscape = true)"
+                    :can-onsite-payments="@identity.user.plan.onsitePayments"
                     :can-add-fee="@identity.user.plan.equipmentFee">
                 </studio-form>
 

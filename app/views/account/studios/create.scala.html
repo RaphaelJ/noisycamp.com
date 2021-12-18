@@ -42,7 +42,10 @@
                 csrf-token="@helper.CSRF.getToken.value"
                 :value="@tags.json(FormUtils.dataAsJson(studioForm), htmlEscape = true)"
                 :errors="@tags.json(
-                    FormUtils.errorsAsJson(studioForm)(messagesProvider), htmlEscape = true)">
+                    FormUtils.errorsAsJson(studioForm)(messagesProvider), htmlEscape = true)"
+                :can-onsite-payments="@identity.user.plan.onsitePayments"
+                :can-add-fee="@identity.user.plan.equipmentFee">
+                >
             </studio-create>
         </form>
     </div>

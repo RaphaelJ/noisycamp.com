@@ -56,7 +56,8 @@
                     type="checkbox"
                     :name="fieldName('has-onsite-payment')"
                     v-model="hasOnsitePayment"
-                    value="true">
+                    value="true"
+                    :disabled="!canOnsitePayments">
 
                 <label for="payment-policy-has-onsite-payment">
                     Allow onsite payments
@@ -67,9 +68,22 @@
                 </label>
             </div>
 
-            <p class="help-text">
+            <p
+                v-if="canOnsitePayments"
+                class="help-text" >
                 You will be in charge of collecting the booking payment from the
                 customers that choose this payment method.
+            </p>
+
+            <p
+                v-if="!canOnsitePayments"
+                class="help-text">
+                <a
+                    :href="planUpgradeUrl"
+                    target="_blank">
+                    Upgrade your NoisyCamp account
+                </a>
+                to accept online bookings without requiring an online payment.
             </p>
 
             <slide-down-transition :max-height="100">
@@ -109,11 +123,20 @@ import Vue from "vue";
 import VueInput from '../../../widgets/VueInput';
 import SlideDownTransition from '../../../../transitions/SlideDownTransition.vue';
 
+declare var NC_ROUTES: any;
+
 export default Vue.extend({
     mixins: [VueInput],
     props: {
         value: { type: Object, default() { return {}; } },
+
+        canOnsitePayments: { type: Boolean, default: false },
         canCancelAnytime: { type: Boolean },
+    },
+    computed: {
+        planUpgradeUrl() {
+            return NC_ROUTES.controllers.account.PlansController.index().url;
+        },
     },
     data() {
         let data =  {
