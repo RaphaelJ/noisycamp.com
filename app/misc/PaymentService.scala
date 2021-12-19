@@ -174,6 +174,8 @@ class PaymentService @Inject() (
         require(statement.length <= 22)
         require(!to.stripeAccountId.isEmpty)
 
+        val paymentMethods = Seq("card")
+
         val picUrls = pics.
             take(8).
             map(_.base64).
@@ -203,7 +205,7 @@ class PaymentService @Inject() (
             "cancel_url" -> onCancel.absoluteURL(true),
             "mode" -> "payment",
             "submit_type" -> "book",
-            "payment_method_types" -> Seq("card").asJava,
+            "payment_method_types" -> paymentMethods.asJava,
             "payment_intent_data" -> paymentIntentParams(
                 to, priceBreakdown, description: String, statement: String, captureMethod),
             "line_items" -> items).asJava
@@ -217,6 +219,10 @@ class PaymentService @Inject() (
         implicit request: RequestHeader, config: Configuration): Future[Session] = {
 
         require(plan.prices.isDefined)
+
+        val paymentMethods =
+            Seq("card") ++
+            (if (currency == Currency.EUR) Seq("sepa_debit") else Seq.empty)
 
         val priceId = PaymentService.planPriceId(plan, currency).get
 
@@ -235,7 +241,7 @@ class PaymentService @Inject() (
             "cancel_url" -> onCancel.absoluteURL(true),
 
             "mode" -> "subscription",
-            "payment_method_types" -> Seq("card").asJava,
+            "payment_method_types" -> paymentMethods.asJava,
             "line_items" -> items,
 
             "allow_promotion_codes" -> true.asInstanceOf[AnyRef],
