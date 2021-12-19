@@ -35,7 +35,6 @@ import play.api.Configuration
 import play.api.mvc.{ Call, Request, RequestHeader, Result, Results }
 import play.filters.csrf.CSRF
 import squants.market
-import squants.market.Money
 
 import i18n.{ Country, Currency }
 import models.{ Picture, Plan, Studio, User }
@@ -165,7 +164,7 @@ class PaymentService @Inject() (
             map { _.getUrl }
     }
 
-    /** Initiate a Stripe Checkout transaction. */
+    /** Initiate a Stripe Checkout transaction for a booking. */
     def createSession(
         from: User, to: User, priceBreakdown: PriceBreakdown,
         title: String, description: String, statement: String, pics: Seq[Picture#Id],
@@ -208,6 +207,45 @@ class PaymentService @Inject() (
             "payment_intent_data" -> paymentIntentParams(
                 to, priceBreakdown, description: String, statement: String, captureMethod),
             "line_items" -> items).asJava
+
+        Future { blocking { Session.create(params, requestOptions) } }
+    }
+
+    def createSubscriptionSession(
+        customer: User, plan: Plan.Val, currency: market.Currency, trialDays: Option[Int],
+        onSuccess: Call, onCancel: Call)(
+        implicit request: RequestHeader, config: Configuration): Future[Session] = {
+
+        require(plan.prices.isDefined)
+
+        val priceId = PaymentService.planPriceId(plan, currency).get
+
+        val items: java.util.List[java.util.Map[String, AnyRef]] = Seq(
+                Map(
+                    "price"     -> priceId,
+                    "quantity"  -> 1.asInstanceOf[AnyRef]
+                ).asJava,
+            ).asJava
+
+        val params: java.util.Map[String, Object] = Map(
+
+            "customer_email" -> customer.email,
+
+            "success_url" -> onSuccess.absoluteURL(true),
+            "cancel_url" -> onCancel.absoluteURL(true),
+
+            "mode" -> "subscription",
+            "payment_method_types" -> Seq("card").asJava,
+            "line_items" -> items,
+
+            "allow_promotion_codes" -> true.asInstanceOf[AnyRef],
+
+            "subscription_data" ->
+                (trialDays match {
+                    case Some(days) => Map("trial_period_days" -> 14.asInstanceOf[AnyRef])
+                    case None => Map.empty
+                }).asJava,
+        ).asJava
 
         Future { blocking { Session.create(params, requestOptions) } }
     }
@@ -354,7 +392,7 @@ object PaymentService {
 
     /** Constructs a map with two amount and currency code string values that
      * represents the provided amount as a Stripe API value. */
-    def asStripeAmount(value: Money): (Long, String) = {
+    def asStripeAmount(value: market.Money): (Long, String) = {
         val decimals = value.currency.formatDecimals
         val rounded = value.rounded(decimals, RoundingMode.DOWN)
         val amount = (rounded.amount * BigDecimal(10).pow(decimals)).toLong

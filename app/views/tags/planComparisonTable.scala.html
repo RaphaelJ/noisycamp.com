@@ -71,7 +71,9 @@
                                 Current plan
                             </button>
                         } else if(price.isDefined) {
-                            <a class="button small secondary expanded" href="#">
+                            <a
+                                class="button small secondary expanded"
+                                href="@controllers.account.routes.PlansController.upgrade(plan.code)">
                                 Try now
                             </a>
                             <div class="help-text">14 days free trial</div>

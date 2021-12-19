@@ -177,7 +177,7 @@ object Country extends Enumeration {
             "VI" -> "Virgin Islands"), namePrefix = Some("The"))
 
     /** Maps country ISO codes to `Country` instances. */
-    val byCode: Map[String, Val] = values.
+    lazy val byCode: Map[String, Val] = values.
         toSeq.
         map(_.asInstanceOf[Val]).
         map { v => v.isoCode -> v }.

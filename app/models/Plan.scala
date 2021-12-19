@@ -37,6 +37,7 @@ object PayoutSchedule extends Enumeration {
 object Plan extends Enumeration {
 
     case class Val(
+        val code:               String,
         val name:               String,
 
         val transactionRate:    BigDecimal,
@@ -66,6 +67,7 @@ object Plan extends Enumeration {
     implicit def valueToVal(v: Value): Val = v.asInstanceOf[Val]
 
     val Free = Val(
+        "free",
         "Free",
         transactionRate = BigDecimal(0.09),
         studioLimit = Some(1),
@@ -80,6 +82,7 @@ object Plan extends Enumeration {
         prices = None)
 
     val Standard = Val(
+        "standard",
         "Standard",
         transactionRate = BigDecimal(0.06),
         studioLimit = Some(4),
@@ -115,6 +118,7 @@ object Plan extends Enumeration {
         )))
 
     val Premium = Val(
+        "premium",
         "Premium",
         transactionRate = BigDecimal(0.04),
         studioLimit = None,
@@ -148,4 +152,6 @@ object Plan extends Enumeration {
             NZD -> NZD(115),
             SGD -> SGD(99),
         )))
+
+    lazy val byCode = values.map(p => p.code -> p).toMap
 }

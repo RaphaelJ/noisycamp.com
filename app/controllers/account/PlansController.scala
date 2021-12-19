@@ -21,10 +21,12 @@ import javax.inject._
 
 import scala.concurrent.Future
 
+import com.stripe.Stripe
 import play.api.mvc._
 
 import _root_.controllers.{ CustomBaseController, CustomControllerCompoments }
 import forms.account.PremiumForm
+import models.Plan
 
 @Singleton
 class PlansController @Inject() (ccc: CustomControllerCompoments)
@@ -36,6 +38,28 @@ class PlansController @Inject() (ccc: CustomControllerCompoments)
         for {
             currency <- clientCurrency
         } yield Ok(views.html.account.plans.index(request.identity, currency))
+    }
+
+    def upgrade(planCode: String) = SecuredAction.async { implicit request =>
+        val user = request.identity.user
+
+        val currency = clientCurrency
+
+        Plan.byCode.get(planCode) match {
+            case Some(plan) => {
+                for {
+                    currency <- clientCurrency
+                    session <- paymentService.createSubscriptionSession(
+                        user, plan, currency, Some(14),
+                        routes.IndexController.index, routes.IndexController.index)
+                } yield Ok(play.twirl.api.Html(f"<a href='${session.getUrl}'>Checkout</a>"))
+            }
+            case None => {
+                Future.successful(
+                    Redirect(routes.PlansController.index).
+                        flashing("error" -> "This plan does not exist"))
+            }
+        }
     }
 
     def upgradeSubmit = SecuredAction.async { implicit request =>

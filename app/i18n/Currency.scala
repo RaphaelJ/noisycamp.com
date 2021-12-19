@@ -49,7 +49,7 @@ object Currency {
     def SEK = market.SEK
     def USD = market.USD
 
-    val currencies: Set[market.Currency] = Set(
+    lazy val currencies: Set[market.Currency] = Set(
         // EU
         BGN, HRK, CZK, DKK, EUR, HUF, PLN, GBP, RON, SEK,
 

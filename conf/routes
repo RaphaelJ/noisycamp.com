@@ -91,6 +91,7 @@ GET     /account/payouts/setup-complete controllers.account.PayoutsController.se
 # User upgrade
 
 GET     /account/plans                  controllers.account.PlansController.index
+GET     /account/plans/upgrade/:code    controllers.account.PlansController.upgrade(code: String)
 POST    /account/premium/upgrade        controllers.account.PlansController.upgradeSubmit
 
 # Studios
