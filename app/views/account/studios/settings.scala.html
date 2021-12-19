@@ -55,7 +55,10 @@
                 </studio-form>
 
                 <div class="cell text-right">
-                    <button type="submit" class="button primary large small-only-expanded">
+                    <button
+                        type="submit"
+                        id="save-settings-button"
+                        class="button primary large small-only-expanded">
                         Save settings
                     </button>
                 </div>
@@ -63,4 +66,15 @@
             }
         </form>
     </div>
+
+    <fixed-bottom-box
+        :class="{ 'show-for-small-only': true }"
+        hide-if-visible="#save-settings-button">
+
+        <button
+            class="button primary large expanded no-margin"
+            onclick="$('#save-settings-button').click()">
+            Save settings
+        </button>
+    </fixed-bottom-box>
 }
