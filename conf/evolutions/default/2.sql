@@ -100,11 +100,32 @@ alter table "studio_booking"
     drop column stripe_payment_intent_id,
     drop column stripe_refund_id;
 
+create table "user_subscriptions" (
+    id                          serial primary key,
+    created_at                  timestamp not null,
+
+    user_id                     integer not null references "user"(id),
+
+    stripe_customer_id          varchar not null unique,
+    stripe_subscription_id      varchar not null unique,
+
+    status                      varchar not null
+        check (status in (
+            'trialing', 'active', 'incomplete', 'incomplete_expired', 'past_due', 'cancelled',
+            'unpaid'))
+);
+
 alter table "user"
+    add column subscription_id  integer references "user_subscriptions"(id)
+        check (subscription_id is null or (plan in ('standard', 'premium'))),
+
     drop constraint user_plan_check,
     add constraint user_plan_check check (plan in ('free', 'standard', 'premium'));
 
 # --- !Downs
+
+alter table "user" drop column "subscription_id";
+drop table "user_subscriptions";
 
 drop table "studio_manual_booking";
 drop table "studio_customer_booking";

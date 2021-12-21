@@ -24,7 +24,7 @@ import javax.inject.Inject
 import play.api.db.slick.{ DatabaseConfigProvider, HasDatabaseConfigProvider }
 import slick.jdbc.JdbcProfile
 
-import models.{ Plan, User }
+import models.{ Plan, User, UserSubscription }
 
 class UserDAO @Inject()
     (protected val dbConfigProvider: DatabaseConfigProvider)
@@ -43,12 +43,13 @@ class UserDAO @Inject()
         def avatarId            = column[Option[Long]]("avatar_id")
 
         def plan                = column[Plan.Val]("plan")
+        def subscriptionId      = column[Option[UserSubscription#Id]]("subscription_id")
 
         def stripeAccountId     = column[Option[String]]("stripe_account_id")
         def stripeCompleted     = column[Boolean]("stripe_completed")
 
-        def * = (id, createdAt, firstName, lastName, email, avatarId, plan, stripeAccountId,
-            stripeCompleted).mapTo[User]
+        def * = (id, createdAt, firstName, lastName, email, avatarId, plan, subscriptionId,
+            stripeAccountId, stripeCompleted).mapTo[User]
     }
 
     lazy val query = TableQuery[UserTable]

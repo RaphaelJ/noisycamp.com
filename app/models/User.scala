@@ -29,6 +29,7 @@ case class User(
     avatarId:           Option[Long],
 
     plan:               Plan.Val = Plan.Free,
+    subscriptionId:     Option[UserSubscription#Id] = None,
 
     stripeAccountId:    Option[String] = None,
     stripeCompleted:    Boolean = false) {
