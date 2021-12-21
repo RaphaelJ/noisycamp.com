@@ -20,7 +20,7 @@
 
 <div class="cell small-12">
     <div class="panel-section">
-        <div class="grid-x">
+        <div class="grid-x grid-margin-x grid-margin-y">
             <div class="cell small-12 medium-auto">
                 <h5>
                     <strong>
@@ -30,12 +30,19 @@
                         @title
                     </strong>
                 </h5>
-                <p>@text</p>
+
+                @text
             </div>
 
             @if(actions != Html("")) {
                 <div class="cell small-12 medium-shrink text-center">
-                    @actions
+                    <div class="grid-y" style="height: 100%;">
+                        <div class="cell auto"></div>
+                        <div class="cell shrink">
+                            @actions
+                        </div>
+                        <div class="cell auto"></div>
+                    </div>
                 </div>
             }
         </div>
