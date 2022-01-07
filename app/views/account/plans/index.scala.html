@@ -22,21 +22,21 @@
 @import i18n.Country
 @import misc.URL
 
-@(identity: Option[models.Identity], currency: Currency)(
+@(identity: Option[models.Identity], currency: Currency, hasFreeTrial: Boolean)(
 implicit req: RequestHeader, config: Configuration, flash: Flash)
 
 @layout(
-    Seq("Upgrade and experience the best of NoisyCamp"),
+    Seq("Upgrade your NoisyCamp account"),
     identity=identity, fullScreen=false) {
 
     <div class="grid-container">
         <div class="grid-x grid-padding-y">
             <div class="cell small-12 section-title">
-                <h1>Upgrade your NoisyCamp account</h1>
+                <h1><strong>Upgrade</strong> your NoisyCamp account</h1>
             </div>
 
             <div class="cell small-12 ">
-                @tags.planComparisonTable(identity.map(_.user), currency)
+                @tags.planComparisonTable(identity.map(_.user), currency, hasFreeTrial)
             </div>
         </div>
     </div>

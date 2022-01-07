@@ -54,6 +54,12 @@ object UserSubscriptionStatus extends Enumeration {
             case _ => throw new IllegalArgumentException(f"Invalid Stripe status ('${value}')")
         }
     }
+
+    def activeValues = Set(Trialing, Active, PastDue)
+
+    def endedValues = Set(IncompleteExpired, Cancelled, Unpaid)
+
+    def completedValues = Set(Cancelled, Unpaid)
 }
 
 case class UserSubscription(
@@ -73,25 +79,16 @@ case class UserSubscription(
     type Id = Long
 
     /** The subscription is currently valid and the resources for it can be allocated. */
-    def isActive = {
-        Seq(
-            UserSubscriptionStatus.Trialing,
-            UserSubscriptionStatus.Active,
-            UserSubscriptionStatus.PastDue,
-            ).
-            map(Some(_)).
-            contains(status)
-    }
+    def isActive = isStatusIn(UserSubscriptionStatus.activeValues)
 
-    /** The subscription is either cancelled or expired due to incomplete payment. */
-    def isEnded = {
-        Seq(
-            UserSubscriptionStatus.IncompleteExpired,
-            UserSubscriptionStatus.Cancelled,
-            UserSubscriptionStatus.Unpaid,
-            ).
-            map(Some(_)).
-            contains(status)
+    /** The subscription is either cancelled, expired or finished because of an incomplete payment.
+     */
+    def isEnded = isStatusIn(UserSubscriptionStatus.endedValues)
+
+    /** The subscription was active at some point but is now ended. */
+    def isCompleted = isStatusIn(UserSubscriptionStatus.completedValues)
+
+    private def isStatusIn(statusSet: Set[UserSubscriptionStatus.Value]) = {
+        status.map(statusSet.contains _).getOrElse(false)
     }
 }
-

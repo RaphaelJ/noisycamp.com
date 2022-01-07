@@ -19,7 +19,7 @@
 
 @import models.{ Plan, User }
 
-@(user: Option[User], currency: Currency)
+@(user: Option[User], currency: Currency, hasFreeTrial: Boolean)
 
 @featureValue(feature: (Plan.Val => String)) = {
     @for(plan <- Plan.values) {
@@ -91,13 +91,13 @@
                                     <a
                                         class="button small secondary expanded"
                                         href="@controllers.account.routes.PlansController.upgrade(plan.code)">
-                                        @if(price.isDefined) {
+                                        @if(price.isDefined && hasFreeTrial) {
                                             Try now
                                         } else {
                                             Select plan
                                         }
                                     </a>
-                                    @if(price.isDefined) {
+                                    @if(price.isDefined && hasFreeTrial) {
                                         <div class="help-text">14 days free trial</div>
                                     }
                                 }

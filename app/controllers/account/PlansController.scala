@@ -21,11 +21,13 @@ import javax.inject._
 
 import scala.concurrent.Future
 
+import com.mohiva.play.silhouette.api.actions.UserAwareRequest
 import com.stripe.Stripe
 import com.stripe.model.{ checkout, Subscription }
 import play.api.mvc._
 import squants.market.Currency
 
+import auth.DefaultEnv
 import _root_.controllers.{ CustomBaseController, CustomControllerCompoments }
 import daos.CustomColumnTypes
 import forms.account.PremiumForm
@@ -38,9 +40,12 @@ class PlansController @Inject() (ccc: CustomControllerCompoments)
     import profile.api._
 
     def index = UserAwareAction.async { implicit request =>
+        val userOpt = request.identity.map(_.user)
+
         for {
             currency <- clientCurrency
-        } yield Ok(views.html.account.plans.index(request.identity, currency))
+            hasFreeTrial <- db.run(hasFreeTrial(userOpt))
+        } yield Ok(views.html.account.plans.index(request.identity, currency, hasFreeTrial))
     }
 
     /** Initiates an upgrade transaction for the given Plan. */
@@ -53,6 +58,7 @@ class PlansController @Inject() (ccc: CustomControllerCompoments)
                     for {
                         user <- cancelNextSubscription(user)
                         currency <- DBIO.from(clientCurrency)
+                        hasFreeTrial <- hasFreeTrial(Some(user))
 
                         result <-
                             if (plan.isFree) {
@@ -125,6 +131,25 @@ class PlansController @Inject() (ccc: CustomControllerCompoments)
                 println(subscription)
                 Ok("")
             }
+    }
+
+    /** Returns `true` if the user is eligible to a free trial. */
+    def hasFreeTrial(userOpt: Option[User]): DBIO[Boolean] = {
+        userOpt match {
+            case Some(user) => {
+                val status =
+                    UserSubscriptionStatus.activeValues ++
+                    UserSubscriptionStatus.completedValues
+
+                daos.userSubscription.query.
+                    filter(_.userId === user.id).
+                    filter(_.status inSet status).
+                    exists.
+                    result.
+                    map(!_)
+            }
+            case None => DBIO.successful(true)
+        }
     }
 
     /** Sets the current user plan, using the optional provided subscription.
@@ -244,6 +269,8 @@ class PlansController @Inject() (ccc: CustomControllerCompoments)
         implicit request: RequestHeader):
         DBIO[(UserSubscription, checkout.Session)] = {
 
+        require(!plan.isFree)
+
         val onSuccessEscaped = routes.PlansController.paymentSuccess("{CHECKOUT_SESSION_ID}")
         // De-escape { and } characters
         val onSuccess = onSuccessEscaped.copy(
@@ -257,10 +284,13 @@ class PlansController @Inject() (ccc: CustomControllerCompoments)
         val userQuery = daos.user.query.filter(_.id === user.id)
 
         for {
+            hasFreeTrial <- hasFreeTrial(Some(user))
+            trial = if (hasFreeTrial) Some(14) else None
+
             _ <- cancelNextSubscription(user)
 
             session <- DBIO.from(paymentService.createSubscriptionSession(
-                user, plan, currency, None,
+                user, plan, currency, trial,
                 onSuccess, routes.PlansController.index, metadata))
 
             subscription <- daos.userSubscription.

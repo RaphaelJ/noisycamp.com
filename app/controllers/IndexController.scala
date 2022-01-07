@@ -25,11 +25,14 @@ import play.api._
 import play.api.mvc._
 import squants.market.Money
 
+import account.PlansController
 import misc.HighlightLocation
 import models.Picture
 
 @Singleton
-class IndexController @Inject() (ccc: CustomControllerCompoments)
+class IndexController @Inject() (
+    ccc: CustomControllerCompoments,
+    plansController: PlansController)
     extends CustomBaseController(ccc) {
 
     import profile.api._
@@ -48,9 +51,12 @@ class IndexController @Inject() (ccc: CustomControllerCompoments)
     }
 
     def becomeAHost = UserAwareAction.async { implicit request =>
+        val userOpt = request.identity.map(_.user)
+
         for {
             currency <- clientCurrency
-        } yield Ok(views.html.becomeAHost(identity=request.identity, currency=currency))
+            hasFreeTrial <- db.run(plansController.hasFreeTrial(userOpt))
+        } yield Ok(views.html.becomeAHost(identity=request.identity, currency, hasFreeTrial))
     }
 
     def about = UserAwareAction { implicit request =>
