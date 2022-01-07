@@ -100,32 +100,44 @@ alter table "studio_booking"
     drop column stripe_payment_intent_id,
     drop column stripe_refund_id;
 
-create table "user_subscriptions" (
+create domain plan_type as varchar
+    check (value in ('free', 'standard', 'premium'));
+
+create table "user_subscription" (
     id                          serial primary key,
     created_at                  timestamp not null,
 
     user_id                     integer not null references "user"(id),
 
-    stripe_customer_id          varchar not null unique,
-    stripe_subscription_id      varchar not null unique,
+    plan                        plan_type not null,
 
-    status                      varchar not null
+    stripe_checkout_session_id  varchar not null unique,
+    stripe_customer_id          varchar unique,
+    stripe_subscription_id      varchar unique,
+
+    status                      varchar
         check (status in (
             'trialing', 'active', 'incomplete', 'incomplete_expired', 'past_due', 'cancelled',
             'unpaid'))
 );
 
 alter table "user"
-    add column subscription_id  integer references "user_subscriptions"(id)
+    add column subscription_id  integer references "user_subscription"(id)
         check (subscription_id is null or (plan in ('standard', 'premium'))),
 
+    -- Defined if the user is currently upgrading its plan.
+    add column next_subscription_id  integer references "user_subscription"(id),
+
     drop constraint user_plan_check,
-    add constraint user_plan_check check (plan in ('free', 'standard', 'premium'));
+    alter column plan type plan_type;
 
 # --- !Downs
 
-alter table "user" drop column "subscription_id";
-drop table "user_subscriptions";
+alter table "user"
+    drop column "subscription_id",
+    drop column "next_subscription_id";
+
+drop table "user_subscription";
 
 drop table "studio_manual_booking";
 drop table "studio_customer_booking";

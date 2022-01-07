@@ -27,8 +27,7 @@ import scala.util.{ Success, Failure }
 import akka.util.ByteString
 import com.mohiva.play.silhouette.api.actions.SecuredRequest
 import com.sendgrid.Response
-import com.stripe.model.checkout
-import com.stripe.model.PaymentIntent
+import com.stripe.model.{ checkout, PaymentIntent }
 import play.api._
 import play.api.data.Form
 import play.api.mvc._
@@ -151,20 +150,20 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
             url=onSuccessEscaped.url.replaceAll("%7B", "{").replaceAll("%7D", "}"))
 
         val beginsAt = bookingTimes.beginsAt
-        val onCancel = routes.BookingController.show(
-            studioId = studio.id/*,
-            beginsAt = beginsAt.toString,
-            duration = bookingTimes.duration.getSeconds.toInt,
-            equipments = equipments.map(_.id)*/)
+        val onCancel = _root_.controllers.routes.StudiosController.show(studio.URLId)
 
         val transactionFeeRate = Some(owner.plan.transactionRate)
         val priceBreakdown = PriceBreakdown(
             studio, bookingTimes.repeatOnce, equipments, transactionFeeRate)
 
+        val metadata = Map(
+            "charge_type" -> "booking",
+        )
+
         for {
             session <- DBIO.from(paymentService.createSession(
                 user, owner, priceBreakdown, title, description, statement, pictures,
-                StripePaymentCaptureMethod.Manual, onSuccess, onCancel))
+                StripePaymentCaptureMethod.Manual, onSuccess, onCancel, metadata))
 
             sessionId = session.getId
             intentId = session.getPaymentIntent
@@ -238,11 +237,7 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
         }
 
         def onPaymentFailure(booking: StudioBooking) = {
-            Redirect(routes.BookingController.show(
-                booking.studioId/*,
-                booking.times.beginsAt.toString,
-                booking.times.duration.getSeconds.toInt,
-                Seq.empty*/)).
+            Redirect(_root_.controllers.routes.StudiosController.show(booking.studioId.toString)).
                 flashing("error" ->
                     ("A problem occured during the processing of your payment. Please try again " +
                     "later."))
@@ -276,33 +271,11 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
             }
     }
 
-    /** Receives a valid payment webhook notification from Stripe. */
-    def stripeCompleted = Action(parse.byteString).async {
-        implicit request: Request[ByteString] =>
-
-        paymentService.withWebhookEvent(request, { event =>
-            if (event.getType == "checkout.session.completed") {
-                val session = event.getDataObjectDeserializer.getObject.
-                    get.
-                    asInstanceOf[checkout.Session]
-
-                val onPaymentSuccess = (_: StudioBooking) => Ok("payment-success")
-                val onPaymentFailure = (_: StudioBooking) => Ok("payment-failure")
-                val onBookingNotFound = NotFound("booking-not-found")
-
-                handlePaymentCompleted(
-                    Left(session), onPaymentSuccess, onPaymentFailure, onBookingNotFound)
-            } else {
-                Future.successful(NotFound("event-type-unknown"))
-            }
-        })
-    }
-
     /** Processes a finalized Stripe Checkout session, and tries to capture the charge.
      *
      * Runs and returns one of the provided result generator function, depending on the validaty
      * of the payment. */
-    private def handlePaymentCompleted(
+    def handlePaymentCompleted(
         sessionOrId: /* Session or Session ID */ Either[checkout.Session, String],
         onPaymentSuccess: StudioBooking => Result,
         onPaymentFailure: StudioBooking => Result,
@@ -348,9 +321,9 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
                         val newBooking = booking.copy(status = newStatus)
 
                         for {
-                            _ <- daos.studioBooking.query.
-                                filter(_._1.id === newBooking.id).
-                                map(_._1.status).
+                            _ <- daos.studioBooking.bookingQuery.
+                                filter(_.id === newBooking.id).
+                                map(_.status).
                                 update(newStatus)
 
                             customer <- daos.user.query.

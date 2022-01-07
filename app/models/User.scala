@@ -30,6 +30,7 @@ case class User(
 
     plan:               Plan.Val = Plan.Free,
     subscriptionId:     Option[UserSubscription#Id] = None,
+    nextSubscriptionId: Option[UserSubscription#Id] = None,
 
     stripeAccountId:    Option[String] = None,
     stripeCompleted:    Boolean = false) {
@@ -48,4 +49,7 @@ case class User(
 
     /** True if can do accept online payments. */
     def isPayoutSetup: Boolean = stripeAccountId.isDefined && stripeCompleted
+
+    /** True if the user plan is currently being upgraded. */
+    def isUpgrading: Boolean = nextSubscriptionId.isDefined
 }

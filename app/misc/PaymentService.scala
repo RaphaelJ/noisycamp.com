@@ -28,7 +28,7 @@ import com.stripe.exception.StripeException
 import com.stripe.model.checkout.Session
 import com.stripe.model.oauth.TokenResponse
 import com.stripe.model.{
-    Account, AccountLink, Event, File, LoginLink, PaymentIntent, Price, Refund }
+    Account, AccountLink, Event, File, LoginLink, PaymentIntent, Price, Refund, Subscription }
 import com.stripe.net.{ OAuth, RequestOptions, Webhook }
 import com.stripe.param.{ FileCreateParams, RefundCreateParams }
 import play.api.Configuration
@@ -82,7 +82,7 @@ class PaymentService @Inject() (
 
         for {
             icon <- fileUpload(
-                "public/images/app-icon-180.png", FileCreateParams.Purpose.BUSINESS_ICON)
+                "public/images/app-icon-180.png", FileCreateParams.Purpose.BUSINESS_LOGO)
 
             params: java.util.Map[String, Object] = (Map(
                 "country" -> country.isoCode,
@@ -100,9 +100,9 @@ class PaymentService @Inject() (
                 ).asJava,
                 "settings" -> Map(
                     "branding" -> Map(
-                        "icon" -> icon.getId,
-                        "primary_color" -> "#2c210f".asInstanceOf[Object],
-                        "secondary_color" -> "#b37216"
+                        "logo" -> icon.getId,
+                        "primary_color" -> "#110903".asInstanceOf[Object],
+                        "secondary_color" -> "#db7233"
                     ).asJava,
                     "payouts" -> Map(
                         "schedule" -> Map(
@@ -168,11 +168,14 @@ class PaymentService @Inject() (
     def createSession(
         from: User, to: User, priceBreakdown: PriceBreakdown,
         title: String, description: String, statement: String, pics: Seq[Picture#Id],
-        captureMethod: StripePaymentCaptureMethod.Value, onSuccess: Call, onCancel: Call)(
+        captureMethod: StripePaymentCaptureMethod.Value, onSuccess: Call, onCancel: Call,
+        metadata: Map[String, String])(
         implicit request: RequestHeader, config: Configuration): Future[Session] = {
 
         require(statement.length <= 22)
         require(!to.stripeAccountId.isEmpty)
+
+        val reference = f"booking_"
 
         val paymentMethods = Seq("card")
 
@@ -198,7 +201,6 @@ class PaymentService @Inject() (
             ).asJava).asJava
 
         val params: java.util.Map[String, Object] = Map(
-            "client_reference_id" -> from.id.toString,
             "customer_email" -> from.email,
 
             "success_url" -> onSuccess.absoluteURL(true),
@@ -208,14 +210,16 @@ class PaymentService @Inject() (
             "payment_method_types" -> paymentMethods.asJava,
             "payment_intent_data" -> paymentIntentParams(
                 to, priceBreakdown, description: String, statement: String, captureMethod),
-            "line_items" -> items).asJava
+            "line_items" -> items,
+            "metadata" -> metadata.asJava,
+        ).asJava
 
         Future { blocking { Session.create(params, requestOptions) } }
     }
 
     def createSubscriptionSession(
         customer: User, plan: Plan.Val, currency: market.Currency, trialDays: Option[Int],
-        onSuccess: Call, onCancel: Call)(
+        onSuccess: Call, onCancel: Call, metadata: Map[String, String])(
         implicit request: RequestHeader, config: Configuration): Future[Session] = {
 
         require(plan.prices.isDefined)
@@ -234,7 +238,6 @@ class PaymentService @Inject() (
             ).asJava
 
         val params: java.util.Map[String, Object] = Map(
-
             "customer_email" -> customer.email,
 
             "success_url" -> onSuccess.absoluteURL(true),
@@ -251,6 +254,8 @@ class PaymentService @Inject() (
                     case Some(days) => Map("trial_period_days" -> 14.asInstanceOf[AnyRef])
                     case None => Map.empty
                 }).asJava,
+
+            "metadata" -> metadata.asJava,
         ).asJava
 
         Future { blocking { Session.create(params, requestOptions) } }
@@ -266,7 +271,16 @@ class PaymentService @Inject() (
         description: String, statement: String, captureMethod: StripePaymentCaptureMethod.Value)(
         implicit request: RequestHeader, config: Configuration): Future[PaymentIntent] = {
 
-        val params = paymentIntentParams(to, priceBreakdown, description, statement, captureMethod)
+        val amount = priceBreakdown.total
+        val (stripeAmount, stripeCurrency) = PaymentService.asStripeAmount(amount)
+
+        val extraParams = Map(
+            "amount" -> stripeAmount.asInstanceOf[AnyRef],
+            "currency" -> stripeCurrency,
+        )
+
+        val params = paymentIntentParams(
+            to, priceBreakdown, description, statement, captureMethod, extraParams)
         Future { blocking { PaymentIntent.create(params, requestOptions) } }
     }
 
@@ -304,7 +318,7 @@ class PaymentService @Inject() (
 
     /** Refunds a captured payment. */
     def refundPaymentIntent(intentId: String, refundApplicationFee: Boolean = true)(
-        implicit config: Configuration) :
+        implicit config: Configuration):
         Future[Refund] = {
 
         val params: java.util.Map[String, Object] = Map(
@@ -313,6 +327,19 @@ class PaymentService @Inject() (
             "refund_application_fee" -> refundApplicationFee.asInstanceOf[AnyRef]).asJava
 
         Future { blocking { Refund.create(params, requestOptions) } }
+    }
+
+    def retrieveSubscription(subscriptionId: String)(implicit config: Configuration):
+        Future[Subscription] = {
+
+        Future { blocking { Subscription.retrieve(subscriptionId, requestOptions) } }
+    }
+
+    def cancelSubscription(subscription: Subscription)(implicit config: Configuration):
+        Future[Unit] = {
+
+        val params = java.util.Map.of[String, Object]()
+        Future { blocking { subscription.cancel(params, requestOptions) } }
     }
 
     def retrievePrice(plan: Plan.Value, currency: market.Currency)(implicit config: Configuration):
@@ -357,21 +384,21 @@ class PaymentService @Inject() (
         to: User,
         priceBreakdown: PriceBreakdown,
         description: String, statement: String,
-        captureMethod: StripePaymentCaptureMethod.Value
+        captureMethod: StripePaymentCaptureMethod.Value,
+        extraParams: Map[String, AnyRef] = Map.empty,
     )(implicit config: Configuration): java.util.Map[String, Object] = {
 
         require(statement.length <= 22)
         require(!to.stripeAccountId.isEmpty)
 
-        val amount = priceBreakdown.total
-        val (stripeAmount, stripeCurrency) = PaymentService.asStripeAmount(amount)
+        val currency = priceBreakdown.pricePerHour.currency
 
         val transferAmount: Long = PaymentService.asStripeAmount(priceBreakdown.netTotal)._1
 
         // Uses the connected account as the processing account if the currency does not match the
         // platform's.
         val onBehalfOf =
-            if (platformCurrency == amount.currency) { Map.empty }
+            if (platformCurrency == currency) { Map.empty }
             else { Map("on_behalf_of" -> to.stripeAccountId.get) }
 
         (Map(
@@ -383,13 +410,11 @@ class PaymentService @Inject() (
                 }.asInstanceOf[AnyRef],
                 "statement_descriptor" -> statement,
                 "description" -> description,
-                "amount" -> stripeAmount.asInstanceOf[AnyRef],
-                "currency" -> stripeCurrency,
                 "transfer_data" -> Map(
                     "destination" -> to.stripeAccountId.get,
                     "amount" -> transferAmount.asInstanceOf[AnyRef]).asJava
             ) ++
-            onBehalfOf
+            onBehalfOf ++ extraParams
         ).asJava
     }
 }

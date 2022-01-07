@@ -45,180 +45,201 @@
             <!-- @plan.name -->
             @feature(plan) match {
                 case Some(value) => { @{(value * 100).toIntExact} % }
-                case None => { — }
+                case None => { — }
             }
         </td>
     }
 }
 
-<div class="plan-comparison-container">
-    <table class="plan-comparison-table">
-        <thead>
-            <tr>
-                <th class="feature-title"></th>
+@isUpgrading = @{ user.map(_.isUpgrading).getOrElse(false) }
 
-                @for(plan <- Plan.values) {
-                    <th class="plan-name">
-                    @defining(plan.prices.map(_(currency))) { price =>
-                        <h3>@plan.name</h3>
-                        <h4>
-                            <strong>@tags.moneyAmount(price.getOrElse(currency(0)))</strong>
-                            <small>/month</small>
-                        </h4>
+<div class="grid-y grid-margin-y">
+    @if(isUpgrading) {
+        @tags.callout("Your account is currently being upgraded", Some("fi-clock")){
+            We are processing your payment. Your NoisyCamp account will be upgraded soon.
+        }{
+            <a
+                href="@controllers.account.routes.PlansController.upgradeAbort"
+                class="button secondary small-only-expanded"
+                style="margin-bottom: 0">
+                Cancel upgrade
+            </a>
+        }
+    }
 
-                        @if(plan == user.map(_.plan).getOrElse(false)) {
-                            <button class="button small secondary expanded" disabled>
-                                Current plan
-                            </button>
-                        } else if(price.isDefined) {
-                            <a
-                                class="button small secondary expanded"
-                                href="@controllers.account.routes.PlansController.upgrade(plan.code)">
-                                Try now
-                            </a>
-                            <div class="help-text">14 days free trial</div>
-                        } else {
-                            <a class="button small secondary expanded" href="#">
-                                Add your studio
-                            </a>
+    <div class="cell">
+        <div class="plan-comparison-container">
+            <table class="plan-comparison-table">
+                <thead>
+                    <tr>
+                        <th class="feature-title"></th>
+
+                        @for(plan <- Plan.values) {
+                            <th class="plan-name">
+                            @defining(plan.prices.map(_(currency))) { price =>
+                                <h3>@plan.name</h3>
+                                <h4>
+                                    <strong>@tags.moneyAmount(price.getOrElse(currency(0)))</strong>
+                                    <small>/month</small>
+                                </h4>
+
+                                @if(plan == user.map(_.plan).getOrElse(false)) {
+                                    <button class="button small secondary expanded" disabled>
+                                        Current plan
+                                    </button>
+                                } else if(!isUpgrading) {
+                                    <a
+                                        class="button small secondary expanded"
+                                        href="@controllers.account.routes.PlansController.upgrade(plan.code)">
+                                        @if(price.isDefined) {
+                                            Try now
+                                        } else {
+                                            Select plan
+                                        }
+                                    </a>
+                                    @if(price.isDefined) {
+                                        <div class="help-text">14 days free trial</div>
+                                    }
+                                }
+                            }
+                            </th>
                         }
-                    }
-                    </th>
-                }
-            </tr>
-        </thead>
+                    </tr>
+                </thead>
 
-        <tbody>
-            <tr>
-                <th>
-                    <h5>Max. number of studio rooms</h5>
-                    <small>Manage multiple studio spaces from our studio interface.</small>
-                </th>
+                <tbody>
+                    <tr>
+                        <th>
+                            <h5>Max. number of studio rooms</h5>
+                            <small>Manage multiple studio spaces from our studio interface.</small>
+                        </th>
 
-                @featureValue(plan =>
-                    plan.studioLimit match {
-                        case Some(limit) => limit.toString
-                        case None => "∞"
-                    }
-                )
-            </tr>
-            <tr class="subfeature">
-                <th>
-                    <h6>
-                        Marketing & social
-                        <span class="hide-for-small-only">media</span> optimisation
-                    </h6>
-                    <small>We increase your studio exposure by <strong>regularly creating posts and
-                    ads</strong> on social medias.</small>
-                </th>
+                        @featureValue(plan =>
+                            plan.studioLimit match {
+                                case Some(limit) => limit.toString
+                                case None => "∞"
+                            }
+                        )
+                    </tr>
+                    <tr class="subfeature">
+                        <th>
+                            <h6>
+                                Marketing & social
+                                <span class="hide-for-small-only">media</span> optimisation
+                            </h6>
+                            <small>We increase your studio exposure by <strong>regularly creating posts and
+                            ads</strong> on social medias.</small>
+                        </th>
 
-                @featureCheckbox(_.socialAds)
-            </tr>
+                        @featureCheckbox(_.socialAds)
+                    </tr>
 
-            <tr>
-                <th>
-                    <h5>Live booking calendar</h5>
-                </th>
+                    <tr>
+                        <th>
+                            <h5>Live booking calendar</h5>
+                        </th>
 
-                @featureCheckbox(_ => true)
-            </tr>
-            <tr class="subfeature">
-                <th>
-                    <h6>Manual &amp; recurring bookings</h6>
-                    <small>Add your own reservations and events to the calendar.</small>
-                </th>
+                        @featureCheckbox(_ => true)
+                    </tr>
+                    <tr class="subfeature">
+                        <th>
+                            <h6>Manual &amp; recurring bookings</h6>
+                            <small>Add your own reservations and events to the calendar.</small>
+                        </th>
 
-                @featureCheckbox(_.manualBookings)
-            </tr>
-            <tr class="subfeature">
-                <th>
-                    <h6>External calendar sync.</h6>
-                    <small>Integrates with Google Calendar, Apple Calendar, Outlook.</small>
-                </th>
+                        @featureCheckbox(_.manualBookings)
+                    </tr>
+                    <tr class="subfeature">
+                        <th>
+                            <h6>External calendar sync.</h6>
+                            <small>Integrates with Google Calendar, Apple Calendar, Outlook.</small>
+                        </th>
 
-                @featureCheckbox(_.calendarSync)
-            </tr>
-            <tr class="subfeature">
-                <th>
-                    <h6>SMS reminders</h6>
-                    <small>Automatically send SMS reminders to your customers before their
-                    sessions.</small>
-                </th>
+                        @featureCheckbox(_.calendarSync)
+                    </tr>
+                    <tr class="subfeature">
+                        <th>
+                            <h6>SMS reminders</h6>
+                            <small>Automatically send SMS reminders to your customers before their
+                            sessions.</small>
+                        </th>
 
-                @featureCheckbox(_.smsReminders)
-            </tr>
+                        @featureCheckbox(_.smsReminders)
+                    </tr>
 
-            <tr>
-                <th>
-                    <h5>Instruments & equipments</h5>
-                    <small>List your studio gears and services.</small>
-                </th>
+                    <tr>
+                        <th>
+                            <h5>Instruments & equipments</h5>
+                            <small>List your studio gears and services.</small>
+                        </th>
 
-                @featureCheckbox(_ => true)
-            </tr>
-            <tr class="subfeature">
-                <th>
-                    <h6>Charge extra fees</h6>
-                    <small>Charge extra fees for instrument and equipment rental.</small>
-                </th>
+                        @featureCheckbox(_ => true)
+                    </tr>
+                    <tr class="subfeature">
+                        <th>
+                            <h6>Charge extra fees</h6>
+                            <small>Charge extra fees for instrument and equipment rental.</small>
+                        </th>
 
-                @featureCheckbox(_.equipmentFee)
-            </tr>
+                        @featureCheckbox(_.equipmentFee)
+                    </tr>
 
-            <tr>
-                <th>
-                    <h5>On site payments</h5>
-                    <small>Accepts bookings <strong>without</strong> requiring an online
-                    transaction.</small>
-                </th>
+                    <tr>
+                        <th>
+                            <h5>On site payments</h5>
+                            <small>Accepts bookings <strong>without</strong> requiring an online
+                            transaction.</small>
+                        </th>
 
-                @featureCheckbox(_.onsitePayments)
-            </tr>
-            <tr class="subfeature">
-                <th>
-                    <h6>Processing fee</h6>
-                    <small>We <strong>do not charge</strong> any fee on these bookings.</small>
-                </th>
+                        @featureCheckbox(_.onsitePayments)
+                    </tr>
+                    <tr class="subfeature">
+                        <th>
+                            <h6>Processing fee</h6>
+                            <small>We <strong>do not charge</strong> any fee on these bookings.</small>
+                        </th>
 
-                @featurePercentage(plan => if (plan.onsitePayments) Some(0) else None)
-            </tr>
+                        @featurePercentage(plan => if (plan.onsitePayments) Some(0) else None)
+                    </tr>
 
-            <tr>
-                <th>
-                    <h5>Online payments</h5>
-                    <small>Securely charge the customer's <strong>credit card</strong> at the time of
-                    booking.</small>
-                </th>
+                    <tr>
+                        <th>
+                            <h5>Online payments</h5>
+                            <small>Securely charge the customer's <strong>credit card</strong> at the time of
+                            booking.</small>
+                        </th>
 
-                @featureCheckbox(_ => true)
-            </tr>
-            <tr class="subfeature">
-                <th><h6>Transaction fee</h6></th>
+                        @featureCheckbox(_ => true)
+                    </tr>
+                    <tr class="subfeature">
+                        <th><h6>Transaction fee</h6></th>
 
-                @featurePercentage(plan => Some(plan.transactionRate))
-            </tr>
-            <tr class="subfeature">
-                <th><h6>Payout schedule</h6></th>
+                        @featurePercentage(plan => Some(plan.transactionRate))
+                    </tr>
+                    <tr class="subfeature">
+                        <th><h6>Payout schedule</h6></th>
 
-                @featureValue(_.payoutSchedule.name)
-            </tr>
+                        @featureValue(_.payoutSchedule.name)
+                    </tr>
 
-            <tr>
-                <th>
-                    <h5>Website integration</h5>
-                    <small>Book your studio directly from your website with a simple copy &amp; paste
-                    code.</small>
-                </th>
+                    <tr>
+                        <th>
+                            <h5>Website integration</h5>
+                            <small>Book your studio directly from your website with a simple copy &amp; paste
+                            code.</small>
+                        </th>
 
-                @featureCheckbox(_.websiteIntegration)
-            </tr>
-        </tbody>
-    </table>
+                        @featureCheckbox(_.websiteIntegration)
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="cell text-center">
+        <i class="fi-heart"></i>&nbsp;
+        Are you a nonprofit organization?<br class="show-for-small-only">
+        <a href="mailto:hello@@noisycamp.com">Reach us now</a> and obtain a
+        preferential rate on our <i>Standard</i> and <i>Premium</i> plans.
+    </div>
 </div>
-
-<p class="text-center">
-    <i class="fi-heart"></i>&nbsp;
-    Are you a nonprofit organization?<br class="show-for-small-only">
-    <a href="mailto:hello@@noisycamp.com">Reach us now</a> and obtain a
-    preferential rate on our <i>Standard</i> and <i>Premium</i> plans.
-</p>

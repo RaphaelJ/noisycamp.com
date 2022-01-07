@@ -24,12 +24,16 @@ class DAOs @Inject () (
   val user: UserDAO,
   val userLoginInfo: UserLoginInfoDAO,
 
+  val userSubscription: UserSubscriptionDAO,
+
   val studio: StudioDAO,
   val studioPicture: StudioPictureDAO,
   val studioEquipment: StudioEquipmentDAO,
 
   val studioBooking: StudioBookingDAO,
   val studioBookingEquipment: StudioBookingEquipmentDAO,
+
+  val equipment: EquipmentDAO,
 
   val payout: PayoutDAO,
 

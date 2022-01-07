@@ -1,5 +1,3 @@
-package daos
-
 /* Noisycamp is a platform for booking music studios.
  * Copyright (C) 2021  Raphael Javaux <raphael@noisycamp.com>
  *
@@ -26,7 +24,7 @@ import javax.inject.Inject
 import play.api.db.slick.{ DatabaseConfigProvider, HasDatabaseConfigProvider }
 import slick.jdbc.JdbcProfile
 
-import models.{ User, UserSubscription }
+import models.{ Plan, User, UserSubscription, UserSubscriptionStatus }
 
 class UserSubscriptionDAO @Inject()
     (protected val dbConfigProvider: DatabaseConfigProvider)
@@ -38,17 +36,27 @@ class UserSubscriptionDAO @Inject()
     final class UserSubscriptionTable(tag: Tag)
         extends Table[UserSubscription](tag, "user_subscription") {
 
-        def id                      = column[UserSubscription#Id]("id", O.PrimaryKey)
+        def id                      = column[UserSubscription#Id]("id", O.PrimaryKey, O.AutoInc)
         def createdAt               = column[Instant]("created_at")
 
         def userId                  = column[User#Id]("user_id")
 
-        def stripeCustomerId        = column[String]("stripe_customer_id")
-        def stripeSubscriptionId    = column[String]("stripe_subscription_id")
+        def plan                    = column[Plan.Val]("plan")
 
-        def * = (id, createdAt, userId, stripeCustomerId, stripeSubscriptionId).
-            mapTo[UserSubscription]
+        def stripeCheckoutSessionId = column[String]("stripe_checkout_session_id")
+        def stripeCustomerId        = column[Option[String]]("stripe_customer_id")
+        def stripeSubscriptionId    = column[Option[String]]("stripe_subscription_id")
+
+        def status                  = column[Option[UserSubscriptionStatus.Value]]("status")
+
+        def * = (
+            id, createdAt, userId, plan,
+            stripeCheckoutSessionId, stripeCustomerId, stripeSubscriptionId,
+            status).mapTo[UserSubscription]
     }
 
     lazy val query = TableQuery[UserSubscriptionTable]
+
+    lazy val insert = query returning
+        query.map(_.id) into ((subscription, id) => subscription.copy(id=id))
 }

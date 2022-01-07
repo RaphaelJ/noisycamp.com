@@ -76,9 +76,9 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
         withStudioCustomerBookingTransaction(id) { (studio, booking, owner, equips) =>
             if (booking.customerCanCancel(studio, now)) {
                 for {
-                    _ <- daos.studioBooking.query.
-                        filter(_._1.id === booking.id).
-                        map { case (b, _, _) => (b.status, b.cancelledAt) }.
+                    _ <- daos.studioBooking.bookingQuery.
+                        filter(_.id === booking.id).
+                        map { b => (b.status, b.cancelledAt) }.
                         update((StudioBookingStatus.CancelledByCustomer, Some(now)))
                     refundedBooking <- refundBooking(studio, booking, now)
                     _ <- DBIO.from(emailService.sendBookingCancelledByCustomer(

@@ -27,7 +27,9 @@ import squants.market
 
 import i18n.{ Country, Currency }
 import misc.EquipmentCategory
-import models.{ BookingRepeatFrequency, PictureId, Plan, StudioBookingStatus, StudioBookingType }
+import models.{
+    BookingRepeatFrequency, PictureId, Plan, StudioBookingStatus, StudioBookingType,
+    UserSubscriptionStatus }
 
 trait CustomColumnTypes { this: HasDatabaseConfigProvider[JdbcProfile] =>
 
@@ -96,9 +98,18 @@ trait CustomColumnTypes { this: HasDatabaseConfigProvider[JdbcProfile] =>
         StudioBookingStatus.CancelledByCustomer -> "cancelled-by-customer",
         StudioBookingStatus.CancelledByOwner    -> "cancelled-by-owner"))
 
-    implicit val studioBookingValueType = enumeration[StudioBookingType.Value](Seq(
+    implicit val studioBookingTypeValueType = enumeration[StudioBookingType.Value](Seq(
         StudioBookingType.Customer  -> "customer",
         StudioBookingType.Manual    -> "manual"))
+
+    implicit val userSubscriptionStatusValueType = enumeration[UserSubscriptionStatus.Value](Seq(
+        UserSubscriptionStatus.Trialing             -> "trialing",
+        UserSubscriptionStatus.Active               -> "active",
+        UserSubscriptionStatus.Incomplete           -> "incomplete",
+        UserSubscriptionStatus.IncompleteExpired    -> "incomplete_expired",
+        UserSubscriptionStatus.PastDue              -> "past_due",
+        UserSubscriptionStatus.Cancelled            -> "cancelled",
+        UserSubscriptionStatus.Unpaid               -> "unpaid"))
 
     implicit val zoneIdType = MappedColumnType.base[ZoneId, String](_.getId, ZoneId.of)
 }

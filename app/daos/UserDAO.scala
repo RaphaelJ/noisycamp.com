@@ -44,11 +44,13 @@ class UserDAO @Inject()
 
         def plan                = column[Plan.Val]("plan")
         def subscriptionId      = column[Option[UserSubscription#Id]]("subscription_id")
+        def nextSubscriptionId  = column[Option[UserSubscription#Id]]("next_subscription_id")
 
         def stripeAccountId     = column[Option[String]]("stripe_account_id")
         def stripeCompleted     = column[Boolean]("stripe_completed")
 
-        def * = (id, createdAt, firstName, lastName, email, avatarId, plan, subscriptionId,
+        def * = (id, createdAt, firstName, lastName, email, avatarId,
+            plan, subscriptionId, nextSubscriptionId,
             stripeAccountId, stripeCompleted).mapTo[User]
     }
 

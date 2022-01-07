@@ -385,10 +385,10 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
                         for {
                             refund <- DBIO.from(paymentService.refundPaymentIntent(intentId))
 
-                            _ <- daos.studioBooking.query.
-                                filter(_._1.id === booking.id).
-                                map(_._2.map(_.stripeRefundId)).
-                                update(Some(Some(refund.getId)))
+                            _ <- daos.studioBooking.customerBookingQuery.
+                                filter(_.id === booking.id).
+                                map(_.stripeRefundId).
+                                update(Some(refund.getId))
                         } yield customerBooking.copy(
                             payment=payment.copy(stripeRefundId = Some(refund.getId)))
                     }

@@ -88,11 +88,12 @@ GET     /account/payouts/setup          controllers.account.PayoutsController.se
 POST    /account/payouts/setup          controllers.account.PayoutsController.setup
 GET     /account/payouts/setup-complete controllers.account.PayoutsController.setupComplete
 
-# User upgrade
+# User plans
 
 GET     /account/plans                  controllers.account.PlansController.index
+GET     /account/plans/upgrade/abort    controllers.account.PlansController.upgradeAbort
 GET     /account/plans/upgrade/:code    controllers.account.PlansController.upgrade(code: String)
-POST    /account/premium/upgrade        controllers.account.PlansController.upgradeSubmit
+GET     /account/plans/payment/success  controllers.account.PlansController.paymentSuccess(code: String)
 
 # Studios
 
@@ -110,9 +111,6 @@ POST    /studios/:studioId/booking      controllers.studios.BookingController.su
 
 GET     /studios/:studioId/booking/payment/:sessionId/success controllers.studios.BookingController.paymentSuccess(studioId: Long, sessionId: String)
 
-POST    /webhooks/stripe/session-completed controllers.studios.BookingController.stripeCompleted
-
-
 # Pictures
 
 POST    /pictures                       controllers.PictureController.upload
@@ -122,3 +120,6 @@ GET     /pictures/:id                   controllers.PictureController.view(id: S
 GET     /pictures/:id/bound/:size       controllers.PictureController.bound(id: String, size: String)
 GET     /pictures/:id/cover/:size       controllers.PictureController.cover(id: String, size: String)
 GET     /pictures/:id/max/:size         controllers.PictureController.max(id: String, size: String)
+
+# Stripe
+POST    /webhooks/stripe                controllers.StripeController.webhook

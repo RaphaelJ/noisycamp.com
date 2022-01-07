@@ -62,6 +62,8 @@ object Plan extends Enumeration {
         require(
             prices.isEmpty || prices.get.forall { case (curr, money) => curr == money.currency },
             "Plan price should match its associated currency.")
+
+        def isFree = prices.isEmpty
     }
 
     implicit def valueToVal(v: Value): Val = v.asInstanceOf[Val]
@@ -154,4 +156,8 @@ object Plan extends Enumeration {
         )))
 
     lazy val byCode = values.map(p => p.code -> p).toMap
+
+    def default = Free
+
+    require(default.isFree)
 }

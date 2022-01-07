@@ -98,7 +98,9 @@
                         </ul>
 
                         <hr>
+                    }
 
+                    @if(identity.isAHost || identity.user.isUpgrading) {
                         <ul class="vertical menu">
                             <li>
                                 <a href="@controllers.account.routes.PlansController.index">
