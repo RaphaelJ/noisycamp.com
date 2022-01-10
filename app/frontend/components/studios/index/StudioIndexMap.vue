@@ -115,9 +115,9 @@ export default Vue.extend({
                 let elem = $('<div></div>')
                     .addClass('studio-marker')
                     .append(price.$el)
-                    .mouseover(() => this.$emit('studio-hover', index))
-                    .mouseout(() => this.$emit('studio-hover', null))
-                    .click(() => this.$emit('studio-click', index));
+                    .on('mouseover', () => this.$emit('studio-hover', index))
+                    .on('mouseout', () => this.$emit('studio-hover', null))
+                    .on('click', () => this.$emit('studio-click', index));
 
                 this.studiosElems.push(elem);
 

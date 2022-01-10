@@ -17,42 +17,33 @@
 -->
 
 <template>
-    <a
-        :href="studio.url"
-        target="_blank"
-        class="studio panel-section"
-        :class="{ 'highlighted': highlighted, }"
-        @mouseover="$emit('mouseover')"
-        @mouseout="$emit('mouseout')">
+    <div class="grid-x grid-padding-x grid-padding-y">
+        <div class="cell small-12 panel-picture">
+            <reactive-picture
+                :alt="studio.name + ' picture'"
+                :picture-id="studio.picture"
+                :width="600"
+                :height="400"
+                classes="border-radius">
+            </reactive-picture>
+        </div>
 
-        <div class="grid-x grid-padding-x grid-padding-y">
-            <div class="cell small-12 panel-picture">
-                <reactive-picture
-                    :alt="studio.name + ' picture'"
-                    :picture-id="studio.picture"
-                    :width="600"
-                    :height="400"
-                    classes="border-radius">
-                </reactive-picture>
-            </div>
+        <div class="cell small-12">
+            <div class="grid-y info">
+                <h5 class="cell shrink text-overflow-ellipsis title">
+                    {{ studio.name }}<br>
+                    <small class="location text-overflow-ellipsis">{{ location }}</small>
+                </h5>
 
-            <div class="cell small-12">
-                <div class="grid-y info">
-                    <h5 class="cell shrink text-overflow-ellipsis title">
-                        {{ studio.name }}<br>
-                        <small class="location text-overflow-ellipsis">{{ location }}</small>
-                    </h5>
-
-                    <h5 class="cell shrink pricing">
-                        <small v-if="pricing[1]">Starting at </small>
-                        <money-amount :value="pricing[0]">
-                        </money-amount>
-                        <small>per hour</small>
-                    </h5>
-                </div>
+                <h5 class="cell shrink pricing">
+                    <small v-if="pricing[1]">Starting at </small>
+                    <money-amount :value="pricing[0]">
+                    </money-amount>
+                    <small>per hour</small>
+                </h5>
             </div>
         </div>
-    </a>
+    </div>
 </template>
 
 <script lang="ts">
@@ -71,8 +62,6 @@ export default Vue.extend({
         studio: { type: Object, required: true },
 
         bookingDate: { type: String, required: false, default: null },
-
-        highlighted: { type: Boolean, required: false, default: false },
     },
     computed: {
         location(): string {
@@ -91,11 +80,4 @@ export default Vue.extend({
 </script>
 
 <style>
-.studio {
-    display: block;
-}
-
-.studio.highlighted {
-    box-shadow: 0 0 0 2px var(--accent-color);
-}
 </style>

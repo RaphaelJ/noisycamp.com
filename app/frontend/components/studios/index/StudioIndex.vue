@@ -58,7 +58,6 @@
 
 <script lang="ts">
 import axios from 'axios';
-import * as mapboxgl from 'mapbox-gl';
 import Vue from "vue";
 
 declare var NC_ROUTES: any;
@@ -217,6 +216,8 @@ export default Vue.extend({
 
         onMapStudioClick(studioIdx) {
             this.$refs.listing.studioScroll(studioIdx);
+            this.$refs.listing.studioClick(studioIdx);
+
         },
 
         onMapViewChange(bbox) {

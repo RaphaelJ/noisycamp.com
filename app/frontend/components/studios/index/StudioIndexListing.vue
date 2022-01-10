@@ -18,7 +18,10 @@
 -->
 
 <template>
-    <div class="grid-x grid-padding-x grid-padding-y">
+    <div
+        class="grid-x grid-padding-x grid-padding-y"
+        ref="container">
+
         <div
             v-if="searchIsProcessing"
             class="cell small-12 text-center">
@@ -39,15 +42,35 @@
             :key="studio.id"
             class="cell small-12 large-6">
 
-            <studios-index-listing-item
-                v-if="!searchIsProcessing"
-                :studio="studio"
-                :booking-date="bookingDate"
-                :highlighted="highlightedStudio == index"
+            <a
+                :href="studio.url"
+                :ref="'studio-' + index + '-link'"
+                target="_blank"
+                class="studio panel-section hide-for-small-only"
+                :class="{ 'highlighted': highlightedStudio == index, }"
+                @mouseover="$emit('mouseover')"
+                @mouseout="$emit('mouseout')">
 
-                @mouseover="$emit('studio-hover', index)"
-                @mouseout="$emit('studio-hover', null)">
-            </studios-index-listing-item>
+                <studios-index-listing-item
+                    v-if="!searchIsProcessing"
+                    :studio="studio"
+                    :booking-date="bookingDate">
+                </studios-index-listing-item>
+            </a>
+
+            <a
+                :href="studio.url"
+                class="studio panel-section show-for-small-only"
+                :class="{ 'highlighted': highlightedStudio == index, }"
+                @mouseover="$emit('mouseover')"
+                @mouseout="$emit('mouseout')">
+
+                <studios-index-listing-item
+                    v-if="!searchIsProcessing"
+                    :studio="studio"
+                    :booking-date="bookingDate">
+                </studios-index-listing-item>
+            </a>
         </div>
     </div>
 </template>
@@ -81,18 +104,24 @@ export default Vue.extend({
 
         // Makes the given studio more visible. Reset studio highlighting if
         // studioIdx is `null`.
-        setStudioHighlight(studioIdx) {
+        setStudioHighlight(studioIdx: number) {
             this.highlightedStudio = studioIdx;
         },
 
         // Scrolls to the given studio index.
-        studioScroll(studioIdx) {
-            let container = $(this.$refs['listing']).parent();
+        studioScroll(studioIdx: number) {
+            let container = $(this.$refs['container']).parent();
             let elem = this.$refs['studio-' + studioIdx][0];
 
             container.animate({
                 scrollTop: elem.offsetTop - container[0].offsetTop
             }, 500);
+        },
+
+        // Simulates a click on the studio's item
+        studioClick(studioIdx: number) {
+            let elem = this.$refs['studio-' + studioIdx + '-link'][0];
+            elem.click();
         },
     },
     components: { StudiosIndexListingItem },
@@ -104,5 +133,13 @@ export default Vue.extend({
     margin-top: 1.5rem;
 
     text-align: center;
+}
+
+.studio {
+    display: block;
+}
+
+.studio.highlighted {
+    box-shadow: 0 0 0 2px var(--accent-color);
 }
 </style>
