@@ -64,6 +64,7 @@
 </template>
 
 <script lang="ts">
+import * as moment from 'moment';
 import Vue, { PropOptions } from "vue";
 
 import { fromCDN } from '../../../misc/URL';
@@ -80,8 +81,8 @@ export default Vue.extend({
     props: {
         equipments: <PropOptions<Object[]>>{ type: Array, required: true },
 
-        // The duration of the session, in seconds.
-        sessionDuration: { type: Number, required: true },
+        // The duration of the session, as a ISO 8601 duration string.
+        sessionDuration: { type: String, required: true },
 
         value: <PropOptions<Object[]>>{ type: Array, required: true },
     },
@@ -99,7 +100,9 @@ export default Vue.extend({
         };
     },
     computed: {
-
+        mSessionDuration(): moment.Duration {
+            return moment.duration(this.sessionDuration);
+        },
     },
     methods: {
         equipmentCategoryIcon(equipment) {
@@ -125,7 +128,7 @@ export default Vue.extend({
             var price = asCurrency(equipment['price']['value']);
 
             if (equipment['price']['price-type'] == 'per-hour') {
-                price = price.multiply(this.sessionDuration).divide(3600);
+                price = price.multiply(this.mSessionDuration.asHours());
             }
 
             return price;

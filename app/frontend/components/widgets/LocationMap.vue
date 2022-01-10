@@ -51,7 +51,7 @@ export default Vue.extend({
         this.map.addControl(new mapboxgl.NavigationControl());
 
         new mapboxgl.Marker({
-            color: '#b37216',
+            color: 'var(--accent-color)',
             draggable: false,
         })
             .setLngLat(center)

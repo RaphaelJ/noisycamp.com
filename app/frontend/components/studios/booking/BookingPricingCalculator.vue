@@ -119,6 +119,10 @@ export default Vue.extend({
         }
     },
     computed: {
+        mDuration(): moment.Duration {
+            return moment.duration(this.bookingTimes['duration']);
+        },
+
         // Returns a JavaScript object with three `regular`, `evening` and
         // `weekend` durations in seconds.
         pricingBreakdown() {
@@ -146,7 +150,7 @@ export default Vue.extend({
 
             // Computes the durations for the 3 pricing policies.
 
-            let durationSecs = moment.duration(this.bookingTimes['duration']).asSeconds();
+            let durationSecs = this.mDuration.asSeconds();
 
             let durations = { };
 
@@ -231,7 +235,7 @@ export default Vue.extend({
                     var price = asCurrency(e['price']['value']);
 
                     if (e['price']['price-type'] == 'per-hour') {
-                        price = price.multiply(this.bookingTimes.duration).divide(3600);
+                        price = price.multiply(this.mDuration.asHours());
                     }
 
                     if (sum) {
