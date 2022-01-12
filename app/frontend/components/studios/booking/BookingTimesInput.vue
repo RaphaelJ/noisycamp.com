@@ -39,6 +39,10 @@
                 <span v-if="errors['begins-at']" class="error">
                     {{ errors['begins-at'] }}
                 </span>
+
+                <span v-if="isClosed" class="error">
+                    This space is closed on that day.
+                </span>
             </label>
         </div>
 
@@ -56,13 +60,9 @@
 
                 <select
                     v-model="time"
-                    :disabled="!date"
+                    :disabled="!date || isClosed"
                     @change="valueChanged()"
                     required>
-                    <option v-if="isClosed" value="" disabled>
-                        Closed
-                    </option>
-
                     <option
                         v-for="time in startingTimes"
                         :value="time.value"
