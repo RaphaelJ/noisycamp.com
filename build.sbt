@@ -72,7 +72,7 @@ libraryDependencies ++= Seq(
 
     "com.sksamuel.scrimage" % "scrimage-core" % "4.0.12",
 
-    "com.stripe" % "stripe-java" % "20.79.0",
+    "com.stripe" % "stripe-java" % "20.94.0",
 
     "com.typesafe.play" %% "play-slick" % "4.0.2",
 

@@ -39,6 +39,10 @@ class PlansController @Inject() (ccc: CustomControllerCompoments)
 
     import profile.api._
 
+    //
+    // Endpoints
+    //
+
     def index = UserAwareAction.async { implicit request =>
         val userOpt = request.identity.map(_.user)
 
@@ -122,16 +126,39 @@ class PlansController @Inject() (ccc: CustomControllerCompoments)
         }
     }
 
-    def handlePaymentCompleted(session: checkout.Session): Future[Result] = {
+    //
+    // Webhooks events
+    //
 
-        paymentService.
-            retrieveSubscription(session.getSubscription).
-            map { subscription =>
-                println(session)
-                println(subscription)
-                Ok("")
-            }
+    def handleCheckoutSessionCompleted(session: checkout.Session): Future[Result] = {
+        for {
+            stripeSubscription <- paymentService.retrieveSubscription(session.getSubscription)
+            result <- handleSubscriptionUpdated(stripeSubscription)
+        } yield result
     }
+
+    def handleSubscriptionUpdated(stripeSubscription: Subscription): Future[Result] = {
+        db.run({
+            for {
+                subscriptionOpt <- daos.userSubscription.query.
+                    filter(_.stripeSubscriptionId === stripeSubscription.getId()).
+                    result.
+                    headOption
+
+                result <- subscriptionOpt match {
+                    case Some(subscription) => {
+                        updateFromSubscription(subscription, stripeSubscription).
+                            map { _ => Ok("subscription-updated") }
+                    }
+                    case None => DBIO.successful(NotFound("subscription-not-found"))
+                }
+            } yield result
+        }.transactionally)
+    }
+
+    //
+    // Utilities
+    //
 
     /** Returns `true` if the user is eligible to a free trial. */
     def hasFreeTrial(userOpt: Option[User]): DBIO[Boolean] = {
@@ -154,7 +181,7 @@ class PlansController @Inject() (ccc: CustomControllerCompoments)
 
     /** Sets the current user plan, using the optional provided subscription.
      *
-     * Cancels any ongoing subscription, and removed the next subscription value if it matches the
+     * Cancels any ongoing subscription, and remove the next subscription value if it matches the
      * provided subscription.
      */
     def setUserPlan(user: User, planOrSubscription: Either[Plan.Val, UserSubscription]):

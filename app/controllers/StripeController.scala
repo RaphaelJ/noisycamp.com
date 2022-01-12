@@ -21,7 +21,7 @@ import javax.inject._
 import scala.concurrent.Future
 
 import akka.util.ByteString
-import com.stripe.model.{ checkout, Event }
+import com.stripe.model.{ checkout, Event, Subscription }
 import play.api.mvc._
 
 import controllers.account.PlansController
@@ -44,18 +44,20 @@ class StripeController @Inject() (
         implicit request: Request[ByteString] =>
 
         paymentService.withWebhookEvent(request, { event =>
+
+            println(event.getType)
             event.getType match {
-                case "checkout.session.completed" => handleCheckoutSessionCompleted(event)
-                case "customer.subscription.created" => handleSubscriptionCreated(event)
-                case "customer.subscription.deleted" => handleSubscriptionDeleted(event)
-                case "customer.subscription.updated" => handleSubscriptionUpdated(event)
-                case "customer.subscription.trial_will_end" => handleSubscriptionTrialWillEnd(event)
+                case "checkout.session.completed" => checkoutSessionCompleted(event)
+                case "customer.subscription.created" => subscriptionUpdated(event)
+                case "customer.subscription.deleted" => subscriptionUpdated(event)
+                case "customer.subscription.updated" => subscriptionUpdated(event)
+                case "customer.subscription.trial_will_end" => subscriptionUpdated(event)
                 case _ => Future.successful(NotFound("event-type-unknown"))
             }
         })
     }
 
-    private def handleCheckoutSessionCompleted(event: Event)(implicit request: RequestHeader):
+    private def checkoutSessionCompleted(event: Event)(implicit request: RequestHeader):
         Future[Result] = {
 
         val session = event.getDataObjectDeserializer.getObject.
@@ -70,31 +72,23 @@ class StripeController @Inject() (
                 val onPaymentFailure = (_: StudioBooking) => Ok("payment-failure")
                 val onBookingNotFound = NotFound("booking-not-found")
 
-                bookingController.handlePaymentCompleted(
-                    Left(session), onPaymentSuccess, onPaymentFailure, onBookingNotFound)
+                bookingController.handleCheckoutSessionCompleted(
+                    session, onPaymentSuccess, onPaymentFailure, onBookingNotFound)
             }
-            case "plan" => plansController.handlePaymentCompleted(session)
+            case "plan" => plansController.handleCheckoutSessionCompleted(session)
             case _ => Future.successful(BadRequest("charge-type-unknown"))
         }
     }
 
-    private def handleSubscriptionCreated(event: Event)(implicit request: RequestHeader):
+    private def subscriptionUpdated(event: Event)(implicit request: RequestHeader):
         Future[Result] = {
-        Future.successful(Ok(""))
-    }
 
-    private def handleSubscriptionDeleted(event: Event)(implicit request: RequestHeader):
-        Future[Result] = {
-        Future.successful(Ok(""))
-    }
+        val subscription = event.getDataObjectDeserializer.getObject.
+            get.
+            asInstanceOf[Subscription]
 
-    private def handleSubscriptionUpdated(event: Event)(implicit request: RequestHeader):
-        Future[Result] = {
-        Future.successful(Ok(""))
-    }
+        println(subscription)
 
-    private def handleSubscriptionTrialWillEnd(event: Event)(implicit request: RequestHeader):
-        Future[Result] = {
-        Future.successful(Ok(""))
+        plansController.handleSubscriptionUpdated(subscription)
     }
 }

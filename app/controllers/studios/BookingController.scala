@@ -258,8 +258,13 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
                         case StudioBookingStatus.PaymentProcessing => {
                             // It seems like we didn't receive the webhook notification from Stripe.
                             // Complete the payment here.
-                            handlePaymentCompleted(Right(sessionId), onPaymentSuccess,
-                                onPaymentFailure, onBookingNotFound)
+                            paymentService.retrieveSession(sessionId).
+                                flatMap { session =>
+                                    handleCheckoutSessionCompleted(
+                                        session,
+                                        onPaymentSuccess, onPaymentFailure, onBookingNotFound)
+                                }
+
                         }
                         case StudioBookingStatus.PaymentFailure => {
                             Future.successful(onPaymentFailure(booking))
@@ -275,8 +280,8 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
      *
      * Runs and returns one of the provided result generator function, depending on the validaty
      * of the payment. */
-    def handlePaymentCompleted(
-        sessionOrId: /* Session or Session ID */ Either[checkout.Session, String],
+    def handleCheckoutSessionCompleted(
+        session: checkout.Session,
         onPaymentSuccess: StudioBooking => Result,
         onPaymentFailure: StudioBooking => Result,
         onBookingNotFound: Result)(
@@ -355,11 +360,6 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
         }
 
         for {
-            session <- sessionOrId match {
-                case Left(session) => Future.successful(session)
-                case Right(sessionId) => paymentService.retrieveSession(sessionId)
-            }
-
             intent <- paymentService.retrievePaymentIntent(session.getPaymentIntent)
 
             res <- db.run({
