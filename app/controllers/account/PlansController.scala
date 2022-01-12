@@ -68,13 +68,15 @@ class PlansController @Inject() (ccc: CustomControllerCompoments)
                             if (plan.isFree) {
                                 for {
                                     _ <- setDefaultUserPlan(user)
-                                } yield Ok("New plan OK")
+                                } yield Redirect(routes.PlansController.index).
+                                    flashing(
+                                        "success" -> "Your plan has been successfully upgraded.")
                             } else {
                                 createSubscription(user, plan, currency).
                                     map { case (_, session) =>
-                                        Ok(play.twirl.api.Html(
-                                            f"<pre>${session.getRawJsonObject.toString}</pre>" +
-                                            f"<a href='${session.getUrl}'>Checkout</a>"))
+                                        Ok(views.html.stripeCheckoutRedirect(
+                                            identity = Some(request.identity),
+                                            session))
                                     }
                             }
                     } yield result
@@ -131,7 +133,8 @@ class PlansController @Inject() (ccc: CustomControllerCompoments)
                         result.
                         headOption
 
-                    result <- handleOptSubscriptionUpdate(subscriptionOpt, stripeSubscription)
+                    result <- handleOptSubscriptionUpdate(
+                        subscriptionOpt, stripeSubscription)
                 } yield result
             }.transactionally)
         } yield result
@@ -141,11 +144,12 @@ class PlansController @Inject() (ccc: CustomControllerCompoments)
         db.run({
             for {
                 subscriptionOpt <- daos.userSubscription.query.
-                    filter(_.stripeSubscriptionId === stripeSubscription.getId()).
+                    filter(_.stripeSubscriptionId === stripeSubscription.getId).
                     result.
                     headOption
 
-                result <- handleOptSubscriptionUpdate(subscriptionOpt, stripeSubscription)
+                result <- handleOptSubscriptionUpdate(
+                    subscriptionOpt, stripeSubscription)
             } yield result
         }.transactionally)
     }

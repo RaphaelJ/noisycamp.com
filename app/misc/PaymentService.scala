@@ -336,7 +336,7 @@ class PaymentService @Inject() (
     }
 
     def cancelSubscription(subscription: Subscription)(implicit config: Configuration):
-        Future[Unit] = {
+        Future[Subscription] = {
 
         val params = java.util.Map.of[String, Object]()
         Future { blocking { subscription.cancel(params, requestOptions) } }

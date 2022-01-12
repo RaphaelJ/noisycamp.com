@@ -182,7 +182,7 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
                         equipmentId = e.id)
                 }
 
-        } yield Ok(views.html.studios.bookingCheckoutRedirect(identity = Some(identity), session))
+        } yield Ok(views.html.stripeCheckoutRedirect(identity = Some(identity), session))
     }
 
     private def handleOnsitePayment(
