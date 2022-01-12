@@ -36,6 +36,9 @@
 
 @implicitField = @{ helper.FieldConstructor(utils.forms.foundationFieldConstructor.f) }
 
+@user = @{ identity.user }
+@canManualBookings = @{ user.plan.manualBookings }
+
 @currentDateTime = @{ studio.currentDateTime(now) }
 
 @maxManualBookingDate = @{ studio.maxManualBookingDate(now) }
@@ -50,9 +53,12 @@
 
 <div class="grid-y grid-padding-y">
     <div class="cell">
-        <div class="panel-section expand-on-small">
+        <div
+            class="panel-section expand-on-small premium-feature @if(!canManualBookings) { hidden }">
+
             @helper.form(
-                action=controllers.account.studios.routes.BookingsController.createSubmit(studio.id)
+                action=controllers.account.studios.routes.BookingsController.createSubmit(studio.id),
+                'class -> "feature"
             ) {
             @defining(FormUtils.dataAsJson(form)) { formData =>
             @defining(FormUtils.errorsAsJson(form)(messagesProvider)) { formErrors =>
@@ -121,6 +127,10 @@
                 </div>
             }
             }
+            }
+
+            @if(!canManualBookings) {
+                @tags.upgradeActionCall()
             }
         </div>
     </div>

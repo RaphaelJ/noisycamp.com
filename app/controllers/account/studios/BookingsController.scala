@@ -79,13 +79,11 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
     def create(id: Studio#Id) = SecuredAction.async { implicit request =>
         val now = Instant.now
 
-        ifUserHasManualBookings {
-            withStudioTransaction(id) { studio =>
-                val form = ManualBookingForm.form(now, studio)
+        withStudioTransaction(id) { studio =>
+            val form = ManualBookingForm.form(now, studio)
                 DBIO.successful(
                     Ok(views.html.account.studios.bookings.create(
                         request.identity, now, studio, form)))
-            }
         }
     }
 

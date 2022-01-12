@@ -52,16 +52,7 @@
     src="@routes.StudiosController.embedded(studio.id).absoluteURL(forceHttps)">
 </iframe></textarea>
 
-        @if(!user.plan.websiteIntegration){
-            <div class="action-call text-center">
-                <a
-                    class="button primary"
-                    href="@controllers.account.routes.PlansController.index">
-                    Upgrade your NoisyCamp account
-                </a>
-                <div class="help-text">This feature requires a Standard or Premium subscription</div>
-            </div>
-        }
+        @if(!user.plan.websiteIntegration) { @tags.upgradeActionCall() }
     </div>
 
     <p>
