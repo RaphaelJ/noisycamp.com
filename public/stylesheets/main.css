@@ -40,7 +40,8 @@ body {
     background-color: #f5f3f2;
 }
 
-body, a.text-style-link {
+body,
+a.text-style-link, a.text-style-link:visited {
     color: #262626;
 }
 
@@ -319,6 +320,15 @@ form label .error {
 
 table.fixed {
     table-layout: fixed;
+}
+
+table td > a.text-style-link {
+    display: inline-block;
+    width: 100%;
+}
+
+table.booking-table td {
+    font-size: 0.9em;
 }
 
 /* Top bar */
