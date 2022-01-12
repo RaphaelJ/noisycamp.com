@@ -108,18 +108,7 @@ class PlansController @Inject() (ccc: CustomControllerCompoments)
 
         for {
             session <- paymentService.retrieveSession(sessionId)
-            stripeSubscription <- paymentService.
-                retrieveSubscription(session.getSubscription)
-
-            subscription <- db.run({
-                for {
-                    subscription <- daos.userSubscription.query.
-                        filter(_.stripeCheckoutSessionId === session.getId).
-                        result.head
-
-                    subscription <- updateFromSubscription(subscription, stripeSubscription)
-                } yield subscription
-            }.transactionally)
+            _ <- handleCheckoutSessionCompleted(session)
         } yield {
             Redirect(routes.PlansController.index).
                 flashing("success" -> "You payment has been successfully processed.")
@@ -132,8 +121,19 @@ class PlansController @Inject() (ccc: CustomControllerCompoments)
 
     def handleCheckoutSessionCompleted(session: checkout.Session): Future[Result] = {
         for {
-            stripeSubscription <- paymentService.retrieveSubscription(session.getSubscription)
-            result <- handleSubscriptionUpdated(stripeSubscription)
+            stripeSubscription <- paymentService.
+                retrieveSubscription(session.getSubscription)
+
+            result <- db.run({
+                for {
+                    subscriptionOpt <- daos.userSubscription.query.
+                        filter(_.stripeCheckoutSessionId === session.getId).
+                        result.
+                        headOption
+
+                    result <- handleOptSubscriptionUpdate(subscriptionOpt, stripeSubscription)
+                } yield result
+            }.transactionally)
         } yield result
     }
 
@@ -145,15 +145,22 @@ class PlansController @Inject() (ccc: CustomControllerCompoments)
                     result.
                     headOption
 
-                result <- subscriptionOpt match {
-                    case Some(subscription) => {
-                        updateFromSubscription(subscription, stripeSubscription).
-                            map { _ => Ok("subscription-updated") }
-                    }
-                    case None => DBIO.successful(NotFound("subscription-not-found"))
-                }
+                result <- handleOptSubscriptionUpdate(subscriptionOpt, stripeSubscription)
             } yield result
         }.transactionally)
+    }
+
+    private def handleOptSubscriptionUpdate(
+        subscriptionOpt: Option[UserSubscription], stripeSubscription: Subscription):
+        DBIO[Result] = {
+
+        subscriptionOpt match {
+            case Some(subscription) => {
+                updateFromSubscription(subscription, stripeSubscription).
+                    map { _ => Ok("subscription-updated") }
+            }
+            case None => DBIO.successful(NotFound("subscription-not-found"))
+        }
     }
 
     //
