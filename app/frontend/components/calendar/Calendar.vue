@@ -596,6 +596,14 @@ export default Vue.extend({
     width: calc(100% / 8);
 
     overflow-y: auto;
+
+    /* Hide the scrollbar */
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.calendar .schedule .event::-webkit-scrollbar {
+    display: none;
 }
 
 .calendar .schedule .event .event-link-container {
