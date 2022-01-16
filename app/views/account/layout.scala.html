@@ -24,6 +24,7 @@
     javascript: Html = Html(""),
     topBarExtension: Option[Html] = None,
     hideSideBarOnSmall: Boolean = true,
+    titleExtension: Option[Html] = None,
     identity: models.Identity)(
     rightPaneContent: Html)(
     implicit req: RequestHeader, config: Configuration, flash: Flash)
@@ -37,12 +38,20 @@
 
     <div class="grid-container">
         <div class="grid-x grid-padding-x grid-padding-y">
-            <div class="cell">
-                <h1 class="text-overflow-ellipsis">@title.head</h1>
+            <div class="cell small-12">
+                <div class="grid-x">
+                    <div class="cell auto">
+                        <h1 class="text-overflow-ellipsis">@title.head</h1>
 
-                @if(title.length >= 2) {
-                    <h4 class="text-overflow-ellipsis"><small>@title(1)</small></h4>
-                }
+                        @if(title.length >= 2) {
+                            <h4 class="text-overflow-ellipsis"><small>@title(1)</small></h4>
+                        }
+                    </div>
+
+                    @for(extension <- titleExtension) {
+                        <div class="cell small-12 medium-shrink title-extension">@extension</div>
+                    }
+                </div>
             </div>
 
             <div class="cell small-12 medium-3 @if(hideSideBarOnSmall) { hide-for-small-only }">

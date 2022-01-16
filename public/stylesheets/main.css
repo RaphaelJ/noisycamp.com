@@ -85,6 +85,10 @@ h1 small, h2 small, h3 small, h4 small, h5 small, h6 small {
     color: #777;
 }
 
+.title-extension {
+    margin-top: 1rem;
+}
+
 .section-title {
     text-align: center;
     margin-top: 2.5rem;

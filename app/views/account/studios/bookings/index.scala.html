@@ -28,9 +28,19 @@
     implicit request: RequestHeader, messagesProvider: MessagesProvider,
     config: Configuration, flash: Flash)
 
+@titleExtension = {
+    <a
+        href="@controllers.account.studios.routes.BookingsController.create(studio.id)"
+        class="button small secondary small-only-expanded">
+        <i class="fi-plus"></i>&nbsp;
+        Create booking
+    </a>
+}
+
 @views.html.account.layout(
     Seq("Studio bookings"),
     topBarExtension=Some(tags.studioTopBarExtension(studio)),
+    titleExtension = Some(titleExtension),
     identity=identity) {
 
 @defining(Instant.now) { now =>
