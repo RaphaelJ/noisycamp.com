@@ -21,7 +21,6 @@ import java.time.Instant
 import javax.inject._
 import scala.concurrent.Future
 import scala.util.Try
-
 import play.api._
 import play.api.libs.json.{ JsArray, Json }
 import play.api.mvc._
@@ -30,9 +29,11 @@ import play.filters.headers.SecurityHeadersFilter
 import daos.CustomColumnTypes
 import daos.StudioBookingDAO.toStudioBooking
 import forms.studios.SearchForm
-import misc.GIS
+import misc.{ GIS, ICalendar }
 import misc.JsonWrites._
-import models.{ BBox, Studio, StudioWithPictureAndEquipments, StudioBooking, User }
+import models.{
+    BBox, Event, LocalEquipment, Picture, Studio, StudioWithPictureAndEquipments, StudioBooking,
+    User }
 import daos.StudioDAO
 
 @Singleton
@@ -150,7 +151,38 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
         }
     }
 
-    private def getStudioData(id: Studio#Id, now: Instant = Instant.now) = {
+    def calendarICal(id: Studio#Id) = UserAwareAction.async { implicit request =>
+        db.run({
+            for {
+                studioOpt <- daos.studio.query.
+                    filter(_.id === id).
+                    result.headOption
+
+                bookings <- studioOpt match {
+                    case Some(studio) => {
+                        daos.studioBooking.activeBookings.
+                            filter(_._1.studioId === studio.id).
+                            sortBy(_._1.beginsAt).
+                            joinLeft(daos.user.query).
+                                on { case ((b, cb, mb), u) => cb.map(_.customerId === u.id) }.
+                            result.
+                            map(_.map { case (b, u) => (toStudioBooking(b), u) })
+                    }
+                    case None => DBIO.successful(Seq.empty)
+                }
+            } yield studioOpt.map { s => (s, bookings) }
+        }.transactionally).map {
+            case None => NotFound("Studio not found.")
+            case Some((studio, bookings)) => {
+                val calendar = ICalendar.fromStudioBookings(studio, bookings)
+                Ok(calendar.toString)//.as("text/calendar")
+            }
+        }
+    }
+
+    private def getStudioData(id: Studio#Id, now: Instant = Instant.now):
+        DBIO[Option[(Studio, Seq[LocalEquipment], Seq[Picture#Id], Seq[Event])]] = {
+
         for {
             studioOpt <- daos.studio.query.
                 filter(_.id === id).

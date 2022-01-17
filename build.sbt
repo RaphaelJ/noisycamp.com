@@ -76,6 +76,8 @@ libraryDependencies ++= Seq(
 
     "com.typesafe.play" %% "play-slick" % "4.0.2",
 
+    "org.mnode.ical4j" % "ical4j" % "3.1.2",
+
     "org.postgresql" % "postgresql" % "42.2.8",
 
     "org.typelevel" %% "squants" % "1.3.0",
@@ -83,11 +85,13 @@ libraryDependencies ++= Seq(
     "org.scalatestplus.play" %% "scalatestplus-play" % "4.0.3" % Test,
 
     "com.github.luben" % "zstd-jni" % "1.5.0-4",
-    "net.codingwell" %% "scala-guice" % "5.0.1",
-    "net.iakovlev" % "timeshape" % "2020d.12",
-)
 
-// Forces the use of the Java 7 FileWatchService, as the native watcher is broken on Apple Silicon.
+    "net.codingwell" %% "scala-guice" % "5.0.1",
+
+    "net.iakovlev" % "timeshape" % "2020d.12",
+    )
+
+    // Forces the use of the Java 7 FileWatchService, as the native watcher is broken on Apple Silicon.
 // https://discuss.lightbend.com/t/apple-silicon-m1-playframework-broken-on-apple-silicon/7924
 PlayKeys.fileWatchService := play.dev.filewatch.FileWatchService.jdk7(
     play.sbt.run.toLoggerProxy(sLog.value))

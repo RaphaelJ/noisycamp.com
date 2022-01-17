@@ -1,5 +1,9 @@
 # --- !Ups
 
+-- Maps a java.time.LocalDate as an ISO 8601 string.
+create domain java_localdate as varchar
+    check (value similar to '\d{4}-\d{2}-\d{2}');
+
 -- Splits some of `studio_booking`'s content into the new `studio_customer_booking` table, and
 -- create a new empty `studio_manual_booking` table.
 
@@ -75,7 +79,7 @@ alter table "studio_booking"
         check (
             (repeat_type = 'repeat-count') = (repeat_count is not null)
             and repeat_count >= 1),
-    add column repeat_until     java_localdatetime
+    add column repeat_until     java_localdate
         check (
             (repeat_type = 'repeat-until') = (repeat_until is not null)
             and repeat_until >= begins_at),
@@ -141,3 +145,5 @@ drop table "user_subscription";
 
 drop table "studio_manual_booking";
 drop table "studio_customer_booking";
+
+drop domain "java_localdate";

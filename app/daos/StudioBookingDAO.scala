@@ -33,6 +33,7 @@ import models.{
     StudioBookingPaymentOnsite, StudioBookingStatus, StudioCustomerBooking, StudioManualBooking,
     User }
 import views.html.helper.repeat
+import views.html.tags.localDate
 
 class StudioBookingDAO @Inject()
     (protected val dbConfigProvider: DatabaseConfigProvider)
@@ -44,6 +45,8 @@ class StudioBookingDAO @Inject()
     type StudioBookingRow = StudioBookingDAO.StudioBookingRow
     type StudioCustomerBookingRow = StudioBookingDAO.StudioCustomerBookingRow
     type StudioManualBookingRow = StudioBookingDAO.StudioManualBookingRow
+
+    implicit val optLocalDateType = localDateType.optionType
 
     final class StudioBookingTable(tag: Tag)
         extends Table[StudioBookingRow](tag, "studio_booking") {
@@ -66,7 +69,8 @@ class StudioBookingDAO @Inject()
         def repeatType              = column[Option[String]]("repeat_type")
         def repeatFrequency         = column[Option[BookingRepeatFrequency.Val]]("repeat_frequency")
         def repeatCount             = column[Option[Int]]("repeat_count")
-        def repeatUntil             = column[Option[LocalDate]]("repeat_until")
+        def repeatUntil             =
+            column[Option[LocalDate]]("repeat_until")(localDateType.optionType)
 
         def bookingType             = column[StudioBookingType.Value]("booking_type")
 
@@ -300,7 +304,7 @@ object StudioBookingDAO {
             case Some(BookingRepeatCount(frequency, count)) =>
                 (Some("repeat-count"), Some(frequency), Some(count), None)
             case Some(BookingRepeatUntil(frequency, until)) =>
-                (Some("repeat-count"), Some(frequency), None, Some(until))
+                (Some("repeat-until"), Some(frequency), None, Some(until))
             case None => (None, None, None, None)
         }
     }

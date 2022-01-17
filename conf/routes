@@ -104,6 +104,8 @@ GET     /studios/:id                    controllers.StudiosController.show(id: S
 
 GET     /studios/:studioId/embedded/v1  controllers.StudiosController.embedded(studioId: Long)
 
+GET     /studios/:studioId/calendar.ical    controllers.StudiosController.calendarICal(studioId: Long)
+
 # Booking
 
 GET     /studios/:studioId/booking      controllers.studios.BookingController.show(studioId: Long)

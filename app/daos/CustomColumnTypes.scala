@@ -18,7 +18,7 @@
 package daos
 
 import scala.reflect.ClassTag
-import java.time.{ Duration, LocalDateTime, LocalTime, ZoneId }
+import java.time.{ Duration, LocalDate, LocalDateTime, LocalTime, ZoneId }
 
 import com.sksamuel.scrimage.format.Format
 import play.api.db.slick.HasDatabaseConfigProvider
@@ -58,8 +58,11 @@ trait CustomColumnTypes { this: HasDatabaseConfigProvider[JdbcProfile] =>
     implicit val equipmentCategoryType =
         MappedColumnType.base[EquipmentCategory.Val, String](_.code, EquipmentCategory.byCode(_))
 
-    /** Alternative implementation of java.time.LocalDateTime that maps to a
-     * string. */
+    /** Alternative implementation of java.time.LocalDate that maps to a string. */
+    implicit val localDateType =
+        MappedColumnType.base[LocalDate, String](_.toString, LocalDate.parse(_))
+
+    /** Alternative implementation of java.time.LocalDateTime that maps to a string. */
     implicit val localDateTimeType =
         MappedColumnType.base[LocalDateTime, String](_.toString, LocalDateTime.parse(_))
 

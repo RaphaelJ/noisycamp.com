@@ -56,7 +56,7 @@ case class BookingTimesWithRepeat(
     val beginsAt:       LocalDateTime,
     val duration:       Duration,
 
-    /** If `None`, only repeat the booking once. ¨*/
+    /** If `None`, only repeat the booking once. */
     val repeat:         Option[BookingRepeat]) {
 
     require(!duration.isNegative && !duration.isZero)
