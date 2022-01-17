@@ -82,7 +82,7 @@ alter table "studio_booking"
     add column repeat_until     java_localdate
         check (
             (repeat_type = 'repeat-until') = (repeat_until is not null)
-            and repeat_until >= begins_at),
+            and repeat_until >= left(begins_at, 10)),
 
     add column booking_type     varchar not null default('customer')
         check (booking_type in ('customer', 'manual')),
