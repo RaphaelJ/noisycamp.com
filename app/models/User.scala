@@ -19,6 +19,10 @@ package models
 
 import java.time.Instant
 
+import play.api.Configuration
+
+import misc.UniqueId
+
 /** Stores the information about an user. */
 case class User(
     id:                 User#Id = 0L,
@@ -52,4 +56,12 @@ case class User(
 
     /** True if the user plan is currently being upgraded. */
     def isUpgrading: Boolean = nextSubscriptionId.isDefined
+
+    /** Generates a random but deterministic secret string that can be used to securely access
+     * user's resources. */
+    def secret(implicit config: Configuration): String = {
+        val CODE_LEN = 64
+        val SALT = "user-secret"
+        UniqueId.generate(CODE_LEN, SALT, id.toString)
+    }
 }

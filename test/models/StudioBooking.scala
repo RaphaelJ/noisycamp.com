@@ -184,10 +184,4 @@ class StudioBookingSpec extends PlaySpec {
                 maxRefundDate should be (maxRefundDate)
         }
     }
-
-    "StudioBooking.toHexString" must {
-        "returns an hexadecimal representation of a byte sequence" in {
-            StudioBooking.toHexString(Seq(179.toByte, 63.toByte, 58.toByte)) should be ("b33f3a")
-        }
-    }
 }

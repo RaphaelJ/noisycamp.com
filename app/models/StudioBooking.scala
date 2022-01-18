@@ -18,12 +18,11 @@
 package models
 
 import java.time.{ Duration, Instant, LocalDate, LocalDateTime }
-import java.util.{ Formatter, UUID }
-import javax.crypto.Mac
-import javax.crypto.spec.SecretKeySpec
 
 import play.api.Configuration
 import squants.market
+
+import misc.UniqueId
 
 object StudioBookingStatus extends Enumeration {
     // The request for the booking has been received, but the payment has not been validated yet.
@@ -142,17 +141,10 @@ sealed trait StudioBooking {
 
     /** Pseudo-random 6-characters reservation code generated from the booking ID. */
     def reservationCode(implicit config: Configuration): String = {
-        val ALGO = "HmacSHA256";
         val CODE_LEN = 6
+        val SALT = "reservation-code"
 
-        val key = config.get[String]("play.crypto.secret").getBytes
-
-        val mac = Mac.getInstance(ALGO)
-        mac.init(new SecretKeySpec(key, ALGO))
-
-        val codeBytes = mac.doFinal(id.toString.getBytes)
-
-        StudioBooking.toHexString(codeBytes).take(CODE_LEN).toUpperCase
+        UniqueId.generate(CODE_LEN, SALT, id.toString).toUpperCase
     }
 
     def toEvents: Seq[Event]
@@ -228,16 +220,6 @@ final case class StudioCustomerBooking(
     }
 
     def toEvents = toEvents(None)
-}
-
-object StudioBooking {
-    def toHexString(value: Seq[Byte]) = {
-        val formatter = new Formatter()
-        for (b <- value) {
-            formatter.format("%02x", b.asInstanceOf[Object])
-        }
-        formatter.toString
-    }
 }
 
 object StudioCustomerBooking {
