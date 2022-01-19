@@ -1,0 +1,108 @@
+@* Noisycamp is a platform for booking music studios.
+ * Copyright (C) 2021  Raphael Javaux <raphael@noisycamp.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *@
+
+@import play.api.Configuration
+
+@import misc.URL
+
+@(
+    identity: models.Identity, studio: models.Studio)(
+    implicit request: RequestHeader,
+    config: Configuration, flash: Flash)
+
+@user = @{ identity.user }
+
+@forceHttps = @{ config.get[Boolean]("noisycamp.forceHttps") }
+
+@integrationCode = {
+    <p>
+        <strong>Copy-paste the following code into your calendar app</strong> to synchronize your
+        booking events:
+    </p>
+
+    <div class="premium-feature @if(!user.plan.calendarSync){ hidden }">
+        <textarea
+            class="feature code-sample"
+            style="width: 100%; min-height: 100px;"
+            spellcheck="false"
+            onclick="this.focus(); this.select();"
+>@routes.StudiosController.calendarICal(studio.id, user.secret).absoluteURL(forceHttps)</textarea>
+
+        @if(!user.plan.calendarSync) { @tags.upgradeActionCall() }
+    </div>
+
+    <p>
+        Learn how to subscribe to a NoisyCamp calendar with:
+
+        <ul>
+            <li><a
+                href="https://support.apple.com/guide/iphone/use-multiple-calendars-iph3d1110d4/ios"
+                target="_blank">Calendar on iOS</a>
+                (see <em>Subscribe to a calendar</em>)
+            </li>
+            <li><a
+                href="https://support.apple.com/guide/calendar/subscribe-to-calendars-icl1022/mac"
+                target="_blank">Calendar on macOS</a>
+                (see <em>Subscribe to a calendar</em>)
+            </li>
+            <li><a
+                href="https://support.microsoft.com/en-us/office/import-or-subscribe-to-a-calendar-in-outlook-on-the-web-503ffaf6-7b86-44fe-8dd6-8099d95f38df"
+                target="_blank">Microsoft Outlook</a>
+                (see <em>Subscribe to a calendar</em>)
+            </li>
+            <li><a
+                href="https://support.google.com/calendar/answer/37100?hl=en&co=GENIE.Platform%3DDesktop"
+                target="_blank">Google Calendar</a>
+                (see <em>Use a link to add a public calendar</em>)
+            </li>
+        </ul>
+    </p>
+
+    <p>
+        Reach our support at
+        <a href="mailto:hello@@noisycamp.com">hello@@noisycamp.com</a>
+        if you have any problem and/or to answer any questions.
+    </p>
+}
+
+@views.html.account.layout(
+    Seq("Calendar synchronization"),
+    topBarExtension=Some(tags.studioTopBarExtension(studio)),
+    identity=identity) {
+
+    <div class="panel-section expand-on-small">
+        <div class="grid-x grid-margin-x grid-margin-y">
+            <div class="cell medium-12 large-7 hide-for-small-only">
+                <h4>Booking events in your <strong>calendar app</strong></h4>
+
+                <ul>
+                    <li>Works with <strong>desktop and mobile</strong> calendar apps</li>
+                    <li><strong>Share calendar</strong> with colleagues and associates</li>
+                    <li>Manage all your studio spaces from a single app</li>
+                </ul>
+            </div>
+
+            <div class="cell large-5 show-for-large">
+                <img
+                    alt="Calendar integration demo"
+                    src="@URL.fromCDN(routes.Assets.versioned("images/account/studios/bookings/calendar_sync.png"))">
+            </div>
+
+            <div class="cell small-12">@integrationCode</div>
+        </div>
+    </div>
+}

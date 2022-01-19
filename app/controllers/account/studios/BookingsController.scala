@@ -63,16 +63,13 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
         }
     }
 
-    def calendarSync(id: Studio#Id) = SecuredAction { implicit request =>
+    def calendarSync(id: Studio#Id) = SecuredAction.async { implicit request =>
         val user = request.identity.user
 
-        if (user.plan.calendarSync) {
-            Ok(views.html.featureNotYetImplemented(request.identity))
-        } else {
-            Redirect(_root_.controllers.account.routes.PlansController.index).
-                flashing("error" ->
-                    ("Upgrade your NoisyCamp account to synchronize NoisyCamp with your favorite " +
-                    "calendar app."))
+        withStudioTransaction(id) { studio =>
+            DBIO.successful(
+                Ok(views.html.account.studios.bookings.calendarSync(
+                    request.identity, studio)))
         }
     }
 
@@ -81,9 +78,10 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
 
         withStudioTransaction(id) { studio =>
             val form = ManualBookingForm.form(now, studio)
-                DBIO.successful(
-                    Ok(views.html.account.studios.bookings.create(
-                        request.identity, now, studio, form)))
+
+            DBIO.successful(
+                Ok(views.html.account.studios.bookings.create(
+                    request.identity, now, studio, form)))
         }
     }
 
@@ -159,8 +157,8 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
                 flatMap {
                     case Some(studio) if studio.isOwner(user) => f(studio)
                     case Some(_) => DBIO.successful(
-                        Forbidden("Cannot access other customers' bookings."))
-                    case None => DBIO.successful(NotFound("Booking not found."))
+                        Forbidden("Cannot access other customers' studios."))
+                    case None => DBIO.successful(NotFound("Studio not found."))
                 }
         }.transactionally)
     }

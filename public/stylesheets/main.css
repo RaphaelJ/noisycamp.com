@@ -566,8 +566,8 @@ table.booking-table td {
 /* Code sample */
 
 .code-sample, .code-sample:focus {
-    background-color: #575757;
-    border: 1px solid #282828;
+    background-color: #2d2d2d;
+    border: 1px solid #110903;
     font-family: monospace;
     color: #ebebeb;
     font-size: 0.85rem;
