@@ -44,8 +44,6 @@ class StripeController @Inject() (
         implicit request: Request[ByteString] =>
 
         paymentService.withWebhookEvent(request, { event =>
-
-            println(event.getType)
             event.getType match {
                 case "checkout.session.completed" => checkoutSessionCompleted(event)
                 case "customer.subscription.created" => subscriptionUpdated(event)
@@ -86,8 +84,6 @@ class StripeController @Inject() (
         val subscription = event.getDataObjectDeserializer.getObject.
             get.
             asInstanceOf[Subscription]
-
-        println(subscription)
 
         plansController.handleSubscriptionUpdated(subscription)
     }
