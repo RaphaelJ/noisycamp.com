@@ -144,7 +144,7 @@ sealed trait StudioBooking {
         val CODE_LEN = 6
         val SALT = "reservation-code"
 
-        UniqueId.generate(CODE_LEN, SALT, id.toString).toUpperCase
+        UniqueId.generate(SALT, id.toString, CODE_LEN).toUpperCase
     }
 
     def toEvents: Seq[Event]

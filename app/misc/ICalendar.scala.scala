@@ -25,7 +25,7 @@ import net.fortuna.ical4j.model.{ Calendar, DateTime, Recur, TimeZone, TimeZoneR
 import net.fortuna.ical4j.model.component.{ VEvent }
 import net.fortuna.ical4j.model.property.{
     CalScale, Created, Description, DtEnd, DtStart, Location, Organizer, ProdId, Repeat, RRule,
-    Status, Summary, Url, Version }
+    Status, Summary, Uid, Url, Version }
 import play.api.Configuration
 import play.api.mvc.RequestHeader
 
@@ -76,6 +76,8 @@ object ICalendar {
             val date = calendar.getTime
             new DateTime(date, timezone)
         }
+
+        val uid = f"${UniqueId.generate("booking-ical-id", booking.id.toString)}@noisycamp.com"
 
         val times = booking.times
         val start = fromLocalDateTime(times.beginsAt)
@@ -148,6 +150,8 @@ object ICalendar {
 
         val event = new VEvent()
         val properties = event.getProperties()
+
+        properties.add(new Uid(uid))
 
         properties.add(new Created(createdAt))
         properties.add(new DtStart(start))

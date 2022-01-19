@@ -60,8 +60,7 @@ case class User(
     /** Generates a random but deterministic secret string that can be used to securely access
      * user's resources. */
     def secret(implicit config: Configuration): String = {
-        val CODE_LEN = 64
         val SALT = "user-secret"
-        UniqueId.generate(CODE_LEN, SALT, id.toString)
+        UniqueId.generate(SALT, id.toString)
     }
 }

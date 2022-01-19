@@ -24,16 +24,19 @@ import javax.crypto.spec.SecretKeySpec
 import play.api.Configuration
 
 object UniqueId {
+    val ALGO = "HmacSHA256"
+    val MAX_ID_LEN = 256 / 4
+
     /** Generates a random but deterministic code from an ID.
      *
      * @param salt some value used as salt. Use this to identify the type of id to be generated
      * (e.g. "reservation-code").
      */
-    def generate(len: Int, salt: String, id: String)(implicit config: Configuration): String = {
-        val ALGO = "HmacSHA256";
-        val MAX_LEN = 256 / 4
+    def generate(
+        salt: String, id: String, len: Int = MAX_ID_LEN)(
+        implicit config: Configuration): String = {
 
-        require(len <= MAX_LEN)
+        require(len <= MAX_ID_LEN)
 
         val key = config.get[String]("play.crypto.secret").getBytes
 
