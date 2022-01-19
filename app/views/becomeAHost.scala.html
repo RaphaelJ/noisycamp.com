@@ -283,20 +283,22 @@ implicit req: RequestHeader, config: Configuration, flash: Flash)
             <dl class="cell small-12 large-offset-1 large-10 faq">
                 <dt>How much does NoisyCamp cost?</dt>
                 <dd>
-                    Listing your first studio space on NoisyCamp is free.<br>
+                    <strong>Listing your first studio space on NoisyCamp is free.</strong><br>
                     Studios that wish to list more than one space are required to upgrade to our
-                    <i>Premium</i> plan.<br>
+                    <em>Standard</em> or <em>Premium</em> plans.<br>
                     Studios that wish to use online booking payments will be charged a small online
                     transaction fee on these payments
-                    (@{(Plan.Free.transactionRate * 100).toIntExact}% for <i>Free</i> plan users,
-                    @{(Plan.Premium.transactionRate * 100).toIntExact}% for <i>Premium</i> plan
+                    (@{(Plan.Free.transactionRate * 100).toIntExact}% for <em>Free</em> plan users,
+                    @{(Plan.Standard.transactionRate * 100).toIntExact}% for <em>Standard</em> plan
+                    users,
+                    @{(Plan.Premium.transactionRate * 100).toIntExact}% for <em>Premium</em> plan
                     users).
                     <strong>There is no fee on online bookings that are not paid online</strong>.
                 </dd>
 
                 <dt>Who can host a studio on NoisyCamp?</dt>
                 <dd>
-                    NoisyCamp allow any studio owner to list their professional or home studios.<br>
+                    NoisyCamp allows any studio owner to list their professional or home studios.<br>
                     <a
                         href="@controllers.account.studios.routes.IndexController.create">
                         Become a studio host on NoisyCamp</a>
@@ -335,16 +337,18 @@ implicit req: RequestHeader, config: Configuration, flash: Flash)
                     card.<br>
                     The studio owner will then receive that amount directly on their bank account,
                     minus the NoisyCamp transaction fee
-                    (@{(Plan.Free.transactionRate * 100).toIntExact}% for <i>Free</i> plan users,
-                    @{(Plan.Premium.transactionRate * 100).toIntExact}% for <i>Premium</i> plan
+                    (@{(Plan.Free.transactionRate * 100).toIntExact}% for <em>Free</em> plan users,
+                    (@{(Plan.Standard.transactionRate * 100).toIntExact}% for <em>Standard</em> plan
+                    users,
+                    @{(Plan.Premium.transactionRate * 100).toIntExact}% for <em>Premium</em> plan
                     users).<br>
-                    Payouts to the owner's bank account are done weekly for <i>Premium</i> accounts
-                    (every Monday) and monthtly for <i>Free</i> accounts (on the 15th day of the
-                    month).<br>
+                    Payouts to the owner's bank account are done daily for <em>Premium</em> accounts,
+                    weekly for <em>Standard</em> accounts (every Monday) and monthtly for
+                    <em>Free</em> accounts (on the 15th day of the month).<br>
                     To better handle disputes, payments are only released for payout 48 hours after
                     the end of the session.<br>
                     For example, a payment for a session on April 14th will be transferred on May
-                    15th for <i>Free</i> plan users, but on the next Monday for <i>Premium</i> plan
+                    15th for <i>Free</i> plan users, but on the next Monday for <i>Standard</i> plan
                     users (if more than 48 hours after the session).
                 </dd>
             </dl>

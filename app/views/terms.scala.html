@@ -151,17 +151,17 @@ implicit req: RequestHeader, config: Configuration, flash: Flash)
         price. The
         transaction fee equals @{(Plan.Free.transactionRate * 100).toIntExact}% of the booking total for
         <em>Free</em>
-        accounts, and @{(Plan.Premium.transactionRate * 100).toIntExact}% for <em>Premium</em> accounts. The
+        accounts, @{(Plan.Standard.transactionRate * 100).toIntExact}% for <em>Standard</em> accounts, and @{(Plan.Premium.transactionRate * 100).toIntExact}% for <em>Premium</em> accounts. The
         transaction fee is directly charged to the customer by NoisyCamp, and NoisyCamp will take care of any
         fiscal
         obligations on this transaction fee (e.g. VAT or sale tax). The transaction fee should thus not appear in
         studio
         owners&#39; bookkeeping records.</p>
-    <p>As an example, a <em>Premium</em> studio owner would observe a $3 transaction fee on a $50 online paid
+    <p>As an example, a <em>Premium</em> studio owner would observe a $2 transaction fee on a $50 online paid
         booking, and
-        would thus receive a $47 transfer on their bank account. The studio owner would only be responsible of
+        would thus receive a $48 transfer on their bank account. The studio owner would only be responsible of
         fiscal
-        obligations on the received $47 income.</p>
+        obligations on the received $48 income.</p>
 
     <h3 id="payment-payouts">Payment payouts</h3>
 
@@ -172,14 +172,14 @@ implicit req: RequestHeader, config: Configuration, flash: Flash)
         owner&#39;s bank might apply some additional fees if the bank account&#39;s currency does not match
         the studio&#39;s
         currency.</p>
-    <p>Payouts are scheduled monthly for <em>Free</em> accounts (on the 15th day of the month), while
-        <em>Premium</em>
-        accounts enjoy weekly scheduled payouts (every Monday).<br>
+    <p>Payouts are scheduled monthly for <em>Free</em> accounts (on the 15th day of the month), every Monday
+        for <em>Standard</em> accounts, while <em>Premium</em>
+        accounts enjoy daily scheduled payouts.<br>
 
-        To better handle dispute, payments are only released for payout 48 hours after the end of
+        To better handle disputes, payments are only released for payout 48 hours after the end of
         the session.<br>
         For example, a payment for a session on April 14th will be transferred on May
-        15th for <i>Free</i> plan users, but on the next Monday for <i>Premium</i> plan
+        15th for <i>Free</i> plan users, but on the next Monday for <i>Standard</i> plan
         users (if more than 48 hours after the session).
     </p>
     <p>Studio owners are responsible of their own fiscal and accounting obligations regarding to the income
