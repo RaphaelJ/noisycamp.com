@@ -89,7 +89,7 @@ object Plan extends Enumeration {
         transactionRate = BigDecimal(0.06),
         studioLimit = Some(4),
         payoutSchedule = PayoutSchedule.Weekly,
-        calendarSync = false,
+        calendarSync = true,
         websiteIntegration = true,
         manualBookings = true,
         onsitePayments = true,
