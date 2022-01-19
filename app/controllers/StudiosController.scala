@@ -176,10 +176,13 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
             } yield studioOpt.map { case (studio, owner) => (studio, owner, bookings) }
         }.transactionally).map {
             case None => NotFound("Studio not found.")
-            case Some((_, owner, _)) if secret != owner.secret => Forbidden("Invalid user secret.")
-            case Some((studio, _, bookings)) => {
-                val calendar = ICalendar.fromStudioBookings(studio, bookings)
-                Ok(calendar.toString).as("text/calendar")
+            case Some((studio, owner, bookings)) => {
+                if (!owner.plan.calendarSync) Forbidden("Feature not available.")
+                else if (secret != owner.secret) Forbidden("Invalid user secret.")
+                else {
+                    val calendar = ICalendar.fromStudioBookings(studio, bookings)
+                    Ok(calendar.toString).as("text/calendar")
+                }
             }
         }
     }
