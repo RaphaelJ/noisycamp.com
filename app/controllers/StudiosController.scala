@@ -151,15 +151,18 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
         }
     }
 
-    def calendarICal(id: Studio#Id) = UserAwareAction.async { implicit request =>
+    def calendarICal(id: Studio#Id, secret: String) = UserAwareAction.async { implicit request =>
+
         db.run({
             for {
                 studioOpt <- daos.studio.query.
                     filter(_.id === id).
+                    join(daos.user.query).
+                        on(_.ownerId === _.id).
                     result.headOption
 
                 bookings <- studioOpt match {
-                    case Some(studio) => {
+                    case Some((studio, _)) => {
                         daos.studioBooking.activeBookings.
                             filter(_._1.studioId === studio.id).
                             sortBy(_._1.beginsAt).
@@ -170,12 +173,13 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
                     }
                     case None => DBIO.successful(Seq.empty)
                 }
-            } yield studioOpt.map { s => (s, bookings) }
+            } yield studioOpt.map { case (studio, owner) => (studio, owner, bookings) }
         }.transactionally).map {
             case None => NotFound("Studio not found.")
-            case Some((studio, bookings)) => {
+            case Some((_, owner, _)) if secret != owner.secret => Forbidden("Invalid user secret.")
+            case Some((studio, _, bookings)) => {
                 val calendar = ICalendar.fromStudioBookings(studio, bookings)
-                Ok(calendar.toString)//.as("text/calendar")
+                Ok(calendar.toString).as("text/calendar")
             }
         }
     }
