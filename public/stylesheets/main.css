@@ -704,8 +704,21 @@ table.plan-comparison-table tbody th h5 {
 
 /* Subfeatures are slightly translated to the right. */
 table.plan-comparison-table tbody tr.subfeature th {
+    position: relative;
+
     padding-left: 2rem;
     font-size: 0.9em;
+}
+
+table.plan-comparison-table tbody tr.subfeature .subfeature-tag {
+    background-color: rgba(0, 0, 0, 0.35);
+    border-radius: 0.25rem;
+    padding: 0.2rem 0.5rem;
+
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: white;
+    white-space: nowrap;
 }
 
 table.plan-comparison-table tbody tr td i.fi-check {

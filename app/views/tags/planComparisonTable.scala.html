@@ -51,6 +51,17 @@
     }
 }
 
+@featureComingSoon(feature: (Plan.Val => Boolean)) = {
+    @for(plan <- Plan.values) {
+        <!-- @plan.name -->
+        <td>
+            @if(feature(plan)) {
+                <span class="subfeature-tag">Coming soon</span>
+            } else { — }
+        </td>
+    }
+}
+
 @isUpgrading = @{ user.map(_.isUpgrading).getOrElse(false) }
 
 <div class="grid-y grid-margin-y">
@@ -160,11 +171,12 @@
                     <tr class="subfeature">
                         <th>
                             <h6>SMS reminders</h6>
+
                             <small>Automatically send SMS reminders to your customers before their
                             sessions.</small>
                         </th>
 
-                        @featureCheckbox(_.smsReminders)
+                        @featureComingSoon(_.smsReminders)
                     </tr>
 
                     <tr>
