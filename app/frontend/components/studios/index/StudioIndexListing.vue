@@ -43,6 +43,7 @@
             class="cell small-12 large-6">
 
             <a
+                v-if="!searchIsProcessing"
                 :href="studio.url"
                 :ref="'studio-' + index + '-link'"
                 target="_blank"
@@ -52,13 +53,13 @@
                 @mouseout="$emit('mouseout')">
 
                 <studios-index-listing-item
-                    v-if="!searchIsProcessing"
                     :studio="studio"
                     :booking-date="bookingDate">
                 </studios-index-listing-item>
             </a>
 
             <a
+                v-if="!searchIsProcessing"
                 :href="studio.url"
                 class="studio panel-section show-for-small-only"
                 :class="{ 'highlighted': highlightedStudio == index, }"
@@ -66,7 +67,6 @@
                 @mouseout="$emit('mouseout')">
 
                 <studios-index-listing-item
-                    v-if="!searchIsProcessing"
                     :studio="studio"
                     :booking-date="bookingDate">
                 </studios-index-listing-item>
