@@ -231,7 +231,7 @@ class PlansController @Inject() (ccc: CustomControllerCompoments)
 
     /** Applies the current user's plan limits. */
     def applyPlanLimits(user: User): DBIO[Unit] = {
-        /** Unpublish user's studios until no more than the limit are published. */
+        // Unpublish user's studios until no more than the limit are published.
         def applyStudioLimit = {
             user.plan.
                 studioLimit.
@@ -253,7 +253,7 @@ class PlansController @Inject() (ccc: CustomControllerCompoments)
                 getOrElse(DBIO.successful(Unit))
         }
 
-        /** Disable onsite payments on the user's studios if disabled. */
+        // Disable onsite payments on the user's studios if disabled. */
         def applyOnsitePayment = {
             if (!user.plan.onsitePayments) {
                 // Disables onsite payments for all studios.
@@ -264,7 +264,7 @@ class PlansController @Inject() (ccc: CustomControllerCompoments)
             } else DBIO.successful(Unit)
         }
 
-        /** Removes any pricing on the user's equipments if disabled. */
+        // Removes any pricing on the user's equipments if disabled. */
         def applyEquipmentFee = {
             if (!user.plan.equipmentFee) {
                 for {

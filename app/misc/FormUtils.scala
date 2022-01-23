@@ -40,10 +40,9 @@ object FormUtils {
     def errorsAsJson(form: Form[_])(implicit messages: MessagesProvider): JsObject = {
         // Accumulates the error values into a JSON object hierarchy.
 
-        /** Adds a new error object (built using `buildFromKey()`) to an existing error/mapping
-         * tree.
-         *
-         * @param newObj shall be a single field object (possibly nested). */
+        // Adds a new error object (built using `buildFromKey()`) to an existing error/mapping tree.
+        //
+        // @param newObj shall be a single field object (possibly nested).
         def mergeErrorObj(obj: JsObject, newObj: JsObject): JsObject = {
             require(newObj.value.size == 1)
             val (nestedKey, nestedNewValue) = newObj.value.head
@@ -73,7 +72,7 @@ object FormUtils {
     }
 
     /** Constructs a hierarchical JSON object from the form fields, with a default JsNull values
-     * (e.g. "{'location': { 'address': { 'zipcode': null, 'city': null } } }").
+     * (e.g. "{'location': { 'address': { 'zipcode': null, 'city': null } } }").
      */
     def mappingAsJson[_](mapping: Mapping[_]): JsObject = {
         mapping.mappings.
@@ -85,9 +84,9 @@ object FormUtils {
             }
     }
 
-    // Recursively goes through the key "." hierarchy (e.g. "location.address.zipcode") and
-    // construct a single item JSON object with the provided value (e.g.
-    // "{'location': { 'address': { 'zipcode': value } } }").
+    /** Recursively goes through the key "." hierarchy (e.g. "location.address.zipcode") and
+     * construct a single item JSON object with the provided value (e.g.
+     * "{'location': { 'address': { 'zipcode': value } } }"). */
     private def buildFromKey(key: String, value: JsValue): JsObject = {
         val (prefix, suffix) = key.span(_ != '.')
 
