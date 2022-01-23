@@ -28,7 +28,7 @@ import StripeCheckoutRedirect from './components/widgets/StripeCheckoutRedirect.
 
 import SearchForm from './components/index/SearchForm.vue';
 
-import StudiosIndex from './components/studios/Index/StudioIndex.vue';
+import StudiosIndex from './components/studios/index/StudioIndex.vue';
 
 import BookingForm from './components/studios/booking/BookingForm.vue';
 import BookingPricingCalculator from './components/studios/booking/BookingPricingCalculator.vue';
