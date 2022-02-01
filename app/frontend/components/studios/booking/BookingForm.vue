@@ -67,7 +67,7 @@
 
         <div class="cell small-12">
             <button
-                type="submit"
+                :type="isFormDisabled ? 'button' : 'submit'"
                 class="button primary large expanded">
                 Book now
             </button>
@@ -126,6 +126,10 @@ export default Vue.extend({
         }
     },
     computed: {
+        isFormDisabled() {
+            return !this.bookingTimes['begins-at'] || !this.bookingTimes['duration'];
+        },
+
         bookingUrl() {
             return NC_ROUTES.controllers.studios.BookingController.show(this.studioId).url;
         },
@@ -139,7 +143,6 @@ export default Vue.extend({
             return this.bookingTimes['begins-at']
                 && this.bookingTimes['duration'];
         },
-
     },
     components: {
         BookingEquipmentsInput, BookingPricingCalculator, BookingTimesInput,
