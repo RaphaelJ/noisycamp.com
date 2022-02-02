@@ -36,6 +36,7 @@
     javascript: Html = Html(""),
     fullScreen: Boolean = false,
     topBarExtension: Option[Html] = None,
+    facebookEvent: Option[FacebookEvent] = None,
     identity: Option[Identity],
     )(content: Html)(
     implicit req: RequestHeader, config: Configuration, flash: Flash)
@@ -243,6 +244,6 @@
             </footer>
         </div>
 
-        @tags.javascriptHeaders(javascript)
+        @tags.javascriptHeaders(javascript, facebookEvent)
     </body>
 </html>
