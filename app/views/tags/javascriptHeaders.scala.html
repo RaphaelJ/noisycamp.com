@@ -1,4 +1,5 @@
 @import play.api.Configuration
+@import play.api.libs.json.JsObject
 
 @import frontend.JsConfig
 @import misc.URL
@@ -58,11 +59,13 @@
         s.parentNode.insertBefore(t,s)}(window, document,'script',
         'https://connect.facebook.net/en_US/fbevents.js');
         fbq('init', '@pixelID');
+        fbq('track', 'PageView')
 
-        @defining(facebookEvent.getOrElse(FacebookEvent(FacebookEventName.PageView))) { event =>
-            @event.properties match {
-                case Some(properties) => { fbq('track', event.name, @tags.json(properties)); }
-                case None => { fbq('track', event.name); }
+        @for(event <- facebookEvent) { event: FacebookEvent =>
+            @if(event.properties.isEmpty) {
+                fbq('track', event.name);
+            } else {
+                fbq('track', event.name, @tags.json(JsObject(event.properties.map(_.asJson))));
             }
         }
     </script>
