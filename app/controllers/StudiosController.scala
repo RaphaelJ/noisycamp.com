@@ -32,8 +32,10 @@ import forms.studios.SearchForm
 import misc.{ GIS, ICalendar }
 import misc.JsonWrites._
 import models.{
-    BBox, Event, LocalEquipment, Picture, Studio, StudioWithPictureAndEquipments, StudioBooking,
-    User }
+    BBox, Event,
+    FacebookEvent, FacebookEventName, FacebookContentCategory, FacebookContentType,
+    FacebookContentTypeValues, FacebookContentIds,
+    LocalEquipment, Picture, Studio, StudioWithPictureAndEquipments, StudioBooking, User }
 import daos.StudioDAO
 
 @Singleton
@@ -44,7 +46,11 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
     import profile.api._
 
     def index = UserAwareAction { implicit request =>
-        Ok(views.html.studios.index(identity=request.identity))
+        val fbEvent = FacebookEvent(
+            FacebookEventName.Search,
+            Seq(FacebookContentCategory("studio")))
+
+        Ok(views.html.studios.index(identity = request.identity, facebookEvent = Some(fbEvent)))
     }
 
     def search = UserAwareAction.async { implicit request =>
@@ -113,9 +119,17 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
         db.run(getStudioData(id, now))
             .map {
                 case Some((studio, equips, picIds, bookingEvents)) if studio.canAccess(user) => {
+                    val fbEvent =
+                        FacebookEvent(
+                            FacebookEventName.ViewContent,
+                            Seq(
+                                FacebookContentCategory("studio"),
+                                FacebookContentType(FacebookContentTypeValues.Product),
+                                FacebookContentIds(Seq(studio.id.toString))))
+
                     Ok(views.html.studios.show(
                         identity = request.identity, now,
-                        studio, equips, picIds, bookingEvents))
+                        studio, equips, picIds, bookingEvents, facebookEvent = Some(fbEvent)))
                 }
                 case _ => NotFound("Studio not found.")
             }

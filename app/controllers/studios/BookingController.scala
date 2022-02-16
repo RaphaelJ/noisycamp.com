@@ -38,10 +38,11 @@ import daos.CustomColumnTypes
 import forms.studios.BookingForm
 import misc.StripePaymentCaptureMethod
 import models.{ BookingDurations, BookingTimes, HasBookingTimes, CancellationPolicy, Equipment,
-    Identity, LocalEquipment, LocalPricingPolicy, PaymentMethod, Picture, PriceBreakdown, Studio,
-    StudioBooking, StudioCustomerBooking, StudioBookingEquipment, StudioBookingPaymentOnline,
-    StudioBookingPaymentOnsite, StudioBookingStatus, User }
-import java.time.Instant
+    FacebookEvent, FacebookEventName, FacebookContentCategory, FacebookContentIds,
+    FacebookContentType, FacebookContentTypeValues, FacebookValue, FacebookCurrency,
+    Identity, LocalEquipment, LocalPricingPolicy, PaymentMethod, Picture,
+    PriceBreakdown, Studio, StudioBooking, StudioCustomerBooking, StudioBookingEquipment,
+    StudioBookingPaymentOnline, StudioBookingPaymentOnsite, StudioBookingStatus, User }
 
 @Singleton
 class BookingController @Inject() (ccc: CustomControllerCompoments)
@@ -182,7 +183,23 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
                         equipmentId = e.id)
                 }
 
-        } yield Ok(views.html.stripeCheckoutRedirect(identity = Some(identity), session))
+        } yield {
+            val transactionFee = priceBreakdown.transactionFee.
+                map(_.amount).getOrElse(BigDecimal(0))
+            val fbEvent = FacebookEvent(
+                FacebookEventName.InitiateCheckout,
+                Seq(
+                    FacebookContentCategory("studio"),
+                    FacebookContentType(FacebookContentTypeValues.Product),
+                    FacebookContentIds(Seq(studio.id.toString)),
+                    FacebookValue(transactionFee),
+                    FacebookCurrency(studio.currency)))
+
+            Ok(views.html.stripeCheckoutRedirect(
+                identity = Some(identity),
+                stripeSession = session,
+                facebookEvent = Some(fbEvent)))
+        }
     }
 
     private def handleOnsitePayment(
@@ -233,7 +250,9 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
 
         def onPaymentSuccess(booking: StudioBooking) = {
             Redirect(_root_.controllers.account.routes.BookingsController.show(booking.id)).
-                flashing("success" -> "Your session has been successfully booked.")
+                flashing(
+                    "success" -> "Your session has been successfully booked.",
+                    "redirect-from" -> "payment-success")
         }
 
         def onPaymentFailure(booking: StudioBooking) = {

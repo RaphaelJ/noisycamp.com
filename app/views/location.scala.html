@@ -26,7 +26,8 @@
     location: HighlightLocation,
     startingPrice: Option[Money],
     studios: Seq[(Studio, Option[Picture#Id])],
-    identity: Option[models.Identity])(
+    identity: Option[models.Identity],
+    facebookEvent: Option[FacebookEvent] = None)(
     implicit req: RequestHeader, config: Configuration, flash: Flash)
 
 @head = {
@@ -97,7 +98,8 @@
         getOrElse(Seq.empty),
     head=head,
     identity=identity,
-    fullScreen=false) {
+    fullScreen=false,
+    facebookEvent=facebookEvent) {
 
     <div class="grid-container">
         <div class="grid-x grid-margin-x grid-margin-y become-a-host">

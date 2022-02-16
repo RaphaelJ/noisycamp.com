@@ -22,8 +22,12 @@
 @import i18n.Country
 @import misc.URL
 
-@(identity: Option[models.Identity], currency: Currency, hasFreeTrial: Boolean)(
-implicit req: RequestHeader, config: Configuration, flash: Flash)
+@(
+    identity: Option[models.Identity],
+    currency: Currency,
+    hasFreeTrial: Boolean,
+    facebookEvent: Option[FacebookEvent] = None)(
+    implicit req: RequestHeader, config: Configuration, flash: Flash)
 
 @head = {
     <meta
@@ -71,7 +75,7 @@ implicit req: RequestHeader, config: Configuration, flash: Flash)
 
 @layout(
     Seq("Booking management software for practice and recording spaces"), head=head,
-    identity=identity, fullScreen=false) {
+    identity=identity, fullScreen=false, facebookEvent=facebookEvent) {
 
     <div class="grid-container">
         <div class="grid-x grid-margin-x grid-margin-y become-a-host">

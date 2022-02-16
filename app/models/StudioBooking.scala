@@ -211,6 +211,10 @@ final case class StudioCustomerBooking(
             transactionFeeRate)
     }
 
+    def transactionFee: Option[market.Money] = {
+        transactionFeeRate.map { rate => currency(total * rate) }
+    }
+
     def toEvents(customer: Option[User]): Seq[Event] = {
         val title = customer.map(_.displayName)
         val href = Some(controllers.account.studios.routes.BookingsController.show(studioId, id))

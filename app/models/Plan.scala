@@ -17,6 +17,7 @@
 
 package models
 
+import java.time.Duration
 import scala.language.implicitConversions
 
 import squants.market
@@ -35,6 +36,9 @@ object PayoutSchedule extends Enumeration {
 }
 
 object Plan extends Enumeration {
+
+    // Average plan duration used to estimate customer's LTVs.
+    val PLAN_AVG_DURATION_MONTHS = BigDecimal(12)
 
     case class Val(
         val code:               String,
@@ -64,6 +68,11 @@ object Plan extends Enumeration {
             "Plan price should match its associated currency.")
 
         def isFree = prices.isEmpty
+
+        /** Estimates the plan long term value for the requested currency. */
+        def ltv(currency: market.Currency): market.Money = {
+            prices.map(_(currency) * PLAN_AVG_DURATION_MONTHS).getOrElse(currency(0L))
+        }
     }
 
     implicit def valueToVal(v: Value): Val = v.asInstanceOf[Val]

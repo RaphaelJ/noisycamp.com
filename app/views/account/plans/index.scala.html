@@ -22,12 +22,14 @@
 @import i18n.Country
 @import misc.URL
 
-@(identity: Option[models.Identity], currency: Currency, hasFreeTrial: Boolean)(
-implicit req: RequestHeader, config: Configuration, flash: Flash)
+@(
+    identity: Option[models.Identity], currency: Currency, hasFreeTrial: Boolean,
+    facebookEvent: Option[FacebookEvent] = None)(
+    implicit req: RequestHeader, config: Configuration, flash: Flash)
 
 @layout(
     Seq("Upgrade your NoisyCamp account"),
-    identity=identity, fullScreen=false) {
+    identity=identity, fullScreen=false, facebookEvent=facebookEvent) {
 
     <div class="grid-container">
         <div class="grid-x grid-padding-y">

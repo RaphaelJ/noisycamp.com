@@ -31,6 +31,8 @@ import daos.CustomColumnTypes
 import daos.StudioBookingDAO.toStudioBooking
 import _root_.controllers.{ CustomBaseController, CustomControllerCompoments }
 import models.{
+    FacebookEvent, FacebookEventName, FacebookContentCategory, FacebookContentType,
+    FacebookContentTypeValues, FacebookContentIds, FacebookValue, FacebookCurrency,
     LocalEquipment, Studio, StudioBooking, StudioCustomerBooking, StudioBookingType,
     StudioBookingStatus, StudioBookingPaymentOnline, StudioBookingPaymentOnsite, User }
 
@@ -62,8 +64,24 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
         val user = request.identity.user
 
         withStudioCustomerBookingTransaction(id) { (studio, booking, owner, equips) =>
+            val fbEvent = (request.flash.get("redirect-from"), booking) match {
+                case (Some("payment-success"), scb: StudioCustomerBooking) => {
+                    val transactionFee = scb.transactionFee.getOrElse(studio.currency(0))
+
+                    Some(FacebookEvent(
+                        FacebookEventName.Purchase,
+                        Seq(
+                            FacebookContentCategory("studio"),
+                            FacebookContentType(FacebookContentTypeValues.Product),
+                            FacebookContentIds(Seq(studio.id.toString)),
+                            FacebookValue(transactionFee.amount),
+                            FacebookCurrency(transactionFee.currency))))
+                }
+                case _ => None
+            }
+
             DBIO.successful(Ok(views.html.account.bookings.show(
-                request.identity, studio, owner, booking, equips)))
+                request.identity, studio, owner, booking, equips, facebookEvent = fbEvent)))
         }
     }
 

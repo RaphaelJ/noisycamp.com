@@ -18,7 +18,8 @@
 @import play.api.Configuration
 
 @(
-    identity: Option[models.Identity])(
+    identity: Option[models.Identity],
+    facebookEvent: Option[FacebookEvent] = None)(
     implicit req: play.api.mvc.RequestHeader, config: Configuration, flash: Flash)
 
 @head = {
@@ -27,7 +28,9 @@
         href="https://api.mapbox.com/mapbox-gl-js/v1.8.1/mapbox-gl.css">
 }
 
-@layout(Seq("Find a music studio"), head=head, identity=identity, fullScreen=true) {
+@layout(
+    Seq("Find a music studio"),
+    head=head, identity=identity, fullScreen=true, facebookEvent=facebookEvent) {
     <div class="grid-container-fluid">
         <studios-index></studios-index>
     </div>

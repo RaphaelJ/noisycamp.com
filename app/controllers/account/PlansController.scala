@@ -31,7 +31,10 @@ import auth.DefaultEnv
 import _root_.controllers.{ CustomBaseController, CustomControllerCompoments }
 import daos.CustomColumnTypes
 import forms.account.PremiumForm
-import models.{ Plan, UserSubscription, User, UserSubscriptionStatus }
+import models.{
+    FacebookEvent, FacebookEventName, FacebookContentCategory, FacebookContentIds, FacebookValue,
+    FacebookCurrency, FacebookContentType, FacebookContentTypeValues, FacebookPredictedLtv,
+    Plan, UserSubscription, User, UserSubscriptionStatus }
 
 @Singleton
 class PlansController @Inject() (ccc: CustomControllerCompoments)
@@ -49,7 +52,26 @@ class PlansController @Inject() (ccc: CustomControllerCompoments)
         for {
             currency <- clientCurrency
             hasFreeTrial <- db.run(hasFreeTrial(userOpt))
-        } yield Ok(views.html.account.plans.index(request.identity, currency, hasFreeTrial))
+        } yield {
+            val fbEvent = request.flash.get("redirect-from") match {
+                case Some("payment-success") => {
+                    FacebookEvent(
+                        FacebookEventName.Subscribe,
+                        Seq(
+                            FacebookCurrency(currency),
+                            FacebookPredictedLtv(
+                                userOpt.map(_.plan.ltv(currency).amount).getOrElse(BigDecimal(0)))))
+                }
+                case _ => {
+                    FacebookEvent(
+                        FacebookEventName.Lead,
+                        Seq(FacebookContentCategory("plan")))
+                }
+            }
+
+            Ok(views.html.account.plans.index(
+                request.identity, currency, hasFreeTrial, facebookEvent = Some(fbEvent)))
+        }
     }
 
     /** Initiates an upgrade transaction for the given Plan. */
@@ -72,11 +94,21 @@ class PlansController @Inject() (ccc: CustomControllerCompoments)
                                     flashing(
                                         "success" -> "Your plan has been successfully upgraded.")
                             } else {
+                                val fbEvent = FacebookEvent(
+                                    FacebookEventName.InitiateCheckout,
+                                    Seq(
+                                        FacebookContentCategory("plan"),
+                                        FacebookContentType(FacebookContentTypeValues.Product),
+                                        FacebookContentIds(Seq(planCode)),
+                                        FacebookValue(plan.ltv(currency).amount),
+                                        FacebookCurrency(currency)))
+
                                 createSubscription(user, plan, currency).
                                     map { case (_, session) =>
                                         Ok(views.html.stripeCheckoutRedirect(
                                             identity = Some(request.identity),
-                                            session))
+                                            stripeSession = session,
+                                            facebookEvent = Some(fbEvent)))
                                     }
                             }
                     } yield result
@@ -113,7 +145,9 @@ class PlansController @Inject() (ccc: CustomControllerCompoments)
             _ <- handleCheckoutSessionCompleted(session)
         } yield {
             Redirect(routes.PlansController.index).
-                flashing("success" -> "You payment has been successfully processed.")
+                flashing(
+                    "success" -> "You payment has been successfully processed.",
+                    "redirect-from" -> "payment-success")
         }
     }
 

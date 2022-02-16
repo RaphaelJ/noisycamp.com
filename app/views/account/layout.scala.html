@@ -25,7 +25,8 @@
     topBarExtension: Option[Html] = None,
     hideSideBarOnSmall: Boolean = true,
     titleExtension: Option[Html] = None,
-    identity: models.Identity)(
+    identity: models.Identity,
+    facebookEvent: Option[FacebookEvent] = None)(
     rightPaneContent: Html)(
     implicit req: RequestHeader, config: Configuration, flash: Flash)
 
@@ -34,7 +35,8 @@
     head=head,
     javascript=javascript,
     topBarExtension=topBarExtension,
-    identity=Some(identity)) {
+    identity=Some(identity),
+    facebookEvent=facebookEvent) {
 
     <div class="grid-container">
         <div class="grid-x grid-padding-x grid-padding-y">

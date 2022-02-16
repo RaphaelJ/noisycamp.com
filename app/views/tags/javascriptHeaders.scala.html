@@ -61,11 +61,11 @@
         fbq('init', '@pixelID');
         fbq('track', 'PageView')
 
-        @for(event <- facebookEvent) { event: FacebookEvent =>
+        @for(event <- facebookEvent) {
             @if(event.properties.isEmpty) {
-                fbq('track', event.name);
+                fbq('track', '@{event.name}');
             } else {
-                fbq('track', event.name, @tags.json(JsObject(event.properties.map(_.asJson))));
+                fbq('track', '@{event.name}', @tags.json(JsObject(event.properties.map(_.asJson))));
             }
         }
     </script>

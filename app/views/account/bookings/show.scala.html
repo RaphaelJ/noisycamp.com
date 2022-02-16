@@ -20,11 +20,9 @@
 
 @import play.api.Configuration
 @import play.api.libs.json.Json
-
 @import squants.market.Money
-@import misc.JsonWrites._
 
-@import models.Payout
+@import misc.JsonWrites._
 
 @(
     identity: models.Identity,
@@ -32,14 +30,15 @@
     owner: models.User,
     booking: models.StudioCustomerBooking,
     equips: Seq[models.LocalEquipment],
-    now: Instant = Instant.now)(
+    now: Instant = Instant.now,
+    facebookEvent: Option[FacebookEvent] = None)(
     implicit req: RequestHeader, config: Configuration, flash: Flash)
 
 @views.html.account.layout(
     Seq("Your booking",
         "In " + studio.location.address.city + " on " +
         tags.localDate(booking.times.beginsAt.toLocalDate).toString.trim),
-    identity=identity) {
+    identity=identity, facebookEvent=facebookEvent) {
 
     <div class="grid-x grid-padding-x grid-padding-y">
         @booking.status match {

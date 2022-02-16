@@ -23,14 +23,17 @@
 @** Redirects the user to the given Stripe checkout session. *@
 @(
     identity: Option[models.Identity],
-    stripeSession: Session)(
+    stripeSession: Session,
+    facebookEvent: Option[FacebookEvent] = None)(
     implicit req: RequestHeader, config: Configuration, flash: Flash)
 
 @javascript = {
     <script src="https://js.stripe.com/v3/"></script>
 }
 
-@layout(Seq("Redirecting to payment provider"), identity=identity, javascript=javascript) {
+@layout(
+    Seq("Redirecting to payment provider"),
+    identity=identity, javascript=javascript, facebookEvent=facebookEvent) {
 
     <div class="grid-container">
         <div class="grid-x grid-padding-x grid-padding-y">

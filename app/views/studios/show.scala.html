@@ -32,7 +32,8 @@
     studio: models.Studio,
     equipments: Seq[LocalEquipment],
     pictures: Seq[models.Picture#Id],
-    bookingEvents: Seq[models.Event])(
+    bookingEvents: Seq[models.Event],
+    facebookEvent: Option[FacebookEvent] = None)(
     implicit req: RequestHeader, config: Configuration, flash: Flash)
 
 @subTitle = @{
@@ -300,7 +301,8 @@
     Seq(studio.name, subTitle),
     head=head,
     topBarExtension=if (isStudioOwner) Some(tags.studioTopBarExtension(studio)) else None,
-    identity=identity) {
+    identity=identity,
+    facebookEvent=facebookEvent) {
 
     <div class="grid-container">
         <div class="grid-x grid-padding-x grid-padding-y">

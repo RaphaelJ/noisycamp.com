@@ -27,7 +27,9 @@ import squants.market.Money
 
 import account.PlansController
 import misc.HighlightLocation
-import models.Picture
+import models.{
+    FacebookEvent, FacebookEventName, FacebookContentCategory, FacebookSearchString,
+    Picture }
 
 @Singleton
 class IndexController @Inject() (
@@ -53,10 +55,15 @@ class IndexController @Inject() (
     def becomeAHost = UserAwareAction.async { implicit request =>
         val userOpt = request.identity.map(_.user)
 
+        val fbEvent = FacebookEvent(
+            FacebookEventName.Lead,
+            Seq(FacebookContentCategory("plan")))
+
         for {
             currency <- clientCurrency
             hasFreeTrial <- db.run(plansController.hasFreeTrial(userOpt))
-        } yield Ok(views.html.becomeAHost(identity=request.identity, currency, hasFreeTrial))
+        } yield Ok(views.html.becomeAHost(
+            identity = request.identity, currency, hasFreeTrial, facebookEvent = Some(fbEvent)))
     }
 
     def about = UserAwareAction { implicit request =>
@@ -74,6 +81,12 @@ class IndexController @Inject() (
     def location(id: String) = UserAwareAction.async { implicit request =>
         HighlightLocation.byId.get(id) match {
             case Some(location) => db.run {
+                val fbEvent = FacebookEvent(
+                    FacebookEventName.Search,
+                    Seq(
+                        FacebookContentCategory("studio"),
+                        FacebookSearchString(id)))
+
                 for {
                     startingPrice <- locationStartingPrice(location)
                     studios <- daos.studio.
@@ -90,9 +103,10 @@ class IndexController @Inject() (
                     location,
                     startingPrice,
                     studios zip pics,
-                    identity=request.identity))
+                    identity = request.identity,
+                    facebookEvent = Some(fbEvent)))
             }
-            case None => Future.successful(NotFound(""))
+            case None => Future.successful(NotFound("Location not found"))
         }
     }
 

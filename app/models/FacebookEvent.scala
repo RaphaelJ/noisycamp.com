@@ -4,7 +4,9 @@ import play.api.libs.json.{ JsArray, JsBoolean, JsNumber, Json, JsString, JsValu
 import squants.market
 
 object FacebookEventName extends Enumeration {
-    case class Val(val name: String)
+    case class Val(val name: String) {
+        override def toString = name
+    }
 
     val AddPaymentInfo = Val("AddPaymentInfo")
     val AddToCart = Val("AddToCart")
