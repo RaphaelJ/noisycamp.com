@@ -63,7 +63,7 @@ class IndexController @Inject() (
             currency <- clientCurrency
             hasFreeTrial <- db.run(plansController.hasFreeTrial(userOpt))
         } yield Ok(views.html.becomeAHost(
-            identity = request.identity, currency, hasFreeTrial, facebookEvent = Some(fbEvent)))
+            identity = request.identity, currency, hasFreeTrial, facebookEvents = Seq(fbEvent)))
     }
 
     def about = UserAwareAction { implicit request =>
@@ -104,7 +104,7 @@ class IndexController @Inject() (
                     startingPrice,
                     studios zip pics,
                     identity = request.identity,
-                    facebookEvent = Some(fbEvent)))
+                    facebookEvents = Seq(fbEvent)))
             }
             case None => Future.successful(NotFound("Location not found"))
         }

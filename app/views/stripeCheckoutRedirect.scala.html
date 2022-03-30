@@ -24,7 +24,7 @@
 @(
     identity: Option[models.Identity],
     stripeSession: Session,
-    facebookEvent: Option[FacebookEvent] = None)(
+    facebookEvents: Seq[FacebookEvent] = Seq.empty)(
     implicit req: RequestHeader, config: Configuration, flash: Flash)
 
 @javascript = {
@@ -33,7 +33,7 @@
 
 @layout(
     Seq("Redirecting to payment provider"),
-    identity=identity, javascript=javascript, facebookEvent=facebookEvent) {
+    identity=identity, javascript=javascript, facebookEvents=facebookEvents) {
 
     <div class="grid-container">
         <div class="grid-x grid-padding-x grid-padding-y">

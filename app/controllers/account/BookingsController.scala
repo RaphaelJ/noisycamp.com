@@ -68,7 +68,7 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
                 case (Some("payment-success"), scb: StudioCustomerBooking) => {
                     val transactionFee = scb.transactionFee.getOrElse(studio.currency(0))
 
-                    Some(FacebookEvent(
+                    Seq(FacebookEvent(
                         FacebookEventName.Purchase,
                         Seq(
                             FacebookContentCategory("studio"),
@@ -77,11 +77,11 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
                             FacebookValue(transactionFee.amount),
                             FacebookCurrency(transactionFee.currency))))
                 }
-                case _ => None
+                case _ => Seq.empty
             }
 
             DBIO.successful(Ok(views.html.account.bookings.show(
-                request.identity, studio, owner, booking, equips, facebookEvent = fbEvent)))
+                request.identity, studio, owner, booking, equips, facebookEvents = fbEvent)))
         }
     }
 

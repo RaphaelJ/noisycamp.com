@@ -19,7 +19,7 @@
 
 @(
     identity: Option[models.Identity],
-    facebookEvent: Option[FacebookEvent] = None)(
+    facebookEvents: Seq[FacebookEvent] = Seq.empty)(
     implicit req: play.api.mvc.RequestHeader, config: Configuration, flash: Flash)
 
 @head = {
@@ -30,7 +30,7 @@
 
 @layout(
     Seq("Find a music studio"),
-    head=head, identity=identity, fullScreen=true, facebookEvent=facebookEvent) {
+    head=head, identity=identity, fullScreen=true, facebookEvents=facebookEvents) {
     <div class="grid-container-fluid">
         <studios-index></studios-index>
     </div>

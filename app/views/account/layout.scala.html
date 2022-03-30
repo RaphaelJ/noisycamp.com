@@ -26,7 +26,7 @@
     hideSideBarOnSmall: Boolean = true,
     titleExtension: Option[Html] = None,
     identity: models.Identity,
-    facebookEvent: Option[FacebookEvent] = None)(
+    facebookEvents: Seq[FacebookEvent] = Seq.empty)(
     rightPaneContent: Html)(
     implicit req: RequestHeader, config: Configuration, flash: Flash)
 
@@ -36,7 +36,7 @@
     javascript=javascript,
     topBarExtension=topBarExtension,
     identity=Some(identity),
-    facebookEvent=facebookEvent) {
+    facebookEvents=facebookEvents) {
 
     <div class="grid-container">
         <div class="grid-x grid-padding-x grid-padding-y">

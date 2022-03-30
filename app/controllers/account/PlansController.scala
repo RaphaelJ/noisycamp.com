@@ -70,7 +70,7 @@ class PlansController @Inject() (ccc: CustomControllerCompoments)
             }
 
             Ok(views.html.account.plans.index(
-                request.identity, currency, hasFreeTrial, facebookEvent = Some(fbEvent)))
+                request.identity, currency, hasFreeTrial, facebookEvents = Seq(fbEvent)))
         }
     }
 
@@ -108,7 +108,7 @@ class PlansController @Inject() (ccc: CustomControllerCompoments)
                                         Ok(views.html.stripeCheckoutRedirect(
                                             identity = Some(request.identity),
                                             stripeSession = session,
-                                            facebookEvent = Some(fbEvent)))
+                                            facebookEvents = Seq(fbEvent)))
                                     }
                             }
                     } yield result

@@ -31,14 +31,14 @@
     booking: models.StudioCustomerBooking,
     equips: Seq[models.LocalEquipment],
     now: Instant = Instant.now,
-    facebookEvent: Option[FacebookEvent] = None)(
+    facebookEvents: Seq[FacebookEvent] = Seq.empty)(
     implicit req: RequestHeader, config: Configuration, flash: Flash)
 
 @views.html.account.layout(
     Seq("Your booking",
         "In " + studio.location.address.city + " on " +
         tags.localDate(booking.times.beginsAt.toLocalDate).toString.trim),
-    identity=identity, facebookEvent=facebookEvent) {
+    identity=identity, facebookEvents=facebookEvents) {
 
     <div class="grid-x grid-padding-x grid-padding-y">
         @booking.status match {

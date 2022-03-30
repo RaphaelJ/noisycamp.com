@@ -26,7 +26,7 @@
     identity: Option[models.Identity],
     currency: Currency,
     hasFreeTrial: Boolean,
-    facebookEvent: Option[FacebookEvent] = None)(
+    facebookEvents: Seq[FacebookEvent] = Seq.empty)(
     implicit req: RequestHeader, config: Configuration, flash: Flash)
 
 @head = {
@@ -75,7 +75,7 @@
 
 @layout(
     Seq("Booking management software for practice and recording spaces"), head=head,
-    identity=identity, fullScreen=false, facebookEvent=facebookEvent) {
+    identity=identity, fullScreen=false, facebookEvents=facebookEvents) {
 
     <div class="grid-container">
         <div class="grid-x grid-margin-x grid-margin-y become-a-host">

@@ -24,12 +24,12 @@
 
 @(
     identity: Option[models.Identity], currency: Currency, hasFreeTrial: Boolean,
-    facebookEvent: Option[FacebookEvent] = None)(
+    facebookEvents: Seq[FacebookEvent] = Seq.empty)(
     implicit req: RequestHeader, config: Configuration, flash: Flash)
 
 @layout(
     Seq("Upgrade your NoisyCamp account"),
-    identity=identity, fullScreen=false, facebookEvent=facebookEvent) {
+    identity=identity, fullScreen=false, facebookEvents=facebookEvents) {
 
     <div class="grid-container">
         <div class="grid-x grid-padding-y">

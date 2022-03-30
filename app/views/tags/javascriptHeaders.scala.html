@@ -7,8 +7,15 @@
 
 @(
     javascript: Html = Html(""),
-    facebookEvent: Option[FacebookEvent] = None)(
+    facebookEvents: Seq[FacebookEvent] = Seq.empty)(
     implicit req: RequestHeader, config: Configuration, flash: Flash)
+
+@* Automatically adds some events if these can be deduced from the "redirect-from" flash value. *@
+
+@redirectFromFacebookEvents = @{ flash.get("redirect-from").flatMap {
+    case "sign-up" => Some(FacebookEvent(FacebookEventName.CompleteRegistration))
+    case _ => None
+} }
 
 <script>
     var NC_CONFIG = @tags.json(JsConfig());
@@ -61,7 +68,7 @@
         fbq('init', '@pixelID');
         fbq('track', 'PageView')
 
-        @for(event <- facebookEvent) {
+        @for(event <- (facebookEvents ++ redirectFromFacebookEvents.toSeq)) {
             @if(event.properties.isEmpty) {
                 fbq('track', '@{event.name}');
             } else {

@@ -153,7 +153,9 @@ class AuthController @Inject() (
                                         passwordHasherRegistry.current.hash(data.password))
 
                                     // Immediatly authenticates the user.
-                                    result <- authenticate(loginInfo, redirectTo)
+                                    result <- authenticate(
+                                        loginInfo, redirectTo,
+                                        new Flash(Map("redirect-from" -> "sign-up")))
                                 } yield result
                             }
                         }
@@ -226,7 +228,8 @@ class AuthController @Inject() (
     /** Authenticates the user by redirecting with an authentication cookie.
      *
      * If no redirect url provided, redirect to the main page. */
-    private def authenticate(loginInfo: LoginInfo, redirectTo: Option[String])(
+    private def authenticate(
+        loginInfo: LoginInfo, redirectTo: Option[String], flash: Flash = new Flash())(
         implicit request: RequestHeader): Future[Result] = {
 
         val authService = silhouette.env.authenticatorService
@@ -240,7 +243,8 @@ class AuthController @Inject() (
                 authService.embed(
                     token,
                     redirectToResult(redirectTo).
-                        flashing("success" -> "You have been successfully authenticated."))
+                        flashing(
+                            flash + ("success" -> "You have been successfully authenticated.")))
             }
     }
 

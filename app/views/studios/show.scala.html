@@ -33,7 +33,7 @@
     equipments: Seq[LocalEquipment],
     pictures: Seq[models.Picture#Id],
     bookingEvents: Seq[models.Event],
-    facebookEvent: Option[FacebookEvent] = None)(
+    facebookEvents: Seq[FacebookEvent] = Seq.empty)(
     implicit req: RequestHeader, config: Configuration, flash: Flash)
 
 @subTitle = @{
@@ -302,7 +302,7 @@
     head=head,
     topBarExtension=if (isStudioOwner) Some(tags.studioTopBarExtension(studio)) else None,
     identity=identity,
-    facebookEvent=facebookEvent) {
+    facebookEvents=facebookEvents) {
 
     <div class="grid-container">
         <div class="grid-x grid-padding-x grid-padding-y">

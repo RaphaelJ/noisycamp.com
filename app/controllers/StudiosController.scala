@@ -50,7 +50,7 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
             FacebookEventName.Search,
             Seq(FacebookContentCategory("studio")))
 
-        Ok(views.html.studios.index(identity = request.identity, facebookEvent = Some(fbEvent)))
+        Ok(views.html.studios.index(identity = request.identity, facebookEvents = Seq(fbEvent)))
     }
 
     def search = UserAwareAction.async { implicit request =>
@@ -129,7 +129,7 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
 
                     Ok(views.html.studios.show(
                         identity = request.identity, now,
-                        studio, equips, picIds, bookingEvents, facebookEvent = Some(fbEvent)))
+                        studio, equips, picIds, bookingEvents, facebookEvents = Seq(fbEvent)))
                 }
                 case _ => NotFound("Studio not found.")
             }

@@ -27,7 +27,7 @@
     startingPrice: Option[Money],
     studios: Seq[(Studio, Option[Picture#Id])],
     identity: Option[models.Identity],
-    facebookEvent: Option[FacebookEvent] = None)(
+    facebookEvents: Seq[FacebookEvent] = Seq.empty)(
     implicit req: RequestHeader, config: Configuration, flash: Flash)
 
 @head = {
@@ -99,7 +99,7 @@
     head=head,
     identity=identity,
     fullScreen=false,
-    facebookEvent=facebookEvent) {
+    facebookEvents=facebookEvents) {
 
     <div class="grid-container">
         <div class="grid-x grid-margin-x grid-margin-y become-a-host">

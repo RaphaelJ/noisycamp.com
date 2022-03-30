@@ -198,7 +198,7 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
             Ok(views.html.stripeCheckoutRedirect(
                 identity = Some(identity),
                 stripeSession = session,
-                facebookEvent = Some(fbEvent)))
+                facebookEvents = Seq(fbEvent)))
         }
     }
 
