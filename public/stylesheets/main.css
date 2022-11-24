@@ -18,6 +18,8 @@
 /* General */
 
 :root {
+    --bg-color: #f9f1ee;
+
     --accent-color: #db7233;
     --accent-color-dark: #be642c;
     --accent-color-darker: #a05526;
@@ -37,7 +39,7 @@
 }
 
 body {
-    background-color: #f5f3f2;
+    background-color: var(--bg-color);
 }
 
 body,
@@ -754,7 +756,8 @@ table.plan-comparison-table tbody tr td i.fi-check {
         position: sticky;
         top: 0;
         left: 0;
-        background-color: #f5f3f2;
+        z-index: 1;
+        background-color: var(--bg-color);
     }
 
     table.plan-comparison-table thead .plan-name {

@@ -40,7 +40,7 @@
             v-for="(studio, index) in studios"
             :ref="'studio-' + index"
             :key="studio.id"
-            class="cell small-12 large-6">
+            class="cell small-12 large-4">
 
             <a
                 v-if="!searchIsProcessing"

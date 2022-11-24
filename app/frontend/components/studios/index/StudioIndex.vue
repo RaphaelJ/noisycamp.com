@@ -18,7 +18,7 @@
 
 <template>
     <div class="grid-x index">
-        <div class="cell medium-12 large-6">
+        <div class="cell medium-12 large-8">
             <div class="grid-y grid-padding-x results">
                 <div class="cell shrink section">
                     <studios-index-filters
@@ -41,7 +41,7 @@
         </div>
 
         <div
-            class="cell large-6 show-for-large map"
+            class="cell large-4 show-for-large map"
             ref="map-container">
 
             <studios-index-map
