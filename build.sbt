@@ -53,8 +53,6 @@ resolvers += Resolver.jcenterRepo
 libraryDependencies ++= Seq(
     guice, // Dependency injection library required by Play
 
-    evolutions, jdbc, // Executes database evolutions
-
     ws, // WebService library
 
     "org.scala-lang.modules" %% "scala-xml" % "1.3.0",
@@ -74,7 +72,8 @@ libraryDependencies ++= Seq(
 
     "com.stripe" % "stripe-java" % "20.94.0",
 
-    "com.typesafe.play" %% "play-slick" % "4.0.2",
+    "com.typesafe.play" %% "play-slick" % "5.0.0",
+    "com.typesafe.play" %% "play-slick-evolutions" % "5.0.0",
 
     "org.mnode.ical4j" % "ical4j" % "3.1.2",
 
