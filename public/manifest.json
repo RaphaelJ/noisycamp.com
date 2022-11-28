@@ -3,8 +3,8 @@
     "short_name": "NoisyCamp",
     "description": "Book a music or rehearsal studio.",
 
-    "background_color": "#2a1f0d",
-    "theme_color": "#2a1f0d",
+    "background_color": "#110903",
+    "theme_color": "#110903",
 
     "display": "standalone",
     "orientation": "portrait",

@@ -54,10 +54,14 @@
                             NoisyCamp
                         </a>
                     </li>
+                    <li class="burger-button-container">
+                        <burger-button target="#top-bar-right">
+                        </burger-button>
+                    </li>
                 </ul>
             </div>
 
-            <div class="top-bar-right">
+            <div class="top-bar-right closed" id="top-bar-right">
                 <ul class="menu align-center-for-small">
                     @if(identity.isDefined && identity.get.isAHost) {
                         <li>
@@ -109,7 +113,9 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
         <meta name="keywords" content="noisycamp, studio, online bookings, rehearsal, music, recording, musicians, practice space, host, online payment"/>
         <meta name="copyright" content="Copyright @Year.now NoisyCamp">

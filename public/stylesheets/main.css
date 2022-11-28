@@ -349,13 +349,17 @@ table.booking-table td {
 }
 
 :root {
+    --top-bar-font-height: 1.2rem;
+
     --top-bar-line-height: calc(
-       1.2rem       /* Title font size */
-       + 2 * 0.7rem /* Title line padding */
-       + 2 * 0.5rem /* Top bar padding */
+        var(--top-bar-font-height)
+        + 2 * 0.7rem                /* Title line padding */
     );
 
-   --top-bar-height: var(--top-bar-line-height);
+    --top-bar-height: calc(
+        var(--top-bar-line-height)
+        + 2 * 0.5rem                /* Top bar padding */
+    );
 }
 
 .top-bar.no-full-screen {
@@ -412,18 +416,48 @@ table.booking-table td {
     width: 100%;
 }
 
-/* Center aligns the top bar content on small devices. */
+/* Shows a burger button on small devices. */
 @media screen and (max-width: 39.9375em) {
-    .top-bar ul li {
-        margin: auto;
+    .top-bar .burger-button-container {
+        /* Pushes the burger button to the right */
+        margin-left: auto;
+        margin-right: 0;
     }
 
-    .top-bar .logo {
-        margin-bottom: 0.5rem;
+    .top-bar-right {
+        overflow: hidden;
+        transition: max-height 0.2s ease-out;
     }
 
-    :root {
-        --top-bar-height: calc(2 * var(--top-bar-line-height) - 0.7rem);
+    .top-bar-right ul {
+        margin-top: 0.25rem;
+
+        /* Makes the meny vertical */
+        display: block;
+        text-align: center;
+    }
+
+    .top-bar-right li {
+        margin-top: 0.5rem;
+    }
+
+    .top-bar-right li a,
+    .top-bar-right li .button {
+        display: inline-block;
+    }
+
+    .top-bar-right.closed {
+        max-height: 0;
+    }
+
+    .top-bar-right.open {
+        max-height: 150px;
+    }
+}
+
+@media screen and (min-width: 40em) {
+    .top-bar .burger-button {
+        display: none;
     }
 }
 

@@ -20,6 +20,7 @@ import Vue from 'vue';
 import Calendar from './components/calendar/Calendar.vue';
 
 import Arrow from './components/widgets/Arrow.vue';
+import BurgerButton from './components/widgets/BurgerButton.vue';
 import LocationMap from './components/widgets/LocationMap.vue';
 import FixedBottomBox from './components/widgets/FixedBottomBox.vue';
 import PictureCarousel from './components/widgets/PictureCarousel.vue';
@@ -40,11 +41,13 @@ import BookingTimesInput from './components/studios/booking/BookingTimesInput.vu
 import StudioCreate from './components/account/studios/create/StudioCreate.vue';
 import StudioForm from './components/account/studios/create/StudioForm.vue';
 
+import SlideDownTransition from "./transitions/SlideDownTransition.vue";
+
 new Vue({
     el: "#nc-app",
     components: {
         Calendar,
-        Arrow, LocationMap, FixedBottomBox, PictureCarousel, ReactivePicture,
+        Arrow, BurgerButton, LocationMap, FixedBottomBox, PictureCarousel, ReactivePicture,
         StripeCheckoutRedirect,
         SearchForm,
         StudiosIndex,
@@ -52,4 +55,5 @@ new Vue({
         BookingReviewForm, BookingTimesInput,
         StudioCreate, StudioForm,
     },
+    transitions: { SlideDownTransition, },
 });
