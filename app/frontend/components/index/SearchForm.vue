@@ -31,9 +31,9 @@
 
             <p class="help-text">
                 Or use your
-                <a @click="setCurrentLocation()">
+                <button class="link" @click="setCurrentLocation()">
                     current location&nbsp; <i class="fi-marker"></i>
-                </a>
+                </button>
             </p>
         </div>
 

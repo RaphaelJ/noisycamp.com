@@ -55,12 +55,16 @@ body, h1, h2, h3, h4, h5, h6, .text-sans-serif {
     font-family: 'Playfair Display', serif;
 }
 
-a, a:visited {
+a, a:visited, .link {
     color: var(--accent-color-dark);
 }
 
-a:hover {
+a:hover, .link:hover {
     color: var(--accent-color-darker);
+}
+
+.link {
+    cursor: pointer;
 }
 
 /* As title gets smaller on small screen, makes them stronger */
@@ -955,6 +959,15 @@ footer .social-links {
 @media screen and (max-width: 39.9375em) {
     footer {
         text-align: center;
+    }
+
+    footer .footer-links li a {
+        display: inline-block;
+        padding: 0.5rem;
+    }
+
+    footer .social-links a {
+        padding: 0.4rem;
     }
 }
 

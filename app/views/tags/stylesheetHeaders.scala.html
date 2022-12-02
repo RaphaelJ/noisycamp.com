@@ -8,7 +8,8 @@
     rel="shortcut icon" type="image/png"
     href="@URL.fromCDN(routes.Assets.versioned("images/favicon-32.png"))">
 
-<link rel="manifest" href="@URL.fromCDN(routes.Assets.versioned("manifest.json"))">
+<!-- Manifest not served from CDN as it uses paths relative to the main domain. -->
+<link rel="manifest" href="@routes.Assets.versioned("manifest.json")">
 
 <link
     rel="stylesheet"
