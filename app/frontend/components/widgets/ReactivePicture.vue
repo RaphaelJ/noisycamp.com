@@ -88,33 +88,4 @@ export default Vue.extend({
 </script>
 
 <style>
-.reactive-picture-container {
-    position: relative;
-    width: 100%;
-    height: 0;
-
-    background-color: #f5f3f2c2;
-}
-
-.reactive-picture-container .reactive-picture {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-}
-
-.reactive-picture-container .reactive-picture-placeholder {
-    font-size: 100px;
-    color: black;
-    opacity: 0.15;
-
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 150px;
-    margin-left: -75px;
-    margin-top: -75px;
-
-    text-align: center;
-}
 </style>

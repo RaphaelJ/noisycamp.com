@@ -19,7 +19,11 @@
 -->
 
 <template>
-    <button :class="buttonClasses" ref="button" @click="click()">
+    <button
+        :class="buttonClasses"
+        ref="button"
+        @click="click()"
+        aria-label="Open/Close menu">
         <div class="burger-button-bar"></div>
         <div class="burger-button-bar"></div>
         <div class="burger-button-bar"></div>

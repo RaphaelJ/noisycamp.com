@@ -24,26 +24,22 @@
 
 @studioBlock(studio: Studio, picIdOpt: Option[models.Picture#Id]) = {
     <div class="panel-section">
-        <div class="grid-x grid-padding-x grid-padding-y">
+        <div class="grid-y grid-padding-y">
 
-            <div class="cell small-12 panel-picture">
+            <div class="cell panel-picture">
                 <a
                     href="@controllers.routes.StudiosController.show(studio.URLId)"
                     target="_blank"
                     class="text-center">
-                    <reactive-picture
-                        alt="@{studio.name} picture"
-                        @for(picId <- picIdOpt) {
-                            picture-id="@picId.base64"
-                        }
-                        :width="510"
-                        :height="340"
-                        classes="border-radius">
-                    </reactive-picture>
+
+                    @tags.reactivePicture(
+                        picIdOpt.map(PictureFromDatabase(_)),
+                        studio.name + "'s picture",
+                        480, 270)
                 </a>
             </div>
 
-            <div class="cell small-12">
+            <div class="cell">
                 <div class="grid-x grid-margin-x">
                     <div class="cell auto">
                         <a

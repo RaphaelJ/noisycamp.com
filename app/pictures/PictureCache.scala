@@ -17,74 +17,67 @@
 
 package pictures
 
+import java.nio.file.Path
 import javax.inject._
 import scala.concurrent.{ ExecutionContext, Future }
 
 import com.github.benmanes.caffeine.cache.{ Caffeine, Weigher }
 import play.api.Configuration
-import play.api.db.slick.{ DatabaseConfigProvider, HasDatabaseConfigProvider }
 import scalacache._
 import scalacache.caffeine._
 import scalacache.modes.scalaFuture._
-import slick.jdbc.JdbcProfile
 
-import models.{ Picture, PictureId }
-import daos.PictureDAO
+import misc.TaskExecutionContext
+import models.{ Picture, PictureSource }
 
-case class PictureCacheKey(id: PictureId, transform: PictureTransform)
+case class PictureCacheKey(
+    source:     PictureSource,
+    transform:  PictureTransform) {
+
+    override def toString = "%s:%s".format(source.cacheKey, transform.toString)
+}
+
 
 /** Cache uploaded pictures transformations between HTTP requests. */
 @Singleton
 class PictureCache @Inject() (
-  val config: Configuration,
-  protected val dbConfigProvider: DatabaseConfigProvider,
-  pictureDao: PictureDAO
-  )
-  (implicit executionContext: ExecutionContext)
-  extends HasDatabaseConfigProvider[JdbcProfile] {
+    val config: Configuration,
+    pictureLoader: PictureLoader,
+    )(implicit executionContext: TaskExecutionContext) {
 
-  import profile.api._
+    def get(source: PictureSource, transform: PictureTransform): Future[Option[Picture]] = {
+        val key = PictureCacheKey(source, transform).toString
 
-  def get(id: PictureId, transform: PictureTransform)
-    : Future[Option[Picture]] = {
+        final case class PictureNotFoundException()
+            extends Exception("Picture not found.")
 
-    val key = PictureCacheKey(id, transform).toString
-
-    final case class PictureNotFoundException()
-      extends Exception("Picture not found.")
-
-    val pic: Future[Picture] = cachingF(key)(ttl = None) {
-      // Picture not in cache, fetches it from the database.
-      // TODO: don't query the DB if the raw picture is in cache.
-      val optPic: Future[Option[Picture]] = db.run {
-        pictureDao.get(id).
-          result.
-          headOption
-      }
-
-      optPic.flatMap {
-        case Some(pic) => Future { transform(pic) }
-        case None => Future.failed(PictureNotFoundException())
-      }
+        (cachingF(key)(ttl = None) {
+            // If the image is not a transform, fetches it. Otherwise fetches the original first.
+            (transform match {
+                case RawPicture => pictureLoader.fromSource(source)
+                case _ => get(source, RawPicture).map(_.map(transform.apply))
+            }).flatMap {
+                case Some(pic) => Future { pic }
+                case None => Future.failed(PictureNotFoundException())
+            }
+        }).
+            // Converts `pic` exceptions to `None`.
+            map(Some(_)).recover { case _: PictureNotFoundException => None }
     }
 
-    // Converts `pic` exceptions to `None`.
-    pic.map(Some(_)).recover { case _: PictureNotFoundException => None }
-  }
+    private implicit val cache: Cache[Picture] = {
+        val maxCacheSize = config.underlying.
+            getBytes("noisycamp.picturesMaxCacheSize")
 
-  private implicit val cache: Cache[Picture] = {
-    val maxCacheSize = config.underlying.
-      getBytes("noisycamp.picturesMaxCacheSize")
+        val underlying = Caffeine.newBuilder().
+            maximumWeight(maxCacheSize).
+            weigher(new Weigher[String, Entry[Picture]] {
+                def weigh(key: String, picture: Entry[Picture]) = {
+                    picture.value.content.length
+                }
+            }).
+            build[String, Entry[Picture]]
 
-    val underlying = Caffeine.newBuilder().
-      maximumWeight(maxCacheSize).
-      weigher(new Weigher[String, Entry[Picture]] {
-        def weigh(key: String, picture: Entry[Picture]) = {
-          picture.value.content.length
-        }
-      }).
-      build[String, Entry[Picture]]
-
-    CaffeineCache(underlying)
-  }
+        CaffeineCache(underlying)
+    }
 }

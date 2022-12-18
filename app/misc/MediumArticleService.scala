@@ -19,16 +19,22 @@ package misc
 
 import java.time.{ Duration, Instant }
 import javax.inject._
+
 import scala.concurrent.{ ExecutionContext, Future }
+import scala.util.matching.Regex
 
 import play.api.Configuration
 import play.api.libs.json.{ JsSuccess, JsValue, Reads }
 import play.api.libs.ws._
 
+import models.{ Picture, PictureId }
+import pictures.PictureLoader
+
 case class MediumArticle(
-    title: String,
-    url: String, thumbnailUrl: String,
-    publicationDate: Instant)
+    title:              String,
+    url:                String,
+    thumbnail:          Option[PictureId],
+    publicationDate:    Instant)
 
 /** Provides a service that retreives the latest Medium articles from the blog.
  *
@@ -37,6 +43,7 @@ case class MediumArticle(
 @Singleton
 class MediumArticleService @Inject() (
     val config: Configuration,
+    pictureLoader: PictureLoader,
     val ws: WSClient,
     implicit val executionContext: TaskExecutionContext) {
 
@@ -76,19 +83,31 @@ class MediumArticleService @Inject() (
             JsSuccess(Instant.parse(utcStr))
         })
 
-        ws.url(url).
-            withFollowRedirects(true).
-            get.
-            map { response =>
-                (response.json \ "items").
-                as[Seq[JsValue]].
-                map { item =>
-                    MediumArticle(
-                        (item \ "title").as[String],
-                        (item \ "link").as[String],
-                        (item \ "thumbnail").as[String],
-                        (item \ "pubDate").as[Instant](instantReads))
+        for {
+            items <- ws.url(url).
+                withFollowRedirects(true).
+                get.
+                map { response =>
+                    (response.json \ "items").
+                    as[Seq[JsValue]]
                 }
+
+            thumbnails <- Future.traverse(items) { item =>
+                val thumbnailUrl = (item \ "thumbnail").as[String]
+                pictureLoader.fromUrl(thumbnailUrl)
             }
+
+            _ <- Future.traverse(thumbnails) { thumbnailOpt =>
+                thumbnailOpt.
+                    map(pictureLoader.toDatabase(_)).
+                    getOrElse(Future.successful(None))
+            }
+        } yield items.zip(thumbnails).map { case (item, thumbnail) =>
+            MediumArticle(
+                (item \ "title").as[String],
+                (item \ "link").as[String],
+                thumbnail.map(_.id),
+                (item \ "pubDate").as[Instant](instantReads))
+        }
     }
 }

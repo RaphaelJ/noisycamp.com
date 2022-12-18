@@ -17,8 +17,8 @@
 -->
 
 <template>
-    <div class="grid-x grid-padding-x grid-padding-y">
-        <div class="cell small-12 panel-picture">
+    <div class="grid-y grid-padding-y">
+        <div class="cell panel-picture">
             <reactive-picture
                 :alt="studio.name + ' picture'"
                 :picture-id="studio.picture"
@@ -28,19 +28,19 @@
             </reactive-picture>
         </div>
 
-        <div class="cell small-12">
+        <div class="cell">
             <div class="grid-y info">
-                <h5 class="cell shrink text-overflow-ellipsis title">
+                <h2 class="cell shrink panel-title text-overflow-ellipsis">
                     {{ studio.name }}<br>
-                    <small class="location text-overflow-ellipsis">{{ location }}</small>
-                </h5>
+                    <small>{{ location }}</small>
+                </h2>
 
-                <h5 class="cell shrink pricing">
+                <h3 class="cell shrink panel-subtitle">
                     <small v-if="pricing[1]">Starting at </small>
                     <money-amount :value="pricing[0]">
                     </money-amount>
                     <small>per hour</small>
-                </h5>
+                </h3>
             </div>
         </div>
     </div>

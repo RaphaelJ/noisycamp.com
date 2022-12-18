@@ -556,18 +556,6 @@ table.booking-table td {
     margin-bottom: 0;
 }
 
-.panel-section .panel-picture {
-    margin-top: calc(-1 * var(--panel-section-padding));
-    margin-left: calc(-1 * var(--panel-section-padding));
-    margin-right: calc(-1 * var(--panel-section-padding));
-
-    width: calc(100% + 2 * var(--panel-section-padding));
-}
-
-.grid-padding-y > .cell.panel-picture {
-    padding-top: 0;
-}
-
 /* Removes panel cell padding on small devices is the cell is full width. */
 @media screen and (max-width: 39.9375em) {
     .cell .panel-section.expand-on-small {
@@ -578,7 +566,13 @@ table.booking-table td {
     }
 }
 
-.panel-section .panel-picture {
+.panel-section .grid-x .panel-picture {
+    margin-top: calc(-1 * var(--panel-section-padding));
+    margin-left: calc(-1 * var(--panel-section-padding));
+    margin-bottom: calc(-1 * var(--panel-section-padding));
+}
+
+.panel-section .grid-y .panel-picture {
     margin-top: calc(-1 * var(--panel-section-padding));
     margin-left: calc(-1 * var(--panel-section-padding));
     margin-right: calc(-1 * var(--panel-section-padding));
@@ -586,9 +580,64 @@ table.booking-table td {
     width: calc(100% + 2 * var(--panel-section-padding));
 }
 
-.panel-section .panel-picture,
-.panel-section .panel-picture img {
+.panel-section .grid-padding-x > .cell.panel-picture {
+    padding-left: 0;
+}
+
+.panel-section .grid-padding-y > .cell.panel-picture {
+    padding-top: 0;
+}
+
+.panel-section .grid-x .panel-picture,
+.panel-section .grid-x .panel-picture img {
+    border-radius: var(--border-radius) 0 0 var(--border-radius);
+
+    height: calc(100% + 1px);
+}
+
+.panel-section .grid-y .panel-picture,
+.panel-section .grid-y .panel-picture img {
     border-radius: var(--border-radius) var(--border-radius) 0 0;
+}
+
+.panel-section .panel-title {
+    font-size: 1.2rem;
+}
+
+.panel-section .panel-subtitle {
+    font-size: 1.1rem;
+}
+
+/* Reactive pictures */
+
+.reactive-picture-container {
+    position: relative;
+    width: 100%;
+    height: 0;
+
+    background-color: #f5f3f2c2;
+}
+
+.reactive-picture-container .reactive-picture {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+}
+
+.reactive-picture-container .reactive-picture-placeholder {
+    font-size: 100px;
+    color: black;
+    opacity: 0.15;
+
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 150px;
+    margin-left: -75px;
+    margin-top: -75px;
+
+    text-align: center;
 }
 
 /* Callouts */

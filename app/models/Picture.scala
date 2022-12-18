@@ -17,10 +17,16 @@
 
 package models
 
+import java.net.URI
+import java.nio.file.Path
 import java.time.Instant
+
 import scala.language.implicitConversions
+import scala.concurrent.Future
 
 import com.sksamuel.scrimage.format.Format
+import akka.compat.Future
+import java.io.InputStream
 
 case class PictureId(
     // SHA-256 hash of the content
@@ -40,4 +46,34 @@ case class Picture(
     content:    Array[Byte]) {
 
     type Id = PictureId
+}
+
+
+sealed trait PictureSource {
+    def cacheKey: String
+}
+
+final case class PictureFromFile(
+    val path: Path,
+    ) extends PictureSource {
+    def cacheKey = "PictureFromFile(%s)".format(path.toString)
+}
+
+final case class PictureFromDatabase(
+    val id: PictureId
+    ) extends PictureSource {
+    def cacheKey: String = "PictureFromDatabase(%s)".format(id.base64)
+}
+
+final case class PictureFromStream(
+    val uri: URI,
+    val stream: InputStream
+    ) extends PictureSource {
+    def cacheKey: String = "PictureFromStream(%s)".format(uri.toString)
+}
+
+final case class PictureFromUrl(
+    val url: String
+    ) extends PictureSource {
+    def cacheKey: String = "PictureFromUrl(%s)".format(url)
 }

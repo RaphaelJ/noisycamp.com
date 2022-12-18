@@ -15,6 +15,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+.studio-city {
+    font-size: 1.4rem;
+}
+
 .cell.small-picture-carousel {
     padding: 0;
 }

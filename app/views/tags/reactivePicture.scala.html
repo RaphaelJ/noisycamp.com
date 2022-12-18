@@ -1,0 +1,73 @@
+@* Noisycamp is a platform for booking music studios.
+ * Copyright (C) 2022  Raphael Javaux <raphael@noisycamp.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *@
+
+@import java.nio.file.Path
+
+@import play.api.Configuration
+
+@import misc.URL
+@import models.{ PictureFromDatabase, PictureFromFile, PictureFromUrl, PictureSource }
+
+@** Renders the requested picture using the `srcset` parameter to support varying screen pixel
+ * densities. *@
+@(
+    source: Option[PictureSource],
+    alt: String,
+    width: Int, height: Int,
+    classes: Seq[String] = Seq.empty,
+    placeholder: Boolean = true)(
+    implicit req: RequestHeader,
+    config: Configuration)
+
+@pictureUrl(screenRatio: Double) = @{
+    val size = (width * screenRatio).round.toString + 'x' + (height * screenRatio).round.toString
+
+    val call = source.get match {
+        case PictureFromDatabase(id) => controllers.routes.PictureController.cover(id.base64, size)
+        case PictureFromFile(path) => {
+            controllers.routes.PictureController.coverAsset(path.toString, size)
+        }
+        case _ => throw new UnsupportedOperationException("URL or Stream images not supported")
+    }
+
+    URL.fromCDN(call)
+}
+
+@if(placeholder) {
+<div
+    class="reactive-picture-container"
+    style="padding-top: @{height.toDouble / width.toDouble * 100.0}%">
+
+    <i class="reactive-picture-placeholder fi-photo @{classes.mkString(" ")}"></i>
+
+}
+
+    @for(_ <- source) {
+        <img
+            class="reactive-picture @{classes.mkString(" ")}"
+            alt="@alt"
+            srcset="
+                @pictureUrl(1),
+                @pictureUrl(1.5) 1.5x,
+                @pictureUrl(2) 2x,
+                @pictureUrl(2.5) 2.5x"
+            src="@pictureUrl(1)">
+    }
+
+@if(placeholder) {
+</div>
+}
