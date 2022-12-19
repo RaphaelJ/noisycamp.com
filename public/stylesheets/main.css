@@ -378,7 +378,9 @@ table.booking-table td {
 }
 
 .top-bar .logo img {
-    height: 1.75rem;
+    width: 31px;
+    height: 25px;
+
     padding-bottom: 0.25rem;
 
     margin-right: 1rem;
