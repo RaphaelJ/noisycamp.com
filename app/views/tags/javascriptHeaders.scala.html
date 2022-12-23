@@ -45,9 +45,13 @@
 <script src="@URL.fromCDN(routes.Assets.versioned("javascripts/vendor/jquery-3.6.2.min.js"))">
 </script>
 
+<script src="@URL.fromCDN(routes.Assets.versioned("javascripts/app/main.js"))"></script>
+
 @javascript
 
-<script src="@URL.fromCDN(routes.Assets.versioned("javascripts/bundle.js"))"></script>
+<script>
+    NoisyCamp.createApp();
+</script>
 
 @for(pixelID <- config.getOptional[String]("facebook.pixelID")) {
     <script>

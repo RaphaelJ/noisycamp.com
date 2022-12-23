@@ -21,6 +21,7 @@
 @import play.api.libs.json.Json
 
 @import misc.JsonWrites._
+@import misc.URL
 
 @(
     identity: models.Identity,
@@ -28,6 +29,11 @@
     bookingEvents: Seq[models.Event])(
     implicit request: RequestHeader, messagesProvider: MessagesProvider,
     config: Configuration, flash: Flash)
+
+@javascript = {
+    <script src="@URL.fromCDN(routes.Assets.versioned("javascripts/app/account/studios/bookings/calendar.js"))">
+    </script>
+}
 
 @currentDateTime = @{ studio.currentDateTime() }
 @studioCreatedAt = @{ studio.currentDateTime(studio.createdAt) }
@@ -55,7 +61,7 @@
 }
 
 @views.html.account.layout(
-    Seq("Studio calendar"),
+    Seq("Studio calendar"), javascript=javascript,
     topBarExtension = Some(tags.studioTopBarExtension(studio)),
     titleExtension = Some(titleExtension),
     identity = identity) {

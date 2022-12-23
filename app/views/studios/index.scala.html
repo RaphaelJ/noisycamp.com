@@ -17,6 +17,8 @@
 
 @import play.api.Configuration
 
+@import misc.URL
+
 @(
     identity: Option[models.Identity],
     facebookEvents: Seq[FacebookEvent] = Seq.empty)(
@@ -28,9 +30,15 @@
         href="https://api.mapbox.com/mapbox-gl-js/v1.8.1/mapbox-gl.css">
 }
 
+@javascript = {
+    <script src="@URL.fromCDN(routes.Assets.versioned("javascripts/app/studios/index.js"))"></script>
+}
+
 @layout(
     Seq("Find a music studio"),
-    head=head, identity=identity, fullScreen=true, facebookEvents=facebookEvents) {
+    identity=identity, fullScreen=true,
+    head=head, javascript=javascript,
+    facebookEvents=facebookEvents) {
     <div class="grid-container-fluid">
         <studios-index></studios-index>
     </div>

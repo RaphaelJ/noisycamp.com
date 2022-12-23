@@ -81,7 +81,7 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
                         result.
                         head.
                         map { owner =>
-                            Ok(views.html.studios.bookingReview(
+                            Ok(views.html.studios.booking.review(
                                 identity = request.identity, owner, studio, picIds, summary))
                         }
                 }
@@ -99,7 +99,7 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
                 flatMap { form =>
                     form.fold(
                         form => {
-                            DBIO.successful(Ok(views.html.studios.bookingReview(
+                            DBIO.successful(Ok(views.html.studios.booking.review(
                                 identity = request.identity, owner, studio, picIds,
                                 Left(form.errors))))
                         },

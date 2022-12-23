@@ -212,15 +212,16 @@
 <script lang="ts">
 import Vue, { PropOptions } from "vue";
 
-import BookingPolicyInput from './BookingPolicyInput.vue';
-import EquipmentInput from './EquipmentInput.vue';
-import GeneralInfoInput from './GeneralInfoInput.vue';
-import LocationInput from './LocationInput.vue';
-import OpeningScheduleInput from './OpeningScheduleInput.vue';
-import PaymentPolicyInput from './PaymentPolicyInput.vue';
-import PictureInput from './PictureInput.vue';
-import PricingPolicyInput from './PricingPolicyInput.vue';
-import SlideDownTransition from '../../../../transitions/SlideDownTransition.vue';
+import BookingPolicyInput from './settings/BookingPolicyInput.vue';
+import EquipmentInput from './settings/EquipmentInput.vue';
+import GeneralInfoInput from './settings/GeneralInfoInput.vue';
+import LocationInput from './settings/LocationInput.vue';
+import OpeningScheduleInput from './settings/OpeningScheduleInput.vue';
+import PaymentPolicyInput from './settings/PaymentPolicyInput.vue';
+import PictureInput from './settings/PictureInput.vue';
+import PricingPolicyInput from './settings/PricingPolicyInput.vue';
+
+import SlideDownTransition from '../../../transitions/SlideDownTransition.vue';
 
 declare var NC_CONFIG: any;
 

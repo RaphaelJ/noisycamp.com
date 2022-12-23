@@ -20,6 +20,8 @@
 @import play.api.Configuration
 @import play.api.mvc.RequestHeader
 
+@import misc.URL
+
 @** Redirects the user to the given Stripe checkout session. *@
 @(
     identity: Option[models.Identity],
@@ -29,6 +31,8 @@
 
 @javascript = {
     <script src="https://js.stripe.com/v3/"></script>
+    <script src="@URL.fromCDN(routes.Assets.versioned("javascripts/app/stripe_checkout_redirect.js"))">
+    </script>
 }
 
 @layout(

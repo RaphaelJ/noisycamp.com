@@ -22,7 +22,7 @@
 @import play.api.libs.json.Json
 
 @import forms.account.ManualBookingForm
-@import misc.FormUtils
+@import misc.{ FormUtils, URL }
 @import misc.JsonWrites._
 @import models.BookingRepeatFrequency
 
@@ -36,6 +36,11 @@
 
 @implicitField = @{ helper.FieldConstructor(utils.forms.foundationFieldConstructor.f) }
 
+@javascript = {
+    <script src="@URL.fromCDN(routes.Assets.versioned("javascripts/app/account/studios/bookings/create.js"))">
+    </script>
+}
+
 @user = @{ identity.user }
 @canManualBookings = @{ user.plan.manualBookings }
 
@@ -48,6 +53,7 @@
 
 @views.html.account.layout(
     Seq(title),
+    javascript=javascript,
     topBarExtension=Some(tags.studioTopBarExtension(studio)),
     identity=identity) {
 

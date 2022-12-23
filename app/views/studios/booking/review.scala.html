@@ -21,6 +21,7 @@
 @import play.api.mvc.RequestHeader
 
 @import misc.JsonWrites._
+@import misc.URL
 @import models.{ BookingTimes, Identity, LocalEquipment, Picture, PriceBreakdown, Studio, User }
 
 @(
@@ -33,18 +34,20 @@
     messagesProvider: MessagesProvider,
     config: Configuration, flash: Flash)
 
+@javascript = {
+    <script src="@URL.fromCDN(routes.Assets.versioned("javascripts/app/studios/booking/review.js"))">
+    </script>
+}
+
 @leftPanel = {
     <div class="panel-section expand-on-small">
         <div class="grid-y grid-padding-y">
             <div class="cell text-center panel-picture hide-for-small-only">
-                <reactive-picture
-                    alt="@{studio.name} picture"
-                    @for(pic <- pictures.headOption) {
-                        picture-id="@pictures.head.base64"
-                    }
-                    :width="400"
-                    :height="225">
-                </reactive-picture>
+                @tags.reactivePicture(
+                    pictures.headOption.map(PictureFromDatabase(_)),
+                    alt=studio.name + "'s picture",
+                    400, 225,
+                )
             </div>
 
             <div class="cell">
@@ -171,7 +174,9 @@
     }
 }
 
-@layout(Seq("Book a music session in " + studio.name), identity=Some(identity)) {
+@layout(
+    Seq("Book a music session in " + studio.name),
+    identity=Some(identity), javascript=javascript) {
 
     <div class="grid-container">
         <div class="grid-x grid-padding-x grid-padding-y">

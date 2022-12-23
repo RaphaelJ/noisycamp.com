@@ -134,7 +134,7 @@ import Vue from "vue";
 
 import StudioForm from './StudioForm.vue';
 
-import { fromCDN } from '../../../../misc/URL';
+import { fromCDN } from '../../../misc/URL';
 
 declare var NC_ROUTES: any;
 

@@ -18,7 +18,7 @@
 @import play.api.Configuration
 
 @import forms.account.StudioForm.Data
-@import misc.FormUtils
+@import misc.{ FormUtils, URL }
 
 @(
     identity: models.Identity,
@@ -33,9 +33,14 @@
         href="https://api.mapbox.com/mapbox-gl-js/v1.8.1/mapbox-gl.css">
 }
 
+@javascript = {
+    <script src="@URL.fromCDN(routes.Assets.versioned("javascripts/app/account/studios/settings.js"))">
+    </script>
+}
+
 @views.html.account.layout(
     Seq("Studio settings"),
-    head=head,
+    head=head, javascript=javascript,
     topBarExtension=Some(tags.studioTopBarExtension(studio)),
     identity=identity) {
 

@@ -18,7 +18,7 @@
 @import play.api.Configuration
 
 @import forms.account.StudioForm.Data
-@import misc.FormUtils
+@import misc.{ FormUtils, URL }
 
 @(
     identity: models.Identity,
@@ -32,7 +32,16 @@
         href="https://api.mapbox.com/mapbox-gl-js/v1.8.1/mapbox-gl.css">
 }
 
-@views.html.account.layout(Seq("Host a new studio"), head=head, identity=identity) {
+@javascript = {
+    <script src="@URL.fromCDN(routes.Assets.versioned("javascripts/app/account/studios/create.js"))">
+    </script>
+}
+
+@views.html.account.layout(
+    Seq("Host a new studio"),
+    head=head, javascript=javascript,
+    identity=identity) {
+
     <div class="panel-section expand-on-small">
         <form
             action="@controllers.account.studios.routes.IndexController.createSubmit"
@@ -45,7 +54,6 @@
                     FormUtils.errorsAsJson(studioForm)(messagesProvider), htmlEscape = true)"
                 :can-onsite-payments="@identity.user.plan.onsitePayments"
                 :can-add-fee="@identity.user.plan.equipmentFee">
-                >
             </studio-create>
         </form>
     </div>

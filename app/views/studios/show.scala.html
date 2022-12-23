@@ -149,6 +149,10 @@
     @jsonLDProps
 }
 
+@javascript = {
+    <script src="@URL.fromCDN(routes.Assets.versioned("javascripts/app/studios/show.js"))"></script>
+}
+
 @studioInfo = {
     <div class="hide-for-small-only">
         <picture-carousel
@@ -299,7 +303,7 @@
 
 @layout(
     Seq(studio.name, subTitle),
-    head=head,
+    head=head, javascript=javascript,
     topBarExtension=if (isStudioOwner) Some(tags.studioTopBarExtension(studio)) else None,
     identity=identity,
     facebookEvents=facebookEvents) {

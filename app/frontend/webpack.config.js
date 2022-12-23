@@ -21,68 +21,121 @@ var path = require('path');
 
 var VueLoaderPlugin = require('vue-loader/lib/plugin')
 
-var buildPath = path.resolve(__dirname, '../../public/javascripts/');
+var buildPath = path.resolve(__dirname, '../../public/javascripts/app');
 var nodeModulesPath = path.resolve(__dirname, 'node_modules');
 
-/**
- * Base configuration object for Webpack
- */
-module.exports = {
-    entry: [
-        './main.ts'
-    ],
-    output: {
-        path: buildPath,
-        filename: 'bundle.js',
-        sourceMapFilename: 'bundle.map',
-        publicPath: '/assets/javascripts/'
-    },
-    devtool: 'source-map',
-    externals: {
-    },
-    module: {
-        rules: [
-            {
-                test: /\.css$/,
-                use: ['style-loader','css-loader']
+module.exports = (env, argv) => {
+    return {
+        devtool: argv.mode === 'production' ? 'source-map' : 'eval',
+        entry: {
+            main: './entry_points/main.ts',
+            index: {
+                import: './entry_points/index.ts',
+                dependOn: 'main',
             },
-            {
-                test: /\.less$/,
-                use: ['style-loader', 'css-loader', 'less-loader']
+
+            studios_index: {
+                import: './entry_points/studios/index.ts',
+                filename: 'studios/index.js',
+                dependOn: 'main',
             },
-            {
-                test: /\.ts$/,
-                loader: 'ts-loader',
-                options: {
-                    appendTsSuffixTo: [/\.vue$/]
+            studios_show: {
+                import: './entry_points/studios/show.ts',
+                filename: 'studios/show.js',
+                dependOn: 'main',
+            },
+            studios_embedded: {
+                import: './entry_points/studios/embedded.ts',
+                filename: 'studios/embedded.js',
+                dependOn: 'main',
+            },
+
+            studios_booking_review: {
+                import: './entry_points/studios/booking/review.ts',
+                filename: 'studios/booking/review.js',
+                dependOn: 'main',
+            },
+
+            stripe_checkout_redirect: {
+                import: './entry_points/stripe_checkout_redirect.ts',
+                dependOn: 'main',
+            },
+
+            account_studios_create: {
+                import: './entry_points/account/studios/create.ts',
+                filename: 'account/studios/create.js',
+                dependOn: 'main',
+            },
+            account_studios_settings: {
+                import: './entry_points/account/studios/settings.ts',
+                filename: 'account/studios/settings.js',
+                dependOn: 'main',
+            },
+
+            account_studios_bookings_calendar: {
+                import: './entry_points/account/studios/bookings/calendar.ts',
+                filename: 'account/studios/bookings/calendar.js',
+                dependOn: 'main',
+            },
+            account_studios_bookings_create: {
+                import: './entry_points/account/studios/bookings/create.ts',
+                filename: 'account/studios/bookings/create.js',
+                dependOn: 'main',
+            },
+        },
+        output: {
+            path: buildPath,
+            filename: '[name].js',
+            sourceMapFilename: '[name].map',
+            publicPath: '/assets/javascripts/app',
+            library: 'NoisyCamp',
+        },
+        externals: {
+        },
+        module: {
+            rules: [
+                {
+                    test: /\.css$/,
+                    use: ['style-loader','css-loader']
+                },
+                {
+                    test: /\.less$/,
+                    use: ['style-loader', 'css-loader', 'less-loader']
+                },
+                {
+                    test: /\.ts$/,
+                    loader: 'ts-loader',
+                    options: {
+                        appendTsSuffixTo: [/\.vue$/]
+                    },
+                },
+                {
+                    test: /\.(jpg|png)$/,
+                    use: 'url-loader?limit=100000'
+                },
+                {
+                    test: /\.svg$/,
+                    use: 'url-loader?limit=10000&mimetype=image/svg+xml'
+                },
+                {
+                    test: /\.vue$/,
+                    loader: 'vue-loader',
+                    options: {}
                 }
-            },
-            {
-                test: /\.(jpg|png)$/,
-                use: 'url-loader?limit=100000'
-            },
-            {
-                test: /\.svg$/,
-                use: 'url-loader?limit=10000&mimetype=image/svg+xml'
-            },
-            {
-                test: /\.vue$/,
-                loader: 'vue-loader',
-                options: {}
+            ]
+        },
+        resolve: {
+            extensions: ['.ts','.js','.json','.css','.html'],
+            alias: {
+                'vue$': 'vue/dist/vue.esm.js'
             }
-        ]
-    },
-    resolve: {
-        extensions: ['.ts','.js','.json','.css','.html'],
-        alias: {
-            'vue$': 'vue/dist/vue.esm.js'
-        }
-    },
-    plugins: [
-        new webpack.ContextReplacementPlugin(
-            path.resolve(__dirname, '.')
-        ),
-        new webpack.HotModuleReplacementPlugin(),
-        new VueLoaderPlugin(),
-    ]
+        },
+        plugins: [
+            new webpack.ContextReplacementPlugin(
+                path.resolve(__dirname, '.')
+            ),
+            new webpack.HotModuleReplacementPlugin(),
+            new VueLoaderPlugin(),
+        ],
+    }
 };

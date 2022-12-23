@@ -140,7 +140,7 @@ import Vue, { PropOptions } from "vue";
 
 import * as moment from 'moment';
 
-import Arrow from '../widgets/Arrow.vue';
+import Arrow from './Arrow.vue';
 import { withTimeComponent } from '../../misc/DateUtils';
 import { Event, eventsOverlap, eventsMerge } from '../../misc/Event';
 

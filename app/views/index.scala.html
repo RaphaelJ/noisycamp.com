@@ -49,8 +49,12 @@
         content="@URL.fromCDN(routes.Assets.versioned("images/index/card.jpg"), absoluteURL = true)">
 }
 
+@javascript = {
+    <script src="@URL.fromCDN(routes.Assets.versioned("javascripts/app/index.js"))"></script>
+}
+
 @layout(
-    Seq("Book rehearsal and music studios"), head=head,
+    Seq("Book rehearsal and music studios"), head=head, javascript=javascript,
     identity=identity, fullScreen=true) {
 
     <div class="hero home-hero">
