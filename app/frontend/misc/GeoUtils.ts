@@ -62,25 +62,3 @@ export function unserializeCenter(str) {
 
     return new mapboxgl.LngLat(long, lat);
 }
-
-// Returns a url-encoded string version of a GeoJSON feature object.
-export function serializeFeature(feature) {
-    let values = []
-
-    if (feature['place_name']) {
-        let encodedName = encodeURIComponent(feature['place_name']);
-        values.push('location.place_name=' + encodedName);
-    }
-
-    let bbox = feature['bbox'];
-    if (feature['bbox']) {
-        values.push('location.bbox=' + serializeBBox(feature['bbox']));
-    }
-
-    let center = feature['center'];
-    if (center) {
-        values.push('location.center=' + serializeCenter(center));
-    }
-
-    return values.join('&');
-}

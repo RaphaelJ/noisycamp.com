@@ -58,7 +58,7 @@ declare var NC_ROUTES: any;
 
 import LocationInput from '../widgets/LocationInput.vue';
 
-import { serializeFeature } from '../../misc/GeoUtils';
+import { serializeFeature } from '../../misc/FeatureUtils.ts';
 
 export default Vue.extend({
     props: {
