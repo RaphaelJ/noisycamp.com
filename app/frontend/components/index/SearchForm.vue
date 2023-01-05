@@ -18,9 +18,9 @@
 
 <template>
     <div class="grid-x grid-padding-x">
-        <h3 class="cell">
+        <h1 class="cell search-form-title">
             Book a rehearsal or recording studio
-        </h3>
+        </h1>
 
         <div class="cell medium-12 large-8">
             <label>
@@ -58,7 +58,7 @@ declare var NC_ROUTES: any;
 
 import LocationInput from '../widgets/LocationInput.vue';
 
-import { serializeFeature } from '../../misc/FeatureUtils.ts';
+import { serializeFeature } from '../../misc/FeatureUtils';
 
 export default Vue.extend({
     props: {
@@ -91,4 +91,16 @@ export default Vue.extend({
 </script>
 
 <style>
+.search-form-title {
+    font-size: 1.8rem;
+    font-weight: normal;
+}
+
+/* Centers the title on small and medium */
+@media screen and (max-width: 63.9375em) {
+    .search-form-title {
+        text-align: center;
+        margin-bottom: 1.25rem;
+    }
+}
 </style>
