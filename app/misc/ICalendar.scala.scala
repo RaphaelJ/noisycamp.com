@@ -32,7 +32,6 @@ import play.api.mvc.RequestHeader
 import models.{
     BookingRepeatCount, BookingRepeatUntil, Studio, StudioBooking, StudioBookingStatus,
     StudioCustomerBooking, StudioManualBooking, User }
-import com.sendgrid.helpers.mail.objects.Content
 import models.BookingRepeatFrequency
 import com.sksamuel.scrimage.canvas.drawables.Rect
 import models.BookingRepeatCount

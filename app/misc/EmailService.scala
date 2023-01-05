@@ -18,16 +18,14 @@
 package misc
 
 import javax.inject._
+import javax.mail.internet.InternetAddress
 
 import scala.concurrent.{ Future, blocking }
 
 import play.api.Configuration
+import play.api.libs.mailer.{ Email, MailerClient}
 import play.api.mvc.RequestHeader
 import play.twirl.api.Html
-
-import com.sendgrid.{ SendGrid, Method, Request, Response }
-import com.sendgrid.helpers.mail.Mail
-import com.sendgrid.helpers.mail.objects.{ Content, Email }
 
 import forms.account.PremiumForm
 import models.{ LocalEquipment, Picture, Studio, StudioCustomerBooking, User }
@@ -37,43 +35,41 @@ import models.StudioManualBooking
 @Singleton
 class EmailService @Inject() (
     val config: Configuration,
+    val mailerClient: MailerClient,
     implicit val executionContext: TaskExecutionContext) {
 
-    val sendGridInstance: SendGrid = new SendGrid(config.get[String]("sendgrid.apiKey"))
+    val fromEmail: String = EmailService.destAsInternetString(
+        config.get[String]("noisycamp.fromEmail"), Some("NoisyCamp"))
+    val replyToEmail: String = EmailService.destAsInternetString(
+        config.get[String]("noisycamp.replyToEmail"), Some("NoisyCamp"))
 
-    val fromEmail: Email = new Email(config.get[String]("noisycamp.fromEmail"), "NoisyCamp")
-    val replyToEmail: Email = new Email(config.get[String]("noisycamp.replyToEmail"), "NoisyCamp")
-
-    def send(subject: String, content: play.twirl.api.Content, dest: User): Future[Response] = {
+    def send(subject: String, content: play.twirl.api.Content, dest: User): Future[String] = {
         send(subject, content, dest.email, dest.fullName)
     }
 
     def send(subject: String, content: play.twirl.api.Content, destEmail: String,
-        destName: Option[String] = None): Future[Response] = {
+        destName: Option[String] = None): Future[String] = {
 
-        val sendgridContent = new Content(content.contentType, content.body)
+        val dest = EmailService.destAsInternetString(destEmail, destName)
 
-        val dest = new Email(destEmail, destName.getOrElse(null))
+        val email = Email(
+            subject,
+            fromEmail,
+            Seq(dest),
+            replyTo = Seq(replyToEmail),
+            bodyHtml = Some(content.body)
+        )
 
-        val mail = new Mail(fromEmail, subject, dest, sendgridContent)
-        mail.setReplyTo(replyToEmail)
-
-        val request = new Request()
-
-        request.setMethod(Method.POST)
-        request.setEndpoint("mail/send")
-        request.setBody(mail.build())
-
-        Future { blocking { sendGridInstance.api(request) } }
+        Future { blocking { mailerClient.send(email) } }
     }
 
     def sendPremiumRequest(user: User, data: PremiumForm.Data, studios: Seq[Studio])(
-        implicit request: RequestHeader, config: Configuration): Future[Response] = {
+        implicit request: RequestHeader, config: Configuration): Future[String] = {
 
         // Submits the the form data to noisycamp.emailReplyTo
         val subject = f"Premium upgrade request - ${user.displayName}"
         val content = views.html.emails.premiumRequest(user, data, studios)
-        val destEmail = replyToEmail.getEmail
+        val destEmail = replyToEmail
 
         send(subject, content, destEmail)
     }
@@ -83,7 +79,7 @@ class EmailService @Inject() (
     def sendBookingReceived(
         booking: StudioCustomerBooking, customer: User, studio: Studio, owner: User,
         equips: Seq[LocalEquipment])(
-        implicit request: RequestHeader, config: Configuration): Future[Response] = {
+        implicit request: RequestHeader, config: Configuration): Future[String] = {
 
         val content = views.html.emails.booking.received(booking, customer, studio, owner, equips)
         send("Your studio has been booked", content, owner)
@@ -93,7 +89,7 @@ class EmailService @Inject() (
     def sendBookingRequest(
         booking: StudioCustomerBooking, customer: User, studio: Studio, owner: User,
         equips: Seq[LocalEquipment])(
-        implicit request: RequestHeader, config: Configuration): Future[Response] = {
+        implicit request: RequestHeader, config: Configuration): Future[String] = {
 
         val content = views.html.emails.booking.request(booking, customer, studio, owner, equips)
         send("[Action required] Your studio received a new booking request", content, owner)
@@ -103,7 +99,7 @@ class EmailService @Inject() (
      * received and is currently in review. */
     def sendBookingRequestInReview(
         booking: StudioCustomerBooking, customer: User, studio: Studio)(
-        implicit request: RequestHeader, config: Configuration): Future[Response] = {
+        implicit request: RequestHeader, config: Configuration): Future[String] = {
 
         val content = views.html.emails.booking.requestInReview(booking, customer, studio)
         send("Your booking request is in review", content, customer)
@@ -112,7 +108,7 @@ class EmailService @Inject() (
     def sendBookingAccepted(
         booking: StudioCustomerBooking, customer: User, studio: Studio, pictures: Seq[Picture#Id],
         owner: User, equips: Seq[LocalEquipment])(
-        implicit request: RequestHeader, config: Configuration): Future[Response] = {
+        implicit request: RequestHeader, config: Configuration): Future[String] = {
 
         val content = views.html.emails.booking.accepted(
             booking, customer, studio, pictures, owner, equips)
@@ -121,7 +117,7 @@ class EmailService @Inject() (
 
     def sendBookingRejected(
         booking: StudioCustomerBooking, customer: User, studio: Studio)(
-        implicit request: RequestHeader, config: Configuration): Future[Response] = {
+        implicit request: RequestHeader, config: Configuration): Future[String] = {
 
         val content = views.html.emails.booking.rejected(booking, customer, studio)
         send("Your booking has been rejected", content, customer)
@@ -130,7 +126,7 @@ class EmailService @Inject() (
     def sendBookingCancelledByCustomer(
         booking: StudioCustomerBooking, customer: User, studio: Studio, owner: User,
         equips: Seq[LocalEquipment])(
-        implicit request: RequestHeader, config: Configuration): Future[Response] = {
+        implicit request: RequestHeader, config: Configuration): Future[String] = {
 
         val content = views.html.emails.booking.cancelledByCustomer(
             booking, customer, studio, owner, equips)
@@ -140,7 +136,7 @@ class EmailService @Inject() (
     def sendCustomerBookingCancelledByOwner(
         booking: StudioCustomerBooking, customer: User, studio: Studio,
         equips: Seq[LocalEquipment])(
-        implicit request: RequestHeader, config: Configuration): Future[Response] = {
+        implicit request: RequestHeader, config: Configuration): Future[String] = {
 
         val content = views.html.emails.booking.customerBookingCancelledByOwner(
             booking, customer, studio, equips)
@@ -149,7 +145,7 @@ class EmailService @Inject() (
 
     def sendManualBookingCreatedByOwner(
         booking: StudioManualBooking, studio: Studio, owner: User, pictures: Seq[Picture#Id])(
-        implicit request: RequestHeader, config: Configuration): Future[Response] = {
+        implicit request: RequestHeader, config: Configuration): Future[String] = {
 
         require(booking.customerEmail.isDefined)
 
@@ -158,11 +154,20 @@ class EmailService @Inject() (
     }
 
     def sendManualBookingCancelledByOwner(booking: StudioManualBooking, studio: Studio)(
-        implicit request: RequestHeader, config: Configuration): Future[Response] = {
+        implicit request: RequestHeader, config: Configuration): Future[String] = {
 
         require(booking.customerEmail.isDefined)
 
         val content = views.html.emails.booking.manualBookingCancelledByOwner(booking, studio)
         send(f"Your booking has been cancelled", content, booking.customerEmail.get)
+    }
+}
+
+object EmailService {
+    def destAsInternetString(destEmail: String, destName: Option[String]): String = {
+        destName.
+            map(new InternetAddress(destEmail, _)).
+            getOrElse(new InternetAddress(destEmail)).
+            toString
     }
 }

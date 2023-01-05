@@ -26,7 +26,6 @@ import scala.util.{ Success, Failure }
 
 import akka.util.ByteString
 import com.mohiva.play.silhouette.api.actions.SecuredRequest
-import com.sendgrid.Response
 import com.stripe.model.{ checkout, PaymentIntent }
 import play.api._
 import play.api.data.Form
@@ -474,7 +473,7 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
         booking: StudioCustomerBooking, customer: User, studio: Studio, pictures: Seq[Picture#Id],
         owner: User, equips: Seq[LocalEquipment])(
         implicit request: RequestHeader, config: Configuration):
-        Future[(Response, Response)] = {
+        Future[(String, String)] = {
 
         if (booking.isAccepted) {
             // Automatically accepted. Confirm the booking to both actors.

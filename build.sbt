@@ -66,14 +66,15 @@ libraryDependencies ++= Seq(
     "com.mohiva" %% "play-silhouette-password-bcrypt" % "6.1.1",
     "com.mohiva" %% "play-silhouette-persistence" % "6.1.1",
 
-    "com.sendgrid" % "sendgrid-java" % "4.6.3",
-
     "com.sksamuel.scrimage" % "scrimage-core" % "4.0.12",
 
     "com.stripe" % "stripe-java" % "20.94.0",
 
     "com.typesafe.play" %% "play-slick" % "5.0.0",
     "com.typesafe.play" %% "play-slick-evolutions" % "5.0.0",
+
+    "com.typesafe.play" %% "play-mailer" % "8.0.1",
+    "com.typesafe.play" %% "play-mailer-guice" % "8.0.1",
 
     "org.mnode.ical4j" % "ical4j" % "3.1.2",
 
