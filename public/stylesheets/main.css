@@ -67,6 +67,11 @@ a:hover, .link:hover {
     cursor: pointer;
 }
 
+button, a {
+    /* Disable double-tap zoom on clickable elements. */
+    touch-action: manipulation;
+}
+
 /* As title gets smaller on small screen, makes them stronger */
 @media screen and (max-width: 39.9375em) {
     h1, h2, h3, h4, h5, h6 {
