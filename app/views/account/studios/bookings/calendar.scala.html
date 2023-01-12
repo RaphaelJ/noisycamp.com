@@ -40,30 +40,42 @@
 
 @titleExtension = {
     <div class="grid-x grid-margin-x">
-        <div class="cell small-12 medium-shrink">
+        <div class="cell shrink">
             <a
                 href="@controllers.account.studios.routes.BookingsController.create(studio.id)"
-                class="button small secondary small-only-expanded">
+                class="button small secondary">
                 <i class="fi-plus"></i>&nbsp;
                 Create booking
             </a>
         </div>
 
-        <div class="cell small-12 medium-shrink">
+        <div class="cell shrink">
             <a
                 href="@controllers.account.studios.routes.BookingsController.calendarSync(studio.id)"
-                class="button small secondary small-only-expanded">
-                <i class="fi-upload"></i>&nbsp;
+                class="button small secondary">
+                <i class="fi-loop"></i>&nbsp;
                 Synchronize calendar
             </a>
         </div>
     </div>
 }
 
+@bottomBox = {
+    <fixed-bottom-box :class="{ 'show-for-small-only': true }">
+        <a
+            href="@controllers.account.studios.routes.BookingsController.create(studio.id)"
+            class="button primary expanded no-margin">
+            <i class="fi-plus"></i>&nbsp;
+            Create booking
+        </a>
+    </fixed-bottom-box>
+}
+
 @views.html.account.layout(
     Seq("Studio calendar"), javascript=javascript,
     topBarExtension = Some(tags.studioTopBarExtension(studio)),
     titleExtension = Some(titleExtension),
+    titleClasses = Seq("hide-for-small-only"),
     identity = identity) {
 
     <div class="panel-section expand-on-small">
@@ -79,4 +91,6 @@
             </div>
         </div>
     </div>
+
+    @bottomBox
 }

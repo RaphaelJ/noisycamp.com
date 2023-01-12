@@ -25,6 +25,7 @@
     topBarExtension: Option[Html] = None,
     hideSideBarOnSmall: Boolean = true,
     titleExtension: Option[Html] = None,
+    titleClasses: Seq[String] = Seq.empty,
     identity: models.Identity,
     facebookEvents: Seq[FacebookEvent] = Seq.empty)(
     rightPaneContent: Html)(
@@ -40,7 +41,7 @@
 
     <div class="grid-container">
         <div class="grid-x grid-padding-x grid-padding-y">
-            <div class="cell small-12">
+            <div class="cell small-12 @{titleClasses.mkString(",")}">
                 <div class="grid-x">
                     <div class="cell auto">
                         <h1 class="text-overflow-ellipsis">@title.head</h1>

@@ -37,10 +37,22 @@
     </a>
 }
 
+@bottomBox = {
+    <fixed-bottom-box :class="{ 'show-for-small-only': true }">
+        <a
+            href="@controllers.account.studios.routes.BookingsController.create(studio.id)"
+            class="button primary expanded no-margin">
+            <i class="fi-plus"></i>&nbsp;
+            Create booking
+        </a>
+    </fixed-bottom-box>
+}
+
 @views.html.account.layout(
     Seq("Studio bookings"),
     topBarExtension=Some(tags.studioTopBarExtension(studio)),
     titleExtension = Some(titleExtension),
+    titleClasses = Seq("hide-for-small-only"),
     identity=identity) {
 
 @defining(Instant.now) { now =>
@@ -81,5 +93,6 @@
         </div>
     </div>
 
+    @bottomBox
 } }
 }
