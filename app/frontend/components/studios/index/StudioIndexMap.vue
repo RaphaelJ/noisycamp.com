@@ -22,13 +22,13 @@
 
 <script lang="ts">
 import * as mapboxgl from 'mapbox-gl';
-import * as moment from 'moment';
 import Vue, { PropOptions } from "vue";
 
 import MoneyAmount from '../../widgets/MoneyAmount.vue'
 
 import { startingPrice } from '../../../misc/MoneyUtils';
 import { isWeekend } from "../../../misc/DateUtils";
+import { BBox, Feature } from '../../../misc/GeoUtils';
 
 declare var NC_CONFIG: any;
 
@@ -64,20 +64,20 @@ export default Vue.extend({
     },
     methods: {
         // Centers the map on provided location.
-        setLocation(place) {
+        setLocation(location: Feature) {
             // Adds a `isApiTriggered` properties to events triggered through
             // the API.
             // That will prevents the on `moveend` event listener to trigger a
             // new studio search on these events.
             let eventData = { isApiTriggered: true, };
 
-            if (place.bbox) {
-                this.map.fitBounds(place.bbox, {}, eventData);
+            if (location.bbox) {
+                this.map.fitBounds(location.bbox.toGeoJSON(), {}, eventData);
             } else {
                 // The selected location does not have a bbox, use a default
                 // zoom.
                 this.map.flyTo({
-                    center: place.center,
+                    center: location.center.toGeoJSON(),
                     zoom: 9,
                 }, eventData);
             }
@@ -133,7 +133,7 @@ export default Vue.extend({
 
         // Makes the given studio more visible. Reset studio highlighting if
         // studioIdx is `null`.
-        setStudioHighlight(studioIdx) {
+        setStudioHighlight(studioIdx: number) {
             if (this.highlightedStudio) {
                 this.highlightedStudio.removeClass('highlighted');
             }
@@ -152,7 +152,7 @@ export default Vue.extend({
                 return;
             }
 
-            this.$emit('map-view-change', this.map.getBounds());
+            this.$emit('map-view-change', BBox.fromMapboxBBox(this.map.getBounds()));
         }
     },
     watch: {

@@ -51,7 +51,7 @@ object CustomFields {
 
         def unbind(key: String, value: BBox) = {
             val BBox(north, south, west, east) = value
-            Map(key -> f"${north},${south},${west},${north},${south}")
+            Map(key -> f"${north},${south},${west},${east}")
         }
     })
 

@@ -58,14 +58,14 @@ declare var NC_ROUTES: any;
 
 import LocationInput from '../widgets/LocationInput.vue';
 
-import { serializeFeature } from '../../misc/FeatureUtils';
+import { Feature } from "../../misc/GeoUtils";
 
 export default Vue.extend({
     props: {
     },
     data() {
         return {
-            location: null
+            location: null as Feature
         }
     },
     computed: {
@@ -73,7 +73,7 @@ export default Vue.extend({
             var url = NC_ROUTES.controllers.StudiosController.index().url;
 
             if (this.location) {
-                url += '#' + serializeFeature(this.location);
+                url += '#' + this.location.serialize();
             }
 
             return url;

@@ -66,9 +66,7 @@ import StudiosIndexFilters from './StudioIndexFilters.vue';
 import StudiosIndexListing from './StudioIndexListing.vue';
 import StudiosIndexMap from './StudioIndexMap.vue';
 
-import { serializeBBox, unserializeBBox, serializeCenter, unserializeCenter
-    } from '../../../misc/GeoUtils';
-import { serializeFeature } from '../../../misc/FeatureUtils';
+import { BBox, Feature } from '../../../misc/GeoUtils';
 
 export default Vue.extend({
     props: {
@@ -79,40 +77,18 @@ export default Vue.extend({
         //
         // i.e. /studios#location.place_name=London
 
-        let location = {};
+        let hashString = window.location.hash ? window.location.hash.substring(1) : "";
+        let params = hashString.split("&")
+
+        let location = Feature.unserialize(hashString);
+
         var availableOn = null;
-
-        // Extracts the hash query parameters as a JS Object.
-        let params = {};
-        window.location.hash.
-            substring(1).
-            split('&').
-            forEach(str => {
-                let keyValue = str.split('=');
-
-                if (keyValue.length == 2) {
-                    params[keyValue[0]] = decodeURIComponent(keyValue[1]);
-                }
-            });
-
-        // Updates the filter object
-        if (
-            params['location.place_name']
-            && (params['location.bbox'] || params['location.center'])
-        ) {
-            location['place_name'] = params['location.place_name'];
-
-            if (params['location.bbox']) {
-                location['bbox'] = unserializeBBox(params['location.bbox']);
+        let availableOnValue = params.find((value) => value.startsWith("available-on="));
+        if (availableOnValue) {
+            let keyValue = availableOnValue.split("=");
+            if (keyValue.length == 2) {
+                availableOn = decodeURIComponent(keyValue[1]);
             }
-
-            if (params['location.center']) {
-                location['center'] = unserializeCenter(params['location.center']);
-            }
-        }
-
-        if (params['available-on']) {
-            availableOn = params['available-on'];
         }
 
         return {
@@ -130,7 +106,7 @@ export default Vue.extend({
     },
     mounted() {
         // If we parsed some location value from the URL parameter, immediatly moves the map.
-        if (this.location['center'] || this.location['bbox']) {
+        if (this.location.center || this.location.bbox) {
             this.$refs.map.setLocation(this.location);
         }
 
@@ -150,14 +126,12 @@ export default Vue.extend({
             let params = { };
 
             if (this.location) {
-                let bbox = this.location['bbox'];
-                if (bbox) {
-                    params['location.bbox'] = serializeBBox(bbox);
+                if (this.location.bbox) {
+                    params['location.bbox'] = this.location.bbox.serialize();
                 }
 
-                let center = this.location['center'];
-                if (center) {
-                    params['location.center'] = serializeCenter(center);
+                if (this.location.center) {
+                    params['location.center'] = this.location.center.serialize();
                 }
             }
 
@@ -176,7 +150,7 @@ export default Vue.extend({
             let hashValues = [];
 
             if (this.location) {
-                hashValues.push(serializeFeature(this.location));
+                hashValues.push(this.location.serialize());
             }
 
             if (this.availableOn) {
@@ -188,12 +162,11 @@ export default Vue.extend({
             }
         },
 
-        onFilterInputLocation(location) {
+        onFilterInputLocation(location: Feature) {
             this.location = location;
 
             if (this.location) {
-                this.$refs.map
-                .setLocation(this.location);
+                this.$refs.map.setLocation(this.location);
             }
 
             this.searchStudios(true);
@@ -207,28 +180,28 @@ export default Vue.extend({
             this.setUrlHashParams();
         },
 
-        onListingStudioHover(studioIdx) {
+        onListingStudioHover(studioIdx: number) {
             this.$refs.map.setStudioHighlight(studioIdx);
         },
 
-        onMapStudioHover(studioIdx) {
+        onMapStudioHover(studioIdx: number) {
             this.$refs.listing.setStudioHighlight(studioIdx);
         },
 
-        onMapStudioClick(studioIdx) {
+        onMapStudioClick(studioIdx: number) {
             this.$refs.listing.studioScroll(studioIdx);
             this.$refs.listing.studioClick(studioIdx);
 
         },
 
-        onMapViewChange(bbox) {
+        onMapViewChange(bbox: BBox) {
             let isMapDisplayed = window
                 .getComputedStyle(this.$refs['map-container'])
                 .display != "none";
 
             if (isMapDisplayed) {
                 // Overrides the filter's bbox on user map drag/zoom.
-                this.location['bbox'] = bbox;
+                this.location.bbox = bbox;
 
                 this.searchStudios(false);
                 this.setUrlHashParams();

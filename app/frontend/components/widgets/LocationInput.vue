@@ -22,7 +22,7 @@
     <span class="location-input">
         <input
             type="text"
-            v-model="location"
+            v-model="locationName"
             @focus="showAutocomplete = true"
             @keyup.enter="keyEnter()"
             @keyup.down="keyDown()"
@@ -64,27 +64,28 @@ import * as mbxGeocoding from '@mapbox/mapbox-sdk/services/geocoding';
 import * as _ from "lodash";
 import Vue from "vue";
 
+import { Feature } from '../../misc/GeoUtils';
+
 declare var NC_CONFIG: any;
 
 export default Vue.extend({
     props: {
-        // A GeoJSON feature that contains a `place_name` field.
-        value: { type: Object, required: false },
+        value: { type: Feature, required: false },
     },
     data() {
-        var location = '';
+        var locationName = '';
 
         if (this.value) {
-            location = this.value['place_name'];
+            locationName = this.value.place_name;
         }
 
         return {
-            location: location,
+            locationName: locationName,
 
-            currentLocation: null,
+            currentLocation: null as Feature,
             currentLocationError: false,
 
-            matches: [],
+            matches: [] as Feature[],
 
             // Will be set to true when the next change of the location <input>
             // field should be ignored.
@@ -92,7 +93,7 @@ export default Vue.extend({
             showAutocomplete: false,
 
             // The index of the autocomplete item that is currently selected.
-            selected: null,
+            selected: null as number,
         }
     },
     mounted() {
@@ -123,14 +124,14 @@ export default Vue.extend({
         autocomplete: _.debounce(function () {
             this.geocodingClient
                 .forwardGeocode({
-                    query: this.location,
+                    query: this.locationName,
                     limit: 15,
                 })
                 .send()
                 .then(response => {
                     this.resetAutocomplete();
                     this.showAutocomplete = true;
-                    this.matches = response.body.features;
+                    this.matches = response.body.features.map(Feature.fromGeoJSON);
                 });
         }, 300),
 
@@ -140,13 +141,12 @@ export default Vue.extend({
             this.selected = null;
         },
 
-        // Sets the location input value to the given Mapbox match.
-        setLocation(place) {
+        setLocation(location: Feature) {
             this.skipAutocomplete = true;
             this.resetAutocomplete();
 
-            this.location = place.place_name;
-            this.$emit('input', place);
+            this.locationName = location.place_name;
+            this.$emit('input', location);
         },
 
         setCurrentLocation() {
@@ -173,7 +173,7 @@ export default Vue.extend({
                     .then(response => {
                         if (response.body.features.length >= 0) {
                             compnt.currentLocationError = false;
-                            compnt.currentLocation = response.body.features[0];
+                            compnt.currentLocation = Feature.fromGeoJSON(response.body.features[0]);
                             compnt.setLocation(compnt.currentLocation);
                         } else {
                             compnt.currentLocationError = true;
@@ -221,7 +221,7 @@ export default Vue.extend({
         }
     },
     watch: {
-        location(newVal, oldVal) {
+        locationName(newVal, oldVal) {
             if (this.skipAutocomplete) {
                 this.skipAutocomplete = false;
                 return;
