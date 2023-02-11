@@ -243,17 +243,13 @@
 }
 
 @bookingPanel = {
-    <div class="grid-x grid-padding-x">
+    <div class="grid-x grid-padding-x" id="booking-form">
         @components.bookingForm(now, studio, equipments, bookingEvents)
 
         <div class="cell small-12 text-center">
-            <a
-                href="#availability"
-                onclick="$('html, body').animate({
-                    scrollTop: $('#availability').offset().top
-                }, 500); return false">
+            <action-button action="scroll-to" target="#availability">
                 Show availabilities
-            </a>
+            </scroll-to-button>
         </div>
     </div>
 }
@@ -288,14 +284,12 @@
             </div>
 
             <div class="cell small-5">
-                <a
-                    class="button primary large expanded no-margin"
-                    href="#availability"
-                    onclick="$('html, body').animate({
-                        scrollTop: $('#booking').offset().top
-                    }, 500); return false">
+                <action-button
+                    action="scroll-to"
+                    target="#booking-form"
+                    classes="button primary large expanded no-margin">
                     Book
-                </a>
+                </action-button>
             </div>
         </div>
     </fixed-bottom-box>

@@ -32,6 +32,7 @@
 
 <script lang="ts">
 import Vue from "vue";
+import * as $ from 'jquery';
 
 export default Vue.extend({
     props: {

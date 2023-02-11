@@ -17,11 +17,12 @@
 
 import Vue from 'vue';
 
+import ActionButton from '/components/widgets/ActionButton.vue';
 import Arrow from '/components/widgets/Arrow.vue';
 import BurgerButton from '/components/widgets/BurgerButton.vue';
 import FixedBottomBox from '/components/widgets/FixedBottomBox.vue';
 
-export const components = {Arrow, BurgerButton, FixedBottomBox}
+export const components = {ActionButton, Arrow, BurgerButton, FixedBottomBox}
 export const transitions = {}
 
 export function createApp() {

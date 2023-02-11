@@ -76,10 +76,11 @@
         :class="{ 'show-for-small-only': true }"
         hide-if-visible="#save-settings-button">
 
-        <button
-            class="button primary large expanded no-margin"
-            onclick="$('#save-settings-button').click()">
+        <action-button
+            action="click"
+            target="#save-settings-button"
+            classes="button primary large expanded no-margin">
             Save settings
-        </button>
+        </action-button>
     </fixed-bottom-box>
 }

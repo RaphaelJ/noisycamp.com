@@ -21,6 +21,7 @@
 </template>
 
 <script lang="ts">
+import * as $ from "jquery";
 import * as mapboxgl from 'mapbox-gl';
 import Vue, { PropOptions } from "vue";
 
