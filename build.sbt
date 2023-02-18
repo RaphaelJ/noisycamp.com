@@ -66,7 +66,8 @@ libraryDependencies ++= Seq(
     "com.mohiva" %% "play-silhouette-password-bcrypt" % "6.1.1",
     "com.mohiva" %% "play-silhouette-persistence" % "6.1.1",
 
-    "com.sksamuel.scrimage" % "scrimage-core" % "4.0.12",
+    "com.sksamuel.scrimage" % "scrimage-core" % "4.0.33",
+    "com.sksamuel.scrimage" % "scrimage-webp" % "4.0.33",
 
     "com.stripe" % "stripe-java" % "20.94.0",
 

@@ -31,8 +31,8 @@ import slick.jdbc.JdbcProfile
 import daos.PictureDAO
 import misc.TaskExecutionContext
 import models.{
-    Picture, PictureId, PictureSource, PictureFromDatabase, PictureFromFile, PictureFromStream,
-    PictureFromUrl }
+    GifFormat, JpegFormat, Picture, PictureId, PictureSource, PictureFromDatabase, PictureFromFile,
+    PictureFromStream, PictureFromUrl, PngFormat, WebPFormat }
 import java.io.InputStream
 
 @Singleton
@@ -60,8 +60,15 @@ class PictureLoader @Inject() (
         val format = FormatDetector.detect(content)
 
         if (format.isPresent) {
+            val pictureFormat = format.get match {
+                case Format.GIF => GifFormat
+                case Format.JPEG => JpegFormat
+                case Format.PNG => PngFormat
+                case Format.WEBP => WebPFormat(isLossless = false)
+            }
+
             val hash = MessageDigest.getInstance("SHA-256").digest(content)
-            Some(Picture(id=PictureId(hash), format=format.get, content=content))
+            Some(Picture(id=PictureId(hash), format=pictureFormat, content=content))
         } else {
             None
         }

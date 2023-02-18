@@ -42,12 +42,36 @@ object PictureId {
 case class Picture(
     id:         Picture#Id,
     createdAt:  Instant     = Instant.now(),
-    format:     Format,
+    format:     PictureFormat,
     content:    Array[Byte]) {
 
     type Id = PictureId
 }
 
+sealed trait PictureFormat {
+    def isLossless: Boolean
+
+    def contentType: String
+}
+
+final case object JpegFormat extends PictureFormat {
+    def isLossless = false
+    def contentType = "image/jpeg"
+}
+
+final case object GifFormat extends PictureFormat {
+    def isLossless = true
+    def contentType = "image/gif"
+}
+
+final case object PngFormat extends PictureFormat {
+    def isLossless = true
+    def contentType = "image/png"
+}
+
+final case class WebPFormat(val isLossless: Boolean) extends PictureFormat {
+    def contentType = "image/webp"
+}
 
 sealed trait PictureSource {
     def cacheKey: String

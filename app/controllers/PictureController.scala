@@ -51,21 +51,28 @@ class PictureController @Inject() (
 
     /** Receives a new picture and stores it in the database. */
     def upload = SecuredAction(parse.multipartFormData).async { implicit request =>
+
+        def savePicture(pic: Picture): Future[Result] = {
+            val optimizedPic =
+                PictureTransform.optimiseFormat(
+                    MaxPicture(MAX_UPLOAD_IMAGE_SIZE, MAX_UPLOAD_IMAGE_SIZE)(pic))
+
+            pictureLoader.
+                toDatabase(optimizedPic).
+                map { pic =>
+                    val id = pic.id.base64
+                    val uri = routes.PictureController.view(id).url
+                    Created(id).withHeaders("Location" -> uri)
+                }
+        }
+
         request.body
             .file("picture")
             .map { file =>
                 pictureLoader.
                     fromFile(file.ref.path).
                     flatMap {
-                        case Some(pic) => {
-                            pictureLoader.
-                                toDatabase(pic).
-                                map { pic =>
-                                    val id = pic.id.base64
-                                    val uri = routes.PictureController.view(id).url
-                                    Created(id).withHeaders("Location" -> uri)
-                                }
-                        }
+                        case Some(pic) => savePicture(pic)
                         case None => Future.successful(BadRequest("Invalid image format."))
                     }
             }.
@@ -135,17 +142,13 @@ class PictureController @Inject() (
             map {
                 case Some(pic) => {
                     val bs = ByteString(pic.content)
-                    val contentType = pic.format match {
-                        case Format.PNG => "image/png"
-                        case Format.GIF => "image/gif"
-                        case Format.JPEG => "image/jpeg"
-                    }
+                    val contentType = pic.format.contentType
 
                     Result(
                         header = ResponseHeader(200, Map(
                             // Cacheable, expires after a year.
                             "Cache-Control" -> "public, max-age=31536000")),
-                        body = HttpEntity.Strict(bs, Some(contentType)))
+                        body = HttpEntity.Strict(bs, Some(pic.format.contentType)))
                 }
                 case None => NotFound("Picture not found.")
             }

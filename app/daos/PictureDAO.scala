@@ -22,11 +22,10 @@ import java.nio.file.Files
 import java.time.Instant
 import javax.inject.Inject
 
-import com.sksamuel.scrimage.format.Format
 import play.api.db.slick.{ DatabaseConfigProvider, HasDatabaseConfigProvider }
 import slick.jdbc.JdbcProfile
 
-import models.Picture
+import models.{ Picture, PictureFormat }
 
 class PictureDAO @Inject()
   (protected val dbConfigProvider: DatabaseConfigProvider)
@@ -40,7 +39,7 @@ class PictureDAO @Inject()
     // ID is the SHA-256 hashed content of the file.
     def id                = column[Picture#Id]("id", O.PrimaryKey)
     def createdAt         = column[Instant]("created_at")
-    def format            = column[Format]("format")
+    def format            = column[PictureFormat]("format")
     def content           = column[Array[Byte]]("content")
 
     def * = (id, createdAt, format, content).mapTo[Picture]

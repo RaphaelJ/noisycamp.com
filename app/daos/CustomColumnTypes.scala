@@ -28,8 +28,8 @@ import squants.market
 import i18n.{ Country, Currency }
 import misc.EquipmentCategory
 import models.{
-    BookingRepeatFrequency, PictureId, Plan, StudioBookingStatus, StudioBookingType,
-    UserSubscriptionStatus }
+    BookingRepeatFrequency, GifFormat, JpegFormat, PictureFormat, PictureId, Plan, PngFormat,
+    StudioBookingStatus, StudioBookingType, UserSubscriptionStatus, WebPFormat }
 
 trait CustomColumnTypes { this: HasDatabaseConfigProvider[JdbcProfile] =>
 
@@ -86,11 +86,12 @@ trait CustomColumnTypes { this: HasDatabaseConfigProvider[JdbcProfile] =>
         BookingRepeatFrequency.Monthly  -> "monthly",
         BookingRepeatFrequency.Yearly   -> "yearly"))
 
-    /** Stores Scrimage image format as text */
-    implicit val scrimageFormatType = enumeration[Format](Seq(
-        Format.PNG  -> "png",
-        Format.GIF  -> "gif",
-        Format.JPEG -> "jpeg"))
+    implicit val pictureFormatType = enumeration[PictureFormat](Seq(
+        GifFormat           -> "gif",
+        JpegFormat          -> "jpeg",
+        PngFormat           -> "png",
+        WebPFormat(false)   -> "webp",
+        WebPFormat(true)    -> "webp-lossless"))
 
     implicit val studioBookingStatusValueType = enumeration[StudioBookingStatus.Value](Seq(
         StudioBookingStatus.PaymentProcessing   -> "payment-processing",
