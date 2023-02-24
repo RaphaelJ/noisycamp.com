@@ -67,7 +67,7 @@ class AuthController @Inject() (
         request.identity match {
             case Some(_) => Future.successful(redirectToResult(redirectTo))
             case None => {
-                SignInForm.form.bindFromRequest.fold(
+                SignInForm.form.bindFromRequest().fold(
                     form => Future.successful(
                         BadRequest(views.html.auth.signIn(
                           form, socialProviderRegistry, redirectTo))),
@@ -85,14 +85,14 @@ class AuthController @Inject() (
                             }.
                             recover {
                                 case _: InvalidPasswordException => {
-                                    val form = SignInForm.form.bindFromRequest.
+                                    val form = SignInForm.form.bindFromRequest().
                                         withError("password", "Invalid password.")
 
                                     BadRequest(views.html.auth.signIn(
                                         form, socialProviderRegistry, redirectTo))
                                 }
                                 case _: IdentityNotFoundException => {
-                                    val form = SignInForm.form.bindFromRequest.
+                                    val form = SignInForm.form.bindFromRequest().
                                         withError("email", "This user does not exists.")
 
                                     BadRequest(views.html.auth.signIn(
@@ -121,7 +121,7 @@ class AuthController @Inject() (
         request.identity match {
             case Some(_) => Future.successful(redirectToResult(redirectTo))
             case None =>  {
-                SignUpForm.form.bindFromRequest.fold(
+                SignUpForm.form.bindFromRequest().fold(
                     form => Future.successful(
                         BadRequest(views.html.auth.signUp(
                             form, socialProviderRegistry, redirectTo))),
@@ -131,7 +131,7 @@ class AuthController @Inject() (
                         userService.retrieve(loginInfo).flatMap {
                             case Some(_) => {
                                 // User already exists with this email, notifies the user.
-                                val form = SignUpForm.form.bindFromRequest.
+                                val form = SignUpForm.form.bindFromRequest().
                                     withError(
                                         "email",
                                         "An account already exists with this email address.")

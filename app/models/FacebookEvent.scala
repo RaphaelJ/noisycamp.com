@@ -1,30 +1,35 @@
 package models
 
+import scala.language.implicitConversions
+
 import play.api.libs.json.{ JsArray, JsBoolean, JsNumber, Json, JsString, JsValue }
 import squants.market
 
 object FacebookEventName extends Enumeration {
-    case class Val(val name: String) {
+    case class FacebookEventNameValue(val name: String) extends super.Val {
         override def toString = name
     }
 
-    val AddPaymentInfo = Val("AddPaymentInfo")
-    val AddToCart = Val("AddToCart")
-    val AddToWishlist = Val("AddToWishlist")
-    val CompleteRegistration = Val("CompleteRegistration")
-    val Contact = Val("Contact")
-    val CustomizeProduct = Val("CustomizeProduct")
-    val Donate = Val("Donate")
-    val FindLocation = Val("FindLocation")
-    val InitiateCheckout = Val("InitiateCheckout")
-    val Lead = Val("Lead")
-    val PageView = Val("PageView")
-    val Purchase = Val("Purchase")
-    val Schedule = Val("Schedule")
-    val Search = Val("Search")
-    val SubmitApplication = Val("SubmitApplication")
-    val Subscribe = Val("Subscribe")
-    val ViewContent = Val("ViewContent")
+    implicit def valueToFacebookEventNameValue(v: Value): FacebookEventNameValue =
+        v.asInstanceOf[FacebookEventNameValue]
+
+    val AddPaymentInfo = FacebookEventNameValue("AddPaymentInfo")
+    val AddToCart = FacebookEventNameValue("AddToCart")
+    val AddToWishlist = FacebookEventNameValue("AddToWishlist")
+    val CompleteRegistration = FacebookEventNameValue("CompleteRegistration")
+    val Contact = FacebookEventNameValue("Contact")
+    val CustomizeProduct = FacebookEventNameValue("CustomizeProduct")
+    val Donate = FacebookEventNameValue("Donate")
+    val FindLocation = FacebookEventNameValue("FindLocation")
+    val InitiateCheckout = FacebookEventNameValue("InitiateCheckout")
+    val Lead = FacebookEventNameValue("Lead")
+    val PageView = FacebookEventNameValue("PageView")
+    val Purchase = FacebookEventNameValue("Purchase")
+    val Schedule = FacebookEventNameValue("Schedule")
+    val Search = FacebookEventNameValue("Search")
+    val SubmitApplication = FacebookEventNameValue("SubmitApplication")
+    val Subscribe = FacebookEventNameValue("Subscribe")
+    val ViewContent = FacebookEventNameValue("ViewContent")
 }
 
 sealed trait FacebookEventProperty {
@@ -45,13 +50,17 @@ final case class FacebookContentName(val value: String) extends FacebookEventPro
 }
 
 object FacebookContentTypeValues extends Enumeration {
-    case class Val(val name: String)
+    case class FacebookContentTypeValuesValue(val name: String) extends super.Val
 
-    val Product = Val("product")
-    val ProductGroup = Val("product_group")
+    implicit def valueToFacebookContentTypeValuesValue(v: Value):
+        FacebookContentTypeValuesValue = v.asInstanceOf[FacebookContentTypeValuesValue]
+
+    val Product = FacebookContentTypeValuesValue("product")
+    val ProductGroup = FacebookContentTypeValuesValue("product_group")
 }
 
-final case class FacebookContentType(val value: FacebookContentTypeValues.Val)
+final case class FacebookContentType(
+    val value: FacebookContentTypeValues.FacebookContentTypeValuesValue)
     extends FacebookEventProperty {
 
     def asJson = "content_type" -> JsString(value.name)
@@ -78,14 +87,18 @@ final case class FacebookCurrency(val value: market.Currency)
 }
 
 object FacebookDeliveryCategoryValue extends Enumeration {
-    case class Val(val name: String)
+    case class FacebookDeliveryCategoryValueValue(val name: String) extends super.Val
 
-    val InStore = Val("in_store")
-    val Curbside = Val("curbside")
-    val HomeDelivery = Val("home_delivery")
+    implicit def valueToFacebookDeliveryCategoryValueValue(v: Value):
+        FacebookDeliveryCategoryValueValue = v.asInstanceOf[FacebookDeliveryCategoryValueValue]
+
+    val InStore = FacebookDeliveryCategoryValueValue("in_store")
+    val Curbside = FacebookDeliveryCategoryValueValue("curbside")
+    val HomeDelivery = FacebookDeliveryCategoryValueValue("home_delivery")
 }
 
-final case class FacebookDeliveryCategory(val value: FacebookDeliveryCategoryValue.Val)
+final case class FacebookDeliveryCategory(
+    val value: FacebookDeliveryCategoryValue.FacebookDeliveryCategoryValueValue)
     extends FacebookEventProperty {
 
     def asJson = "delivery_category" -> JsString(value.name)
@@ -119,5 +132,5 @@ final case class FacebookValue(val value: BigDecimal) extends FacebookEventPrope
 
 
 case class FacebookEvent(
-    val name: FacebookEventName.Val,
+    val name: FacebookEventName.FacebookEventNameValue,
     val properties: Seq[FacebookEventProperty] = Seq.empty)

@@ -59,7 +59,7 @@ class StripeController @Inject() (
         Future[Result] = {
 
         val session = event.getDataObjectDeserializer.getObject.
-            get.
+            get().
             asInstanceOf[checkout.Session]
 
         val chargeType = session.getMetadata.get("charge_type")
@@ -82,7 +82,7 @@ class StripeController @Inject() (
         Future[Result] = {
 
         val subscription = event.getDataObjectDeserializer.getObject.
-            get.
+            get().
             asInstanceOf[Subscription]
 
         plansController.handleSubscriptionUpdated(subscription)

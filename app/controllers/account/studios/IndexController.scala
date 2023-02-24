@@ -72,7 +72,7 @@ class IndexController @Inject() (ccc: CustomControllerCompoments)
     def createSubmit = SecuredAction.async { implicit request =>
         val user = request.identity.user
 
-        StudioForm.form(user.plan.equipmentFee).bindFromRequest.fold(
+        StudioForm.form(user.plan.equipmentFee).bindFromRequest().fold(
             form => Future.successful(
                 BadRequest(views.html.account.studios.create(request.identity, form))),
             data => {
@@ -157,7 +157,7 @@ class IndexController @Inject() (ccc: CustomControllerCompoments)
 
             dbStudio.flatMap { (_ match {
                 case Some(studio) if studio.ownerId == user.id => {
-                    StudioForm.form(user.plan.equipmentFee).bindFromRequest.fold(
+                    StudioForm.form(user.plan.equipmentFee).bindFromRequest().fold(
                         form => DBIO.successful(BadRequest(
                             views.html.account.studios.settings(request.identity, studio, form))),
                         data => {

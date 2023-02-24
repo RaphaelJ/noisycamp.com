@@ -66,8 +66,7 @@ class PayoutDAO @Inject() (
         payout.amount.currency, payout.amount.amount))
     }
 
-    def * = (id, createdAt, customerId, stripePayoutId, currency, amount) <>
-      (toPayout, fromPayout)
+    def * = (id, createdAt, customerId, stripePayoutId, currency, amount).<>(toPayout, fromPayout)
   }
 
   lazy val query = TableQuery[PayoutTable]

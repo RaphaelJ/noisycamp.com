@@ -21,8 +21,8 @@
 
 @(user: Option[User], currency: Currency, hasFreeTrial: Boolean)
 
-@featureValue(feature: (Plan.Val => String)) = {
-    @for(plan <- Plan.values) {
+@featureValue(feature: (Plan.PlanVal => String)) = {
+    @for(plan <- Plan.values.toSeq) {
         <td>
             <!-- @plan.name -->
             @feature(plan)
@@ -30,8 +30,8 @@
     }
 }
 
-@featureCheckbox(feature: (Plan.Val => Boolean)) = {
-    @for(plan <- Plan.values) {
+@featureCheckbox(feature: (Plan.PlanVal => Boolean)) = {
+    @for(plan <- Plan.values.toSeq) {
         <!-- @plan.name -->
         <td>
             @if(feature(plan)) { <i class="fi-check"></i> } else { — }
@@ -39,8 +39,8 @@
     }
 }
 
-@featurePercentage(feature: (Plan.Val => Option[BigDecimal])) = {
-    @for(plan <- Plan.values) {
+@featurePercentage(feature: (Plan.PlanVal => Option[BigDecimal])) = {
+    @for(plan <- Plan.values.toSeq) {
         <td>
             <!-- @plan.name -->
             @feature(plan) match {
@@ -51,8 +51,8 @@
     }
 }
 
-@featureComingSoon(feature: (Plan.Val => Boolean)) = {
-    @for(plan <- Plan.values) {
+@featureComingSoon(feature: (Plan.PlanVal => Boolean)) = {
+    @for(plan <- Plan.values.toSeq) {
         <!-- @plan.name -->
         <td>
             @if(feature(plan)) {
@@ -85,7 +85,7 @@
                     <tr>
                         <th class="feature-title"></th>
 
-                        @for(plan <- Plan.values) {
+                        @for(plan <- Plan.values.toSeq) {
                             <th class="plan-name">
                             @defining(plan.prices.map(_(currency))) { price =>
                                 <h3>@plan.name</h3>

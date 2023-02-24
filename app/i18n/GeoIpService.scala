@@ -30,7 +30,7 @@ import scalacache.modes.scalaFuture._
 import misc.TaskExecutionContext
 
 /** The result of an IP location lookup. */
-case class GeoIpLocation(country: Country.Val)
+case class GeoIpLocation(country: Country.CountryVal)
 
 /** Provides a service that retreives location information from an IP address.
  *
@@ -48,7 +48,7 @@ class GeoIpService @Inject() (
 
       ws.url(url).
         withFollowRedirects(true).
-        get.
+        get().
         map { response =>
           (response.json \ "country_code").
             asOpt[String].

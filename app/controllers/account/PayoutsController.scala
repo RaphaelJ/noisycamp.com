@@ -67,7 +67,7 @@ class PayoutsController @Inject() (
         user.stripeAccountId match {
             case Some(accountId) => Future.successful(Redirect(routes.PayoutsController.index))
             case None => {
-                CountryForm.form.bindFromRequest.fold(
+                CountryForm.form.bindFromRequest().fold(
                     form => Future.successful(
                         Ok(views.html.account.payouts.setup(
                             identity=request.identity, countryForm=form))),
@@ -115,16 +115,16 @@ class PayoutsController @Inject() (
                             map(_.stripeCompleted).
                             update(true)
                     }.
-                        map { _ => 
+                        map { _ =>
                             redirectTo.
                                 flashing("success" -> (
-                                    "Your account has been successfully setup. " + 
+                                    "Your account has been successfully setup. " +
                                     "You can now receive online payments."))
                         }
                 } else {
                     Future.successful(redirectTo.
                         flashing("error" -> (
-                            "Your account has not been correctly setup for online payments. " + 
+                            "Your account has not been correctly setup for online payments. " +
                             "Please try again.")))
                 }
             }
@@ -143,7 +143,7 @@ class PayoutsController @Inject() (
 
     private def stripeDashboardRedirect(stripeAccountId: String)(implicit req: RequestHeader):
         Future[Result] = {
-            
+
         paymentService.
             connectDashboardUrl(stripeAccountId).
             map { TemporaryRedirect _ }

@@ -31,14 +31,16 @@ object BookingRepeatForm {
 
     type Data = BookingRepeat
 
-    private type TupleType = (BookingRepeatFrequency.Val, Option[Int], Option[LocalDate])
+    private type TupleType =
+        (BookingRepeatFrequency.BookingRepeatFrequencyVal, Option[Int], Option[LocalDate])
 
-    private val repeatFrequency = CustomFields.enumeration[BookingRepeatFrequency.Val](
-        BookingRepeatFrequency.values.
-            toSeq.
-            map(_.asInstanceOf[BookingRepeatFrequency.Val]).
-            map { v => v -> v.value },
-        "Invalid booking repetition frequency.")
+    private val repeatFrequency =
+        CustomFields.enumeration[BookingRepeatFrequency.BookingRepeatFrequencyVal](
+            BookingRepeatFrequency.values.
+                toSeq.
+                map(_.asInstanceOf[BookingRepeatFrequency.BookingRepeatFrequencyVal]).
+                map { v => v -> v.value },
+            "Invalid booking repetition frequency.")
 
     val form: Form[Data] = Form(
         tuple(

@@ -38,14 +38,14 @@ class EquipmentDAO @Inject() (
 
         def id              = column[Equipment#Id]("id", O.PrimaryKey, O.AutoInc)
 
-        def category        = column[Option[EquipmentCategory.Val]]("category")
+        def category        = column[Option[EquipmentCategory.EquipmentCategoryVal]]("category")
         def details         = column[Option[String]]("details")
 
         def priceType       = column[Option[String]]("price_type")
         def price           = column[Option[BigDecimal]]("price")
 
         private type EquipmentTuple = (
-            Equipment#Id, Option[EquipmentCategory.Val], Option[String],
+            Equipment#Id, Option[EquipmentCategory.EquipmentCategoryVal], Option[String],
             Option[String], Option[BigDecimal])
 
         private def toEquipment(equipTuple: EquipmentTuple) = {
@@ -60,14 +60,14 @@ class EquipmentDAO @Inject() (
         private def fromEquipment(equip: Equipment) = {
             val (priceType, price) = equip.price match {
                     case Some(EquipmentPricePerHour(value)) => (Some("per-hour"), Some(value))
-                    case Some(EquipmentPricePerSession(value)) => (Some("per-session"), Some(value)) 
-                    case None => (None, None) 
+                    case Some(EquipmentPricePerSession(value)) => (Some("per-session"), Some(value))
+                    case None => (None, None)
                 }
 
             Some((equip.id, equip.category, equip.details, priceType, price))
         }
 
-        def * = (id, category, details, priceType, price) <> (toEquipment, fromEquipment)
+        def * = (id, category, details, priceType, price).<>(toEquipment, fromEquipment)
     }
 
     lazy val query = TableQuery[EquipmentTable]

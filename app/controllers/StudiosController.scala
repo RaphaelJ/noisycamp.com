@@ -54,7 +54,7 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
     }
 
     def search = UserAwareAction.async { implicit request =>
-        SearchForm.form.bindFromRequest.fold(
+        SearchForm.form.bindFromRequest().fold(
             form => Future.successful(BadRequest("Invalid search parameters.")),
             data => {
                 // Uses the BBox parameter, or generates a BBox around the location's
@@ -141,7 +141,7 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
         // Only allows the embedded widget if the owner's plan allows it or if it's called from the
         // demo page.
         def isAllowed(owner: User): Boolean = {
-            val demoUrl = account.studios.routes.EmbeddedController.demo(studioId).absoluteURL
+            val demoUrl = account.studios.routes.EmbeddedController.demo(studioId).absoluteURL()
             owner.plan.websiteIntegration ||
             request.headers.get("Referer").map(_ == demoUrl).getOrElse(false)
         }

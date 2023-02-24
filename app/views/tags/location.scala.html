@@ -73,6 +73,7 @@
         @address.zipcode.get<br>
         @address.country.name
     }
+    case _ => { throw new Exception("Invalid address format.") }
     }
 }
 

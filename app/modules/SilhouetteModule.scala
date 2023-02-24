@@ -81,7 +81,7 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
   /**
    * Configures the module.
    */
-  override def configure() {
+  override def configure(): Unit = {
     bind[Silhouette[DefaultEnv]].to[SilhouetteProvider[DefaultEnv]]
     bind[SecuredErrorHandler].to[CustomSecuredErrorHandler]
     bind[IDGenerator].toInstance(new SecureRandomIDGenerator())

@@ -25,7 +25,7 @@
     upcomingStudioBookings: Seq[(models.StudioBooking, models.Studio, models.User)]
     )(implicit req: RequestHeader, config: Configuration, flash: Flash)
 
-@layout(
+@views.html.account.layout(
     Seq("My account"),
     hideSideBarOnSmall=false,
     identity=identity) {

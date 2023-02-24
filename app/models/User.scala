@@ -32,7 +32,7 @@ case class User(
     email:              String,
     avatarId:           Option[Long],
 
-    plan:               Plan.Val = Plan.Free,
+    plan:               Plan.PlanVal = Plan.Free,
     subscriptionId:     Option[UserSubscription#Id] = None,
     nextSubscriptionId: Option[UserSubscription#Id] = None,
 

@@ -46,7 +46,7 @@ trait CustomColumnTypes { this: HasDatabaseConfigProvider[JdbcProfile] =>
 
     /** Maps a country value to its ISO code. */
     implicit val countryValType =
-        MappedColumnType.base[Country.Val, String](_.isoCode, Country.byCode(_))
+        MappedColumnType.base[Country.CountryVal, String](_.isoCode, Country.byCode(_))
 
     /** Maps a currency value to its ISO code. */
     implicit val currencyType =
@@ -56,7 +56,8 @@ trait CustomColumnTypes { this: HasDatabaseConfigProvider[JdbcProfile] =>
     implicit val durationType = MappedColumnType.base[Duration, Long](_.toMillis, Duration.ofMillis)
 
     implicit val equipmentCategoryType =
-        MappedColumnType.base[EquipmentCategory.Val, String](_.code, EquipmentCategory.byCode(_))
+        MappedColumnType.base[EquipmentCategory.EquipmentCategoryVal, String](
+            _.code, EquipmentCategory.byCode(_))
 
     /** Alternative implementation of java.time.LocalDate that maps to a string. */
     implicit val localDateType =
@@ -75,16 +76,17 @@ trait CustomColumnTypes { this: HasDatabaseConfigProvider[JdbcProfile] =>
     implicit val pictureIdType =
         MappedColumnType.base[PictureId, Array[Byte]](_.value, PictureId.apply _)
 
-    implicit val planType = enumeration[Plan.Val](Seq(
+    implicit val planType = enumeration[Plan.PlanVal](Seq(
         Plan.Free       -> "free",
         Plan.Standard   -> "standard",
         Plan.Premium    -> "premium"))
 
-    implicit val bookingRepeatFrequencyType = enumeration[BookingRepeatFrequency.Val](Seq(
-        BookingRepeatFrequency.Daily    -> "daily",
-        BookingRepeatFrequency.Weekly   -> "weekly",
-        BookingRepeatFrequency.Monthly  -> "monthly",
-        BookingRepeatFrequency.Yearly   -> "yearly"))
+    implicit val bookingRepeatFrequencyType =
+        enumeration[BookingRepeatFrequency.BookingRepeatFrequencyVal](Seq(
+            BookingRepeatFrequency.Daily    -> "daily",
+            BookingRepeatFrequency.Weekly   -> "weekly",
+            BookingRepeatFrequency.Monthly  -> "monthly",
+            BookingRepeatFrequency.Yearly   -> "yearly"))
 
     implicit val pictureFormatType = enumeration[PictureFormat](Seq(
         GifFormat           -> "gif",

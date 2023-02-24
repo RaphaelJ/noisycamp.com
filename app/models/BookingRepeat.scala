@@ -18,20 +18,25 @@
 package models
 
 import java.time.{ LocalDate, Period }
+import scala.language.implicitConversions
+
 import views.html.tags.duration
 
 object BookingRepeatFrequency extends Enumeration {
 
-    case class Val(val value: String, val period: Period) extends super.Val
+    case class BookingRepeatFrequencyVal(val value: String, val period: Period) extends super.Val
 
-    val Daily = Val("daily", Period.ofDays(1))
-    val Weekly = Val("weekly", Period.ofWeeks(1))
-    val Monthly = Val("monthly", Period.ofMonths(1))
-    val Yearly = Val("yearly", Period.ofYears(1))
+    implicit def valueToBookingRepeatFrequencyVal(v: Value): BookingRepeatFrequencyVal =
+        v.asInstanceOf[BookingRepeatFrequencyVal]
+
+    val Daily = BookingRepeatFrequencyVal("daily", Period.ofDays(1))
+    val Weekly = BookingRepeatFrequencyVal("weekly", Period.ofWeeks(1))
+    val Monthly = BookingRepeatFrequencyVal("monthly", Period.ofMonths(1))
+    val Yearly = BookingRepeatFrequencyVal("yearly", Period.ofYears(1))
 }
 
 sealed trait BookingRepeat {
-    def frequency:                      BookingRepeatFrequency.Val
+    def frequency:                      BookingRepeatFrequency.BookingRepeatFrequencyVal
 
     def count(firstOn: LocalDate):      Int
 
@@ -47,7 +52,7 @@ sealed trait BookingRepeat {
 
 /** Repeat an event a certain amount of time. */
 final case class BookingRepeatCount(
-    val frequency:          BookingRepeatFrequency.Val,
+    val frequency:          BookingRepeatFrequency.BookingRepeatFrequencyVal,
     val count:              Int,
     ) extends BookingRepeat {
 
@@ -60,7 +65,7 @@ final case class BookingRepeatCount(
 
 /** Repeat an event until a provided date (inclusive). */
 final case class BookingRepeatUntil(
-    val frequency:          BookingRepeatFrequency.Val,
+    val frequency:          BookingRepeatFrequency.BookingRepeatFrequencyVal,
     val until:              LocalDate,
     ) extends BookingRepeat {
 

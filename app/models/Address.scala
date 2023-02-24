@@ -25,4 +25,4 @@ case class Address(
   zipcode:    Option[String],
   city:       String,
   stateCode:  Option[String],
-  country:    Country.Val)
+  country:    Country.CountryVal)

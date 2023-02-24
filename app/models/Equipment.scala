@@ -31,7 +31,7 @@ final case class EquipmentPricePerHour(val value: BigDecimal) extends EquipmentP
 case class Equipment(
     id:             Equipment#Id = 0L,
 
-    category:       Option[EquipmentCategory.Val],
+    category:       Option[EquipmentCategory.EquipmentCategoryVal],
     details:        Option[String],
 
     price:          Option[EquipmentPrice]) {
@@ -45,7 +45,7 @@ case class Equipment(
 }
 
 sealed trait LocalEquipmentPrice {
-    /** Computes the cost of leasing the equipment for the duration of the session. */ 
+    /** Computes the cost of leasing the equipment for the duration of the session. */
     def sessionTotal(duration: Duration): Money
 }
 final case class LocalEquipmentPricePerHour(val value: Money) extends LocalEquipmentPrice {
@@ -62,9 +62,9 @@ final case class LocalEquipmentPricePerSession(val value: Money) extends LocalEq
 case class LocalEquipment(
     id:             Equipment#Id = 0L,
 
-    category:       Option[EquipmentCategory.Val],
+    category:       Option[EquipmentCategory.EquipmentCategoryVal],
     details:        Option[String],
-    
+
     price:          Option[LocalEquipmentPrice])
 
 object LocalEquipmentPrice {

@@ -183,7 +183,7 @@ class PaymentServiceSpec extends PlaySpec with GuiceOneAppPerSuite {
 
                     (stripePrice.isDefined) should be (true)
 
-                    val planPrice = plan.prices.get.get(currency)
+                    val planPrice = plan.prices.get().get(currency)
 
                     (planPrice.isDefined) should be (true)
 

@@ -94,7 +94,7 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
 
         withStudioTransaction(id, { case (studio, owner, equips, picIds) =>
             validateAvailabilities(
-                studio, BookingForm.formWithPaymentMethod(now, studio, equips).bindFromRequest).
+                studio, BookingForm.formWithPaymentMethod(now, studio, equips).bindFromRequest()).
                 flatMap { form =>
                     form.fold(
                         form => {
@@ -106,6 +106,7 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
                             val handler = data.paymentMethod match {
                                 case PaymentMethod.Online => handleOnlinePayment _
                                 case PaymentMethod.Onsite => handleOnsitePayment _
+                                case _ => throw new Exception("Invalid payment method.")
                             }
 
                             val localEquipments = data.equipments.

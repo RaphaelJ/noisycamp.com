@@ -43,7 +43,7 @@ object UniqueId {
         val mac = Mac.getInstance(ALGO)
         mac.init(new SecretKeySpec(key, ALGO))
 
-        val codeBytes = mac.doFinal(f"${salt}-${id}".toString.getBytes)
+        val codeBytes = mac.doFinal(f"${salt}-${id}".toString.getBytes).toIndexedSeq
 
         toHexString(codeBytes).take(len)
     }

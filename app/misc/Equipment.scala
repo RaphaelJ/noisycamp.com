@@ -17,65 +17,73 @@
 
 package misc
 
+import scala.language.implicitConversions
+
 object EquipmentFamily extends Enumeration {
 
-  case class Val(val code: String, val name: String) extends super.Val
+    case class EquipmentFamilyVal(val code: String, val name: String) extends super.Val
 
-  val AudioSystem = Val("audio-system", "Audio system")
-  val Brass = Val("percussion", "Percussion")
-  val Keyboard = Val("keyboard", "Keyboard")
-  val Percussion = Val("percussion", "Percussion")
-  val String = Val("string", "String")
+    implicit def valueToEquipmentFamilyVal(v: Value): EquipmentFamilyVal =
+        v.asInstanceOf[EquipmentFamilyVal]
 
-  def byCode: Map[String, Val] = values.
-    toSeq.
-    map(_.asInstanceOf[Val]).
-    map { v => v.code -> v }.
-    toMap
+    val AudioSystem = EquipmentFamilyVal("audio-system", "Audio system")
+    val Brass = EquipmentFamilyVal("percussion", "Percussion")
+    val Keyboard = EquipmentFamilyVal("keyboard", "Keyboard")
+    val Percussion = EquipmentFamilyVal("percussion", "Percussion")
+    val String = EquipmentFamilyVal("string", "String")
+
+    def byCode: Map[String, EquipmentFamilyVal] = values.
+        toSeq.
+        map(_.asInstanceOf[EquipmentFamilyVal]).
+        map { v => v.code -> v }.
+        toMap
 }
 
 object EquipmentCategory extends Enumeration {
 
-  case class Val(
-    val code: String, val name: String, val family: EquipmentFamily.Val)
-    extends super.Val
+    case class EquipmentCategoryVal(
+        val code: String, val name: String, val family: EquipmentFamily.EquipmentFamilyVal)
+        extends super.Val
 
-  val Cymbal = Val("cymbal", "Cymbal", EquipmentFamily.Percussion)
-  val DrumKit = Val("drum-kit", "Drum kit", EquipmentFamily.Percussion)
-  val Percussion = Val("percussion", "Percussion", EquipmentFamily.Percussion)
+    implicit def valueToEquipmentCategoryVal(v: Value): EquipmentCategoryVal =
+        v.asInstanceOf[EquipmentCategoryVal]
 
-  val AcousticBass = Val(
-    "accoustic-bass", "Accoustic bass guitar", EquipmentFamily.String)
-  val ElectricBass = Val(
-    "electric-bass", "Electic bass guitar", EquipmentFamily.String)
-  val BassAmplifier = Val(
-    "bass-amplifier", "Bass amplifier", EquipmentFamily.String)
+    val Cymbal = EquipmentCategoryVal("cymbal", "Cymbal", EquipmentFamily.Percussion)
+    val DrumKit = EquipmentCategoryVal("drum-kit", "Drum kit", EquipmentFamily.Percussion)
+    val Percussion = EquipmentCategoryVal("percussion", "Percussion", EquipmentFamily.Percussion)
 
-  val AcousticGuitar = Val(
-    "accoustic-guitar", "Accoustic guitar", EquipmentFamily.String)
-  val ElectricGuitar = Val(
-    "electric-guitar", "Electic guitar", EquipmentFamily.String)
-  val GuitarAmplifier = Val(
-    "guitar-amplifier", "Guitar amplifier", EquipmentFamily.String)
+    val AcousticBass = EquipmentCategoryVal(
+        "accoustic-bass", "Accoustic bass guitar", EquipmentFamily.String)
+    val ElectricBass = EquipmentCategoryVal(
+        "electric-bass", "Electic bass guitar", EquipmentFamily.String)
+    val BassAmplifier = EquipmentCategoryVal(
+        "bass-amplifier", "Bass amplifier", EquipmentFamily.String)
 
-  val DoubleBass = Val("double-bass", "Double bass", EquipmentFamily.String)
-  val Cello = Val("cello", "Cello", EquipmentFamily.String)
-  val Violin = Val("violin", "Violin", EquipmentFamily.String)
-  val Viola = Val("viola", "Viola", EquipmentFamily.String)
+    val AcousticGuitar = EquipmentCategoryVal(
+        "accoustic-guitar", "Accoustic guitar", EquipmentFamily.String)
+    val ElectricGuitar = EquipmentCategoryVal(
+        "electric-guitar", "Electic guitar", EquipmentFamily.String)
+    val GuitarAmplifier = EquipmentCategoryVal(
+        "guitar-amplifier", "Guitar amplifier", EquipmentFamily.String)
 
-  val Piano = Val("piano", "Piano", EquipmentFamily.Keyboard)
-  val Keyboard = Val("keyboard", "Keyboard", EquipmentFamily.Keyboard)
-  val Organ = Val("organ", "Organ", EquipmentFamily.Keyboard)
-  val Synthesizer = Val("synthesizer", "Synthesizer", EquipmentFamily.Keyboard)
+    val DoubleBass = EquipmentCategoryVal("double-bass", "Double bass", EquipmentFamily.String)
+    val Cello = EquipmentCategoryVal("cello", "Cello", EquipmentFamily.String)
+    val Violin = EquipmentCategoryVal("violin", "Violin", EquipmentFamily.String)
+    val Viola = EquipmentCategoryVal("viola", "Viola", EquipmentFamily.String)
 
-  val Microphone = Val("microphone", "Microphone", EquipmentFamily.AudioSystem)
-  val Mixer = Val("mixer", "Mixer", EquipmentFamily.AudioSystem)
-  val PASystem = Val("pa-system", "PA system", EquipmentFamily.AudioSystem)
-  val Headphones = Val("headphones", "Headphones", EquipmentFamily.AudioSystem)
+    val Piano = EquipmentCategoryVal("piano", "Piano", EquipmentFamily.Keyboard)
+    val Keyboard = EquipmentCategoryVal("keyboard", "Keyboard", EquipmentFamily.Keyboard)
+    val Organ = EquipmentCategoryVal("organ", "Organ", EquipmentFamily.Keyboard)
+    val Synthesizer = EquipmentCategoryVal("synthesizer", "Synthesizer", EquipmentFamily.Keyboard)
 
-  def byCode: Map[String, Val] = values.
-    toSeq.
-    map(_.asInstanceOf[Val]).
-    map { v => v.code -> v }.
-    toMap
+    val Microphone = EquipmentCategoryVal("microphone", "Microphone", EquipmentFamily.AudioSystem)
+    val Mixer = EquipmentCategoryVal("mixer", "Mixer", EquipmentFamily.AudioSystem)
+    val PASystem = EquipmentCategoryVal("pa-system", "PA system", EquipmentFamily.AudioSystem)
+    val Headphones = EquipmentCategoryVal("headphones", "Headphones", EquipmentFamily.AudioSystem)
+
+    def byCode: Map[String, EquipmentCategoryVal] = values.
+        toSeq.
+        map(_.asInstanceOf[EquipmentCategoryVal]).
+        map { v => v.code -> v }.
+        toMap
 }

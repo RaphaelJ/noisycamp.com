@@ -229,10 +229,12 @@ class PlansController @Inject() (ccc: CustomControllerCompoments)
      * Cancels any ongoing subscription, and remove the next subscription value if it matches the
      * provided subscription.
      */
-    def setUserPlan(user: User, planOrSubscription: Either[Plan.Val, UserSubscription]):
+    def setUserPlan(user: User, planOrSubscription: Either[Plan.PlanVal, UserSubscription]):
         DBIO[User] = {
 
-        require(planOrSubscription.isRight || planOrSubscription.left.get.isFree)
+        require(
+            planOrSubscription.left.map(_.isFree).left.getOrElse(true),
+            "Non-subscription plan should be free.")
 
         val (plan, subscriptionId, nextSubscriptionId) = planOrSubscription match {
             case Left(plan) => (plan, None, user.nextSubscriptionId)
@@ -282,9 +284,9 @@ class PlansController @Inject() (ccc: CustomControllerCompoments)
                             filter(_.id inSet published.drop(newLimit)).
                             map(_.published).
                             update(false)
-                    } yield Unit
+                    } yield ()
                 }.
-                getOrElse(DBIO.successful(Unit))
+                getOrElse(DBIO.successful(()))
         }
 
         // Disable onsite payments on the user's studios if disabled. */
@@ -295,7 +297,7 @@ class PlansController @Inject() (ccc: CustomControllerCompoments)
                     filter(_.ownerId === user.id).
                     map(_.hasOnsitePayment).
                     update(false)
-            } else DBIO.successful(Unit)
+            } else DBIO.successful(())
         }
 
         // Removes any pricing on the user's equipments if disabled. */
@@ -326,18 +328,18 @@ class PlansController @Inject() (ccc: CustomControllerCompoments)
                             map(_.equipmentId).
                             update(priceIdsMap(oldEquip.id))
                     })
-                } yield Unit
-            } else DBIO.successful(Unit)
+                } yield ()
+            } else DBIO.successful(())
         }
 
         for {
             _ <- applyStudioLimit
             _ <- applyOnsitePayment
             _ <- applyEquipmentFee
-        } yield Unit
+        } yield ()
     }
 
-    def createSubscription(user: User, plan: Plan.Value, currency: Currency)(
+    def createSubscription(user: User, plan: Plan.PlanVal, currency: Currency)(
         implicit request: RequestHeader):
         DBIO[(UserSubscription, checkout.Session)] = {
 
@@ -412,8 +414,8 @@ class PlansController @Inject() (ccc: CustomControllerCompoments)
                     } else if (newSubscription.isEnded) {
                         // New subscription failed.
                         cancelNextSubscription(user)
-                    } else DBIO.successful(Unit)
-               } else DBIO.successful(Unit)
+                    } else DBIO.successful(())
+               } else DBIO.successful(())
             }
         } yield newSubscription
     }

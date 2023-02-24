@@ -24,7 +24,7 @@ import forms.CustomFields
 import i18n.Country
 
 object CountryForm {
-    type Data = Country.Value
+    type Data = Country.CountryVal
 
     val form = Form("country" -> CustomFields.country)
 }

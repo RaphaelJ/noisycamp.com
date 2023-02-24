@@ -18,6 +18,7 @@
 package controllers
 
 import javax.inject._
+import scala.language.implicitConversions
 
 import play.api._
 import play.api.mvc._
@@ -31,15 +32,16 @@ class SitemapController @Inject() (ccc: CustomControllerCompoments)
     import profile.api._
 
     private object ChangeFreq extends Enumeration {
-        case class Val(val value: String) extends super.Val
+        case class ChangeFreqVal(val value: String) extends super.Val
+        implicit def valueToChangeFreqVal(x: Value): ChangeFreqVal = x.asInstanceOf[ChangeFreqVal]
 
-        val Always = Val("always")
-        val Hourly = Val("hourly")
-        val Daily = Val("daily")
-        val Weekly = Val("weekly")
-        val Monthly = Val("monthly")
-        val Yearly = Val("yearly")
-        val Never = Val("never")
+        val Always = ChangeFreqVal("always")
+        val Hourly = ChangeFreqVal("hourly")
+        val Daily = ChangeFreqVal("daily")
+        val Weekly = ChangeFreqVal("weekly")
+        val Monthly = ChangeFreqVal("monthly")
+        val Yearly = ChangeFreqVal("yearly")
+        val Never = ChangeFreqVal("never")
     }
 
     def index = Action.async { implicit request =>
@@ -84,7 +86,7 @@ class SitemapController @Inject() (ccc: CustomControllerCompoments)
         }
     }
 
-    private def url(loc: Call, changeFreq: ChangeFreq.Val, priority: Double)(
+    private def url(loc: Call, changeFreq: ChangeFreq.ChangeFreqVal, priority: Double)(
         implicit req: RequestHeader):
         scala.xml.Elem = {
 

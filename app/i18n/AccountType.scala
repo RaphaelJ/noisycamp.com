@@ -17,14 +17,16 @@
 
 package i18n
 
+import scala.language.implicitConversions
+
 object AccountType extends Enumeration {
+    case class AccountTypeVal(val name: String) extends super.Val
 
-  case class Val(val name: String)
-    extends super.Val
+    implicit def valueToAccountTypeVal(x: Value): AccountTypeVal = x.asInstanceOf[AccountTypeVal]
 
-  val Iban = Val("IBAN")
-  val AbaAccount = Val("ABA")
-  val CanadianAccount = Val("Canadian")
-  val AustralianAccount = Val("Australian")
-  val NewZealandAccount = Val("NewZealand")
+    val Iban = AccountTypeVal("IBAN")
+    val AbaAccount = AccountTypeVal("ABA")
+    val CanadianAccount = AccountTypeVal("Canadian")
+    val AustralianAccount = AccountTypeVal("Australian")
+    val NewZealandAccount = AccountTypeVal("NewZealand")
 }

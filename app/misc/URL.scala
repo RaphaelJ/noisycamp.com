@@ -24,7 +24,7 @@ import play.api.mvc.{ Call, RequestHeader }
 
 object URL {
     /** Returns the URL to a call from the CDN, or a relative path if there is no CDN.
-     * 
+     *
      * @param absoluteURL if true, will return an absolute URL if there is no CDN.
      */
     def fromCDN(call: Call, absoluteURL: Boolean = false)(
@@ -34,7 +34,7 @@ object URL {
             case Some(cdnHost) => cdnHost + call.canonical
             case None => {
                 if (absoluteURL) {
-                    call.absoluteURL
+                    call.absoluteURL()
                 } else {
                     call.canonical
                 }
@@ -42,14 +42,14 @@ object URL {
         }
     }
 
-    /** Generates a version of the title that can be used in URL. */ 
+    /** Generates a version of the title that can be used in URL. */
     def titleAsURL(title: String, max_length: Int = 60): String = {
         // Makes the title lower case and replaces spaces and non-letter/digit characters by '-'.
         val lowered = title.
-            map { c => 
+            map { c =>
                 if (c.isLetterOrDigit) { c.toLower }
                 else { '-' }
-            }    
+            }
 
         // Removes accents.
         val normalized = Normalizer.normalize(lowered, Normalizer.Form.NFD).

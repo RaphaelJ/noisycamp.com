@@ -128,11 +128,12 @@ abstract class CustomBaseController @Inject () (
     implicit val timeZoneService = ccc.timeZoneService
     implicit val paymentService = ccc.paymentService
 
-    def clientCountry[R <: RequestHeader](implicit request: R): Future[Option[Country.Val]] = {
-        geoIpService.
-            get(request.remoteAddress).
-            map(_.map(_.country))
-    }
+    def clientCountry[R <: RequestHeader](implicit request: R):
+        Future[Option[Country.CountryVal]] = {
+            geoIpService.
+                get(request.remoteAddress).
+                map(_.map(_.country))
+        }
 
     def clientCurrency[R <: RequestHeader](implicit request: R): Future[market.Currency] = {
         clientCountry.

@@ -55,8 +55,10 @@ object JsonWrites {
             "cancellation-policy"   -> policy.cancellationPolicy)
     }
 
-    implicit object BookingRepeatFrequencyWrites extends Writes[BookingRepeatFrequency.Val] {
-        def writes(frequency: BookingRepeatFrequency.Val): JsValue = JsString(frequency.value)
+    implicit object BookingRepeatFrequencyWrites
+        extends Writes[BookingRepeatFrequency.BookingRepeatFrequencyVal] {
+        def writes(frequency: BookingRepeatFrequency.BookingRepeatFrequencyVal): JsValue =
+            JsString(frequency.value)
     }
 
     implicit object BookingRepeatWrites extends Writes[BookingRepeat] {

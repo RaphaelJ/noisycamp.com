@@ -145,6 +145,7 @@ object ICalendar {
             case StudioBookingStatus.Rejected => Status.VEVENT_CANCELLED
             case StudioBookingStatus.CancelledByCustomer => Status.VEVENT_CANCELLED
             case StudioBookingStatus.CancelledByOwner => Status.VEVENT_CANCELLED
+            case _ => throw new Exception("Invalid booking status.")
         }
 
         val event = new VEvent()

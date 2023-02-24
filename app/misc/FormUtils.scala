@@ -74,7 +74,7 @@ object FormUtils {
     /** Constructs a hierarchical JSON object from the form fields, with a default JsNull values
      * (e.g. "{'location': { 'address': { 'zipcode': null, 'city': null } } }").
      */
-    def mappingAsJson[_](mapping: Mapping[_]): JsObject = {
+    def mappingAsJson[T](mapping: Mapping[T]): JsObject = {
         mapping.mappings.
             // Ignore non-leaf mappings.
             filter(m => !m.key.isEmpty && m.mappings.filter(_ != m).isEmpty).

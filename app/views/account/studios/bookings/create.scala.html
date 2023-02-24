@@ -64,7 +64,7 @@
 
             @helper.form(
                 action=controllers.account.studios.routes.BookingsController.createSubmit(studio.id),
-                'class -> "feature"
+                Symbol("class") -> "feature"
             ) {
             @defining(FormUtils.dataAsJson(form)) { formData =>
             @defining(FormUtils.errorsAsJson(form)(messagesProvider)) { formErrors =>
@@ -74,9 +74,9 @@
                 <div class="grid-x">
                     <div class="cell small-12">
                         @helper.inputText(form("title"),
-                            '_label -> "Booking's title or description",
-                            'required -> "required",
-                            '_showConstraints -> false)
+                            Symbol("_label") -> "Booking's title or description",
+                            Symbol("required") -> "required",
+                            Symbol("_showConstraints") -> false)
                     </div>
 
                     <div class="cell small-12 large-9">

@@ -98,16 +98,16 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
                             result
                         _ <- DBIO.from(emailService.sendManualBookingCreatedByOwner(
                             booking, studio, user, pictures))
-                    } yield Unit
+                    } yield ()
                 }.
-                getOrElse(DBIO.successful(Unit))
+                getOrElse(DBIO.successful(()))
         }
 
         ifUserHasManualBookings {
             withStudioTransaction(id) { case studio =>
                 ManualBookingForm.
                     form(now, studio).
-                    bindFromRequest.
+                    bindFromRequest().
                     fold(
                         form => DBIO.successful(BadRequest(
                             views.html.account.studios.bookings.create(
@@ -238,9 +238,9 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
                                 equips <- bookingLocalEquipments(studio, booking)
                                 _ <- DBIO.from(emailService.sendBookingAccepted(
                                     scb, customer, studio, pictures, user, equips))
-                            } yield Unit
+                            } yield ()
                         }
-                        case _ => DBIO.successful(Unit)
+                        case _ => DBIO.successful(())
                     }
                 }
 
@@ -249,7 +249,7 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
                         _ <- query.map(_.status).
                             update(StudioBookingStatus.Valid)
                         _ <- sendEmail
-                    } yield Unit
+                    } yield ()
                 )
             } else {
                 None
@@ -272,7 +272,7 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
                         case (scb: StudioCustomerBooking, Some(customer)) => {
                             DBIO.from(emailService.sendBookingRejected(scb, customer, studio))
                         }
-                        case _ => DBIO.successful(Unit)
+                        case _ => DBIO.successful(())
                     }
                 }
 
@@ -282,7 +282,7 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
                             update(StudioBookingStatus.Rejected)
                         refundedBooking <- refundBooking(booking)
                         _ <- sendEmail(refundedBooking)
-                    } yield Unit
+                    } yield ()
                 )
             } else {
                 None
@@ -307,13 +307,13 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
                                 equips <- bookingLocalEquipments(studio, booking)
                                 _ <- DBIO.from(emailService.sendCustomerBookingCancelledByOwner(
                                     scb, customer, studio, equips))
-                            } yield Unit
+                            } yield ()
                         }
                         case (smb: StudioManualBooking, None)
                             if smb.customerEmail.isDefined => {
                             DBIO.from(emailService.sendManualBookingCancelledByOwner(smb, studio))
                         }
-                        case _ => DBIO.successful(Unit)
+                        case _ => DBIO.successful(())
                     }
                 }
 
@@ -323,7 +323,7 @@ class BookingsController @Inject() (ccc: CustomControllerCompoments)
                             update((StudioBookingStatus.CancelledByOwner, Some(Instant.now)))
                         refundedBooking <- refundBooking(booking)
                         _ <- sendEmail(refundedBooking)
-                    } yield Unit
+                    } yield ()
                 )
             } else {
                 None

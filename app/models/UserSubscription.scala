@@ -68,7 +68,7 @@ case class UserSubscription(
 
     userId:                     User#Id,
 
-    plan:                       Plan.Val,
+    plan:                       Plan.PlanVal,
 
     stripeCheckoutSessionId:    String,
     stripeCustomerId:           Option[String] = None,

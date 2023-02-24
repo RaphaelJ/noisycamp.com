@@ -58,7 +58,7 @@ class StudioDAO @Inject()
         def zipcode             = column[Option[String]]("zipcode")
         def city                = column[String]("city")
         def stateCode           = column[Option[String]]("state_code")
-        def country             = column[Country.Val]("country")
+        def country             = column[Country.CountryVal]("country")
 
         def long                = column[BigDecimal]("long")
         def lat                 = column[BigDecimal]("lat")
@@ -136,7 +136,7 @@ class StudioDAO @Inject()
 
         private type AddressTuple = (
             String, Option[String], Option[String], String, Option[String],
-            Country.Val)
+            Country.CountryVal)
 
         private type CoordinatesTuple = (BigDecimal, BigDecimal)
 
@@ -275,7 +275,7 @@ class StudioDAO @Inject()
             (policy.hasOnlinePayment, policy.hasOnsitePayment)
         }
 
-        def * = studioShaped <> (toStudio, fromStudio)
+        def * = studioShaped.<>(toStudio, fromStudio)
     }
 
     lazy val query = TableQuery[StudioTable]

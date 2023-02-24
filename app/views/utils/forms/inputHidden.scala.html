@@ -17,11 +17,11 @@
 
 @(field: play.api.data.Field, args: (Symbol,Any)*)
 
-@id = @{ args.toMap.get('id).map(_.toString).getOrElse(field.id) }
+@id = @{ args.toMap.get(Symbol("id")).map(_.toString).getOrElse(field.id) }
 
 @htmlArgs = @{ args.
     filter { arg =>
-        !arg._1.name.startsWith("_") && arg._1 != 'id && arg._1 != 'type
+        !arg._1.name.startsWith("_") && arg._1 != Symbol("id") && arg._1 != Symbol("type")
     }.
     toMap
 }

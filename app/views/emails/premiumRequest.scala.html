@@ -23,12 +23,12 @@
 @(user: User, formData: PremiumForm.Data, studios: Seq[Studio])(
     implicit req: RequestHeader, config: Configuration)
 
-@layout {
-    @tags.heading("h3") { Premium upgrade request - @user.displayName }
+@views.html.emails.layout {
+    @emails.tags.heading("h3") { Premium upgrade request - @user.displayName }
 
     @emails.tags.hr()
 
-    @tags.heading("h4") { User info }
+    @emails.tags.heading("h4") { User info }
     <dl>
         <dt>Name</dt>
         <dd>@user.displayName</dd>
@@ -39,7 +39,7 @@
 
     @emails.tags.hr()
 
-    @tags.heading("h4") { Form answers }
+    @emails.tags.heading("h4") { Form answers }
 
     <dl>
         @for(website <- formData.website) {
@@ -81,12 +81,12 @@
     @if(!studios.isEmpty) {
         @emails.tags.hr()
 
-        @tags.heading("h4") { Existing studios }
+        @emails.tags.heading("h4") { Existing studios }
 
         @for(studio <- studios) {
             <ul>
                 <li>
-                    <a href="@routes.StudiosController.show(studio.URLId).absoluteURL">
+                    <a href="@routes.StudiosController.show(studio.URLId).absoluteURL()">
                         @studio.name
                     </a>
                 </li>

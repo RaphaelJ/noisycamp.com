@@ -17,13 +17,15 @@
 
 @(field: play.api.data.Field, args: (Symbol,Any)*)
 
-@id = @{ args.find { arg => arg._1 == 'id }.map { arg => arg._2.toString }.getOrElse(field.id) }
-@label = @{ args.find { arg => arg._1 == 'label }.map { arg => arg._2.toString }.getOrElse(field.id) }
+@id = @{ args.find { arg => arg._1 == Symbol("id") }.
+    map { arg => arg._2.toString }.getOrElse(field.id) }
+@label = @{ args.find { arg => arg._1 == Symbol("label") }.
+    map { arg => arg._2.toString }.getOrElse(field.id) }
 
 @htmlArgs = @{ args.
     filter { arg =>
         !arg._1.name.startsWith("_") &&
-        !Seq('id, 'type, 'label).contains(arg._1)
+        !Seq(Symbol("id"), Symbol("type"), Symbol("label")).contains(arg._1)
     }.
     toMap
 }

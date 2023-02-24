@@ -62,11 +62,11 @@ class ExchangeRatesService @Inject() (
     def exchangeRates: ExchangeRates = exchangeRatesRef.get
 
     private val exchangeRatesRef: AtomicReference[ExchangeRates] =
-        new AtomicReference(updateExchangeRates)
+        new AtomicReference(updateExchangeRates())
 
     actorSystem.scheduler.scheduleAtFixedRate(
         initialDelay = updateInterval, interval = updateInterval)(
-        new Runnable() { def run = exchangeRatesRef.set(updateExchangeRates) })
+        new Runnable() { def run = exchangeRatesRef.set(updateExchangeRates()) })
 
     /** Fetches and updates the exchange rates from the ECB website. */
     private def updateExchangeRates(): ExchangeRates = {
@@ -74,7 +74,7 @@ class ExchangeRatesService @Inject() (
             val url = "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml"
             ws.url(url).
                 withFollowRedirects(true).
-                get.
+                get().
                 map { response =>
                     val date = DateTime.now()
 

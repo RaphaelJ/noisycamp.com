@@ -67,7 +67,8 @@ class StudioBookingDAO @Inject()
         def endsAt                  = column[LocalDateTime]("ends_at")(localDateTimeType)
 
         def repeatType              = column[Option[String]]("repeat_type")
-        def repeatFrequency         = column[Option[BookingRepeatFrequency.Val]]("repeat_frequency")
+        def repeatFrequency         =
+            column[Option[BookingRepeatFrequency.BookingRepeatFrequencyVal]]("repeat_frequency")
         def repeatCount             = column[Option[Int]]("repeat_count")
         def repeatUntil             =
             column[Option[LocalDate]]("repeat_until")(localDateType.optionType)
@@ -214,7 +215,7 @@ object StudioBookingDAO {
         val duration:               Duration,
         val endsAt:                 LocalDateTime,
         val repeatType:             Option[String],
-        val repeatFrequency:        Option[BookingRepeatFrequency.Val],
+        val repeatFrequency:        Option[BookingRepeatFrequency.BookingRepeatFrequencyVal],
         val repeatCount:            Option[Int],
         val repeatUntil:            Option[LocalDate],
         val bookingType:            StudioBookingType.Value)
@@ -298,7 +299,9 @@ object StudioBookingDAO {
     }
 
     private def fromBookingRepeat(repeat: Option[BookingRepeat]):
-        (Option[String], Option[BookingRepeatFrequency.Val], Option[Int], Option[LocalDate]) = {
+        (
+            Option[String], Option[BookingRepeatFrequency.BookingRepeatFrequencyVal], Option[Int],
+            Option[LocalDate]) = {
 
         repeat match {
             case Some(BookingRepeatCount(frequency, count)) =>

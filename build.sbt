@@ -23,7 +23,7 @@ version := "0.1"
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
-scalaVersion := "2.12.13"
+scalaVersion := "2.13.10"
 
 scalacOptions ++= Seq(
     "-deprecation",             // Emit warning and location for usages of deprecated
@@ -34,11 +34,11 @@ scalacOptions ++= Seq(
                                 // depends on assumptions.
     "-language:higherKinds",    // Higher kind types
     "-Xfatal-warnings",         // Fail the compilation if there are any warnings.
-    "-Ywarn-adapted-args",      // Warn if an argument list is modified to match the
+    //"-Ywarn-adapted-args",      // Warn if an argument list is modified to match the
                                 // receiver.
     "-Ywarn-dead-code",         // Warn when dead code is identified.
-    "-Ywarn-inaccessible",      // Warn about inaccessible types in method signatures.
-    "-Ywarn-nullary-override",  // Warn when non-nullary overrides nullary, e.g. def foo() over def
+    //"-Ywarn-inaccessible",      // Warn about inaccessible types in method signatures.
+    //"-Ywarn-nullary-override",  // Warn when non-nullary overrides nullary, e.g. def foo() over def
                                 // foo.
     "-Ywarn-numeric-widen",     // Warn when numerics are widened.
 
@@ -53,35 +53,36 @@ resolvers += Resolver.jcenterRepo
 libraryDependencies ++= Seq(
     guice, // Dependency injection library required by Play
 
-    ws, // WebService library
-
-    "org.scala-lang.modules" %% "scala-xml" % "1.3.0",
-
     "com.github.cb372" %% "scalacache-caffeine" % "0.28.0",
 
-    "com.iheart" %% "ficus" % "1.4.7",
+    "com.iheart" %% "ficus" % "1.5.2",
 
-    "com.mohiva" %% "play-silhouette" % "6.1.1",
-    "com.mohiva" %% "play-silhouette-crypto-jca" % "6.1.1",
-    "com.mohiva" %% "play-silhouette-password-bcrypt" % "6.1.1",
-    "com.mohiva" %% "play-silhouette-persistence" % "6.1.1",
+    "com.mohiva" %% "play-silhouette" % "7.0.0",
+    "com.mohiva" %% "play-silhouette-crypto-jca" % "7.0.0",
+    "com.mohiva" %% "play-silhouette-password-bcrypt" % "7.0.0",
+    "com.mohiva" %% "play-silhouette-persistence" % "7.0.0",
 
     "com.sksamuel.scrimage" % "scrimage-core" % "4.0.33",
     "com.sksamuel.scrimage" % "scrimage-webp" % "4.0.33",
 
     "com.stripe" % "stripe-java" % "20.94.0",
 
-    "com.typesafe.play" %% "play-slick" % "5.0.0",
-    "com.typesafe.play" %% "play-slick-evolutions" % "5.0.0",
+    "com.typesafe.play" %% "play-slick" % "5.1.0",
+    "com.typesafe.play" %% "play-slick-evolutions" % "5.1.0",
 
     "com.typesafe.play" %% "play-mailer" % "8.0.1",
     "com.typesafe.play" %% "play-mailer-guice" % "8.0.1",
+
+    "com.typesafe.play" %% "play-ahc-ws-standalone" % "2.2.0-M2",
+    "com.typesafe.play" %% "play-ws-standalone-xml" % "2.2.0-M2",
+
+    "com.typesafe.play" %% "twirl-api" % "1.5.2",
 
     "org.mnode.ical4j" % "ical4j" % "3.1.2",
 
     "org.postgresql" % "postgresql" % "42.2.8",
 
-    "org.typelevel" %% "squants" % "1.3.0",
+    "org.typelevel" %% "squants" % "1.8.3",
 
     "org.scalatestplus.play" %% "scalatestplus-play" % "4.0.3" % Test,
 
@@ -90,9 +91,12 @@ libraryDependencies ++= Seq(
     "net.codingwell" %% "scala-guice" % "5.0.1",
 
     "net.iakovlev" % "timeshape" % "2020d.12",
+
+    "org.slf4j" % "slf4j-api" % "2.0.3",
+    "ch.qos.logback" % "logback-classic" % "1.3.4",
     )
 
-    // Forces the use of the Java 7 FileWatchService, as the native watcher is broken on Apple Silicon.
+// Forces the use of the Java 7 FileWatchService, as the native watcher is broken on Apple Silicon.
 // https://discuss.lightbend.com/t/apple-silicon-m1-playframework-broken-on-apple-silicon/7924
 PlayKeys.fileWatchService := play.dev.filewatch.FileWatchService.jdk7(
     play.sbt.run.toLoggerProxy(sLog.value))

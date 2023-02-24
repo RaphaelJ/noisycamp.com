@@ -73,10 +73,10 @@ object CustomFields {
 
     /** Accepts any valid country value (ISO code) from the `Country`
      * enumeration. */
-    val country: Mapping[Country.Val] = enumeration[Country.Val](
+    val country: Mapping[Country.CountryVal] = enumeration[Country.CountryVal](
         Country.values.
             toSeq.
-            map(_.asInstanceOf[Country.Val]).
+            map(_.asInstanceOf[Country.CountryVal]).
             map { v => v -> v.isoCode }, "Invalid country code")
 
     /** Maps a currency code to a `Currency` value. */
@@ -102,11 +102,11 @@ object CustomFields {
         of(enumFormat)
     }
 
-    val equipmentCategory: Mapping[EquipmentCategory.Val] =
-        enumeration[EquipmentCategory.Val](
+    val equipmentCategory: Mapping[EquipmentCategory.EquipmentCategoryVal] =
+        enumeration[EquipmentCategory.EquipmentCategoryVal](
             EquipmentCategory.values.
             toSeq.
-            map(_.asInstanceOf[EquipmentCategory.Val]).
+            map(_.asInstanceOf[EquipmentCategory.EquipmentCategoryVal]).
             map { v => v -> v.code },
         "Invalid equipment category")
 

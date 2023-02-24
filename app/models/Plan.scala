@@ -26,13 +26,14 @@ import i18n.Currency
 import i18n.Currency._
 
 object PayoutSchedule extends Enumeration {
-    case class Val(val name: String) extends super.Val
+    case class PayoutScheduleVal(val name: String) extends super.Val
 
-    implicit def valueToVal(v: Value): Val = v.asInstanceOf[Val]
+    implicit def valueToPayoutScheduleVal(v: Value): PayoutScheduleVal =
+        v.asInstanceOf[PayoutScheduleVal]
 
-    val Daily = Val("Daily")
-    val Weekly = Val("Weekly")
-    val Monthly = Val("Monthly")
+    val Daily = PayoutScheduleVal("Daily")
+    val Weekly = PayoutScheduleVal("Weekly")
+    val Monthly = PayoutScheduleVal("Monthly")
 }
 
 object Plan extends Enumeration {
@@ -40,7 +41,7 @@ object Plan extends Enumeration {
     // Average plan duration used to estimate customer's LTVs.
     val PLAN_AVG_DURATION_MONTHS = BigDecimal(12)
 
-    case class Val(
+    case class PlanVal(
         val code:               String,
         val name:               String,
 
@@ -75,9 +76,9 @@ object Plan extends Enumeration {
         }
     }
 
-    implicit def valueToVal(v: Value): Val = v.asInstanceOf[Val]
+    implicit def valueToPlanVal(v: Value): PlanVal = v.asInstanceOf[PlanVal]
 
-    val Free = Val(
+    val Free = PlanVal(
         "free",
         "Free",
         transactionRate = BigDecimal(0.09),
@@ -92,7 +93,7 @@ object Plan extends Enumeration {
         smsReminders = false,
         prices = None)
 
-    val Standard = Val(
+    val Standard = PlanVal(
         "standard",
         "Standard",
         transactionRate = BigDecimal(0.06),
@@ -128,7 +129,7 @@ object Plan extends Enumeration {
             SGD -> SGD(29),
         )))
 
-    val Premium = Val(
+    val Premium = PlanVal(
         "premium",
         "Premium",
         transactionRate = BigDecimal(0.04),
@@ -170,3 +171,4 @@ object Plan extends Enumeration {
 
     require(default.isFree)
 }
+

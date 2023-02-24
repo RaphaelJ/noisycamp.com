@@ -17,9 +17,9 @@
 
 package misc
 
-import collection.JavaConverters._
 import javax.inject.{ Inject, Singleton }
 import scala.concurrent.{ ExecutionContext, Future, blocking }
+import scala.jdk.CollectionConverters._
 import scala.math.BigDecimal.RoundingMode
 
 import akka.util.ByteString
@@ -74,7 +74,7 @@ class PaymentService @Inject() (
 
     /** Creates a Stripe Express account for the provided NoisyCamp user. */
     def createAccount(
-        user: User, country: Country.Val,
+        user: User, country: Country.CountryVal,
         accountType: StripeAccountType.Value = StripeAccountType.Express,
         extraParams: Map[String, Object] = Map.empty)(
         implicit config: Configuration):
@@ -89,6 +89,7 @@ class PaymentService @Inject() (
                 "type" -> (accountType match {
                     case StripeAccountType.Express => "express"
                     case StripeAccountType.Custom => "custom"
+                    case _ => throw new Exception("Invalid Stripe account type.")
                 }),
                 "capabilities" -> Map(
                     "transfers" -> Map("requested" -> true.asInstanceOf[Object]).asJava,
@@ -145,12 +146,12 @@ class PaymentService @Inject() (
     def connectOAuthComplete(code: String)(implicit config: Configuration):
         Future[TokenResponse] = {
 
-        val params: java.util.Map[String, Object] = Map(
+        val params: Map[String, Object] = Map(
             "grant_type" -> "authorization_code",
             "code" -> code,
-            "assert_capabilities" -> Seq("transfers", "card_payments").asJava).asJava
+            "assert_capabilities" -> Seq("transfers", "card_payments").asJava)
 
-        Future { blocking { OAuth.token(params, requestOptions) } }
+        Future { blocking { OAuth.token(params.asJava, requestOptions) } }
     }
 
     /** Returns the URL to the Stripe Express dashboard associated with the
@@ -183,7 +184,7 @@ class PaymentService @Inject() (
             take(8).
             map(_.base64).
             map { id => controllers.routes.PictureController.cover(id, "500x500") }.
-            map(_.absoluteURL)
+            map(_.absoluteURL())
 
         val amount = priceBreakdown.total
         val (stripeAmount, stripeCurrency) = PaymentService.asStripeAmount(amount)
@@ -218,7 +219,7 @@ class PaymentService @Inject() (
     }
 
     def createSubscriptionSession(
-        customer: User, plan: Plan.Val, currency: market.Currency, trialDays: Option[Int],
+        customer: User, plan: Plan.PlanVal, currency: market.Currency, trialDays: Option[Int],
         onSuccess: Call, onCancel: Call, metadata: Map[String, String])(
         implicit request: RequestHeader, config: Configuration): Future[Session] = {
 
@@ -342,7 +343,8 @@ class PaymentService @Inject() (
         Future { blocking { subscription.cancel(params, requestOptions) } }
     }
 
-    def retrievePrice(plan: Plan.Value, currency: market.Currency)(implicit config: Configuration):
+    def retrievePrice(plan: Plan.PlanVal, currency: market.Currency)(
+        implicit config: Configuration):
         Future[Option[Price]] = {
 
         PaymentService.planPriceId(plan, currency) match {
@@ -406,6 +408,7 @@ class PaymentService @Inject() (
                     captureMethod match {
                         case StripePaymentCaptureMethod.Automatic => "automatic"
                         case StripePaymentCaptureMethod.Manual => "manual"
+                        case _ => throw new Exception("Invalid Stripe capture method.")
                     }
                 }.asInstanceOf[AnyRef],
                 "statement_descriptor" -> statement,
@@ -434,7 +437,7 @@ object PaymentService {
 
     /** Returns an unique price ID that can be used to identify the plan price when billing the
      * customer with Stripe. */
-    def planPriceId(plan: Plan.Value, currency: market.Currency): Option[String] = {
+    def planPriceId(plan: Plan.PlanVal, currency: market.Currency): Option[String] = {
         plan.prices.
             flatMap { _.get(currency) }.
             map { _ => f"noisycamp_${plan.name.toLowerCase}_${currency.code.toLowerCase}" }

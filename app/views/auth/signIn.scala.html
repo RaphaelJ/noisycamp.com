@@ -35,7 +35,7 @@
     <a href="@controllers.routes.AuthController.signUp(redirectTo)">Sign up</a>
 }
 
-@layout("Sign in", socialProviders, redirectTo, bottomText) {
+@views.html.auth.layout("Sign in", socialProviders, redirectTo, bottomText) {
     <div class="cell">
         @helper.form(
             action = controllers.routes.AuthController.signInSubmit(redirectTo)) {
@@ -45,13 +45,15 @@
             <div class="grid-x">
                 <div class="cell">
                     @helper.inputText(signInForm("email"),
-                        '_label -> "Email", '_showConstraints -> false,
-                        'type -> "email")
+                        Symbol("_label") -> "Email",
+                        Symbol("_showConstraints") -> false,
+                        Symbol("type") -> "email")
                 </div>
 
                 <div class="cell">
                     @helper.inputPassword(signInForm("password"),
-                        '_label -> "Password", '_showConstraints -> false)
+                        Symbol("_label") -> "Password",
+                        Symbol("_showConstraints") -> false)
                 </div>
 
                 <div class="cell">

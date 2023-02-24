@@ -45,7 +45,7 @@ class IndexController @Inject() (
 
         for {
             locationPrices <- db.run(DBIO.sequence(locations.map(locationStartingPrice _)))
-            articlesOpt <- ccc.mediumArticleService.getArticles
+            articlesOpt <- ccc.mediumArticleService.getArticles()
         } yield Ok(views.html.index(
             identity=request.identity,
             highlightLocations=locations.zip(locationPrices),

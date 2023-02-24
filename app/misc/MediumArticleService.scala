@@ -61,7 +61,7 @@ class MediumArticleService @Inject() (
             }
             case _ => {
                 // No up to date article list.
-                fetchArticles.
+                fetchArticles().
                     map { newArticles =>
                         articles = Some((newArticles, now))
                         Some(newArticles)
@@ -86,7 +86,7 @@ class MediumArticleService @Inject() (
         for {
             items <- ws.url(url).
                 withFollowRedirects(true).
-                get.
+                get().
                 map { response =>
                     (response.json \ "items").
                     as[Seq[JsValue]]

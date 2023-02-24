@@ -105,7 +105,7 @@ class PictureLoader @Inject() (
     def fromUrl(url: String): Future[Option[Picture]] = {
         ws.url(url).
             withFollowRedirects(true).
-            get.
+            get().
             map { case response =>
                 if (response.status >= 200 && response.status < 300) {
                     fromBytes(response.bodyAsBytes.toArray)

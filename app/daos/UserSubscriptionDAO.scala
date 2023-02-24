@@ -41,7 +41,7 @@ class UserSubscriptionDAO @Inject()
 
         def userId                  = column[User#Id]("user_id")
 
-        def plan                    = column[Plan.Val]("plan")
+        def plan                    = column[Plan.PlanVal]("plan")
 
         def stripeCheckoutSessionId = column[String]("stripe_checkout_session_id")
         def stripeCustomerId        = column[Option[String]]("stripe_customer_id")
