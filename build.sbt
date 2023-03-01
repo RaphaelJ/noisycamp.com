@@ -34,12 +34,7 @@ scalacOptions ++= Seq(
                                 // depends on assumptions.
     "-language:higherKinds",    // Higher kind types
     "-Xfatal-warnings",         // Fail the compilation if there are any warnings.
-    //"-Ywarn-adapted-args",      // Warn if an argument list is modified to match the
-                                // receiver.
     "-Ywarn-dead-code",         // Warn when dead code is identified.
-    //"-Ywarn-inaccessible",      // Warn about inaccessible types in method signatures.
-    //"-Ywarn-nullary-override",  // Warn when non-nullary overrides nullary, e.g. def foo() over def
-                                // foo.
     "-Ywarn-numeric-widen",     // Warn when numerics are widened.
 
     // Play has a lot of issues with unused imports and unsued params
@@ -95,11 +90,6 @@ libraryDependencies ++= Seq(
     "org.slf4j" % "slf4j-api" % "2.0.3",
     "ch.qos.logback" % "logback-classic" % "1.3.4",
     )
-
-// Forces the use of the Java 7 FileWatchService, as the native watcher is broken on Apple Silicon.
-// https://discuss.lightbend.com/t/apple-silicon-m1-playframework-broken-on-apple-silicon/7924
-PlayKeys.fileWatchService := play.dev.filewatch.FileWatchService.jdk7(
-    play.sbt.run.toLoggerProxy(sLog.value))
 
 // Creates Webpack bundle when compiling, based on
 // https://github.com/wigahluk/play-webpack.
