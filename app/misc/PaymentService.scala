@@ -37,7 +37,7 @@ import play.filters.csrf.CSRF
 import squants.market
 
 import i18n.{ Country, Currency }
-import models.{ Picture, Plan, Studio, User }
+import models.{ Plan, Studio, SerializedPicture, User }
 import models.PriceBreakdown
 import views.html.tags.priceBreakdown
 
@@ -168,7 +168,7 @@ class PaymentService @Inject() (
     /** Initiate a Stripe Checkout transaction for a booking. */
     def createSession(
         from: User, to: User, priceBreakdown: PriceBreakdown,
-        title: String, description: String, statement: String, pics: Seq[Picture#Id],
+        title: String, description: String, statement: String, pics: Seq[SerializedPicture#Id],
         captureMethod: StripePaymentCaptureMethod.Value, onSuccess: Call, onCancel: Call,
         metadata: Map[String, String])(
         implicit request: RequestHeader, config: Configuration): Future[Session] = {

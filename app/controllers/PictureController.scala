@@ -30,13 +30,15 @@ import play.api.mvc._
 
 import models.{ Picture, PictureFromDatabase, PictureFromStream, PictureId, PictureSource }
 import pictures.{
-    BoundPicture, CoverPicture, MaxPicture, PictureCache, PictureLoader, PictureTransform,
-    RawPicture }
-import scala.concurrent.java8.FuturesConvertersImpl
-import java.io.InputStream
+    BoundPicture, ChainedTransforms, CoverPicture, LegacyFormat, MaxPicture, OptimizeFormat,
+    PictureCache, PictureLoader, PictureTransform }
+import views.html.helper.form
+import akka.http.scaladsl.settings.PoolImplementation
+import akka.actor.Status
 
 @Singleton
 class PictureController @Inject() (
+    assets: Assets,
     environment: Environment,
     ccc: CustomControllerCompoments,
     pictureCache: PictureCache,
@@ -54,8 +56,7 @@ class PictureController @Inject() (
 
         def savePicture(pic: Picture): Future[Result] = {
             val optimizedPic =
-                PictureTransform.optimiseFormat(
-                    MaxPicture(MAX_UPLOAD_IMAGE_SIZE, MAX_UPLOAD_IMAGE_SIZE)(pic))
+                OptimizeFormat(MaxPicture(MAX_UPLOAD_IMAGE_SIZE, MAX_UPLOAD_IMAGE_SIZE)(pic))
 
             pictureLoader.
                 toDatabase(optimizedPic).
@@ -80,39 +81,57 @@ class PictureController @Inject() (
     }
 
 
-    def view(id: String) = Action.async {
+    def view(id: String, optimized: Option[Boolean] = None) = Action.async {
         val picId = PictureId.fromString(id)
-        picWithTransform(PictureFromDatabase(picId), RawPicture)
+        picWithTransform(PictureFromDatabase(picId), None, optimized)
     }
 
-    def bound(id: String, size: String) = Action.async {
-        picIdWithSizeTransform(id, size, BoundPicture)
+    def asset(path: String, optimized: Option[Boolean] = None) = Action.async { implicit request =>
+        (parsePathArg(path) match {
+            case Some(streamSource) => picWithTransform(streamSource, None, optimized)
+            case None => Future.successful(NotFound("Asset not found."))
+        }).flatMap { result =>
+            val statusCode = result.header.status
+            if (statusCode >= 200 && statusCode < 300) {
+                Future.successful(result)
+            } else {
+                // Fallback to Play's assets controller.
+                assets.versioned(s"/images/$path").apply(request)
+            }
+        }
     }
 
-    def boundAsset(path: String, size: String) = Action.async {
-        picAssetWithSizeTransform(path, size, BoundPicture)
+    def bound(id: String, size: String, optimized: Option[Boolean] = None) = Action.async {
+        picIdWithSizeTransform(id, size, BoundPicture, optimized)
     }
 
-    def cover(id: String, size: String) = Action.async {
-        picIdWithSizeTransform(id, size, CoverPicture)
+    def boundAsset(path: String, size: String, optimized: Option[Boolean] = None) = Action.async {
+        picAssetWithSizeTransform(path, size, BoundPicture, optimized)
     }
 
-    def coverAsset(path: String, size: String) = Action.async {
-        picAssetWithSizeTransform(path, size, CoverPicture)
+    def cover(id: String, size: String, optimized: Option[Boolean] = None) = Action.async {
+        picIdWithSizeTransform(id, size, CoverPicture, optimized)
     }
 
-    def max(id: String, size: String) = Action.async {
-        picIdWithSizeTransform(id, size, MaxPicture)
+    def coverAsset(path: String, size: String, optimized: Option[Boolean] = None) = Action.async {
+        picAssetWithSizeTransform(path, size, CoverPicture, optimized)
     }
 
-    def maxAsset(path: String, size: String) = Action.async {
-        picAssetWithSizeTransform(path, size, MaxPicture)
+    def max(id: String, size: String, optimized: Option[Boolean] = None) = Action.async {
+        picIdWithSizeTransform(id, size, MaxPicture, optimized)
+    }
+
+    def maxAsset(path: String, size: String, optimized: Option[Boolean] = None) = Action.async {
+        picAssetWithSizeTransform(path, size, MaxPicture, optimized)
     }
 
     // --
 
-    /** Returns the path to the picture object if it's valid. */
+    /** Returns the path to the picture object if it's valid.
+     *
+     * Returns None if the image does not exist. */
     private def parsePathArg(pathArg: String): Option[PictureFromStream] = {
+
         val path = Paths.get(pathArg)
         val fullpath = ASSET_PICTURE_DIR.resolve(path).normalize
 
@@ -135,13 +154,27 @@ class PictureController @Inject() (
     }
 
     /** Serves the provided picture with the specified transform. */
-    private def picWithTransform(source: PictureSource, transform: PictureTransform)
+    private def picWithTransform(
+        source: PictureSource, transform: Option[PictureTransform],
+        optimized: Option[Boolean] = None)
         : Future[Result] = {
 
-        pictureCache.get(source, transform).
+        // Combines the optimize transform with the provided transform if required.
+        val optimizedTransform = optimized.map {
+            case true => OptimizeFormat
+            case false => LegacyFormat
+        }
+        val combinedTransform = (transform, optimizedTransform) match {
+            case (Some(t1), Some(t2)) => Some(ChainedTransforms(Seq(t1, t2)))
+            case (Some(t1), None) => Some(t1)
+            case (None, Some(t2)) => Some(t2)
+            case (None, None) => None
+        }
+
+        pictureCache.get(source, combinedTransform).
             map {
                 case Some(pic) => {
-                    val bs = ByteString(pic.content)
+                    val bs = ByteString(pic.bytes)
                     val contentType = pic.format.contentType
 
                     Result(
@@ -156,31 +189,36 @@ class PictureController @Inject() (
 
     /** Serves the provided picture with the specified size-parametered transform. */
     private def picWithSizeTransform(
-        source: PictureSource, size: String, transform: (Int, Int) => PictureTransform
+        source: PictureSource, size: String, sizeTransform: (Int, Int) => PictureTransform,
+        optimized: Option[Boolean] = None,
         ): Future[Result] = {
 
         parseSizeArg(size).
             map { case (width, height) =>
-                picWithTransform(source, transform(width, height))
+                picWithTransform(source, Some(sizeTransform(width, height)), optimized)
             }.
             getOrElse { Future.successful(BadRequest("Invalid size format.")) }
     }
 
     private def picAssetWithSizeTransform(
-        pathArg: String, size: String, transform: (Int, Int) => PictureTransform
+        pathArg: String, size: String, sizeTransform: (Int, Int) => PictureTransform,
+        optimized: Option[Boolean] = None,
         ): Future[Result] = {
 
         parsePathArg(pathArg) match {
-            case Some(streamSource) => picWithSizeTransform(streamSource, size, transform)
-            case None => Future.successful(Forbidden)
+            case Some(streamSource) => {
+                picWithSizeTransform(streamSource, size, sizeTransform, optimized)
+            }
+            case None => Future.successful(NotFound("Asset not found."))
         }
     }
 
     private def picIdWithSizeTransform(
-        id: String, size: String, transform: (Int, Int) => PictureTransform
+        id: String, size: String, sizeTransform: (Int, Int) => PictureTransform,
+        optimized: Option[Boolean] = None,
         ): Future[Result] = {
 
         val picId = PictureId.fromString(id)
-        picWithSizeTransform(PictureFromDatabase(picId), size, transform)
+        picWithSizeTransform(PictureFromDatabase(picId), size, sizeTransform, optimized)
     }
 }

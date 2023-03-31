@@ -23,7 +23,7 @@
     booking: StudioCustomerBooking,
     customer: User,
     studio: Studio,
-    pictures: Seq[models.Picture#Id],
+    pictures: Seq[models.SerializedPicture#Id],
     owner: User,
     equips: Seq[LocalEquipment])(
     implicit req: RequestHeader, config: Configuration)

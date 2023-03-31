@@ -20,12 +20,12 @@
 @import squants.market.Money
 
 @import misc.{ HighlightLocation, URL }
-@import models.{ Picture, Studio }
+@import models.{ SerializedPicture, Studio }
 
 @(
     location: HighlightLocation,
     startingPrice: Option[Money],
-    studios: Seq[(Studio, Option[Picture#Id])],
+    studios: Seq[(Studio, Option[SerializedPicture#Id])],
     identity: Option[models.Identity],
     facebookEvents: Seq[FacebookEvent] = Seq.empty)(
     implicit req: RequestHeader, config: Configuration, flash: Flash)
@@ -48,7 +48,7 @@
             absoluteURL = true)">
 }
 
-@studioBlock(studio: Studio, picIdOpt: Option[models.Picture#Id]) = {
+@studioBlock(studio: Studio, picIdOpt: Option[models.SerializedPicture#Id]) = {
     <div class="panel-section">
         <div class="grid-y grid-padding-y">
 

@@ -33,13 +33,15 @@
     implicit req: RequestHeader,
     config: Configuration)
 
-@pictureUrl(screenRatio: Double) = @{
+@pictureUrl(screenRatio: Double, optimize: Boolean) = @{
     val size = (width * screenRatio).round.toString + 'x' + (height * screenRatio).round.toString
 
     val call = source.get match {
-        case PictureFromDatabase(id) => controllers.routes.PictureController.cover(id.base64, size)
+        case PictureFromDatabase(id) => {
+            controllers.routes.PictureController.cover(id.base64, size, Some(optimize))
+        }
         case PictureFromFile(path) => {
-            controllers.routes.PictureController.coverAsset(path.toString, size)
+            controllers.routes.PictureController.coverAsset(path.toString, size, Some(optimize))
         }
         case _ => throw new UnsupportedOperationException("URL or Stream images not supported")
     }
@@ -60,11 +62,11 @@
             class="reactive-picture @{classes.mkString(" ")}"
             alt="@alt"
             srcset="
-                @pictureUrl(1),
-                @pictureUrl(1.5) 1.5x,
-                @pictureUrl(2) 2x,
-                @pictureUrl(2.5) 2.5x"
-            src="@pictureUrl(1)">
+                @pictureUrl(1, true),
+                @pictureUrl(1.5, true) 1.5x,
+                @pictureUrl(2, true) 2x,
+                @pictureUrl(2.5, true) 2.5x"
+            src="@pictureUrl(1, false)">
     }
 
 @if(placeholder) {

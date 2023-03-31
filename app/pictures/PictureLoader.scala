@@ -17,6 +17,7 @@
 
 package pictures
 
+import java.io.InputStream
 import java.security.MessageDigest
 import java.nio.file.{ Files, NoSuchFileException, Path }
 import javax.inject._
@@ -31,9 +32,8 @@ import slick.jdbc.JdbcProfile
 import daos.PictureDAO
 import misc.TaskExecutionContext
 import models.{
-    GifFormat, JpegFormat, Picture, PictureId, PictureSource, PictureFromDatabase, PictureFromFile,
-    PictureFromStream, PictureFromUrl, PngFormat, WebPFormat }
-import java.io.InputStream
+    Picture, PictureId, PictureSource, PictureFromDatabase, PictureFromFile, PictureFromStream,
+    PictureFromUrl, SerializedPicture }
 
 @Singleton
 class PictureLoader @Inject() (
@@ -45,9 +45,11 @@ class PictureLoader @Inject() (
 
     import profile.api._
 
-    /** Creates a `Picture` object from the given source. Does not return anything with failed to
-     * load the file. */
-    def fromSource(source: PictureSource): Future[Option[Picture]] = {
+    /** Creates a `SerializedPicture` object from the given source.
+     *
+     * Does not return anything with failed to load the file.
+     */
+    def fromSource(source: PictureSource): Future[Option[SerializedPicture]] = {
         source match {
             case PictureFromDatabase(id) => fromDatabase(id)
             case PictureFromFile(path) => fromFile(path)
@@ -56,25 +58,7 @@ class PictureLoader @Inject() (
         }
     }
 
-    def fromBytes(content: Array[Byte]): Option[Picture] = {
-        val format = FormatDetector.detect(content)
-
-        if (format.isPresent) {
-            val pictureFormat = format.get match {
-                case Format.GIF => GifFormat
-                case Format.JPEG => JpegFormat
-                case Format.PNG => PngFormat
-                case Format.WEBP => WebPFormat(isLossless = false)
-            }
-
-            val hash = MessageDigest.getInstance("SHA-256").digest(content)
-            Some(Picture(id=PictureId(hash), format=pictureFormat, content=content))
-        } else {
-            None
-        }
-    }
-
-    def fromDatabase(id: PictureId): Future[Option[Picture]] = {
+    def fromDatabase(id: PictureId): Future[Option[SerializedPicture]] = {
         db.run {
             pictureDao.get(id).
                 result.
@@ -82,33 +66,35 @@ class PictureLoader @Inject() (
         }
     }
 
-    def toDatabase(picture: Picture): Future[Picture] = pictureDao.insertIfNotExits(picture)
+    def toDatabase(picture: Picture): Future[SerializedPicture] = {
+        pictureDao.insertIfNotExits(picture)
+    }
 
-    def fromFile(path: Path): Future[Option[Picture]] = {
+    def fromFile(path: Path): Future[Option[SerializedPicture]] = {
         Future {
             try {
                 val content = Files.readAllBytes(path)
-                fromBytes(content)
+                SerializedPicture.fromBytes(content)
             } catch {
                 case _: NoSuchFileException => None
             }
         }
     }
 
-    def fromStream(stream: InputStream): Future[Option[Picture]] = {
+    def fromStream(stream: InputStream): Future[Option[SerializedPicture]] = {
         Future {
             val content = stream.readAllBytes()
-            fromBytes(content)
+            SerializedPicture.fromBytes(content)
         }
     }
 
-    def fromUrl(url: String): Future[Option[Picture]] = {
+    def fromUrl(url: String): Future[Option[SerializedPicture]] = {
         ws.url(url).
             withFollowRedirects(true).
             get().
             map { case response =>
                 if (response.status >= 200 && response.status < 300) {
-                    fromBytes(response.bodyAsBytes.toArray)
+                    SerializedPicture.fromBytes(response.bodyAsBytes.toArray)
                 } else {
                     None
                 }

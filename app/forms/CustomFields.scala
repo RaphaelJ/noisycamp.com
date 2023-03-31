@@ -27,7 +27,7 @@ import play.api.data.validation.Constraints._
 import squants.market
 
 import i18n.{ Country, Currency }
-import models.{ BBox, Coordinates, Picture, PictureId }
+import models.{ BBox, Coordinates, PictureId }
 import misc.EquipmentCategory
 import models.StudioEquipment
 
@@ -162,13 +162,13 @@ object CustomFields {
         _ .getOrElse(""))
     }
 
-    val pictureId: Mapping[Picture#Id] = {
-        val pictureIdFormat: Formatter[Picture#Id] = new Formatter[Picture#Id] {
+    val pictureId: Mapping[PictureId] = {
+        val pictureIdFormat: Formatter[PictureId] = new Formatter[PictureId] {
             def bind(key: String, data: Map[String, String]) = {
                 parsing(PictureId.fromString, "Invalid picture ID", Nil)(key, data)
             }
 
-            def unbind(key: String, value: Picture#Id) = {
+            def unbind(key: String, value: PictureId) = {
                 Map(key -> value.base64)
             }
         }

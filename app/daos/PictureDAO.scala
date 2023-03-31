@@ -25,41 +25,43 @@ import javax.inject.Inject
 import play.api.db.slick.{ DatabaseConfigProvider, HasDatabaseConfigProvider }
 import slick.jdbc.JdbcProfile
 
-import models.{ Picture, PictureFormat }
+import models.{ Picture, PictureFormat, PictureId, SerializedPicture }
 
 class PictureDAO @Inject()
-  (protected val dbConfigProvider: DatabaseConfigProvider)
-  (implicit executionContext: ExecutionContext)
-  extends HasDatabaseConfigProvider[JdbcProfile] with CustomColumnTypes {
+    (protected val dbConfigProvider: DatabaseConfigProvider)
+    (implicit executionContext: ExecutionContext)
+    extends HasDatabaseConfigProvider[JdbcProfile] with CustomColumnTypes {
 
-  import profile.api._
+    import profile.api._
 
-  final class PictureTable(tag: Tag) extends Table[Picture](tag, "picture") {
+    final class PictureTable(tag: Tag) extends Table[SerializedPicture](tag, "picture") {
 
-    // ID is the SHA-256 hashed content of the file.
-    def id                = column[Picture#Id]("id", O.PrimaryKey)
-    def createdAt         = column[Instant]("created_at")
-    def format            = column[PictureFormat]("format")
-    def content           = column[Array[Byte]]("content")
+        // ID is the SHA-256 hashed content of the file.
+        def id                = column[PictureId]("id", O.PrimaryKey)
+        def createdAt         = column[Instant]("created_at")
+        def format            = column[PictureFormat]("format")
+        def content           = column[Array[Byte]]("content")
 
-    def * = (id, createdAt, format, content).mapTo[Picture]
-  }
+        def * = (id, content, format, createdAt).mapTo[SerializedPicture]
+    }
 
-  lazy val query = TableQuery[PictureTable]
+    lazy val query = TableQuery[PictureTable]
 
-  def get(id: Picture#Id) = query.filter(_.id === id)
+    def get(id: PictureId) = query.filter(_.id === id)
 
-  /** Inserts the picture in the database with its hash as ID if it does not
-   * exists and returns it. Returns the existing picture otherwise. */
-  def insertIfNotExits(picture: Picture): Future[Picture] = {
-    db.run({
-      get(picture.id).
-        result.
-        headOption.
-        flatMap {
-          case Some(oldPicture) => DBIO.successful(oldPicture)
-          case None => for { _ <- query += picture } yield picture
-        }
-      }.transactionally)
-  }
+    /** Inserts the picture in the database with its hash as ID if it does not
+     * exists and returns it. Returns the existing picture otherwise. */
+    def insertIfNotExits(picture: Picture): Future[SerializedPicture] = {
+        val serialized = picture.serialized
+
+        db.run({
+            get(serialized.id).
+                result.
+                headOption.
+                flatMap {
+                    case Some(oldPicture) => DBIO.successful(oldPicture)
+                    case None => for { _ <- query += serialized } yield serialized
+                }
+        }.transactionally)
+    }
 }

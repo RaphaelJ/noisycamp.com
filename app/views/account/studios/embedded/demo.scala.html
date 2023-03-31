@@ -26,7 +26,7 @@
 
 @(
     studio: models.Studio,
-    pictures: Seq[models.Picture#Id])(
+    pictures: Seq[models.SerializedPicture#Id])(
     implicit req: RequestHeader, config: Configuration)
 
 @topBar = {

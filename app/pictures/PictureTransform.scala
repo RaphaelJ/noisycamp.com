@@ -22,7 +22,8 @@ import com.sksamuel.scrimage.format.{ Format, FormatDetector }
 import com.sksamuel.scrimage.nio.{ GifWriter, ImageWriter, JpegWriter, PngWriter }
 import com.sksamuel.scrimage.webp.WebpWriter
 
-import models.{ JpegFormat, GifFormat, PngFormat, Picture, PictureFormat, WebPFormat }
+import models.{ BufferedPicture, JpegFormat, GifFormat, PngFormat, Picture, PictureFormat,
+    WebPFormat }
 import views.html.helper.form
 
 /** A descriptor of an operation that is being applyied on an image.
@@ -30,92 +31,99 @@ import views.html.helper.form
  * Compared to a function, a transform can be serialized, and cached by the
  * `PictureCache`.
  * */
-sealed trait PictureTransform {
-    def apply(pic: Picture): Picture
+sealed trait PictureTransform extends Function[Picture, Picture] {
+    def apply(picture: Picture): Picture
+    def cacheKey: String
 }
 
-/** Does not apply any transformation on the picture. */
-case object RawPicture extends PictureTransform {
-    def apply(pic: Picture) = pic
+/** Applies the provided transformations sequentially. */
+case class ChainedTransforms(val transforms: Seq[PictureTransform])
+    extends PictureTransform {
+
+    def apply(picture: Picture): Picture = {
+        transforms.foldLeft(picture)((pic, transform) => transform(pic))
+    }
+
+    def cacheKey = "ChainedTransforms(%s)".format(transforms.map(_.cacheKey).mkString(","))
+}
+
+sealed trait ScrimageTransform extends PictureTransform {
+    def transform(image: ImmutableImage): ImmutableImage
+
+    def apply(picture: Picture): Picture = {
+        BufferedPicture(image=transform(picture.image), format=picture.format)
+    }
 }
 
 /** See Scrimage's `Image.bound()`. */
 case class BoundPicture(val width: Int, val height: Int)
-    extends PictureTransform {
+    extends ScrimageTransform {
 
-    def apply(pic: Picture) = {
-        PictureTransform.transform(pic, { _.bound(width, height) })
-    }
+    def transform(image: ImmutableImage): ImmutableImage = image.bound(width, height)
+
+    def cacheKey = "BoundPicture(%d, %d)".format(width, height)
 }
 
 /** See Scrimage's `Image.cover()`. */
 case class CoverPicture(val width: Int, val height: Int)
-    extends PictureTransform {
+    extends ScrimageTransform {
 
-    def apply(pic: Picture) = {
-        PictureTransform.transform(pic, { _.cover(width, height) })
-    }
+    def transform(image: ImmutableImage): ImmutableImage = image.cover(width, height)
+
+    def cacheKey = "CoverPicture(%d, %d)".format(width, height)
 }
 
 /** See Scrimage's `Image.max()`. */
 case class MaxPicture(val width: Int, val height: Int)
-    extends PictureTransform {
+    extends ScrimageTransform {
 
-    def apply(pic: Picture) = {
-        PictureTransform.transform(pic, { _.max(width, height) })
-    }
+    def transform(image: ImmutableImage): ImmutableImage = image.max(width, height)
+
+    def cacheKey = "CoverPicture(%d, %d)".format(width, height)
 }
 
-object PictureTransform {
+/** Changes the picture format to the requested one. */
+case class ConvertFormat(val newFormat: PictureFormat)
+    extends PictureTransform {
 
-    /** Applies the given Scrimage transformation function on the given `Picture`
-     * object, keeping the same image format. */
-    def transform(picture: Picture, func: (ImmutableImage => ImmutableImage)): Picture = {
-        val img = ImmutableImage.loader().fromBytes(picture.content)
-        val newImg = func(img)
-
-        if (newImg != img) {
-            val writer = formatWriter(picture.format)
-            picture.copy(content=newImg.bytes(writer))
-        } else {
-            picture
-        }
-    }
-
-    /** Changes the picture format to the requested one. */
-    def convertFormat(picture: Picture, newFormat: PictureFormat): Picture = {
+    def apply(picture: Picture) = {
         if (picture.format == newFormat) {
             picture
         } else {
-            val img = ImmutableImage.loader().fromBytes(picture.content)
-
-            val writer = formatWriter(newFormat)
-            picture.copy(content=img.bytes(writer), format=newFormat)
+            BufferedPicture(image=picture.image, format=newFormat)
         }
     }
 
-    /** Converts the picture to a better image format when possible. */
-    def optimiseFormat(picture: Picture): Picture = {
+    def cacheKey = "ConvertFormat(%s)".format(newFormat)
+}
+
+/** Converts the picture to a better image format when possible. */
+case object OptimizeFormat extends PictureTransform {
+
+    def apply(picture: Picture) = {
         val newFormat = picture.format match {
             case JpegFormat => WebPFormat(isLossless = false)
             case PngFormat => WebPFormat(isLossless = true)
             case _ => picture.format
         }
-        convertFormat(picture, newFormat)
+        ConvertFormat(newFormat)(picture)
     }
 
-    protected def formatWriter(format: PictureFormat): ImageWriter = {
-        format match {
-            case GifFormat => GifWriter.Default
-            case JpegFormat => JpegWriter.Default
-            case PngFormat => new PngWriter()
-            case WebPFormat(isLossless) => {
-                if (isLossless) {
-                    WebpWriter.DEFAULT.withLossless
-                } else {
-                    WebpWriter.DEFAULT
-                }
-            }
-        }
-    }
+    def cacheKey = "OptimizeFormat"
 }
+
+/** Converts the picture to a legacy image format if required. */
+case object LegacyFormat extends PictureTransform {
+
+    def apply(picture: Picture) = {
+        val newFormat = picture.format match {
+            case WebPFormat(true) => PngFormat
+            case WebPFormat(false) => JpegFormat
+            case _ => picture.format
+        }
+        ConvertFormat(newFormat)(picture)
+    }
+
+    def cacheKey = "LegacyFormat"
+}
+

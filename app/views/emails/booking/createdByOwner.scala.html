@@ -17,13 +17,13 @@
 
 @import play.api.Configuration
 
-@import models.{ Picture, Studio, StudioManualBooking, User }
+@import models.{ SerializedPicture, Studio, StudioManualBooking, User }
 
 @(
     booking: StudioManualBooking,
     studio: Studio,
     owner: User,
-    pictures: Seq[Picture#Id])(
+    pictures: Seq[SerializedPicture#Id])(
     implicit req: RequestHeader, config: Configuration)
 
 @emails.layout {

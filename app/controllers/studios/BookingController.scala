@@ -40,8 +40,9 @@ import models.{ BookingDurations, BookingTimes, HasBookingTimes, CancellationPol
     FacebookEvent, FacebookEventName, FacebookContentCategory, FacebookContentIds,
     FacebookContentType, FacebookContentTypeValues, FacebookValue, FacebookCurrency,
     Identity, LocalEquipment, LocalPricingPolicy, PaymentMethod, Picture,
-    PriceBreakdown, Studio, StudioBooking, StudioCustomerBooking, StudioBookingEquipment,
-    StudioBookingPaymentOnline, StudioBookingPaymentOnsite, StudioBookingStatus, User }
+    PriceBreakdown, SerializedPicture, Studio, StudioBooking, StudioCustomerBooking,
+    StudioBookingEquipment, StudioBookingPaymentOnline, StudioBookingPaymentOnsite,
+    StudioBookingStatus, User }
 
 @Singleton
 class BookingController @Inject() (ccc: CustomControllerCompoments)
@@ -123,7 +124,7 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
     }
 
     private def handleOnlinePayment(
-        identity: Identity, studio: Studio, owner: User, pictures: Seq[Picture#Id],
+        identity: Identity, studio: Studio, owner: User, pictures: Seq[SerializedPicture#Id],
         bookingTimes: BookingTimes, equipments: Seq[LocalEquipment])(
         implicit request: RequestHeader) : DBIO[Result] = {
 
@@ -203,7 +204,7 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
     }
 
     private def handleOnsitePayment(
-        identity: Identity, studio: Studio, owner: User, pictures: Seq[Picture#Id],
+        identity: Identity, studio: Studio, owner: User, pictures: Seq[SerializedPicture#Id],
         bookingTimes: BookingTimes, equipments: Seq[LocalEquipment])(
         implicit request: RequestHeader) : DBIO[Result] = {
 
@@ -422,7 +423,7 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
 
     /** Executes the function within the DBIO monad, or returns a 404 response. */
     private def withStudioTransaction[T](id: Studio#Id,
-        f: ((Studio, User, Seq[Equipment], Seq[Picture#Id])
+        f: ((Studio, User, Seq[Equipment], Seq[SerializedPicture#Id])
             => DBIOAction[Result, NoStream, Effect.All]))
         (implicit request: SecuredRequest[DefaultEnv, T]): Future[Result] = {
 
@@ -471,8 +472,8 @@ class BookingController @Inject() (ccc: CustomControllerCompoments)
     }
 
     private def sendBookingEmails(
-        booking: StudioCustomerBooking, customer: User, studio: Studio, pictures: Seq[Picture#Id],
-        owner: User, equips: Seq[LocalEquipment])(
+        booking: StudioCustomerBooking, customer: User, studio: Studio,
+        pictures: Seq[SerializedPicture#Id], owner: User, equips: Seq[LocalEquipment])(
         implicit request: RequestHeader, config: Configuration):
         Future[(String, String)] = {
 

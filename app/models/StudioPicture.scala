@@ -20,7 +20,7 @@ package models
 case class StudioPicture(
   id: StudioPicture#Id = 0L,
   studioId: Studio#Id,
-  pictureId: Picture#Id) {
+  pictureId: SerializedPicture#Id) {
 
   type Id = Long
 }

@@ -18,9 +18,11 @@
 @import play.api.Configuration
 
 @import misc.URL
-@import models.{ Picture, Studio }
+@import models.{ SerializedPicture, Studio }
 
-@(studio: Studio, pictures: Seq[Picture#Id])(implicit req: RequestHeader, config: Configuration)
+@(
+    studio: Studio, pictures: Seq[SerializedPicture#Id])(
+    implicit req: RequestHeader, config: Configuration)
 
 @if(!pictures.isEmpty) {
     <p style="text-align: center;">

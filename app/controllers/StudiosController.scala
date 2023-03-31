@@ -35,7 +35,7 @@ import models.{
     BBox, Event,
     FacebookEvent, FacebookEventName, FacebookContentCategory, FacebookContentType,
     FacebookContentTypeValues, FacebookContentIds,
-    LocalEquipment, Picture, Studio, StudioWithPictureAndEquipments, StudioBooking, User }
+    LocalEquipment, SerializedPicture, Studio, StudioWithPictureAndEquipments, StudioBooking, User }
 import daos.StudioDAO
 
 @Singleton
@@ -202,7 +202,7 @@ class StudiosController @Inject() (ccc: CustomControllerCompoments)
     }
 
     private def getStudioData(id: Studio#Id, now: Instant = Instant.now):
-        DBIO[Option[(Studio, Seq[LocalEquipment], Seq[Picture#Id], Seq[Event])]] = {
+        DBIO[Option[(Studio, Seq[LocalEquipment], Seq[SerializedPicture#Id], Seq[Event])]] = {
 
         for {
             studioOpt <- daos.studio.query.

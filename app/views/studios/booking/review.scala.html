@@ -22,13 +22,13 @@
 
 @import misc.JsonWrites._
 @import misc.URL
-@import models.{ BookingTimes, Identity, LocalEquipment, Picture, PriceBreakdown, Studio, User }
+@import models.{ BookingTimes, Identity, LocalEquipment, PriceBreakdown, SerializedPicture, Studio, User }
 
 @(
     identity: models.Identity,
     owner: User,
     studio: Studio,
-    pictures: Seq[Picture#Id],
+    pictures: Seq[SerializedPicture#Id],
     summary: Either[Seq[FormError], (BookingTimes, Seq[LocalEquipment], PriceBreakdown)])(
     implicit req: RequestHeader,
     messagesProvider: MessagesProvider,

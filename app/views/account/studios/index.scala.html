@@ -19,10 +19,10 @@
 
 @(
     identity: models.Identity,
-    studios: Seq[(Studio, Option[models.Picture#Id])])(
+    studios: Seq[(Studio, Option[models.SerializedPicture#Id])])(
     implicit req: RequestHeader, config: Configuration, flash: Flash)
 
-@studioBlock(studio: Studio, picIdOpt: Option[models.Picture#Id]) = {
+@studioBlock(studio: Studio, picIdOpt: Option[models.SerializedPicture#Id]) = {
     <div class="panel-section">
         <div class="grid-y grid-padding-y">
 

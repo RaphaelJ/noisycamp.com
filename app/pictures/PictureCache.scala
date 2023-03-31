@@ -28,13 +28,19 @@ import scalacache.caffeine._
 import scalacache.modes.scalaFuture._
 
 import misc.TaskExecutionContext
-import models.{ Picture, PictureSource }
+import models.{ PictureSource, SerializedPicture }
+import views.html.emails.tags.a
 
 case class PictureCacheKey(
     source:     PictureSource,
-    transform:  PictureTransform) {
+    transform:  Option[PictureTransform]) {
 
-    override def toString = "%s:%s".format(source.cacheKey, transform.toString)
+    def cacheKey: String = {
+        transform match {
+            case Some(value) => "%s:%s".format(source.cacheKey, value.cacheKey)
+            case None => source.cacheKey
+        }
+    }
 }
 
 
@@ -45,8 +51,10 @@ class PictureCache @Inject() (
     pictureLoader: PictureLoader,
     )(implicit executionContext: TaskExecutionContext) {
 
-    def get(source: PictureSource, transform: PictureTransform): Future[Option[Picture]] = {
-        val key = PictureCacheKey(source, transform).toString
+    def get(source: PictureSource, transform: Option[PictureTransform] = None):
+        Future[Option[SerializedPicture]] = {
+
+        val key = PictureCacheKey(source, transform).cacheKey
 
         final case class PictureNotFoundException()
             extends Exception("Picture not found.")
@@ -54,8 +62,8 @@ class PictureCache @Inject() (
         (cachingF(key)(ttl = None) {
             // If the image is not a transform, fetches it. Otherwise fetches the original first.
             (transform match {
-                case RawPicture => pictureLoader.fromSource(source)
-                case _ => get(source, RawPicture).map(_.map(transform.apply))
+                case None => pictureLoader.fromSource(source)
+                case Some(value) => get(source, None).map(_.map(value.apply).map(_.serialized))
             }).flatMap {
                 case Some(pic) => Future { pic }
                 case None => Future.failed(PictureNotFoundException())
@@ -65,18 +73,18 @@ class PictureCache @Inject() (
             map(Some(_)).recover { case _: PictureNotFoundException => None }
     }
 
-    private implicit val cache: Cache[Picture] = {
+    private implicit val cache: Cache[SerializedPicture] = {
         val maxCacheSize = config.underlying.
             getBytes("noisycamp.picturesMaxCacheSize")
 
         val underlying = Caffeine.newBuilder().
             maximumWeight(maxCacheSize).
-            weigher(new Weigher[String, Entry[Picture]] {
-                def weigh(key: String, picture: Entry[Picture]) = {
-                    picture.value.content.length
+            weigher(new Weigher[String, Entry[SerializedPicture]] {
+                def weigh(key: String, picture: Entry[SerializedPicture]) = {
+                    picture.value.bytes.length
                 }
             }).
-            build[String, Entry[Picture]]
+            build[String, Entry[SerializedPicture]]
 
         CaffeineCache(underlying)
     }

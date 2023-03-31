@@ -23,7 +23,7 @@ import javax.inject.Inject
 import play.api.db.slick.{ DatabaseConfigProvider, HasDatabaseConfigProvider }
 import slick.jdbc.JdbcProfile
 
-import models.{ Picture, StudioPicture, Studio }
+import models.{ SerializedPicture, StudioPicture, Studio }
 
 class StudioPictureDAO @Inject() (
     protected val dbConfigProvider: DatabaseConfigProvider,
@@ -39,7 +39,7 @@ class StudioPictureDAO @Inject() (
 
         def id          = column[StudioPicture#Id]("id", O.PrimaryKey, O.AutoInc)
         def studioId    = column[Studio#Id]("studio_id")
-        def pictureId   = column[Picture#Id]("picture_id")
+        def pictureId   = column[SerializedPicture#Id]("picture_id")
 
         def * = (id, studioId, pictureId).mapTo[StudioPicture]
 
@@ -58,7 +58,7 @@ class StudioPictureDAO @Inject() (
     /** Sets or updates the pictures associated with a studio.
      *
      * Should run in a transaction. */
-    def setStudioPics(studioId: Studio#Id, pics: Seq[Picture#Id]) = {
+    def setStudioPics(studioId: Studio#Id, pics: Seq[SerializedPicture#Id]) = {
         // Deletes any picture associations and inserts the new ones.
         DBIO.seq(
             query.filter(_.studioId === studioId).delete,
@@ -72,7 +72,7 @@ class StudioPictureDAO @Inject() (
             map(_.pictureId)
     }
 
-    def getStudioWithPictures(id: Studio#Id) : DBIO[(Option[Studio], Seq[Picture#Id])] = {
+    def getStudioWithPictures(id: Studio#Id) : DBIO[(Option[Studio], Seq[SerializedPicture#Id])] = {
         for {
             studio <- studioDao.query.
                 filter(_.id === id).

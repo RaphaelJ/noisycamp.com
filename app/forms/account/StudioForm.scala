@@ -26,7 +26,8 @@ import forms.CustomFields
 import forms.components.PaymentPolicyForm
 import i18n.TimeZoneService
 import models.{
-  BookingPolicy, Equipment, Location, OpeningSchedule, Picture, PricingPolicy, Studio, User }
+  BookingPolicy, Equipment, Location, OpeningSchedule, PricingPolicy, SerializedPicture, Studio,
+  User }
 
 /** A form to create and edit studios. */
 object StudioForm {
@@ -70,13 +71,13 @@ object StudioForm {
         paymentPolicy:      PaymentPolicyForm.Data,
 
         equipments:         Seq[Equipment],
-        pictures:           Seq[Picture#Id]) {
+        pictures:           Seq[SerializedPicture#Id]) {
 
         /** Constructs a new studio object from the form data, either with default values or from
          * an existing studio object. */
         def toStudio(initialValue: Either[User#Id, Studio])(
             implicit timeZoneService: TimeZoneService)
-            : (Studio, Seq[Equipment], Seq[Picture#Id]) = {
+            : (Studio, Seq[Equipment], Seq[SerializedPicture#Id]) = {
 
             val (id, createdAt, ownerId, published) = initialValue match {
                 case Left(ownerId) => (0L, Instant.now(), ownerId, false)
@@ -114,7 +115,9 @@ object StudioForm {
         }
     }
 
-    def fromStudio(canUseEquipmentPrice: Boolean, studio: Studio, equipments: Seq[Equipment], pictures: Seq[Picture#Id])
+    def fromStudio(
+        canUseEquipmentPrice: Boolean, studio: Studio, equipments: Seq[Equipment],
+        pictures: Seq[SerializedPicture#Id])
         : Form[Data] = {
 
         form(canUseEquipmentPrice).fill(Data(

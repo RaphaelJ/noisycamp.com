@@ -28,7 +28,7 @@ import play.api.mvc.RequestHeader
 import play.twirl.api.Html
 
 import forms.account.PremiumForm
-import models.{ LocalEquipment, Picture, Studio, StudioCustomerBooking, User }
+import models.{ LocalEquipment, SerializedPicture, Studio, StudioCustomerBooking, User }
 import models.StudioManualBooking
 
 /** Provides an helper to send emails through SendGrid. */
@@ -106,7 +106,8 @@ class EmailService @Inject() (
     }
 
     def sendBookingAccepted(
-        booking: StudioCustomerBooking, customer: User, studio: Studio, pictures: Seq[Picture#Id],
+        booking: StudioCustomerBooking, customer: User, studio: Studio,
+        pictures: Seq[SerializedPicture#Id],
         owner: User, equips: Seq[LocalEquipment])(
         implicit request: RequestHeader, config: Configuration): Future[String] = {
 
@@ -144,7 +145,8 @@ class EmailService @Inject() (
     }
 
     def sendManualBookingCreatedByOwner(
-        booking: StudioManualBooking, studio: Studio, owner: User, pictures: Seq[Picture#Id])(
+        booking: StudioManualBooking, studio: Studio, owner: User,
+        pictures: Seq[SerializedPicture#Id])(
         implicit request: RequestHeader, config: Configuration): Future[String] = {
 
         require(booking.customerEmail.isDefined)

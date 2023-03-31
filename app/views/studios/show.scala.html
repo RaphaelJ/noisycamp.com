@@ -31,7 +31,7 @@
     now: Instant,
     studio: models.Studio,
     equipments: Seq[LocalEquipment],
-    pictures: Seq[models.Picture#Id],
+    pictures: Seq[models.SerializedPicture#Id],
     bookingEvents: Seq[models.Event],
     facebookEvents: Seq[FacebookEvent] = Seq.empty)(
     implicit req: RequestHeader, config: Configuration, flash: Flash)
