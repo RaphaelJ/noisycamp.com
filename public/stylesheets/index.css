@@ -24,6 +24,10 @@
 @media screen and (max-width: 39.9375em) {
     .hero.home-hero {
         background-image: url("/assets/images/index/hero_small.jpg");
+        background-image: image-set(
+            url("/assets/images/cover/640x960/index/hero_small.webp") 1x,
+            url("/assets/images/index/hero_small.webp") 2x
+        );
     }
 
     /* Search form is full-width on small devices. */
@@ -40,6 +44,10 @@
 @media screen and (min-width: 40em) and (max-width: 63.9375em) {
     .hero.home-hero {
         background-image: url("/assets/images/index/hero_medium.jpg");
+        background-image: image-set(
+            url("/assets/images/cover/1024x682/index/hero_medium.webp") 1x,
+            url("/assets/images/index/hero_medium.webp") 2x
+        );
     }
 
     .hero.home-hero .middle-content-section {
@@ -56,16 +64,31 @@
 
 /* Hero is takes 60% of the screen on large screens. */
 @media screen and (min-width: 64em) {
-    .hero.home-hero {
-        background-image: url("/assets/images/index/hero_large.jpg");
-    }
-
     .hero.home-hero .middle-content-section {
         margin: 8rem 0;
     }
 
     .hero.home-hero .bottom-content-section * {
         display: none;
+    }
+}
+
+/* Large hero uses an HD image up to 2048px, but a 4K image on larger screens. */
+
+@media screen and (min-width: 64em) and (max-width: 127.9375em) {
+    .hero.home-hero {
+        background-image: url("/assets/images/index/hero_large.jpg");
+        background-image: image-set(
+            url("/assets/images/cover/2048x1024/index/hero_large.webp") 1x,
+            url("/assets/images/index/hero_large.webp") 2x
+        );
+    }
+}
+
+@media screen and (min-width: 128em) {
+    .hero.home-hero {
+        background-image: url("/assets/images/index/hero_large.jpg");
+        background-image: image-set(url("/assets/images/index/hero_large.webp"));
     }
 }
 
@@ -102,4 +125,32 @@
     .become-a-host-title {
         margin-top: 2rem;
     }
+}
+
+.become-a-host-free-tier {
+    margin: auto;
+    max-width: 500px;
+}
+
+@media screen and (min-width: 40em) {
+    .become-a-host-free-tier .become-a-host-free-tier-text {
+        margin-top: -10px;
+    }
+}
+
+@media screen and (min-width: 64em) {
+    .become-a-host-free-tier {
+        margin-top: -30px;
+        margin-bottom: -5px;
+    }
+}
+
+.become-a-host-free-tier .become-a-host-free-tier-text {
+    font-family: 'Delicious Handrawn', cursive;
+    font-size: 1.5rem;
+    line-height: 1.6rem;
+}
+
+.become-a-host-free-tier .become-a-host-free-tier-text strong {
+    font-size: 1.5em;
 }

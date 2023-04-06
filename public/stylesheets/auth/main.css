@@ -17,10 +17,6 @@
 
 /* Full-screen hero with search box. */
 
-.hero.auth-hero {
-    background-image: url("/assets/images/auth/hero.jpg");
-}
-
 .hero.auth-hero .middle-content-section {
     width: 600px;
 }
@@ -28,6 +24,10 @@
 @media screen and (max-width: 39.9375em) {
     .hero.auth-hero {
         background-image: url("/assets/images/auth/hero_small.jpg");
+        background-image: image-set(
+            url("/assets/images/cover/640x427/auth/hero_small.webp") 1x,
+            url("/assets/images/auth/hero_small.webp") 2x
+        );
     }
 
     .hero.auth-hero .middle-content-section {
@@ -43,12 +43,29 @@
 @media screen and (min-width: 40em) and (max-width: 63.9375em) {
     .hero.auth-hero {
         background-image: url("/assets/images/auth/hero_medium.jpg");
+        background-image: image-set(
+            url("/assets/images/cover/1024x683/auth/hero_medium.webp") 1x,
+            url("/assets/images/auth/hero_medium.webp") 2x
+        );
     }
 }
 
-@media screen and (min-width: 64em) {
+/* Large hero uses an HD image up to 2048px, but a 4K image on larger screens. */
+
+@media screen and (min-width: 64em) and (max-width: 127.9375em) {
     .hero.auth-hero {
         background-image: url("/assets/images/auth/hero_large.jpg");
+        background-image: image-set(
+            url("/assets/images/cover/2048x1366/auth/hero_large.webp") 1x,
+            url("/assets/images/auth/hero_large.webp") 2x
+        );
+    }
+}
+
+@media screen and (min-width: 128em) {
+    .hero.auth-hero {
+        background-image: url("/assets/images/auth/hero_large.jpg");
+        background-image: image-set(url("/assets/images/auth/hero_large.webp"));
     }
 }
 

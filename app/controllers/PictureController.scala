@@ -49,7 +49,8 @@ class PictureController @Inject() (
 
     val MAX_UPLOAD_IMAGE_SIZE = 1920
 
-    val ASSET_PICTURE_DIR = Paths.get("public/images")
+    val ASSET_IMAGE_DIR = Paths.get("public/images")
+    val ASSET_IMAGE_ROUTE = Paths.get("/images")
 
     /** Receives a new picture and stores it in the database. */
     def upload = SecuredAction(parse.multipartFormData).async { implicit request =>
@@ -96,7 +97,7 @@ class PictureController @Inject() (
                 Future.successful(result)
             } else {
                 // Fallback to Play's assets controller.
-                assets.versioned(s"/images/$path").apply(request)
+                assets.versioned(ASSET_IMAGE_ROUTE.resolve(path).toString).apply(request)
             }
         }
     }
@@ -133,9 +134,9 @@ class PictureController @Inject() (
     private def parsePathArg(pathArg: String): Option[PictureFromStream] = {
 
         val path = Paths.get(pathArg)
-        val fullpath = ASSET_PICTURE_DIR.resolve(path).normalize
+        val fullpath = ASSET_IMAGE_DIR.resolve(path).normalize
 
-        if (path.isAbsolute || !fullpath.startsWith(ASSET_PICTURE_DIR)) {
+        if (path.isAbsolute || !fullpath.startsWith(ASSET_IMAGE_DIR)) {
             None
         } else {
             environment.
