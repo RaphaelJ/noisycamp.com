@@ -46,6 +46,10 @@
     <meta
         property="og:image"
         content="@URL.fromCDN(routes.Assets.versioned("images/become-a-host/card.jpg"), absoluteURL = true)">
+
+    <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Delicious+Handrawn&amp;display=swap">
 }
 
 @mainFeature(
@@ -106,6 +110,23 @@
                             href="mailto:hello@@noisycamp.com?subject=Request%20a%20demo&body=Hi%2C%0A%0AI%20would%20like%20you%20to%20reach%20me%20back%20for%20a%20tour%20of%20NoisyCamp's%20features.%0A%0AThanks">
                             Request a demo
                         </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cell small-12">
+                <div class="become-a-host-free-tier">
+                    <div class="grid-x">
+                        <div class="cell show-for-medium medium-3 medium-offset-2 large-3 large-offset-2 become-a-host-free-tier-arrow">
+                            <img
+                                src="@URL.fromCDN(routes.Assets.versioned("images/index/arrow.svg"))"
+                                alt="arrow to the Add your studio button">
+                        </div>
+
+                        <p class="cell small-12 medium-5 large-5 text-center become-a-host-free-tier-text">
+                            Listing&nbsp;your&nbsp;first
+                            studio&nbsp;room&nbsp;is&nbsp;<strong>free</strong>
+                        </p>
                     </div>
                 </div>
             </div>
@@ -243,9 +264,23 @@
                 <a
                     href="@controllers.account.studios.routes.IndexController.create"
                     class="button primary large expanded">Become a host</a>
-                <p class="help-text">
-                    Listing your first room is free.
-                </p>
+            </div>
+
+            <div class="cell small-12">
+                <div class="become-a-host-free-tier">
+                    <div class="grid-x">
+                        <div class="cell show-for-medium medium-3 medium-offset-2 large-3 large-offset-2 become-a-host-free-tier-arrow">
+                            <img
+                                src="@URL.fromCDN(routes.Assets.versioned("images/index/arrow.svg"))"
+                                alt="arrow to the Add your studio button">
+                        </div>
+
+                        <p class="cell small-12 medium-5 large-5 text-center become-a-host-free-tier-text">
+                            Listing&nbsp;your&nbsp;first
+                            studio&nbsp;room&nbsp;is&nbsp;<strong>free</strong>
+                        </p>
+                    </div>
+                </div>
             </div>
 
             <div class="cell small-12">

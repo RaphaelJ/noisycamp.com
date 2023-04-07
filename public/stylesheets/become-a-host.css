@@ -22,6 +22,38 @@
     margin-bottom: 2rem;
 }
 
+.become-a-host-free-tier {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 500px;
+}
+
+@media screen and (min-width: 40em) {
+    .become-a-host-free-tier .become-a-host-free-tier-text {
+        margin-top: 0;
+    }
+}
+
+@media screen and (min-width: 64em) {
+    .become-a-host-free-tier {
+        margin-top: -30px;
+    }
+}
+
+.become-a-host-free-tier .become-a-host-free-tier-text {
+    font-family: 'Delicious Handrawn', cursive;
+    font-size: 1.5rem;
+    line-height: 1.6rem;
+}
+
+.become-a-host-free-tier .become-a-host-free-tier-text strong {
+    font-size: 1.5em;
+}
+
+.become-a-host-free-tier .become-a-host-free-tier-arrow img {
+    transform: scale(1, -1);
+}
+
 .become-a-host .main-feature-icon {
     --main-feature-icon-size: 6rem;
 
@@ -46,7 +78,7 @@
 }
 
 .become-a-host .become-a-host-button {
-    margin-top: 2rem;
+    margin-top: 3rem;
     margin-bottom: 2rem;
 }
 
