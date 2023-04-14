@@ -133,6 +133,10 @@
 }
 
 @media screen and (min-width: 40em) {
+    .become-a-host-free-tier {
+        margin-bottom: -1rem;
+    }
+
     .become-a-host-free-tier .become-a-host-free-tier-text {
         margin-top: -10px;
     }
@@ -140,8 +144,7 @@
 
 @media screen and (min-width: 64em) {
     .become-a-host-free-tier {
-        margin-top: -30px;
-        margin-bottom: -15px;
+        margin-top: -2rem;
     }
 }
 
