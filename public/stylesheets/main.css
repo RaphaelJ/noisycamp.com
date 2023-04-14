@@ -20,14 +20,14 @@
 :root {
     --bg-color: #f9f1ee;
 
-    --accent-color: #db7233;
-    --accent-color-dark: #be642c;
-    --accent-color-darker: #a05526;
+    --accent-color: #f27a33;
+    --accent-color-dark: #db7233;
+    --accent-color-darker: #be642c;
 
-    --accent-color-10pct: #db733325;
-    --accent-color-25pct: #db73333f;
-    --accent-color-50pct: #db73337f;
-    --accent-color-75pct: #db7333bf;
+    --accent-color-10pct: #f27a3325;
+    --accent-color-25pct: #f27a333f;
+    --accent-color-50pct: #f27a337f;
+    --accent-color-75pct: #f27a33bf;
 
     --success-color: #639315;
     --success-color-50pct: #6393157f;

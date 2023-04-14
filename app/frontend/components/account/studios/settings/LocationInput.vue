@@ -99,7 +99,7 @@ export default Vue.extend({
             this.map.addControl(new mapboxgl.NavigationControl());
 
             this.marker = new mapboxgl.Marker({
-                color: '#b37216',
+                color: 'var(--accent-color)',
                 draggable: true,
             });
             this.marker.on('drag', this.dragMarker);
