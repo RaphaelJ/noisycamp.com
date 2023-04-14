@@ -15,6 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *@
 
+@import java.nio.file.Paths
 @import play.api.Configuration
 
 @import squants.market.Currency
@@ -132,9 +133,12 @@
             </div>
 
             <div class="cell small-12 medium-10 medium-offset-1 large-8 large-offset-2">
-                <img
-                    src="@URL.fromCDN(routes.Assets.versioned("images/become-a-host/showcase.png"))"
-                    alt="NoisyCamp website and mobile app.">
+                @tags.reactivePicture(
+                    Some(PictureFromFile(Paths.get("become-a-host/showcase.webp"))),
+                    "NoisyCamp website and mobile app.",
+                    1048, 692,
+                    placeholder=false,
+                )
             </div>
 
             @mainFeature(
@@ -179,9 +183,12 @@
             </h2>
 
             <div class="cell small-12 medium-6 feature-image">
-                <img
-                    src="@URL.fromCDN(routes.Assets.versioned("images/become-a-host/room_availabilities.png"))"
-                    alt="Real-time online availabilities screenshot.">
+                @tags.reactivePicture(
+                    Some(PictureFromFile(Paths.get("become-a-host/room_availabilities.webp"))),
+                    "Real-time online availabilities screenshot.",
+                    1024, 803,
+                    placeholder=false,
+                )
             </div>
             <div class="cell small-12 medium-6 feature-text">
                 <h3>Real-time room availabilities</h3>
@@ -193,9 +200,12 @@
             </div>
 
             <div class="cell small-12 medium-6 show-for-small-only feature-image">
-                <img
-                    src="@URL.fromCDN(routes.Assets.versioned("images/become-a-host/manual_bookings.png"))"
-                    alt="Manual and recurring bookings screenshot.">
+                @tags.reactivePicture(
+                    Some(PictureFromFile(Paths.get("become-a-host/manual_bookings.webp"))),
+                    "Manual and recurring bookings screenshot.",
+                    1024, 803,
+                    placeholder=false,
+                )
             </div>
             <div class="cell small-12 medium-6 feature-text">
                 <h3>Manual &amp; recurring bookings</h3>
@@ -206,15 +216,21 @@
                 </p>
             </div>
             <div class="cell small-12 medium-6 show-for-medium feature-image">
-                <img
-                    src="@URL.fromCDN(routes.Assets.versioned("images/become-a-host/manual_bookings.png"))"
-                    alt="Manual and recurring bookings screenshot.">
+                @tags.reactivePicture(
+                    Some(PictureFromFile(Paths.get("become-a-host/manual_bookings.webp"))),
+                    "Manual and recurring bookings screenshot.",
+                    1024, 803,
+                    placeholder=false,
+                )
             </div>
 
             <div class="cell small-12 medium-6 feature-image">
-                <img
-                    src="@URL.fromCDN(routes.Assets.versioned("images/become-a-host/website_integration.png"))"
-                    alt="Website integration screenshot.">
+                @tags.reactivePicture(
+                    Some(PictureFromFile(Paths.get("become-a-host/website_integration.webp"))),
+                    "Website integration screenshot.",
+                    1024, 803,
+                    placeholder=false,
+                )
             </div>
             <div class="cell small-12 medium-6 feature-text">
                 <h3>Booking directly from your website</h3>
@@ -226,9 +242,12 @@
             </div>
 
             <div class="cell small-12 medium-6 show-for-small-only feature-image">
-                <img
-                    src="@URL.fromCDN(routes.Assets.versioned("images/become-a-host/online_payment.png"))"
-                    alt="Secure online payments screenshot.">
+                @tags.reactivePicture(
+                    Some(PictureFromFile(Paths.get("become-a-host/online_payment.webp"))),
+                    "Secure online payments screenshot.",
+                    1024, 803,
+                    placeholder=false,
+                )
             </div>
             <div class="cell small-12 medium-6 feature-text">
                 <h3>Secure online payments</h3>
@@ -240,15 +259,21 @@
                 </p>
             </div>
             <div class="cell small-12 medium-6 show-for-medium feature-image">
-                <img
-                    src="@URL.fromCDN(routes.Assets.versioned("images/become-a-host/online_payment.png"))"
-                    alt="Secure online payments screenshot.">
+                @tags.reactivePicture(
+                    Some(PictureFromFile(Paths.get("become-a-host/online_payment.webp"))),
+                    "Secure online payments screenshot.",
+                    1024, 803,
+                    placeholder=false,
+                )
             </div>
 
             <div class="cell small-12 medium-6 feature-image">
-                <img
-                    src="@URL.fromCDN(routes.Assets.versioned("images/become-a-host/equipments.png"))"
-                    alt="Studio equipments and gears screenshot.">
+                @tags.reactivePicture(
+                    Some(PictureFromFile(Paths.get("become-a-host/equipments.webp"))),
+                    "Studio equipments and gears screenshot.",
+                    1024, 803,
+                    placeholder=false,
+                )
             </div>
             <div class="cell small-12 medium-6 feature-text">
                 <h3>List your studio gears and instruments</h3>
